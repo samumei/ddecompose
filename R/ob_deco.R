@@ -1,33 +1,33 @@
 # oaxaca package ---------------------------------------------------------------
-library("oaxaca")
-?oaxaca
-data("chicago")
-oaxaca.results.1 <- oaxaca(ln.real.wage ~ age + female + LTHS + some.college +
-                             college + advanced.degree | foreign.born,
-                           data = chicago, R = 30)
-print(oaxaca.results.1)
-plot(oaxaca.results.1)
+# library("oaxaca")
+# ?oaxaca
+# data("chicago")
+# oaxaca.results.1 <- oaxaca(ln.real.wage ~ age + female + LTHS + some.college +
+#                              college + advanced.degree | foreign.born,
+#                            data = chicago, R = 30)
+# print(oaxaca.results.1)
+# plot(oaxaca.results.1)
 
 
 # Start actual function -------------------------------------------------------
 
 # Data
-set.seed(125)
-library("AER")
-data("CPS1985")
-formula <- log(wage) ~ education + experience + union + ethnicity
-data_used <- CPS1985
-data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
-# data_used[1,1] <- NA
-data_used <- get_all_vars(formula, data_used, weights=weights, group=gender)
-# cluster <- data_used$cluster <- rbinom(nrow(CPS1985), 10, 0.5)
-cluster <- NULL
-
-na.action = na.exclude
-reference_0 <- TRUE
-vcov=stats::vcov
-normalize_factors=FALSE
-bootstrap_iterations = 100
+# set.seed(125)
+# library("AER")
+# data("CPS1985")
+# formula <- log(wage) ~ education + experience + union + ethnicity
+# data_used <- CPS1985
+# data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
+# # data_used[1,1] <- NA
+# data_used <- get_all_vars(formula, data_used, weights=weights, group=gender)
+# # cluster <- data_used$cluster <- rbinom(nrow(CPS1985), 10, 0.5)
+# cluster <- NULL
+#
+# na.action = na.exclude
+# reference_0 <- TRUE
+# vcov=stats::vcov
+# normalize_factors=FALSE
+# bootstrap_iterations = 100
 
 
 
@@ -87,16 +87,21 @@ bootstrap_iterations = 100
 #' @example
 #' load("data/men8305.rda")
 #' mod1 <- log(wage) ~ union + married + nonwhite + education + experience
-#' deco_results <- ob_deco(formula = mod1,
-#'                         data = men8305,
-#'                         weights = weights,
-#'                         group = year)
+#' deco_results <- ob_deco(formula = mod1, data = men8305, weights = weights, group = year)
+#' deco_results
+#'
+#' library("AER")
+#' data("CPS1985")
+#' mod2 <- log(wage) ~ education + experience + union + ethnicity
+#' deco_results2 <- ob_deco(formula = mod2, data = CPS1985, group = gender)
+#' deco_results2
 #'
 #' deco_results_bs <- ob_deco(formula = mod1,
 #'                            data = men8305,
 #'                            weights = weights,
 #'                            group = year,
 #'                            bootstrap = TRUE)
+#' summary(deco_results_bs)
 #'
 ob_deco <- function(formula,
                     data,
@@ -124,14 +129,16 @@ ob_deco <- function(formula,
   data_used <- lapply(list(data_used), na.action)[[1]]
 
   ## Get weights
-  if (!is.null(data_used[, "weights"]) && !is.numeric(data_used[, "weights"])) {
+  weights <- model.weights(data_used)
+  if (!is.null(weights) && !is.numeric(weights)) {
     stop("'weights' must be a numeric vector")
   }
-  if (is.null(data_used[, "weights"])) {
-    data_used[, "weights"] <- rep(1, nrow(data_used))
+  if (is.null(weights)) {
+    data_used$weights <- rep(1, nrow(data_used))
   }
 
   ## Check group variable
+  group_variable_name <- data_arguments[["group"]]
   group_variable <- data_used[, "group"]
   check_group_variable <- is.numeric(group_variable)&length(unique(group_variable))==2|is.factor(group_variable)&length(unique(group_variable))==2
   if(check_group_variable==FALSE){
@@ -144,13 +151,14 @@ ob_deco <- function(formula,
   reference_group <- ifelse(reference_0, 0, 1)
   reference_group_print <- levels(data_used[, "group"])[reference_group + 1]
 
+  compute_analytical_se <- ifelse(bootstrap, FALSE, TRUE)
   estimated_decomposition <- estimate_ob_deco(formula = formula,
                                               data_used = data_used,
                                               reference_0 = reference_0,
                                               normalize_factors = normalize_factors,
-                                              compute_analytical_se=TRUE,
+                                              compute_analytical_se = compute_analytical_se,
                                               return_model_fit = TRUE,
-                                              vcov=vcov)
+                                              vcov = vcov)
 
   if(bootstrap){
     if(is.null(cluster)==FALSE){
@@ -202,7 +210,7 @@ ob_deco <- function(formula,
                                                   idvar = c("iteration","effect"),
                                                   timevar="Variable",
                                                   direction = "wide")
-    names(bootstrap_estimates) <- gsub("value[.]","", names(bootstrap_estimates))
+    names(bootstrap_estimates) <- gsub("value[.]", "", names(bootstrap_estimates))
     bootstrap_estimates <- lapply(split(bootstrap_estimates, bootstrap_estimates$effect), function(x) stats::cov(x[, -c(1:2)]))
 
     decomposition_terms_se <- as.data.frame(do.call("cbind", lapply(bootstrap_estimates, function(x) sqrt(diag(x)))))
@@ -215,20 +223,26 @@ ob_deco <- function(formula,
     estimated_decomposition$decomposition_vcov$decomposition_terms_vcov <- decomposition_terms_vcov
   }
 
+  add_to_results <- list(group_variable_name=group_variable_name,
+                         group_variable_levels=levels(group_variable),
+                         reference_group=reference_group_print)
+
+  estimated_decomposition <- c(estimated_decomposition,
+                               add_to_results)
+
   class(estimated_decomposition) <- "ob_deco"
   return(estimated_decomposition)
 
 }
 
 
-
 #' Estimate OB decomposition
 #'
 estimate_ob_deco <- function(formula,
                              data_used,
-                             reference_0=TRUE,
-                             normalize_factors=FALSE,
-                             compute_analytical_se=TRUE,
+                             reference_0 = TRUE,
+                             normalize_factors = FALSE,
+                             compute_analytical_se = TRUE,
                              return_model_fits = TRUE,
                              vcov=stats::vcov){
 
@@ -257,6 +271,7 @@ estimate_ob_deco <- function(formula,
     X1 <- model.matrix(formula, data_used[obs_1, ])
   }
 
+  # browser()
   fit0 <- lm(formula, data = data_used, subset = group == group0, weights = weights)
   fit1 <- lm(formula, data = data_used, subset = group != group0, weights = weights)
 
@@ -290,27 +305,27 @@ estimate_ob_deco <- function(formula,
 
     estimated_deco_vcov <-  ob_deco_calculate_vcov(beta0 = beta0,
                                                    beta1 = beta1,
-                                                  X0 = X0,
-                                                  X1 = X1,
-                                                  weights0 = weights0,
-                                                  weights1 = weights1,
-                                                  Cov_beta0  =  Cov_beta0,
-                                                  Cov_beta1  =  Cov_beta1,
-                                                  reference_0 = TRUE)
+                                                   X0 = X0,
+                                                   X1 = X1,
+                                                   weights0 = weights0,
+                                                   weights1 = weights1,
+                                                   Cov_beta0  =  Cov_beta0,
+                                                   Cov_beta1  =  Cov_beta1,
+                                                   reference_0 = TRUE)
   }else{
     estimated_deco_vcov <- NULL
   }
 
   if(return_model_fits){
     model_fits <- list(fit_group_0 = fit0,
-                      fit_group_1 = fit1)
+                       fit_group_1 = fit1)
   }else{
     model_fits <- NULL
   }
 
   results <- list(decomposition_terms = estimated_deco_terms,
-                 decomposition_vcov = estimated_deco_vcov,
-                 model_fits = model_fits)
+                  decomposition_vcov = estimated_deco_vcov,
+                  model_fits = model_fits)
   return(results)
 }
 
@@ -341,7 +356,7 @@ bootstrap_estimate_ob_deco <- function(formula,
                                      data_used = data_used[sampled_observations, ],
                                      reference_0 = reference_0,
                                      normalize_factors = normalize_factors,
-                                     compute_analytical_se=FALSE,
+                                     compute_analytical_se = FALSE,
                                      return_model_fit = FALSE)
 
   deco_estimates <- deco_estimates[["decomposition_terms"]]
