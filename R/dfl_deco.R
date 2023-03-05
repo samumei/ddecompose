@@ -156,6 +156,8 @@
 #' Institutions and the Distribution of Wages, 1973-1992: A Semiparametric Approach."
 #' \emph{Econometrica}, 64(5), 1001-1044.
 #'
+#' Fortin, Firpo, and Lemieux (2012, p. 67) (Handbook Chapter)
+#'
 #' Firpo, Sergio P., Nicole M. Fortin, and Thomas Lemieux. 2018. “Decomposing Wage
 #' Distributions Using Recentered Influence Function Regressions.”
 #' \emph{Econometrics} 6(2), 28.
@@ -210,7 +212,7 @@ dfl_deco <-  function(formula,
 
   ## Get model.frame
   function_call <- match.call()
-  data_arguments_index <- match(c("formula", "data", "weights", "na.action", "group"), names(function_call), 0)
+  data_arguments_index <- match(c("formula", "data", "weights", "group"), names(function_call), 0)
   data_arguments <- function_call[c(1, data_arguments_index)]
   data_arguments$drop.unused.levels <- TRUE
 
@@ -218,6 +220,7 @@ dfl_deco <-  function(formula,
   formula <- Formula::as.Formula(formula)
   data_arguments$formula <- formula
   data_used <- eval.parent(data_arguments)
+  data_used <- na.action(data_used)
   function_terms <- attr(data_used, "terms")
   dep_var <- model.response(data_used, "numeric")
 

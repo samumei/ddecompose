@@ -12,21 +12,21 @@
 #'                                    weights = weights,
 #'                                    group = year)
 
-load("data/men8305.rda")
-formula <- log(wage) ~ union + married + nonwhite + education + experience
-data <- get_all_vars(formula, men8305, weights=weights, group=year)
-data_used <- model.frame(formula, data, weights=weights, group=group)
-
-
-set.seed(125)
-library("AER")
-data("CPS1985")
-formula <- log(wage) ~ education + experience + union + ethnicity
-data_used <- CPS1985
-data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
-# data_used[1,1] <- NA
-data <- get_all_vars(formula, data_used, weights=weights, group=gender)
-data_used <- model.frame(formula, data, weights=weights, group=group)
+# load("data/men8305.rda")
+# formula <- log(wage) ~ union + married + nonwhite + education + experience
+# data <- get_all_vars(formula, men8305, weights=weights, group=year)
+# data_used <- model.frame(formula, data, weights=weights, group=group)
+#
+#
+# set.seed(125)
+# library("AER")
+# data("CPS1985")
+# formula <- log(wage) ~ education + experience + union + ethnicity
+# data_used <- CPS1985
+# data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
+# # data_used[1,1] <- NA
+# data <- get_all_vars(formula, data_used, weights=weights, group=gender)
+# data_used <- model.frame(formula, data, weights=weights, group=group)
 
 
 GU_normalization <- function(formula, data, weights, group){
