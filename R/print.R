@@ -44,13 +44,13 @@ print.dfl_deco <- function(x, ...){
 #' @export
 #'
 print.ob_deco <- function(x, ...){
-  cat("Decomposition of difference between",
+  cat("Oaxaca-Blinder decomposition of mean difference\nbetween",
       paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
       "(group 1) and",
       paste0(x$group_variable_name, " == '", x$group_variable_levels[1], "'"),
       "(group 0)\n\n")
 
-  cat("Coefficients of", paste0("'",x$reference_group,"'"), "(reference group) were used\nto estimate counterfactual mean outcome.\n\n")
+  cat("Coefficients of", paste0("'",x$reference_group,"'"), "(reference group) were used to estimate\ncounterfactual mean outcome.\n\n")
 
   decomposition_terms <- x$decomposition_terms[,-1]
   names(decomposition_terms) <- gsub("_", " ", names(decomposition_terms))

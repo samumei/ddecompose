@@ -1,6 +1,6 @@
-#' Gardeazabal/Ugidos normalization
+#' Gardeazabal and Ugidos normalization of factor variables
 
-#' Perform normalization of factor variables as proposed by Gardeazabal/Ugidos (2004)
+#' Perform normalization of factor variables as proposed by Gardeazabal and Ugidos (2004)
 #' @param formula an object of class "formula". See \link[stats]{lm} for further details.
 #' @param data a data frame containing the variables in the model.
 #' @param weights numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.

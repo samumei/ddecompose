@@ -121,7 +121,7 @@ ob_deco <- function(formula,
   function_call <- match.call()
   data_arguments_index <- match(c("formula", "data", "weights", "group"), names(function_call), 0)
   data_arguments <- function_call[c(1, data_arguments_index)]
-  data_arguments$drop.unused.levels <- TRUE
+  #data_arguments$drop.unused.levels <- TRUE
 
   data_arguments[[1]] <- as.name("get_all_vars") #as.name("model.frame")
   data_used <- eval.parent(data_arguments)
@@ -225,7 +225,9 @@ ob_deco <- function(formula,
 
   add_to_results <- list(group_variable_name=group_variable_name,
                          group_variable_levels=levels(group_variable),
-                         reference_group=reference_group_print)
+                         reference_group=reference_group_print,
+                         normalize_factors=normalize_factors,
+                         bootstrap=bootstrap)
 
   estimated_decomposition <- c(estimated_decomposition,
                                add_to_results)
@@ -271,9 +273,9 @@ estimate_ob_deco <- function(formula,
     X1 <- model.matrix(formula, data_used[obs_1, ])
   }
 
-  # browser()
-  fit0 <- lm(formula, data = data_used, subset = group == group0, weights = weights)
-  fit1 <- lm(formula, data = data_used, subset = group != group0, weights = weights)
+  #browser()
+  fit0 <- lm(formula, data = subset(data_used, group == group0), weights = weights)
+  fit1 <- lm(formula, data = subset(data_used, group != group0), weights = weights)
 
   beta0 <- coef(fit0)
   beta1 <- coef(fit1)
