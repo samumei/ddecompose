@@ -8,6 +8,10 @@
 # print(oaxaca.results.1)
 # plot(oaxaca.results.1)
 
+# deco_results <- ob_deco(formula = ln.real.wage ~ age + female + LTHS + some.college +
+#                             college + advanced.degree, data = chicago, group = foreign.born)
+# deco_results
+
 
 # Start actual function -------------------------------------------------------
 
