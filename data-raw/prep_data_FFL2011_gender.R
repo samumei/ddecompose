@@ -41,13 +41,17 @@ dim(nlys00)
 
 
 #Education variable
-nlys00$education <- "10-12 yrs (no diploma or GED)"
+nlys00$education <- NA
+select_obs <- which(nlys00$sch10_12 == 1)
+nlys00[select_obs,  "education"] <- "10-12 yrs (no diploma or GED)"
 select_obs <- which(nlys00$sch_10 == 1)
 nlys00[select_obs,  "education"] <- "<10 yrs"
-select_obs <- which(nlys00$diploma_hs == 1)
+select_obs <- which(nlys00$diploma_hs == 1 & nlys00$ged_hs == 0)
 nlys00[select_obs,  "education"] <- "HS grad (diploma)"
-select_obs <- which(nlys00$ged_hs == 1)
+select_obs <- which(nlys00$diploma_hs == 0 & nlys00$ged_hs == 1)
 nlys00[select_obs,  "education"] <- "HS grad (GED)"
+select_obs <- which(nlys00$diploma_hs == 1 & nlys00$ged_hs == 1)
+nlys00[select_obs,  "education"] <- "HS grad (diploma & GED)"
 select_obs <- which(nlys00$smcol == 1)
 nlys00[select_obs,  "education"] <- "Some college"
 select_obs <- which(nlys00$bachelor_col == 1)
@@ -61,11 +65,22 @@ nlys00$education <- factor(nlys00$education, levels=c("10-12 yrs (no diploma or 
                                                       "<10 yrs",
                                                       "HS grad (diploma)",
                                                       "HS grad (GED)",
+                                                      "HS grad (diploma & GED)",
                                                       "Some college",
                                                       "BA or equiv. degree",
                                                       "MA or equiv. degree",
                                                       "Ph.D or prof. degree"))
 
+nlys00 %>% group_by(education) %>%
+  dplyr::summarise(school=length(which(sch10_12==1)),
+                   less_school=length(which(sch_10==1)),
+                   hs=length(which(diploma_hs==1)),
+                   hs_ged=length(which(ged_hs==1)),
+                   sc=length(which(smcol==1)),
+                   ba=length(which(bachelor_col==1)),
+                   ma=length(which(master_col==1)),
+                   phd=length(which(doctor_col==1)))
+subset(nlys00, diploma_hs==1 & ged_hs==1)
 
 # Region
 nlys00$region <- "East"
@@ -77,6 +92,8 @@ select_obs <- which(nlys00$west == 1)
 nlys00[select_obs,  "region"] <- "West"
 
 nlys00$region <- factor(nlys00$region, levels=c("East", "North-central", "South", "West"))
+
+nlys00 %>% group_by(region) %>% dplyr::summarise(n=length(which(north_central==1)), s=length(which(south00==1)), w=length(which(west==1)))
 
 # Lifetime withdrawal due to family
 nlys00$family_responsibility <-  nlys00$famrspb #family responsibilit?
@@ -105,10 +122,31 @@ levels(nlys00$black) <- c("no","yes")
 nlys00$hispanic <- as.factor(nlys00$hispanic)
 levels(nlys00$hispanic) <- c("no","yes")
 
+
+# Variable selection
+sel_var_org <- c("lropc00", "female", "age00", "msa", "ctrlcity", "north_central",
+                 "south00", "west", "hispanic", "black",
+                 "sch_10",  "diploma_hs", "ged_hs", "smcol", "bachelor_col",
+                 "master_col", "doctor_col", "afqtp89",
+                 "famrspb", "wkswk_18", "yrsmil78_00", "pcntpt_22", "industry")
+
+mod1 <- lropc00 ~ female + age00 + msa + ctrlcity + north_central + south00 + west+  hispanic+  black +
+  sch_10 +  diploma_hs+  ged_hs+ smcol +bachelor_col+ master_col+ doctor_col + afqtp89 +
+  famrspb +wkswk_18+ yrsmil78_00+ pcntpt_22 + industry
+
+fit1 <- lm(mod1, nlys00)
+summary(fit1)
+
+
 sel_var <- c("female", "lwage", "wage", "age", "central_city", "msa", "region", "black",
              "hispanic",  "education", "afqt", "family_responsibility",
              "years_worked_civilian", "years_worked_military", "part_time", "industry")
+sel_var <- c(sel_var, sel_var_org)
 nlys00 <- nlys00[, sel_var]
+
+
+
+
 
 mod1 <- log(wage) ~ education
 mod1 <- lwage ~ female + age + central_city + msa + region + black +
@@ -117,12 +155,31 @@ mod1 <- lwage ~ female + age + central_city + msa + region + black +
 fit1 <- lm(mod1, nlys00)
 summary(fit1)
 
+mod2 <- lwage ~ age + central_city + msa + region + black +
+  hispanic + education + afqt + family_responsibility + years_worked_civilian +
+  years_worked_military + part_time + industry
+fit2 <- lm(mod2, subset(nlys00, female=="no"))
+summary(fit2)
+
+fit3 <- lm(mod2, subset(nlys00, female!="no"))
+summary(fit3)
+
 round(cbind(apply(model.matrix(mod1, subset(nlys00, female != "yes")), 2, mean),
       apply(model.matrix(mod1, subset(nlys00, female == "yes")), 2, mean)),3)
 
 nlys00 %>%
   group_by(female) %>%
   dplyr::summarise(mean(lwage)) %>% as.data.frame
+
+nrow(subset(nlys00, female!="yes"))
+2655
+
+nrow(subset(nlys00, female=="yes"))
+2654
+
+
+
+
 
 # Save data
 #save(nlys00, file="data/nlys00.rda")
