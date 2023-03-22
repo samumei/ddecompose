@@ -17,7 +17,7 @@
 # data <- get_all_vars(formula, men8305, weights=weights, group=year)
 # data_used <- model.frame(formula, data, weights=weights, group=group)
 #
-#
+
 # set.seed(125)
 # library("AER")
 # data("CPS1985")
@@ -49,17 +49,22 @@ GU_normalization <- function(formula, data, weights, group){
 
   term_labels <- attr(function_terms, "term.labels")
 
-  if(attr(function_terms, "intercept")==1){
-    regressors_for_prediction <- model.matrix(object = stats::update(formula, . ~ . - 1), data =  data)
-    regressors_for_prediction <- cbind(rep(1, nrow(regressors_for_prediction)), regressors_for_prediction)
-    colnames(regressors_for_prediction)[1] <- "(Intercept)"
-  }else{
-    regressors_for_prediction <- model.matrix(object = formula, data = data)
-  }
-  colnames(regressors_for_prediction) <- make.names(colnames(regressors_for_prediction))
 
   unadjusted_regressors <- data_used[, -c(1, which(names(data_used) %in% c("(weights)","(group)")))]
   adjusted_regressors <- data.frame(matrix(nrow=nrow(unadjusted_regressors), ncol=0))
+
+
+  regressors_for_prediction <- matrix(nrow=nrow(unadjusted_regressors), ncol=0)
+  if(attr(function_terms, "intercept")==1){
+    # regressors_for_prediction <- model.matrix(object = stats::update(formula, . ~ . - 1), data =  data)
+    regressors_for_prediction <- cbind(rep(1, nrow(regressors_for_prediction)), regressors_for_prediction)
+    colnames(regressors_for_prediction)[1] <- "(Intercept)"
+  }
+  # }else{
+  #   regressors_for_prediction <- model.matrix(object = formula, data = data)
+  # }
+  #colnames(regressors_for_prediction) <- make.names(colnames(regressors_for_prediction))
+
 
   adjusted_coefficient_names <- list()
 
@@ -74,20 +79,26 @@ GU_normalization <- function(formula, data, weights, group){
 
       formula_i <- as.formula(paste("~", regressor_name_i, "+ 0", sep=""))
       mod_matrix_i <- model.matrix(formula_i, unadjusted_regressors)
-      adjusted_coefficient_names_i <- colnames(mod_matrix_i) <- make.names(colnames(mod_matrix_i))
+      regressors_for_prediction <- cbind(regressors_for_prediction, mod_matrix_i)
 
+      #adjusted_coefficient_names_i <- colnames(mod_matrix_i) <- make.names(colnames(mod_matrix_i))
+      adjusted_coefficient_names_i <- colnames(mod_matrix_i)
       mod_matrix_i <- mod_matrix_i[, 2:ncol(mod_matrix_i)] - mod_matrix_i[,1]
       mod_matrix_i <- as.data.frame(mod_matrix_i)
       names(mod_matrix_i) <- adjusted_coefficient_names_i[-1]
       adjusted_regressors <- cbind(adjusted_regressors, mod_matrix_i)
 
-      adjusted_coefficient_names[[i]] <- adjusted_coefficient_names_i
-      names(adjusted_coefficient_names)[i] <- regressor_name_i
       term_labels <- c(term_labels[-pmatch(grep(regressor_name_i,
                                                 term_labels,
                                                 value=TRUE),
                                            term_labels)],
                        adjusted_coefficient_names_i[-1])
+
+
+      select_to_add_parenthesis <- which(make.names(adjusted_coefficient_names_i) != adjusted_coefficient_names_i)
+      adjusted_coefficient_names_i[select_to_add_parenthesis] <- paste0("`", adjusted_coefficient_names_i[select_to_add_parenthesis], "`")
+      adjusted_coefficient_names[[i]] <- adjusted_coefficient_names_i
+      names(adjusted_coefficient_names)[i] <- regressor_name_i
 
     # }else if(is.factor(regressor_i)){
     #
@@ -107,8 +118,10 @@ GU_normalization <- function(formula, data, weights, group){
 
       # if not: pass unadjusted variable thru
       adjusted_regressors <- cbind(adjusted_regressors, regressor_i)
+      regressors_for_prediction <- cbind(regressors_for_prediction, regressor_i)
 
       colnames(adjusted_regressors)[ncol(adjusted_regressors)] <- regressor_name_i
+      colnames(regressors_for_prediction)[ncol(regressors_for_prediction)] <- regressor_name_i
       names(adjusted_coefficient_names)[i] <- adjusted_coefficient_names[[i]] <- regressor_name_i
 
     }
@@ -119,7 +132,8 @@ GU_normalization <- function(formula, data, weights, group){
                                        data[, which(names(data) %in% c("weights","group"))]))
   names(adjusted_data)[1] <- names(data)[1]
 
-  adjusted_formula <-  update(formula, as.formula(paste0(". ~ ", paste0(term_labels, collapse=" + "))))
+
+  adjusted_formula <-  update(formula, as.formula(paste0(". ~ ", paste0(paste0("`", term_labels, "`"), collapse=" + "))))
 
   if(attr(function_terms, "intercept")==1){
     adjusted_coefficient_names <- c(list(`(Intercept)`="(Intercept)"), adjusted_coefficient_names)
@@ -136,7 +150,7 @@ GU_normalization <- function(formula, data, weights, group){
 
 #' Sum coefficients for GU normalization
 #'
-#' After adjusting model.matrix and estimating the regression, this function computes
+#' After adjusting model.matrix and estimating the regression, this function sums
 #' the coefficients for reference group of GU normalized factor variables.
 #'
 GU_normalization_sum_coefficients <- function(coef_names, est_coef){
@@ -159,7 +173,7 @@ GU_normalization_sum_coefficients <- function(coef_names, est_coef){
 GU_normalization_get_coefficients <- function(coef_names, est_coef){
   est_coef <- do.call("c",lapply(coef_names,
                                  GU_normalization_sum_coefficients,
-                                 est_coef=est_coef))
+                                 est_coef = est_coef))
   names(est_coef) <- do.call("c", lapply(strsplit(names(est_coef), split="[.]"),
                                          function(x) x[-1]))
   return(est_coef)

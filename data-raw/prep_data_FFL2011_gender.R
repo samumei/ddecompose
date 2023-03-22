@@ -40,7 +40,9 @@ dim(nlys00)
 2655+2654
 
 
-#Education variable
+# Education variable
+# Warning: There is an encoding error in the original data set. 4 observation
+# are coded as having as HS diploma and a GED.
 nlys00$education <- NA
 select_obs <- which(nlys00$sch10_12 == 1)
 nlys00[select_obs,  "education"] <- "10-12 yrs (no diploma or GED)"
@@ -51,7 +53,7 @@ nlys00[select_obs,  "education"] <- "HS grad (diploma)"
 select_obs <- which(nlys00$diploma_hs == 0 & nlys00$ged_hs == 1)
 nlys00[select_obs,  "education"] <- "HS grad (GED)"
 select_obs <- which(nlys00$diploma_hs == 1 & nlys00$ged_hs == 1)
-nlys00[select_obs,  "education"] <- "HS grad (diploma & GED)"
+nlys00[select_obs,  "education"] <- "HS grad (GED)"
 select_obs <- which(nlys00$smcol == 1)
 nlys00[select_obs,  "education"] <- "Some college"
 select_obs <- which(nlys00$bachelor_col == 1)
@@ -65,7 +67,6 @@ nlys00$education <- factor(nlys00$education, levels=c("10-12 yrs (no diploma or 
                                                       "<10 yrs",
                                                       "HS grad (diploma)",
                                                       "HS grad (GED)",
-                                                      "HS grad (diploma & GED)",
                                                       "Some college",
                                                       "BA or equiv. degree",
                                                       "MA or equiv. degree",
