@@ -1,22 +1,22 @@
-#' To Dos
-#' - Vergleich mit FFL 2011!
-#' - Stimmt Berechnung der Gewichte für die detaillierte Zerlegung?
-#' - vergleichen, ob glm() und suveryglm zu gleichen Resultaten führt
-#' - Zusätzliche Schätzer hinzufügen (ranger, evt. GAM)
-#' - Stimmte die Berechnungen aller gebootstrappten Standardfehler?
-#' - Namen der Variablen in Resultaten zusammentragen
-#' - costum stat function hinzufügen
-#' - Gini implementierung für transformierte Variablen anschauen
-#'
-#'   covariate_names <- as.character(rep(NA,nvar))
+# To Dos
+# - Vergleich mit FFL 2011!
+# - Stimmt Berechnung der Gewichte für die detaillierte Zerlegung?
+# - vergleichen, ob glm() und suveryglm zu gleichen Resultaten führt
+# - Zusätzliche Schätzer hinzufügen (ranger, evt. GAM)
+# - Stimmte die Berechnungen aller gebootstrappten Standardfehler?
+# - Namen der Variablen in Resultaten zusammentragen
+# - costum stat function hinzufügen
+# - Gini implementierung für transformierte Variablen anschauen
+#
+#   covariate_names <- as.character(rep(NA,nvar))
 # for(i in 1:nvar){
 #   covariate_names[i] <- paste0(gsub(" ","",
 #                                     strsplit(strsplit(as.character(stats::formula(formula,rhs=i)), "~")[[3]],
 #                                              c("[*]"))[[1]]),
 #                                collapse=", ")
 # }
-#'
-#'
+
+
 #' DFL reweighting decomposition
 #'
 #' @description `dfl_deco` decomposes between-group differences in distributional

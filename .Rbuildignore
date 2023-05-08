@@ -1,2 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^questions\.txt$
+^LICENSE\.md$
+^data-raw$

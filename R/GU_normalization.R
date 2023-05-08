@@ -1,16 +1,6 @@
 #' Gardeazabal and Ugidos normalization of factor variables
+#'
 
-#' Perform normalization of factor variables as proposed by Gardeazabal and Ugidos (2004)
-#' @param formula an object of class "formula". See \link[stats]{lm} for further details.
-#' @param data a data frame containing the variables in the model.
-#' @param weights numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
-#' @param group name of the a binary variable (numeric or factor) identifying the two groups that will be compared.
-#' @examples
-#' mod1 <- log(wage) ~ union + married + nonwhite + education + experience
-#' normalized_data <- GU_normalization(formula = mod1,
-#'                                    data = men8305,
-#'                                    weights = weights,
-#'                                    group = year)
 
 # load("data/men8305.rda")
 # formula <- log(wage) ~ union + married + nonwhite + education + experience
@@ -29,6 +19,21 @@
 # data_used <- model.frame(formula, data, weights=weights, group=group)
 
 
+
+#' Perform normalization of factor variables as proposed by Gardeazabal and Ugidos (2004)
+#' @param formula an object of class "formula". See \link[stats]{lm} for further details.
+#' @param data a data frame containing the variables in the model.
+#' @param weights numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
+#' @param group name of the a binary variable (numeric or factor) identifying the two groups that will be compared.
+#' @export
+#' @examples
+#' mod1 <- log(wage) ~ union + married + nonwhite + education + experience
+#' normalized_data <- GU_normalization(formula = mod1,
+#'                                    data = men8305,
+#'                                    weights = weights,
+#'                                    group = year)
+#'
+#'
 GU_normalization <- function(formula, data, weights, group){
 
   function_call <- match.call()

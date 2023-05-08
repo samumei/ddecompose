@@ -68,13 +68,13 @@
 #' @param bootstrap_iterations positive integer indicating the number of bootstrap
 #'  iterations to execute. Only required if \code{bootstrap = TRUE}.
 #' @param bootstrap_robust boolean: if `FALSE` (default), then bootstrapped standard
-#' errores are estimated as the standard deviations of the bootstrapp estimates.
+#' errors are estimated as the standard deviations of the bootstrapp estimates.
 #' Otherwise, the function uses the bootstrap interquartile range rescaled by the
 #' interquantile range of the standard distribution to estimate standard errors.
 #' @param cluster numeric vector of same length as \code{dep_var} indicating the
 #' clustering of observations. If \code{cluster = NULL} (default), no clustering
 #' is a assumend and bootstrap procedure resamples individual observations. Other
-#' wise bootstrap procedure reamples clusters.
+#' wise bootstrap procedure resamples clusters.
 #' @param cores positive integer indicating the number of cores to use when
 #' computing bootstrap standard errors. Only required if \code{bootstrap = TRUE}.
 #' @param vcov function estimating covariance matrix of regression coefficients if

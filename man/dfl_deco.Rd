@@ -2,15 +2,7 @@
 % Please edit documentation in R/dfl_deco.R, R/dfl_deco_old.R
 \name{dfl_deco}
 \alias{dfl_deco}
-\title{To Dos
-- Vergleich mit FFL 2011!
-- Stimmt Berechnung der Gewichte für die detaillierte Zerlegung?
-- vergleichen, ob glm() und suveryglm zu gleichen Resultaten führt
-- Zusätzliche Schätzer hinzufügen (ranger, evt. GAM)
-- Stimmte die Berechnungen aller gebootstrappten Standardfehler?
-- Namen der Variablen in Resultaten zusammentragen
-- costum stat function hinzufügen
-- Gini implementierung für transformierte Variablen anschauen}
+\title{DFL reweighting decomposition}
 \usage{
 dfl_deco(
   formula,
@@ -152,12 +144,6 @@ reweighting (conditional) covariate distributions. The function computes
 standard errors by bootstrapping the estimation.
 }
 \details{
-covariate_names <- as.character(rep(NA,nvar))
-
-
-DFL reweighting decomposition
-
-
 The covariates entered into `formula` will be used to estimate the reweighting
 factors, i.e. the propensities of belonging to one of the groups. `formula` also
 allows to specify interaction terms in the conditional probability models.

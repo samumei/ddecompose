@@ -2,8 +2,7 @@
 % Please edit documentation in R/GU_normalization.R
 \name{GU_normalization}
 \alias{GU_normalization}
-\title{Gardeazabal and Ugidos normalization of factor variables
-Perform normalization of factor variables as proposed by Gardeazabal and Ugidos (2004)}
+\title{Gardeazabal and Ugidos normalization of factor variables}
 \usage{
 GU_normalization(formula, data, weights, group)
 }
@@ -17,7 +16,6 @@ GU_normalization(formula, data, weights, group)
 \item{group}{name of the a binary variable (numeric or factor) identifying the two groups that will be compared.}
 }
 \description{
-Gardeazabal and Ugidos normalization of factor variables
 Perform normalization of factor variables as proposed by Gardeazabal and Ugidos (2004)
 }
 \examples{
@@ -26,4 +24,6 @@ normalized_data <- GU_normalization(formula = mod1,
                                    data = men8305,
                                    weights = weights,
                                    group = year)
+
+
 }
