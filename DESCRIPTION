@@ -11,9 +11,25 @@ Maintainer: David Gallusser <david.gallusser@sgb.ch>, Samuel Meier
     <samuel.meier@sgb.ch>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-License: GPL (>= 3) + file "LICENSE"
+License: GPL (>= 3) 
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Depends: 
+    ggplot2,	
     R (>= 2.10)
+Imports: 
+    AER,
+    dplyr,
+    survey,
+    tidyr,
+    Formula,
+    Hmisc,
+    methods,
+    parallel,
+    pbapply,
+    sandwich,
+    stats
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
