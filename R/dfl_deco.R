@@ -63,7 +63,7 @@
 #' in `formula`.
 #' @param probs a vector of length 1 or more with the probabilities of the quantiles
 #' to be estimated with default `c(1:9)/10`.
-#' @param costum_statistic_function
+#' @param custom_statistic_function a custom statistic function to pass as argument.
 #' @param bootstrap boolean: If `FALSE`, then the estimation is not boostrapped and no
 #' standard errors are calculated.
 #' @param bootstrap_iterations positive integer indicating the number of bootstrap
@@ -140,9 +140,9 @@
 #'
 #' The quantiles can be specified by `probs` that sets the corresponding
 #' probabilities of the quantiles of interest. For other distributional statistics,
-#' please use `costum_statistic_function`.
+#' please use `custom_statistic_function`.
 #'
-#' @value an object of class `dfl_deco` containing a data.frame with the
+#' @return an object of class `dfl_deco` containing a data.frame with the
 #' decomposition results for the quantiles and for the other distributional
 #' statistics, respectively, a data.frame with the estimated reweighting factor
 #' for every observation, a data.frame with sample quantiles of the reweighting
@@ -168,7 +168,7 @@
 #'
 #' @export
 #'
-#' @example
+#' @examples
 #' library(AER)
 #' data("CPS1985")
 #' mod1 <- log(wage) ~ education + experience + ethnicity + region + sector
@@ -204,7 +204,7 @@ dfl_deco <-  function(formula,
                       estimate_statistics=TRUE,
                       statistics=c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10"),
                       probs=c(1:9)/10,
-                      costum_statistic_function=NULL,
+                      custom_statistic_function=NULL,
                       bootstrap=FALSE,
                       bootstrap_iterations=100,
                       bootstrap_robust=FALSE,

@@ -5,7 +5,7 @@
 #' @param data a data frame containing the variables in the model.
 #' @param weights numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
 #' @param group name of the a binary variable (numeric or factor) identifying the two groups that will be compared.
-#' @example
+#' @examples
 #' mod1 <- log(wage) ~ union + married + nonwhite + education + experience
 #' normalized_data <- GU_normalization(formula = mod1,
 #'                                    data = men8305,

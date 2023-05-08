@@ -88,7 +88,7 @@
 #' Gardeazabal, Javier, and Arantza Ugidos. 2004. "More on identification in detailed wage decompositions."
 #' \emph{Review of Economics and Statistics} 86(4): 1034-1036.
 #'
-#' @example
+#' @examples
 #' load("data/men8305.rda")
 #' mod1 <- log(wage) ~ union + married + nonwhite + education + experience
 #' deco_results <- ob_deco(formula = mod1, data = men8305, weights = weights, group = year)
