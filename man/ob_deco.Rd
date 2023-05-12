@@ -7,9 +7,9 @@
 ob_deco(
   formula,
   data,
-  weights,
-  na.action = na.exclude,
   group,
+  weights = NULL,
+  na.action = na.exclude,
   reference_0 = TRUE,
   normalize_factors = FALSE,
   bootstrap = FALSE,
@@ -25,17 +25,17 @@ ob_deco(
 
 \item{data}{a data frame containing the variables in the model.}
 
+\item{group}{name of the a binary variable (numeric or factor)
+identifying the two groups that will be compared. The group identified by the
+lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
+first level of factor variable) is defined as group 0.}
+
 \item{weights}{numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
 The default (\code{NULL}) is equivalent to \code{weights = rep(1, length(dep_var))}.}
 
 \item{na.action}{generic function that defines how NAs in the data should be handled.
 Default is \code{na.omit}, leading to exclusion of observations that contain one or more missings.
 See \link[stats]{na.action} for further details.}
-
-\item{group}{name of the a binary variable (numeric or factor)
-identifying the two groups that will be compared. The group identified by the
-lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
-first level of factor variable) is defined as group 0.}
 
 \item{reference_0}{boolean: if `TRUE` (default), then the group 0 -- i.e.,
 the group identified by the lower ranked value in `group` -- will be defined

@@ -109,9 +109,9 @@
 #'
 ob_deco <- function(formula,
                     data,
-                    weights,
-                    na.action = na.exclude,
                     group,
+                    weights = NULL,
+                    na.action = na.exclude,
                     reference_0=TRUE,
                     normalize_factors = FALSE,
                     bootstrap = FALSE,
