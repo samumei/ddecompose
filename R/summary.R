@@ -148,11 +148,6 @@ summary.ob_deco <- function(x, ...){
   cat("\n")
 }
 
-x <- deco_results2
-deco_results2$model_fits
-
-custom_aggregation <- list(human_capital = c("education", "experience"),
-                           union = "unionyes")
 
 #' Aggregtate decomposition terms
 #'
@@ -169,6 +164,14 @@ custom_aggregation <- list(human_capital = c("education", "experience"),
 #'
 #' @return The function returns an updated object of class "ob_deco" containing
 #' the aggregated decomposition terms.
+
+
+# x <- deco_results2
+# deco_results2$model_fits
+#
+# custom_aggregation <- list(human_capital = c("education", "experience"),
+#                            union = "unionyes")
+
 
 aggregate_terms <- function(x,
                             aggregate_factors = TRUE,
