@@ -172,7 +172,6 @@ summary.ob_deco <- function(x, ...){
 # custom_aggregation <- list(human_capital = c("education", "experience"),
 #                            union = "unionyes")
 
-
 aggregate_terms <- function(x,
                             aggregate_factors = TRUE,
                             cunstom_aggregation = NULL){
