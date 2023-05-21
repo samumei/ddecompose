@@ -21,7 +21,7 @@
 #'   \item{family_responsibility}{Family responsibility indicator}
 #'   \item{years_worked_civilian}{Years worked in cilivian labor force}
 #'   \item{years_worked_military}{Years worked in military}
-#'   \item{part_time}{Part-time indicator}
+#'   \item{part_time}{Share of years worked in part-time}
 #'   \item{industry}{Factor variable identifying 4 industries}
 #' }
 #'

@@ -90,10 +90,27 @@
 #' \emph{Review of Economics and Statistics} 86(4): 1034-1036.
 #'
 #' @examples
-#' load("data/men8305.rda")
-#' mod1 <- log(wage) ~ union + married + nonwhite + education + experience
-#' deco_results <- ob_deco(formula = mod1, data = men8305, weights = weights, group = year)
+#'
+#' load("data/nlys00.rda")
+#'
+#' mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#' hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#' years_worked_military + part_time + industry
+#'
+#' # Decompose gender wage gap using male coefficients (i.e., reference_0 = FALSE)
+#' # to predict counterfactual mean
+#' deco_results <- ob_deco(formula = mod1, data = nlys00, group = female, reference_0 = TRUE)
 #' deco_results
+#'
+#' # Replicate First Column in Table 3 in Fortin, Lemieux, & Firpo (2011: 41)
+#' custom_aggregation <- list(`Age, race, region, etc.` = c("age", "blackyes", "hispanicyes", "regionNorth-central", "regionSouth", "regionWest", "central_cityyes", "msayes"),
+#'                    `Education` = c("education<10 yrs", "educationHS grad (diploma)", "educationHS grad (GED)", "educationSome college", "educationBA or equiv. degree", "educationMA or equiv. degree", "educationPh.D or prof. degree"),
+#'                    `AFTQ` = "afqt",
+#'                    `L.T. withdrawal due to family` =  "family_responsibility",
+#'                    `Life-time work experience` = c("years_worked_civilian", "years_worked_military", "part_time"),
+#'                    `Industrial sectors` = c("industryManufacturing", "industryEducation, Health, Public Admin.", "industryOther services"))
+#' summary(deco_results, custom_aggregation = custom_aggregation)
+#'
 #'
 #' library("AER")
 #' data("CPS1985")

@@ -110,7 +110,9 @@ nlys00$age <- nlys00$age00
 
 # Gender variable
 nlys00$female <- as.factor(nlys00$female)
-levels(nlys00$female) <- c("no","yes")
+levels(nlys00$female) <- c("no", "yes")
+nlys00$female <- relevel(nlys00$female, ref = "yes")
+
 
 # Other dummy variables
 nlys00$central_city  <- as.factor(nlys00$ctrlcity)
@@ -174,7 +176,8 @@ nrow(subset(nlys00, female!="yes"))
 nrow(subset(nlys00, female=="yes"))
 2654
 
-
+# Save only renamed variables
+nlys00 <- nlys00[, sel_var]
 
 
 # Save data
