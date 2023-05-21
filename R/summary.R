@@ -110,8 +110,9 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
 
 #' summary method for class "ob_deco"
 #'
-#' Apart from displaying the (detailed) decomposition results, \code{summary.ob_deco()}
-#' allows to customize the aggregation of the detailed decomposition terms.
+#' Apart from displaying the (detailed) decomposition results with standard
+#' errors, \code{summary.ob_deco()} allows to customize the aggregation of the
+#' detailed decomposition terms.
 #'
 #' @param x an object of class "ob_deco", usually , a result of a call to [ob_deco()].
 #' @param aggregate_factors boolean, if `TRUE` (default) terms associated with detailed factor
@@ -120,13 +121,35 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
 #' terms. The parameter `custom_aggregation` overrides the parameter `aggregate_factors`.
 #' If `NULL` (default), then either all detailed terms or all terms associated with
 #' a single variable are returned.
+#' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the printed confidence interval.
 #' @param ... other parameters to be passed through to print functions.
 #'
 #' @return The function \code{summary.ob_deco()} summarizes the decompositions terms saved in \code{x}.
 #'
 #' @export
 #'
-summary.ob_deco <- function(x, ...){
+#' @examples
+#' library("AER")
+#' data("CPS1985")
+#' mod2 <- log(wage) ~ education + experience + union + ethnicity
+#' deco_results <- ob_deco(formula = mod2, data = CPS1985, group = gender)
+#'
+#' # Print standard errors
+#' summary(deco_results)
+#'
+#' # Aggregate decomposition terms associated with factor levels
+#' summary(deco_results, aggregate_factors = TRUE)
+#'
+#' # Costum aggregation of decompisition terms
+#' costum_aggregation <- list(human_capital = c("education", "experience"),
+#'                            union = "unionyes")
+#' summary(deco_results, costum_aggregation = costum_aggregation)
+#'
+summary.ob_deco <- function(x,
+                            aggregate_factors = TRUE,
+                            custom_aggregation = NULL,
+                            confidence_level = 0.95,
+                            ...){
   cat("Oaxaca-Blinder decomposition of mean difference\nbetween",
       paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
       "(group 1) and",
@@ -136,20 +159,62 @@ summary.ob_deco <- function(x, ...){
   cat("Coefficients of", paste0("'",x$reference_group,"'"), "(reference group) were used to estimate\ncounterfactual mean outcome.\n\n")
 
   decomposition_terms <- x$decomposition_terms[,-1]
+  decomposition_terms_se <- x$decomposition_vcov$decomposition_terms_se[,-1]
   names(decomposition_terms) <- gsub("_", " ", names(decomposition_terms))
   aggregate_decomposition <- decomposition_terms[1, ]
+  aggregate_decomposition_se <- decomposition_terms_se[1, ]
   detailed_decomposition <-  decomposition_terms[-1, ]
-  rownames(aggregate_decomposition) <- paste0("Total difference ", paste0(rep(" ",  max(nchar(rownames(detailed_decomposition)))-nchar("Total difference ")), collapse=""))
+  detailed_decomposition_se <-  decomposition_terms_se[-1, ]
+
+  aggregate_decomposition <- data.frame(Effect = names(aggregate_decomposition),
+                                        Estimate = as.numeric(aggregate_decomposition[1, ]),
+                                        se = as.numeric(aggregate_decomposition_se[1, ]))
+  aggregate_decomposition$low <-  aggregate_decomposition$Estimate - aggregate_decomposition$se * qnorm(1 - (1 - confidence_level)/2)
+  aggregate_decomposition$high <-  aggregate_decomposition$Estimate + aggregate_decomposition$se * qnorm(1 - (1 - confidence_level)/2)
+  names(aggregate_decomposition) <- c("Effect", "Estimate", "Std. Error", "CI [Low", "High]")
+  rownames(aggregate_decomposition) <- c("Total difference", aggregate_decomposition$Effect[-1])
+  aggregate_decomposition$Effect <- NULL
+
+  detailed_decomposition_observed <-  data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Observed difference"))],
+                                                 se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Observed difference"))])
+  detailed_decomposition_composition <- data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Composition effect"))],
+                                                   se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Composition effect"))])
+  detailed_decomposition_structure <-  data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Structure effect"))],
+                                                  se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Structure effect"))])
+
+  detailed_decomposition_observed$low <-  detailed_decomposition_observed$Estimate - detailed_decomposition_observed$se * qnorm(1 - (1 - confidence_level)/2)
+  detailed_decomposition_observed$high <-  detailed_decomposition_observed$Estimate + detailed_decomposition_observed$se * qnorm(1 - (1 - confidence_level)/2)
+
+  detailed_decomposition_composition$low <-  detailed_decomposition_composition$Estimate - detailed_decomposition_composition$se * qnorm(1 - (1 - confidence_level)/2)
+  detailed_decomposition_composition$high <-  detailed_decomposition_composition$Estimate + detailed_decomposition_composition$se * qnorm(1 - (1 - confidence_level)/2)
+
+  detailed_decomposition_structure$low <-  detailed_decomposition_structure$Estimate - detailed_decomposition_structure$se * qnorm(1 - (1 - confidence_level)/2)
+  detailed_decomposition_structure$high <-  detailed_decomposition_structure$Estimate + detailed_decomposition_structure$se * qnorm(1 - (1 - confidence_level)/2)
+
+  names(detailed_decomposition_observed) <- names(detailed_decomposition_structure) <- names(detailed_decomposition_composition) <- c("Estimate", "Std. Error", "CI [Low", "High]")
+  rownames(detailed_decomposition_observed) <-  rownames(detailed_decomposition_structure) <-  rownames(detailed_decomposition_composition) <- rownames(detailed_decomposition)
+
+
+
+  #rownames(aggregate_decomposition) <- paste0("Total difference ", paste0(rep(" ",  max(nchar(rownames(detailed_decomposition)))-nchar("Total difference ")), collapse=""))
   cat("Aggregate decomposition:\n\n")
   print(aggregate_decomposition, ...)
   cat("\n")
-  cat("Detailed decomposition:\n\n")
-  print(detailed_decomposition, ...)
+  cat("Totel difference:\n\n")
+  print(detailed_decomposition_observed, ...)
+  cat("\n")
+  cat("\n")
+  cat("Structure effect:\n\n")
+  print(detailed_decomposition_structure, ...)
+  cat("\n")
+  cat("\n")
+  cat("Composition effect:\n\n")
+  print(detailed_decomposition_composition, ...)
   cat("\n")
 }
 
 
-#' Aggregtate decomposition terms
+#' Aggregate decomposition terms
 #'
 #' The function aggregates decomposition terms and calculates
 #' their covariance matrix based on detailed decomposition results.
@@ -164,17 +229,25 @@ summary.ob_deco <- function(x, ...){
 #'
 #' @return The function returns an updated object of class "ob_deco" containing
 #' the aggregated decomposition terms.
+#'
+#' @export
+#'
+#' @example
+#' library("AER")
+#' data("CPS1985")
+#' mod2 <- log(wage) ~ education + experience + union + ethnicity
+#' deco_results <- ob_deco(formula = mod2, data = CPS1985, group = gender)
+#'
+#' custom_aggregation <- list(human_capital = c("education", "experience"),
+#'                            union = "unionyes")
+#' aggregated_results <- aggregate_terms(deco_results2,
+#'                                      costum_aggregation = costum_aggregation)
+#'
 
-
-# x <- deco_results2
-# deco_results2$model_fits
-#
-# custom_aggregation <- list(human_capital = c("education", "experience"),
-#                            union = "unionyes")
 
 aggregate_terms <- function(x,
                             aggregate_factors = TRUE,
-                            cunstom_aggregation = NULL){
+                            costum_aggregation = NULL){
 
   decomposition_terms <- x$decomposition_terms
   decomposition_vcov <- x$decomposition_vcov
@@ -203,6 +276,12 @@ aggregate_terms <- function(x,
 
   }else if(is.null(custom_aggregation) == FALSE){
 
+    missing_variables <- setdiff(do.call("c", custom_aggregation), decomposition_terms$Variable[-1])
+    if(length(missing_variables) == 1){
+      stop(paste0("Cannot aggregate terms. A variable (", missing_variables, ") is not defined."))
+    }else if(length(missing_variables) > 1){
+      stop(paste0("Cannot aggregate terms. Some variables (", paste0(missing_variables, collapse=", ") ,") are not defined."))
+    }
     other_variables <- setdiff(decomposition_terms$Variable[-1], do.call("c", custom_aggregation))
     if(length(other_variables)>0){
       custom_aggregation <- c(custom_aggregation, list(other_variables))
