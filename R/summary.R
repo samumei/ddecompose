@@ -140,16 +140,17 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
 #' # Aggregate decomposition terms associated with factor levels
 #' summary(deco_results, aggregate_factors = TRUE)
 #'
-#' # Costum aggregation of decompisition terms
-#' costum_aggregation <- list(human_capital = c("education", "experience"),
+#' # custom aggregation of decompisition terms
+#' custom_aggregation <- list(human_capital = c("education", "experience"),
 #'                            union = "unionyes")
-#' summary(deco_results, costum_aggregation = costum_aggregation)
+#' summary(deco_results, custom_aggregation = custom_aggregation)
 #'
 summary.ob_deco <- function(x,
                             aggregate_factors = TRUE,
                             custom_aggregation = NULL,
                             confidence_level = 0.95,
                             ...){
+
   cat("Oaxaca-Blinder decomposition of mean difference\nbetween",
       paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
       "(group 1) and",
@@ -158,6 +159,9 @@ summary.ob_deco <- function(x,
 
   cat("Coefficients of", paste0("'",x$reference_group,"'"), "(reference group) were used to estimate\ncounterfactual mean outcome.\n\n")
 
+  x <- aggregate_terms(x,
+                       aggregate_factors = aggregate_factors,
+                       custom_aggregation = custom_aggregation)
   decomposition_terms <- x$decomposition_terms[,-1]
   decomposition_terms_se <- x$decomposition_vcov$decomposition_terms_se[,-1]
   names(decomposition_terms) <- gsub("_", " ", names(decomposition_terms))
@@ -172,7 +176,7 @@ summary.ob_deco <- function(x,
   aggregate_decomposition$low <-  aggregate_decomposition$Estimate - aggregate_decomposition$se * qnorm(1 - (1 - confidence_level)/2)
   aggregate_decomposition$high <-  aggregate_decomposition$Estimate + aggregate_decomposition$se * qnorm(1 - (1 - confidence_level)/2)
   names(aggregate_decomposition) <- c("Effect", "Estimate", "Std. Error", "CI [Low", "High]")
-  rownames(aggregate_decomposition) <- c("Total difference", aggregate_decomposition$Effect[-1])
+  rownames(aggregate_decomposition) <- aggregate_decomposition$Effect
   aggregate_decomposition$Effect <- NULL
 
   detailed_decomposition_observed <-  data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Observed difference"))],
@@ -200,7 +204,7 @@ summary.ob_deco <- function(x,
   cat("Aggregate decomposition:\n\n")
   print(aggregate_decomposition, ...)
   cat("\n")
-  cat("Totel difference:\n\n")
+  cat("Observed difference:\n\n")
   print(detailed_decomposition_observed, ...)
   cat("\n")
   cat("\n")
@@ -241,18 +245,24 @@ summary.ob_deco <- function(x,
 #' custom_aggregation <- list(human_capital = c("education", "experience"),
 #'                            union = "unionyes")
 #' aggregated_results <- aggregate_terms(deco_results2,
-#'                                      costum_aggregation = costum_aggregation)
+#'                                       custom_aggregation = custom_aggregation)
 #'
 
 
 aggregate_terms <- function(x,
                             aggregate_factors = TRUE,
-                            costum_aggregation = NULL){
+                            custom_aggregation = NULL){
+
+
+  if(aggregate_factors == TRUE | is.null(custom_aggregation) == FALSE){
 
   decomposition_terms <- x$decomposition_terms
   decomposition_vcov <- x$decomposition_vcov
 
+
   if(is.null(custom_aggregation) == TRUE & aggregate_factors == TRUE){
+
+    if(is.null(x$GU_normalized_coefficient_names)){
 
     model_variables <- all.vars(x$model_fits[[1]]$terms)[-1]
     if(names(x$model_fits[[1]]$coefficients[1])=="(Intercept)"){
@@ -272,6 +282,11 @@ aggregate_terms <- function(x,
         custom_aggregation[[i]] <-  model_variables[i]
       }
       names(custom_aggregation)[i] <-  model_variables[i]
+    }
+    }else{
+
+     custom_aggregation <- x$GU_normalized_coefficient_names
+
     }
 
   }else if(is.null(custom_aggregation) == FALSE){
@@ -349,6 +364,8 @@ aggregate_terms <- function(x,
   x$decomposition_vcov$vcov$Observed_difference <- aggregated_vcov_Observed_difference
   x$decomposition_vcov$vcov$Composition_effect <- aggregated_vcov_Composition_effect
   x$decomposition_vcov$vcov$Structure_effect <- aggregated_vcov_Structure_effect
+
+  }
 
   return(x)
 }

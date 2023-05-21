@@ -31,6 +31,7 @@
 # reference_0 <- TRUE
 # vcov=stats::vcov
 # normalize_factors=FALSE
+# bootstrap = FALSE
 # bootstrap_iterations = 100
 
 
@@ -106,6 +107,9 @@
 #'                            group = year,
 #'                            bootstrap = TRUE)
 #' summary(deco_results_bs)
+#'
+#' deco_results3 <- ob_deco(formula = mod2, data = CPS1985, group = gender, normalize_factors = TRUE)
+#' deco_results3
 #'
 ob_deco <- function(formula,
                     data,
@@ -241,7 +245,6 @@ ob_deco <- function(formula,
 
 }
 
-
 #' Estimate OB decomposition
 #'
 estimate_ob_deco <- function(formula,
@@ -262,7 +265,7 @@ estimate_ob_deco <- function(formula,
 
   if(normalize_factors){
     normalized_data <- GU_normalization(formula=formula,
-                                        data=data,
+                                        data=data_used,
                                         weights=weights,
                                         group=group)
     formula <- normalized_data$formula
@@ -275,6 +278,8 @@ estimate_ob_deco <- function(formula,
   }else{
     X0 <- model.matrix(formula, data_used[obs_0, ])
     X1 <- model.matrix(formula, data_used[obs_1, ])
+
+    adjusted_coefficient_names <- NULL
   }
 
   #browser()
@@ -300,8 +305,8 @@ estimate_ob_deco <- function(formula,
                                                   reference_0 = TRUE)
 
   if(compute_analytical_se){
-    Cov_beta0 <- lapply(list(fit0), vcov)[[1]]
-    Cov_beta1 <- lapply(list(fit1), vcov)[[1]]
+    Cov_beta0 <- vcov(fit0) #lapply(list(fit0), vcov)[[1]]
+    Cov_beta1 <- vcov(fit1) #lapply(list(fit1), vcov)[[1]]
     if(normalize_factors){
       Cov_beta0 <- GU_normalization_get_vcov(coef_names = adjusted_coefficient_names,
                                              Cov_beta = Cov_beta0)
@@ -331,7 +336,8 @@ estimate_ob_deco <- function(formula,
 
   results <- list(decomposition_terms = estimated_deco_terms,
                   decomposition_vcov = estimated_deco_vcov,
-                  model_fits = model_fits)
+                  model_fits = model_fits,
+                  GU_normalized_coefficient_names = adjusted_coefficient_names)
   return(results)
 }
 
