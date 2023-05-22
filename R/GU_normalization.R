@@ -33,7 +33,6 @@
 #'                                    weights = weights,
 #'                                    group = year)
 #'
-#'
 GU_normalization <- function(formula, data, weights, group){
 
   function_call <- match.call()
@@ -205,8 +204,12 @@ GU_normalization_sum_vcov <- function(coef_names, Cov_beta){
     index_greater <- ri[1]:ncol(Cov_beta)
 
     cov_reference_group_i <- Cov_beta[, index_factors]
-    cov_reference_group_i <- -rowSums(cov_reference_group_i)
-    var_reference_group_i <- -sum(Cov_beta_i[index_factors])
+    if(is.null(nrow(cov_reference_group_i))){
+      cov_reference_group_i <- -cov_reference_group_i
+    }else{
+      cov_reference_group_i <- -rowSums(cov_reference_group_i)
+    }
+    var_reference_group_i <- -sum(cov_reference_group_i[index_factors])
     cov_reference_group_i <- c(cov_reference_group_i[index_lower],
                                var_reference_group_i,
                                cov_reference_group_i[index_greater])
@@ -234,7 +237,7 @@ GU_normalization_sum_vcov <- function(coef_names, Cov_beta){
 #' GU normalized factor variables.
 GU_normalization_get_vcov <- function(coef_names, Cov_beta){
   for(i in 1:length(coef_names)){
-    Cov_beta <- GU_normalization_sum_vcov(coef_names[[i]], Cov_beta)
+    Cov_beta <- GU_normalization_sum_vcov(coef_names = coef_names[[i]], Cov_beta = Cov_beta)
   }
   return(Cov_beta)
 }

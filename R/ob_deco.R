@@ -1,3 +1,4 @@
+
 #' Oaxaca-Blinder decomposition
 #'
 #' Following Oaxaca (1973) and Blinder (1973), this function decomposes between-
@@ -54,22 +55,49 @@
 #' @export
 #'
 #' @examples
-#' mod1 <- log(wage) ~ union + married + nonwhite + education + experience
-#' deco_results <- ob_deco(formula = mod1, data = men8305, weights = weights, group = year)
-#' deco_results
 #'
-#' library("AER")
-#' data("CPS1985")
-#' mod2 <- log(wage) ~ education + experience + union + ethnicity
-#' deco_results2 <- ob_deco(formula = mod2, data = CPS1985, group = gender)
-#' deco_results2
+#' ## Decompose gender wage gap
+#' ## with NLYS79 data like in Fortin, Lemieux, & Firpo (2011: 41)
 #'
-#' deco_results_bs <- ob_deco(formula = mod1,
-#'                            data = men8305,
-#'                            weights = weights,
-#'                            group = year,
-#'                            bootstrap = TRUE)
-#' summary(deco_results_bs)
+#' load("data/nlys00.rda")
+#'
+#' mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#' hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#' years_worked_military + part_time + industry
+#'
+#' # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
+#' deco_female_as_reference <- ob_deco(formula = mod1, data = nlys00, group = female, reference_0 = TRUE)
+#' deco_female_as_reference
+#'
+#' # Using male coefficients (reference_0 = FALSE)
+#' deco_male_as_reference <- ob_deco(formula = mod1, data = nlys00, group = female, reference_0 = FALSE)
+#' deco_male_as_reference
+#'
+#' # Replicate first and third column in Table 3 in Fortin, Lemieux, & Firpo (2011: 41)
+#' # Define aggregation of decomposition terms
+#' custom_aggregation <- list(`Age, race, region, etc.` = c("age", "blackyes", "hispanicyes", "regionNorth-central", "regionSouth", "regionWest", "central_cityyes", "msayes"),
+#'                    `Education` = c("education<10 yrs", "educationHS grad (diploma)", "educationHS grad (GED)", "educationSome college", "educationBA or equiv. degree", "educationMA or equiv. degree", "educationPh.D or prof. degree"),
+#'                    `AFTQ` = "afqt",
+#'                    `L.T. withdrawal due to family` =  "family_responsibility",
+#'                    `Life-time work experience` = c("years_worked_civilian", "years_worked_military", "part_time"),
+#'                    `Industrial sectors` = c("industryManufacturing", "industryEducation, Health, Public Admin.", "industryOther services"))
+#'
+#' # First column
+#' summary(deco_male_as_reference, custom_aggregation = custom_aggregation)
+#'
+#' # Third column
+#' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+#'
+#' # Compare bootstrapped standard errors...
+#' deco_female_as_reference_bs <- ob_deco(formula = mod1,
+#'                                         data = nlys00,
+#'                                         group = female,
+#'                                         bootstrap = TRUE,
+#'                                         bootstrap_iterations = 100)
+#' summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
+#'
+#' # ... to analytical standard errors
+#' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
 ob_deco <- function(formula,
                     data,
@@ -205,7 +233,6 @@ ob_deco <- function(formula,
 
 }
 
-
 #' Estimate OB decomposition
 #'
 estimate_ob_deco <- function(formula,
@@ -226,7 +253,7 @@ estimate_ob_deco <- function(formula,
 
   if(normalize_factors){
     normalized_data <- GU_normalization(formula=formula,
-                                        data=data,
+                                        data=data_used,
                                         weights=weights,
                                         group=group)
     formula <- normalized_data$formula
@@ -239,6 +266,8 @@ estimate_ob_deco <- function(formula,
   }else{
     X0 <- model.matrix(formula, data_used[obs_0, ])
     X1 <- model.matrix(formula, data_used[obs_1, ])
+
+    adjusted_coefficient_names <- NULL
   }
 
   #browser()
@@ -261,12 +290,12 @@ estimate_ob_deco <- function(formula,
                                                   X1 = X1,
                                                   weights0 = weights0,
                                                   weights1 = weights1,
-                                                  reference_0 = TRUE)
+                                                  reference_0 = reference_0)
 
-  if(compute_analytical_se){
-    # browser()
-    Cov_beta0 <- lapply(list(fit0), vcov)[[1]]
-    Cov_beta1 <- lapply(list(fit1), vcov)[[1]]
+  if(compute_analytical_se) {
+    Cov_beta0 <- vcov(fit0) #lapply(list(fit0), vcov)[[1]]
+    Cov_beta1 <- vcov(fit1) #lapply(list(fit1), vcov)[[1]]
+
     if(normalize_factors){
       Cov_beta0 <- GU_normalization_get_vcov(coef_names = adjusted_coefficient_names,
                                              Cov_beta = Cov_beta0)
@@ -282,7 +311,7 @@ estimate_ob_deco <- function(formula,
                                                    weights1 = weights1,
                                                    Cov_beta0  =  Cov_beta0,
                                                    Cov_beta1  =  Cov_beta1,
-                                                   reference_0 = TRUE)
+                                                   reference_0 = reference_0)
   }else{
     estimated_deco_vcov <- NULL
   }
@@ -296,21 +325,16 @@ estimate_ob_deco <- function(formula,
 
   results <- list(decomposition_terms = estimated_deco_terms,
                   decomposition_vcov = estimated_deco_vcov,
-                  model_fits = model_fits)
+                  model_fits = model_fits,
+                  GU_normalized_coefficient_names = adjusted_coefficient_names)
   return(results)
 }
 
 #' Estimate OB decomposition in bootstrap replications
 #'
 bootstrap_estimate_ob_deco <- function(formula,
-                                       data_used,
-                                       reference_0 = TRUE,
-                                       normalize_factors = FALSE,
-                                       cluster = NULL){
-  if(is.null(cluster)){
   sampled_observations <- sample(1:nrow(data_used),
                                  size = nrow(data_used),
-                                 replace = TRUE,
                                  prob = data_used$weights/sum(data_used$weights, na.rm=TRUE))
   } else {
   unique_cluster <- unique(data_used$cluster)
@@ -320,7 +344,7 @@ bootstrap_estimate_ob_deco <- function(formula,
                             replace = TRUE,
                             prob = cluster_weights/sum(data_used$weights, na.rm=TRUE))
   sampled_observations <- do.call("c",sapply(sampled_cluster, function(x) which(data_used$cluster %in% x)))
-  data_used$weights <- data_used$weights * sum(data_used[ ,"weights"], na.rm=TRUE)/sum(data_used[sampled_observations,"weights"], na.rm=TRUE)
+  data_used$weights <- data_used$weights * sum(data_used[ ,"weights"], na.rm=TRUE) / sum(data_used[sampled_observations,"weights"], na.rm=TRUE)
   }
 
   deco_estimates <- estimate_ob_deco(formula = formula,
@@ -345,7 +369,7 @@ ob_deco_calculate_terms <- function(beta0,
                                     X1,
                                     weights0,
                                     weights1,
-                                    reference_0=TRUE){
+                                    reference_0){
 
   X0 <- apply(X0, 2, weighted.mean, w=weights0)
   X1 <- apply(X1, 2, weighted.mean, w=weights1)
@@ -388,7 +412,7 @@ ob_deco_calculate_vcov  <- function(beta0,
                                     weights1,
                                     Cov_beta0,
                                     Cov_beta1,
-                                    reference_0=TRUE){
+                                    reference_0){
 
 
   Cov_X0 <- stats::cov.wt(X0, wt=weights0)$cov

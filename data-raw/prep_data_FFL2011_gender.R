@@ -25,7 +25,6 @@ nlys00[select_obs,  "industry"] <- "Education, Health, Public Admin."
 select_obs <- which(nlys00$indd5==1 | nlys00$indd6==1 | nlys00$indd8==1 | nlys00$indd9==1 | nlys00$indd10==1 | nlys00$indd12==1)
 nlys00[select_obs,  "industry"] <- "Other services"
 
-
 nlys00$industry <- factor(nlys00$industry, levels=c("Primary, Constr., Utilities",
                                                     "Manufacturing",
                                                     "Education, Health, Public Admin.",
@@ -97,7 +96,7 @@ nlys00$region <- factor(nlys00$region, levels=c("East", "North-central", "South"
 nlys00 %>% group_by(region) %>% dplyr::summarise(n=length(which(north_central==1)), s=length(which(south00==1)), w=length(which(west==1)))
 
 # Lifetime withdrawal due to family
-nlys00$family_responsibility <-  nlys00$famrspb #family responsibilit?
+nlys00$family_responsibility <-  nlys00$famrspb #family responsibility?
 
 # Life-time work experience
 nlys00$years_worked_civilian <- nlys00$wkswk_18
@@ -111,7 +110,9 @@ nlys00$age <- nlys00$age00
 
 # Gender variable
 nlys00$female <- as.factor(nlys00$female)
-levels(nlys00$female) <- c("no","yes")
+levels(nlys00$female) <- c("no", "yes")
+nlys00$female <- relevel(nlys00$female, ref = "yes")
+
 
 # Other dummy variables
 nlys00$central_city  <- as.factor(nlys00$ctrlcity)
@@ -132,7 +133,7 @@ sel_var_org <- c("lropc00", "female", "age00", "msa", "ctrlcity", "north_central
                  "famrspb", "wkswk_18", "yrsmil78_00", "pcntpt_22", "industry")
 
 mod1 <- lropc00 ~ female + age00 + msa + ctrlcity + north_central + south00 + west+  hispanic+  black +
-  sch_10 +  diploma_hs+  ged_hs+ smcol +bachelor_col+ master_col+ doctor_col + afqtp89 +
+  sch_10 +  diploma_hs+  ged_hs + smcol +bachelor_col+ master_col+ doctor_col + afqtp89 +
   famrspb +wkswk_18+ yrsmil78_00+ pcntpt_22 + industry
 
 fit1 <- lm(mod1, nlys00)
@@ -144,9 +145,6 @@ sel_var <- c("female", "lwage", "wage", "age", "central_city", "msa", "region", 
              "years_worked_civilian", "years_worked_military", "part_time", "industry")
 sel_var <- c(sel_var, sel_var_org)
 nlys00 <- nlys00[, sel_var]
-
-
-
 
 
 mod1 <- log(wage) ~ education
@@ -178,8 +176,8 @@ nrow(subset(nlys00, female!="yes"))
 nrow(subset(nlys00, female=="yes"))
 2654
 
-
-
+# Save only renamed variables
+nlys00 <- nlys00[, sel_var]
 
 
 # Save data
