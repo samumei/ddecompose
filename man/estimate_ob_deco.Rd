@@ -7,11 +7,11 @@
 estimate_ob_deco(
   formula,
   data_used,
-  reference_0 = TRUE,
-  normalize_factors = FALSE,
-  compute_analytical_se = TRUE,
-  return_model_fits = TRUE,
-  vcov = stats::vcov
+  reference_0,
+  normalize_factors,
+  compute_analytical_se,
+  return_model_fit,
+  vcov
 )
 }
 \description{

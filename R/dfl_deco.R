@@ -169,29 +169,44 @@
 #' @export
 #'
 #' @examples
-#' library(AER)
-#' data("CPS1985")
-#' mod1 <- log(wage) ~ education + experience + ethnicity + region + sector
-#' est1 <- dfl_deco(mod1, data=CPS1985, group=union)
-#' est1
-#'
-#' plot(est1)
-#'
-#' # Bootstrap
-#' est2 <- dfl_deco(mod1, data=CPS1985, group=union, bootstrap=TRUE, bootstrap_iteration=10, bootstrap_robust=TRUE)
-#' est2
-#'
-#' plot(est2, uniform_bands=TRUE)
-#'
-#' summary(est2)
-#'
-#'
-#' ## Example from handbook chapter of Fortin, Firpo, and Lemieux (2012, p. 67, Table 5)
-#' # (see also Stata replication files https://sites.google.com/view/nicole-m-fortin/data-and-programs?pli=1)
-#' load("data/men8305.rda")
-#' mod2 <- log(wage) ~ union*(education + experience) + education*experience
-#' ffl2012  <- dfl_deco(mod2, data=men8305, weights=weights, group=year, reference_0=TRUE, statistics=c( "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10", "variance", "gini"))
-#' ffl2012
+#' # library(AER)
+#' # data("CPS1985")
+#' # mod1 <- log(wage) ~ education + experience + ethnicity + region + sector
+#' # est1 <- dfl_deco(mod1, data=CPS1985, group=union)
+#' # est1
+#' #
+#' # plot(est1)
+#' #
+#' # # Bootstrap
+#' # est2 <- dfl_deco(mod1,
+#' #                 data=CPS1985,
+#' #                 group=union,
+#' #                 bootstrap=TRUE,
+#' #                 bootstrap_iteration=10,
+#' #                 bootstrap_robust=TRUE)
+#' # est2
+#' #
+#' # plot(est2, uniform_bands=TRUE)
+#' #
+#' # summary(est2)
+#' #
+#' #
+#' # ## Example from handbook chapter of Fortin, Firpo, and Lemieux (2012, p. 67, Table 5)
+#' # # (see also Stata replication files
+#' # # https://sites.google.com/view/nicole-m-fortin/data-and-programs?pli=1)
+#' # load("data/men8305.rda")
+#' # mod2 <- log(wage) ~ union*(education + experience) + education*experience
+#' # ffl2012  <- dfl_deco(mod2,
+#' #                     data=men8305,
+#' #                     weights=weights,
+#' #                     group=year,
+#' #                     reference_0=TRUE,
+#' #                     statistics=c( "iq_range_p90_p10",
+#' #                                   "iq_range_p90_p50",
+#' #                                   "iq_range_p50_p10",
+#' #                                   "variance",
+#' #                                   "gini"))
+#' # ffl2012
 #'
 dfl_deco <-  function(formula,
                       data,

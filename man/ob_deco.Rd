@@ -79,7 +79,6 @@ function estimates the returns to covariates using OLS separately for the
 two groups.
 }
 \examples{
-load("data/men8305.rda")
 mod1 <- log(wage) ~ union + married + nonwhite + education + experience
 deco_results <- ob_deco(formula = mod1, data = men8305, weights = weights, group = year)
 deco_results

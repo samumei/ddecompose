@@ -1,40 +1,3 @@
-# oaxaca package ---------------------------------------------------------------
-# library("oaxaca")
-# ?oaxaca
-# data("chicago")
-# oaxaca.results.1 <- oaxaca(ln.real.wage ~ age + female + LTHS + some.college +
-#                              college + advanced.degree | foreign.born,
-#                            data = chicago, R = 30)
-# print(oaxaca.results.1)
-# plot(oaxaca.results.1)
-
-# deco_results <- ob_deco(formula = ln.real.wage ~ age + female + LTHS + some.college +
-#                             college + advanced.degree, data = chicago, group = foreign.born)
-# deco_results
-
-
-# Start actual function -------------------------------------------------------
-
-# Data
-# set.seed(125)
-# library("AER")
-# data("CPS1985")
-# formula <- log(wage) ~ education + experience + union + ethnicity
-# data_used <- CPS1985
-# data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
-# # data_used[1,1] <- NA
-# data_used <- get_all_vars(formula, data_used, weights=weights, group=gender)
-# # cluster <- data_used$cluster <- rbinom(nrow(CPS1985), 10, 0.5)
-# cluster <- NULL
-#
-# na.action = na.exclude
-# reference_0 <- TRUE
-# vcov=stats::vcov
-# normalize_factors=FALSE
-# bootstrap_iterations = 100
-
-
-
 #' Oaxaca-Blinder decomposition
 #'
 #' Following Oaxaca (1973) and Blinder (1973), this function decomposes between-
@@ -88,8 +51,9 @@
 #' Gardeazabal, Javier, and Arantza Ugidos. 2004. "More on identification in detailed wage decompositions."
 #' \emph{Review of Economics and Statistics} 86(4): 1034-1036.
 #'
+#' @export
+#'
 #' @examples
-#' load("data/men8305.rda")
 #' mod1 <- log(wage) ~ union + married + nonwhite + education + experience
 #' deco_results <- ob_deco(formula = mod1, data = men8305, weights = weights, group = year)
 #' deco_results
@@ -246,11 +210,11 @@ ob_deco <- function(formula,
 #'
 estimate_ob_deco <- function(formula,
                              data_used,
-                             reference_0 = TRUE,
-                             normalize_factors = FALSE,
-                             compute_analytical_se = TRUE,
-                             return_model_fits = TRUE,
-                             vcov=stats::vcov){
+                             reference_0,
+                             normalize_factors,
+                             compute_analytical_se,
+                             return_model_fit,
+                             vcov){
 
   group0 <- levels(data_used[, "group"])[1]
 
@@ -300,6 +264,7 @@ estimate_ob_deco <- function(formula,
                                                   reference_0 = TRUE)
 
   if(compute_analytical_se){
+    # browser()
     Cov_beta0 <- lapply(list(fit0), vcov)[[1]]
     Cov_beta1 <- lapply(list(fit1), vcov)[[1]]
     if(normalize_factors){
@@ -322,7 +287,7 @@ estimate_ob_deco <- function(formula,
     estimated_deco_vcov <- NULL
   }
 
-  if(return_model_fits){
+  if(return_model_fit){
     model_fits <- list(fit_group_0 = fit0,
                        fit_group_1 = fit1)
   }else{
@@ -413,7 +378,7 @@ ob_deco_calculate_terms <- function(beta0,
 
 #' Estimate covariance matrix for OB decomposition terms
 #'
-#' assuming indenpendence between groups
+#' assuming independence between groups
 #' see: https://www.stata.com/meeting/3german/jann.pdf
 ob_deco_calculate_vcov  <- function(beta0,
                                     beta1,

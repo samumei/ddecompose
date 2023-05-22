@@ -17,6 +17,6 @@ ob_deco_calculate_vcov(
 )
 }
 \description{
-assuming indenpendence between groups
+assuming independence between groups
 see: https://www.stata.com/meeting/3german/jann.pdf
 }
