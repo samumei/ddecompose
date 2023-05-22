@@ -527,7 +527,7 @@ ob_deco_calculate_vcov  <- function(beta0,
                     Structure_effect= Cov_structure_effect)
 
   results <- list(decomposition_terms_se=decomposition_terms_se,
-                  vcov=vcov_list)
+                  decomposition_terms_vcov=vcov_list)
   return(results)
 }
 

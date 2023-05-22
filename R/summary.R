@@ -307,9 +307,9 @@ aggregate_terms <- function(x,
 
   # Aggregate terms and vcov
   aggregated_terms <- decomposition_terms[1, ]
-  aggregated_vcov_Observed_difference <- decomposition_vcov$vcov$Observed_difference
-  aggregated_vcov_Composition_effect <- decomposition_vcov$vcov$Composition_effect
-  aggregated_vcov_Structure_effect <- decomposition_vcov$vcov$Structure_effect
+  aggregated_vcov_Observed_difference <- decomposition_vcov$decomposition_terms_vcov$Observed_difference
+  aggregated_vcov_Composition_effect <- decomposition_vcov$decomposition_terms_vcov$Composition_effect
+  aggregated_vcov_Structure_effect <- decomposition_vcov$decomposition_terms_vcov$Structure_effect
 
   for(i in 1:length(custom_aggregation)){
 
@@ -361,9 +361,9 @@ aggregate_terms <- function(x,
 
   x$decomposition_terms <- aggregated_terms
   x$decomposition_vcov$decomposition_terms_se <- aggregated_terms_se
-  x$decomposition_vcov$vcov$Observed_difference <- aggregated_vcov_Observed_difference
-  x$decomposition_vcov$vcov$Composition_effect <- aggregated_vcov_Composition_effect
-  x$decomposition_vcov$vcov$Structure_effect <- aggregated_vcov_Structure_effect
+  x$decomposition_vcov$decomposition_terms_vcov$Observed_difference <- aggregated_vcov_Observed_difference
+  x$decomposition_vcov$decomposition_terms_vcov$Composition_effect <- aggregated_vcov_Composition_effect
+  x$decomposition_vcov$decomposition_terms_vcov$Structure_effect <- aggregated_vcov_Structure_effect
 
   }
 
