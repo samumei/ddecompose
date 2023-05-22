@@ -111,16 +111,16 @@
 #' # Third column
 #' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
-#' #  # Compare bootstrapped standard errors...
-#' #  deco_female_as_reference_bs <- ob_deco(formula = mod1,
-#' #                                          data = nlys00,
-#' #                                          group = female,
-#' #                                          bootstrap = TRUE,
-#' #                                          bootstrap_iterations = 100)
-#' #  summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
-#' #
-#' #  # ... to analytical standard errors
-#' #  summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+#' ## Compare bootstrapped standard errors...
+#' deco_female_as_reference_bs <- ob_deco(formula = mod1,
+#'                                        data = nlys00,
+#'                                        group = female,
+#'                                        bootstrap = TRUE,
+#'                                        bootstrap_iterations = 100)
+#' summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
+#'
+#' # ... to analytical standard errors (assuming homoskedasticity)
+#' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
 ob_deco <- function(formula,
                     data,
