@@ -59,28 +59,51 @@
 #' ## Decompose gender wage gap
 #' ## with NLYS79 data like in Fortin, Lemieux, & Firpo (2011: 41)
 #'
-#' load("data/nlys00.rda")
+#' data("nlys00")
 #'
 #' mod1 <- log(wage) ~ age + central_city + msa + region + black +
 #' hispanic + education + afqt + family_responsibility + years_worked_civilian +
 #' years_worked_military + part_time + industry
 #'
 #' # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
-#' deco_female_as_reference <- ob_deco(formula = mod1, data = nlys00, group = female, reference_0 = TRUE)
+#' deco_female_as_reference <- ob_deco(formula = mod1,
+#'                                     data = nlys00,
+#'                                     group = female,
+#'                                     reference_0 = TRUE)
 #' deco_female_as_reference
 #'
 #' # Using male coefficients (reference_0 = FALSE)
-#' deco_male_as_reference <- ob_deco(formula = mod1, data = nlys00, group = female, reference_0 = FALSE)
+#' deco_male_as_reference <- ob_deco(formula = mod1,
+#'                                   data = nlys00,
+#'                                   group = female,
+#'                                   reference_0 = FALSE)
 #' deco_male_as_reference
 #'
 #' # Replicate first and third column in Table 3 in Fortin, Lemieux, & Firpo (2011: 41)
 #' # Define aggregation of decomposition terms
-#' custom_aggregation <- list(`Age, race, region, etc.` = c("age", "blackyes", "hispanicyes", "regionNorth-central", "regionSouth", "regionWest", "central_cityyes", "msayes"),
-#'                    `Education` = c("education<10 yrs", "educationHS grad (diploma)", "educationHS grad (GED)", "educationSome college", "educationBA or equiv. degree", "educationMA or equiv. degree", "educationPh.D or prof. degree"),
+#' custom_aggregation <- list(`Age, race, region, etc.` = c("age",
+#'                                                          "blackyes",
+#'                                                          "hispanicyes",
+#'                                                          "regionNorth-central",
+#'                                                          "regionSouth",
+#'                                                          "regionWest",
+#'                                                          "central_cityyes",
+#'                                                          "msayes"),
+#'                    `Education` = c("education<10 yrs",
+#'                                    "educationHS grad (diploma)",
+#'                                    "educationHS grad (GED)",
+#'                                    "educationSome college",
+#'                                    "educationBA or equiv. degree",
+#'                                    "educationMA or equiv. degree",
+#'                                    "educationPh.D or prof. degree"),
 #'                    `AFTQ` = "afqt",
 #'                    `L.T. withdrawal due to family` =  "family_responsibility",
-#'                    `Life-time work experience` = c("years_worked_civilian", "years_worked_military", "part_time"),
-#'                    `Industrial sectors` = c("industryManufacturing", "industryEducation, Health, Public Admin.", "industryOther services"))
+#'                    `Life-time work experience` = c("years_worked_civilian",
+#'                                                    "years_worked_military",
+#'                                                    "part_time"),
+#'                    `Industrial sectors` = c("industryManufacturing",
+#'                                             "industryEducation, Health, Public Admin.",
+#'                                             "industryOther services"))
 #'
 #' # First column
 #' summary(deco_male_as_reference, custom_aggregation = custom_aggregation)
@@ -88,23 +111,23 @@
 #' # Third column
 #' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
-#' # Compare bootstrapped standard errors...
-#' deco_female_as_reference_bs <- ob_deco(formula = mod1,
-#'                                         data = nlys00,
-#'                                         group = female,
-#'                                         bootstrap = TRUE,
-#'                                         bootstrap_iterations = 100)
-#' summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
-#'
-#' # ... to analytical standard errors
-#' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+#' #  # Compare bootstrapped standard errors...
+#' #  deco_female_as_reference_bs <- ob_deco(formula = mod1,
+#' #                                          data = nlys00,
+#' #                                          group = female,
+#' #                                          bootstrap = TRUE,
+#' #                                          bootstrap_iterations = 100)
+#' #  summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
+#' #
+#' #  # ... to analytical standard errors
+#' #  summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
 ob_deco <- function(formula,
                     data,
                     group,
                     weights = NULL,
                     na.action = na.exclude,
-                    reference_0=TRUE,
+                    reference_0 = TRUE,
                     normalize_factors = FALSE,
                     bootstrap = FALSE,
                     bootstrap_iterations = 100,
@@ -333,6 +356,11 @@ estimate_ob_deco <- function(formula,
 #' Estimate OB decomposition in bootstrap replications
 #'
 bootstrap_estimate_ob_deco <- function(formula,
+                                       data_used,
+                                       reference_0 = TRUE,
+                                       normalize_factors = FALSE,
+                                       cluster = NULL){
+  if(is.null(cluster)){
   sampled_observations <- sample(1:nrow(data_used),
                                  size = nrow(data_used),
                                  prob = data_used$weights/sum(data_used$weights, na.rm=TRUE))

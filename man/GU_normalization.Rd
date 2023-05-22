@@ -25,5 +25,4 @@ normalized_data <- GU_normalization(formula = mod1,
                                    weights = weights,
                                    group = year)
 
-
 }

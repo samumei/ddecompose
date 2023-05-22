@@ -236,19 +236,17 @@ summary.ob_deco <- function(x,
 #'
 #' @export
 #'
-#' @example
-#' library("AER")
-#' data("CPS1985")
-#' mod2 <- log(wage) ~ education + experience + union + ethnicity
-#' deco_results <- ob_deco(formula = mod2, data = CPS1985, group = gender)
+#' @examples
+#' # library("AER")
+#' # data("CPS1985")
+#' # mod2 <- log(wage) ~ education + experience + union + ethnicity
+#' # deco_results <- ob_deco(formula = mod2, data = CPS1985, group = gender)
+#' #
+#' # custom_aggregation <- list(human_capital = c("education", "experience"),
+#' #                            union = "unionyes")
+#' # aggregated_results <- aggregate_terms(deco_results2,
+#' #                                       custom_aggregation = custom_aggregation)
 #'
-#' custom_aggregation <- list(human_capital = c("education", "experience"),
-#'                            union = "unionyes")
-#' aggregated_results <- aggregate_terms(deco_results2,
-#'                                       custom_aggregation = custom_aggregation)
-#'
-
-
 aggregate_terms <- function(x,
                             aggregate_factors = TRUE,
                             custom_aggregation = NULL){
