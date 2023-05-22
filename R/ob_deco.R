@@ -1,39 +1,3 @@
-# oaxaca package ---------------------------------------------------------------
-# library("oaxaca")
-# ?oaxaca
-# data("chicago")
-# oaxaca.results.1 <- oaxaca(ln.real.wage ~ age + female + LTHS + some.college +
-#                              college + advanced.degree | foreign.born,
-#                            data = chicago, R = 30)
-# print(oaxaca.results.1)
-# plot(oaxaca.results.1)
-
-# deco_results <- ob_deco(formula = ln.real.wage ~ age + female + LTHS + some.college +
-#                             college + advanced.degree, data = chicago, group = foreign.born)
-# deco_results
-
-
-# Start actual function -------------------------------------------------------
-
-# Data
-# set.seed(125)
-# library("AER")
-# data("CPS1985")
-# formula <- log(wage) ~ education + experience + union + ethnicity
-# data_used <- CPS1985
-# data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
-# # data_used[1,1] <- NA
-# data_used <- get_all_vars(formula, data_used, weights=weights, group=gender)
-# # cluster <- data_used$cluster <- rbinom(nrow(CPS1985), 10, 0.5)
-# cluster <- NULL
-#
-# na.action = na.exclude
-# reference_0 <- TRUE
-# vcov=stats::vcov
-# normalize_factors=FALSE
-# bootstrap = FALSE
-# bootstrap_iterations = 100
-
 
 #' Oaxaca-Blinder decomposition
 #'
@@ -88,33 +52,58 @@
 #' Gardeazabal, Javier, and Arantza Ugidos. 2004. "More on identification in detailed wage decompositions."
 #' \emph{Review of Economics and Statistics} 86(4): 1034-1036.
 #'
+#' @export
+#'
 #' @examples
 #'
 #' ## Decompose gender wage gap
 #' ## with NLYS79 data like in Fortin, Lemieux, & Firpo (2011: 41)
 #'
-#' load("data/nlys00.rda")
+#' data("nlys00")
 #'
 #' mod1 <- log(wage) ~ age + central_city + msa + region + black +
 #' hispanic + education + afqt + family_responsibility + years_worked_civilian +
 #' years_worked_military + part_time + industry
 #'
 #' # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
-#' deco_female_as_reference <- ob_deco(formula = mod1, data = nlys00, group = female, reference_0 = TRUE)
+#' deco_female_as_reference <- ob_deco(formula = mod1,
+#'                                     data = nlys00,
+#'                                     group = female,
+#'                                     reference_0 = TRUE)
 #' deco_female_as_reference
 #'
 #' # Using male coefficients (reference_0 = FALSE)
-#' deco_male_as_reference <- ob_deco(formula = mod1, data = nlys00, group = female, reference_0 = FALSE)
+#' deco_male_as_reference <- ob_deco(formula = mod1,
+#'                                   data = nlys00,
+#'                                   group = female,
+#'                                   reference_0 = FALSE)
 #' deco_male_as_reference
 #'
 #' # Replicate first and third column in Table 3 in Fortin, Lemieux, & Firpo (2011: 41)
 #' # Define aggregation of decomposition terms
-#' custom_aggregation <- list(`Age, race, region, etc.` = c("age", "blackyes", "hispanicyes", "regionNorth-central", "regionSouth", "regionWest", "central_cityyes", "msayes"),
-#'                    `Education` = c("education<10 yrs", "educationHS grad (diploma)", "educationHS grad (GED)", "educationSome college", "educationBA or equiv. degree", "educationMA or equiv. degree", "educationPh.D or prof. degree"),
+#' custom_aggregation <- list(`Age, race, region, etc.` = c("age",
+#'                                                          "blackyes",
+#'                                                          "hispanicyes",
+#'                                                          "regionNorth-central",
+#'                                                          "regionSouth",
+#'                                                          "regionWest",
+#'                                                          "central_cityyes",
+#'                                                          "msayes"),
+#'                    `Education` = c("education<10 yrs",
+#'                                    "educationHS grad (diploma)",
+#'                                    "educationHS grad (GED)",
+#'                                    "educationSome college",
+#'                                    "educationBA or equiv. degree",
+#'                                    "educationMA or equiv. degree",
+#'                                    "educationPh.D or prof. degree"),
 #'                    `AFTQ` = "afqt",
 #'                    `L.T. withdrawal due to family` =  "family_responsibility",
-#'                    `Life-time work experience` = c("years_worked_civilian", "years_worked_military", "part_time"),
-#'                    `Industrial sectors` = c("industryManufacturing", "industryEducation, Health, Public Admin.", "industryOther services"))
+#'                    `Life-time work experience` = c("years_worked_civilian",
+#'                                                    "years_worked_military",
+#'                                                    "part_time"),
+#'                    `Industrial sectors` = c("industryManufacturing",
+#'                                             "industryEducation, Health, Public Admin.",
+#'                                             "industryOther services"))
 #'
 #' # First column
 #' summary(deco_male_as_reference, custom_aggregation = custom_aggregation)
@@ -122,23 +111,23 @@
 #' # Third column
 #' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
-#' # Compare bootstrapped standard errors...
-#' deco_female_as_reference_bs <- ob_deco(formula = mod1,
-#'                                         data = nlys00,
-#'                                         group = female,
-#'                                         bootstrap = TRUE,
-#'                                         bootstrap_iterations = 100)
-#' summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
-#'
-#' # ... to analytical standard errors
-#' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+#' #  # Compare bootstrapped standard errors...
+#' #  deco_female_as_reference_bs <- ob_deco(formula = mod1,
+#' #                                          data = nlys00,
+#' #                                          group = female,
+#' #                                          bootstrap = TRUE,
+#' #                                          bootstrap_iterations = 100)
+#' #  summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
+#' #
+#' #  # ... to analytical standard errors
+#' #  summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
 ob_deco <- function(formula,
                     data,
-                    weights,
-                    na.action = na.exclude,
                     group,
-                    reference_0=TRUE,
+                    weights = NULL,
+                    na.action = na.exclude,
+                    reference_0 = TRUE,
                     normalize_factors = FALSE,
                     bootstrap = FALSE,
                     bootstrap_iterations = 100,
@@ -271,11 +260,11 @@ ob_deco <- function(formula,
 #'
 estimate_ob_deco <- function(formula,
                              data_used,
-                             reference_0 = TRUE,
-                             normalize_factors = FALSE,
-                             compute_analytical_se = TRUE,
-                             return_model_fits = TRUE,
-                             vcov=stats::vcov){
+                             reference_0,
+                             normalize_factors,
+                             compute_analytical_se,
+                             return_model_fit,
+                             vcov){
 
   group0 <- levels(data_used[, "group"])[1]
 
@@ -326,9 +315,10 @@ estimate_ob_deco <- function(formula,
                                                   weights1 = weights1,
                                                   reference_0 = reference_0)
 
-  if(compute_analytical_se){
+  if(compute_analytical_se) {
     Cov_beta0 <- vcov(fit0) #lapply(list(fit0), vcov)[[1]]
     Cov_beta1 <- vcov(fit1) #lapply(list(fit1), vcov)[[1]]
+
     if(normalize_factors){
       Cov_beta0 <- GU_normalization_get_vcov(coef_names = adjusted_coefficient_names,
                                              Cov_beta = Cov_beta0)
@@ -349,7 +339,7 @@ estimate_ob_deco <- function(formula,
     estimated_deco_vcov <- NULL
   }
 
-  if(return_model_fits){
+  if(return_model_fit){
     model_fits <- list(fit_group_0 = fit0,
                        fit_group_1 = fit1)
   }else{
@@ -373,7 +363,6 @@ bootstrap_estimate_ob_deco <- function(formula,
   if(is.null(cluster)){
   sampled_observations <- sample(1:nrow(data_used),
                                  size = nrow(data_used),
-                                 replace = TRUE,
                                  prob = data_used$weights/sum(data_used$weights, na.rm=TRUE))
   } else {
   unique_cluster <- unique(data_used$cluster)
@@ -441,7 +430,7 @@ ob_deco_calculate_terms <- function(beta0,
 
 #' Estimate covariance matrix for OB decomposition terms
 #'
-#' assuming indenpendence between groups
+#' assuming independence between groups
 #' see: https://www.stata.com/meeting/3german/jann.pdf
 ob_deco_calculate_vcov  <- function(beta0,
                                     beta1,

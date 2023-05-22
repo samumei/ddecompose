@@ -13,10 +13,10 @@ ob_deco_calculate_vcov(
   weights1,
   Cov_beta0,
   Cov_beta1,
-  reference_0 = TRUE
+  reference_0
 )
 }
 \description{
-assuming indenpendence between groups
+assuming independence between groups
 see: https://www.stata.com/meeting/3german/jann.pdf
 }

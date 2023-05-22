@@ -7,9 +7,9 @@
 ob_deco(
   formula,
   data,
-  weights,
-  na.action = na.exclude,
   group,
+  weights = NULL,
+  na.action = na.exclude,
   reference_0 = TRUE,
   normalize_factors = FALSE,
   bootstrap = FALSE,
@@ -25,17 +25,17 @@ ob_deco(
 
 \item{data}{a data frame containing the variables in the model.}
 
+\item{group}{name of the a binary variable (numeric or factor)
+identifying the two groups that will be compared. The group identified by the
+lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
+first level of factor variable) is defined as group 0.}
+
 \item{weights}{numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
 The default (\code{NULL}) is equivalent to \code{weights = rep(1, length(dep_var))}.}
 
 \item{na.action}{generic function that defines how NAs in the data should be handled.
 Default is \code{na.omit}, leading to exclusion of observations that contain one or more missings.
 See \link[stats]{na.action} for further details.}
-
-\item{group}{name of the a binary variable (numeric or factor)
-identifying the two groups that will be compared. The group identified by the
-lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
-first level of factor variable) is defined as group 0.}
 
 \item{reference_0}{boolean: if `TRUE` (default), then the group 0 -- i.e.,
 the group identified by the lower ranked value in `group` -- will be defined
@@ -79,23 +79,72 @@ function estimates the returns to covariates using OLS separately for the
 two groups.
 }
 \examples{
-load("data/men8305.rda")
-mod1 <- log(wage) ~ union + married + nonwhite + education + experience
-deco_results <- ob_deco(formula = mod1, data = men8305, weights = weights, group = year)
-deco_results
 
-library("AER")
-data("CPS1985")
-mod2 <- log(wage) ~ education + experience + union + ethnicity
-deco_results2 <- ob_deco(formula = mod2, data = CPS1985, group = gender)
-deco_results2
+## Decompose gender wage gap
+## with NLYS79 data like in Fortin, Lemieux, & Firpo (2011: 41)
 
-deco_results_bs <- ob_deco(formula = mod1,
-                           data = men8305,
-                           weights = weights,
-                           group = year,
-                           bootstrap = TRUE)
-summary(deco_results_bs)
+data("nlys00")
+
+mod1 <- log(wage) ~ age + central_city + msa + region + black +
+hispanic + education + afqt + family_responsibility + years_worked_civilian +
+years_worked_military + part_time + industry
+
+# Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
+deco_female_as_reference <- ob_deco(formula = mod1,
+                                    data = nlys00,
+                                    group = female,
+                                    reference_0 = TRUE)
+deco_female_as_reference
+
+# Using male coefficients (reference_0 = FALSE)
+deco_male_as_reference <- ob_deco(formula = mod1,
+                                  data = nlys00,
+                                  group = female,
+                                  reference_0 = FALSE)
+deco_male_as_reference
+
+# Replicate first and third column in Table 3 in Fortin, Lemieux, & Firpo (2011: 41)
+# Define aggregation of decomposition terms
+custom_aggregation <- list(`Age, race, region, etc.` = c("age",
+                                                         "blackyes",
+                                                         "hispanicyes",
+                                                         "regionNorth-central",
+                                                         "regionSouth",
+                                                         "regionWest",
+                                                         "central_cityyes",
+                                                         "msayes"),
+                   `Education` = c("education<10 yrs",
+                                   "educationHS grad (diploma)",
+                                   "educationHS grad (GED)",
+                                   "educationSome college",
+                                   "educationBA or equiv. degree",
+                                   "educationMA or equiv. degree",
+                                   "educationPh.D or prof. degree"),
+                   `AFTQ` = "afqt",
+                   `L.T. withdrawal due to family` =  "family_responsibility",
+                   `Life-time work experience` = c("years_worked_civilian",
+                                                   "years_worked_military",
+                                                   "part_time"),
+                   `Industrial sectors` = c("industryManufacturing",
+                                            "industryEducation, Health, Public Admin.",
+                                            "industryOther services"))
+
+# First column
+summary(deco_male_as_reference, custom_aggregation = custom_aggregation)
+
+# Third column
+summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+
+#  # Compare bootstrapped standard errors...
+#  deco_female_as_reference_bs <- ob_deco(formula = mod1,
+#                                          data = nlys00,
+#                                          group = female,
+#                                          bootstrap = TRUE,
+#                                          bootstrap_iterations = 100)
+#  summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
+#
+#  # ... to analytical standard errors
+#  summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 
 }
 \references{

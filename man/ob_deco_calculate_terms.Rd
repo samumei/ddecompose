@@ -4,15 +4,7 @@
 \alias{ob_deco_calculate_terms}
 \title{Calculate decomposition terms based on model.matrix and estimated OLS coefficients}
 \usage{
-ob_deco_calculate_terms(
-  beta0,
-  beta1,
-  X0,
-  X1,
-  weights0,
-  weights1,
-  reference_0 = TRUE
-)
+ob_deco_calculate_terms(beta0, beta1, X0, X1, weights0, weights1, reference_0)
 }
 \description{
 Calculate decomposition terms based on model.matrix and estimated OLS coefficients
