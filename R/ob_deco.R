@@ -35,7 +35,6 @@
 # bootstrap_iterations = 100
 
 
-
 #' Oaxaca-Blinder decomposition
 #'
 #' Following Oaxaca (1973) and Blinder (1973), this function decomposes between-
@@ -91,42 +90,48 @@
 #'
 #' @examples
 #'
+#' ## Decompose gender wage gap
+#' ## with NLYS79 data like in Fortin, Lemieux, & Firpo (2011: 41)
+#'
 #' load("data/nlys00.rda")
 #'
 #' mod1 <- log(wage) ~ age + central_city + msa + region + black +
 #' hispanic + education + afqt + family_responsibility + years_worked_civilian +
 #' years_worked_military + part_time + industry
 #'
-#' # Decompose gender wage gap using male coefficients (i.e., reference_0 = FALSE)
-#' # to predict counterfactual mean
-#' deco_results <- ob_deco(formula = mod1, data = nlys00, group = female, reference_0 = TRUE)
-#' deco_results
+#' # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
+#' deco_female_as_reference <- ob_deco(formula = mod1, data = nlys00, group = female, reference_0 = TRUE)
+#' deco_female_as_reference
 #'
-#' # Replicate First Column in Table 3 in Fortin, Lemieux, & Firpo (2011: 41)
+#' # Using male coefficients (reference_0 = FALSE)
+#' deco_male_as_reference <- ob_deco(formula = mod1, data = nlys00, group = female, reference_0 = FALSE)
+#' deco_male_as_reference
+#'
+#' # Replicate first and third column in Table 3 in Fortin, Lemieux, & Firpo (2011: 41)
+#' # Define aggregation of decomposition terms
 #' custom_aggregation <- list(`Age, race, region, etc.` = c("age", "blackyes", "hispanicyes", "regionNorth-central", "regionSouth", "regionWest", "central_cityyes", "msayes"),
 #'                    `Education` = c("education<10 yrs", "educationHS grad (diploma)", "educationHS grad (GED)", "educationSome college", "educationBA or equiv. degree", "educationMA or equiv. degree", "educationPh.D or prof. degree"),
 #'                    `AFTQ` = "afqt",
 #'                    `L.T. withdrawal due to family` =  "family_responsibility",
 #'                    `Life-time work experience` = c("years_worked_civilian", "years_worked_military", "part_time"),
 #'                    `Industrial sectors` = c("industryManufacturing", "industryEducation, Health, Public Admin.", "industryOther services"))
-#' summary(deco_results, custom_aggregation = custom_aggregation)
 #'
+#' # First column
+#' summary(deco_male_as_reference, custom_aggregation = custom_aggregation)
 #'
-#' library("AER")
-#' data("CPS1985")
-#' mod2 <- log(wage) ~ education + experience + union + ethnicity
-#' deco_results2 <- ob_deco(formula = mod2, data = CPS1985, group = gender)
-#' deco_results2
+#' # Third column
+#' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
-#' deco_results_bs <- ob_deco(formula = mod1,
-#'                            data = men8305,
-#'                            weights = weights,
-#'                            group = year,
-#'                            bootstrap = TRUE)
-#' summary(deco_results_bs)
+#' # Compare bootstrapped standard errors...
+#' deco_female_as_reference_bs <- ob_deco(formula = mod1,
+#'                                         data = nlys00,
+#'                                         group = female,
+#'                                         bootstrap = TRUE,
+#'                                         bootstrap_iterations = 100)
+#' summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
 #'
-#' deco_results3 <- ob_deco(formula = mod2, data = CPS1985, group = gender, normalize_factors = TRUE)
-#' deco_results3
+#' # ... to analytical standard errors
+#' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
 ob_deco <- function(formula,
                     data,
@@ -319,7 +324,7 @@ estimate_ob_deco <- function(formula,
                                                   X1 = X1,
                                                   weights0 = weights0,
                                                   weights1 = weights1,
-                                                  reference_0 = TRUE)
+                                                  reference_0 = reference_0)
 
   if(compute_analytical_se){
     Cov_beta0 <- vcov(fit0) #lapply(list(fit0), vcov)[[1]]
@@ -339,7 +344,7 @@ estimate_ob_deco <- function(formula,
                                                    weights1 = weights1,
                                                    Cov_beta0  =  Cov_beta0,
                                                    Cov_beta1  =  Cov_beta1,
-                                                   reference_0 = TRUE)
+                                                   reference_0 = reference_0)
   }else{
     estimated_deco_vcov <- NULL
   }
@@ -378,7 +383,7 @@ bootstrap_estimate_ob_deco <- function(formula,
                             replace = TRUE,
                             prob = cluster_weights/sum(data_used$weights, na.rm=TRUE))
   sampled_observations <- do.call("c",sapply(sampled_cluster, function(x) which(data_used$cluster %in% x)))
-  data_used$weights <- data_used$weights * sum(data_used[ ,"weights"], na.rm=TRUE)/sum(data_used[sampled_observations,"weights"], na.rm=TRUE)
+  data_used$weights <- data_used$weights * sum(data_used[ ,"weights"], na.rm=TRUE) / sum(data_used[sampled_observations,"weights"], na.rm=TRUE)
   }
 
   deco_estimates <- estimate_ob_deco(formula = formula,
@@ -403,7 +408,7 @@ ob_deco_calculate_terms <- function(beta0,
                                     X1,
                                     weights0,
                                     weights1,
-                                    reference_0=TRUE){
+                                    reference_0){
 
   X0 <- apply(X0, 2, weighted.mean, w=weights0)
   X1 <- apply(X1, 2, weighted.mean, w=weights1)
@@ -446,7 +451,7 @@ ob_deco_calculate_vcov  <- function(beta0,
                                     weights1,
                                     Cov_beta0,
                                     Cov_beta1,
-                                    reference_0=TRUE){
+                                    reference_0){
 
 
   Cov_X0 <- stats::cov.wt(X0, wt=weights0)$cov
