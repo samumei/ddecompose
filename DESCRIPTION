@@ -20,16 +20,13 @@ Depends:
     R (>= 2.10)
 Imports: 
     AER,
-    dplyr,
     survey,
-    tidyr,
     Formula,
     Hmisc,
-    methods,
     parallel,
     pbapply,
     sandwich,
     stats
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0)  
 Config/testthat/edition: 3

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #' summary method for class "dfl_deco"
 #'
 #' @param x an object of class "dfl_deco", a result of a call to [dfl_deco()].
@@ -237,7 +236,7 @@ summary.ob_deco <- function(x,
 #'
 #' @export
 #'
-#' @example
+#' @examples
 #' library("AER")
 #' data("CPS1985")
 #' mod2 <- log(wage) ~ education + experience + union + ethnicity
@@ -245,11 +244,9 @@ summary.ob_deco <- function(x,
 #'
 #' custom_aggregation <- list(human_capital = c("education", "experience"),
 #'                            union = "unionyes")
-#' aggregated_results <- aggregate_terms(deco_results2,
+#' aggregated_results <- aggregate_terms(deco_results,
 #'                                       custom_aggregation = custom_aggregation)
 #'
-
-
 aggregate_terms <- function(x,
                             aggregate_factors = TRUE,
                             custom_aggregation = NULL){
@@ -371,7 +368,6 @@ aggregate_terms <- function(x,
   return(x)
 }
 
-=======
 #' summary method for class "dfl_deco"
 #'
 #' @param x an object of class "dfl_deco", a result of a call to [dfl_deco()].
@@ -741,5 +737,3 @@ aggregate_terms <- function(x,
 
   return(x)
 }
-
->>>>>>> 9b1eb91c168cac7bb5673f290f245580ad7e69c1
