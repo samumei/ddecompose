@@ -431,7 +431,11 @@ ob_deco_calculate_terms <- function(beta0,
 #' Estimate covariance matrix for OB decomposition terms
 #'
 #' assuming independence between groups
-#' see: https://www.stata.com/meeting/3german/jann.pdf
+#' see also: https://www.stata.com/meeting/3german/jann.pdf
+#'
+#' Var(xb) = Var(x)Var(b) + Var(x)E(b)^2 + Var(b)E(x)^2
+#' Cov(x1b1, x2b2) = Cov(x1,x2)Cov(b1,b2) + Cov(x1,x2)E(b1)E(b2) + Cov(b1,b2)E(x1)E(x2)
+#' Matrix notation Sigma_b * Sigma_X + Sigma_b * mu %*% mu' + Sigma_X * b %*% b'
 ob_deco_calculate_vcov  <- function(beta0,
                                     beta1,
                                     X0,
@@ -442,81 +446,112 @@ ob_deco_calculate_vcov  <- function(beta0,
                                     Cov_beta1,
                                     reference_0){
 
+  ### New
 
   Cov_X0 <- stats::cov.wt(X0, wt=weights0)$cov
   Cov_X1 <- stats::cov.wt(X1, wt=weights1)$cov
-  Cov_X_diff <- Cov_X1 + Cov_X0
-
-  Cov_beta_diff <- Cov_beta1 + Cov_beta0
 
   X0 <- apply(X0, 2, weighted.mean, w=weights0)
   X1 <- apply(X1, 2, weighted.mean, w=weights1)
-  X_diff <- X1 - X0
 
-  Xb0 <- X0*beta0
-  Xb1 <- X1*beta1
+  Cov_Xb0 <-  Cov_X0 * Cov_beta0 + Cov_beta0 * X0 %*% t(X0) + Cov_X0 * beta0 %*% t(beta0)
+  Cov_Xb1 <-  Cov_X1 * Cov_beta1 + Cov_beta1 * X1 %*% t(X1) + Cov_X1 * beta1 %*% t(beta1)
 
-  beta_diff <- beta1 - beta0
+  Cov_observed_diff <-  Cov_Xb1 + Cov_Xb0
 
   if(reference_0){
-    XbC <- X1*beta0
-    structure_effect <- Xb1 - XbC
-    composition_effect <- XbC - Xb0
-    beta_reference <- beta0
-    X_counterfactual <- X1
-    Cov_beta_reference <-   Cov_beta0
-    Cov_X_counterfactual <- Cov_X1
+    Cov_XbC <- Cov_X1 * Cov_beta0 + Cov_beta0 * X1 %*% t(X1) + Cov_X1 *  beta0 %*% t(beta0)
+    Cov_structure_effect <-  Cov_Xb1 + Cov_XbC
+    Cov_composition_effect <-  Cov_Xb0 + Cov_XbC
   }else{
-    XbC <- X0*beta1
-    composition_effect <- Xb1 - XbC
-    structure_effect <- XbC - Xb0
-    beta_reference <- beta1
-    X_counterfactual <- X0
-    Cov_beta_reference <-   Cov_beta1
-    Cov_X_counterfactual <- Cov_X0
+    Cov_XbC <- Cov_X0 * Cov_beta1 + Cov_beta1 * X0 %*% t(X0) + Cov_X0 * beta1 %*% t(beta1)
+    Cov_structure_effect <- Cov_Xb0 + Cov_XbC
+    Cov_composition_effect <-  Cov_Xb1 + Cov_XbC
   }
 
-  Var_agg_observed_diff <- t(X1) %*% Cov_beta1 %*% X1 +
-    t(beta1) %*% Cov_X1 %*% beta1 +
-    sum(diag(Cov_X1 %*% Cov_beta1)) +
-    t(X0) %*% Cov_beta0 %*% X0 +
-    t(beta0) %*% Cov_X0 %*% beta0 +
-    sum(diag(Cov_X0 %*% Cov_beta0))
+  Var_agg_observed_diff <-  sum(Cov_observed_diff)
+  Var_agg_composition_effect <- sum(Cov_composition_effect)
+  Var_agg_structure_effect <- sum(Cov_structure_effect)
 
-  Cov_observed_diff <- Cov_beta1 * X1 %*% t(X1) +
-    Cov_X1 * beta1 %*% t(beta1) +
-    Cov_X1 %*% Cov_beta1 +
-    Cov_beta0 * X0 %*% t(X0) +
-    Cov_X0 * beta0 %*% t(beta0) +
-    Cov_X0 %*% Cov_beta0
+  ### Old
 
-  Var_agg_composition_effect <- t(X_diff) %*% Cov_beta_reference %*% X_diff +
-    t(beta_reference) %*% Cov_X_diff %*% beta_reference +
-    sum(diag(Cov_X_diff %*% Cov_beta_reference))
-
-  Cov_composition_effect <- Cov_beta_reference * X_diff %*% t(X_diff) +
-    Cov_X_diff * beta_reference %*% t(beta_reference) +
-    Cov_X_diff %*% Cov_beta_reference
-
-  Var_agg_structure_effect <- t(X_counterfactual) %*% Cov_beta_diff %*% X_counterfactual +
-    t(beta_diff) %*% Cov_X_counterfactual %*% beta_diff +
-    sum(diag(Cov_X_counterfactual %*% Cov_beta_diff))
-
-  Cov_structure_effect <- Cov_beta_diff * X_counterfactual %*% t(X_counterfactual) +
-    Cov_X_counterfactual * beta_diff %*% t(beta_diff) +
-    Cov_X_counterfactual %*% Cov_beta_diff
+  # Cov_X0 <- stats::cov.wt(X0, wt=weights0)$cov
+  # Cov_X1 <- stats::cov.wt(X1, wt=weights1)$cov
+  # Cov_X_diff <- Cov_X1 + Cov_X0
+  #
+  # Cov_beta_diff <- Cov_beta1 + Cov_beta0
+  #
+  # X0 <- apply(X0, 2, weighted.mean, w=weights0)
+  # X1 <- apply(X1, 2, weighted.mean, w=weights1)
+  # X_diff <- X1 - X0
+  #
+  # Xb0 <- X0*beta0
+  # Xb1 <- X1*beta1
+  #
+  # beta_diff <- beta1 - beta0
+  #
+  # if(reference_0){
+  #   XbC <- X1*beta0
+  #   structure_effect <- Xb1 - XbC
+  #   composition_effect <- XbC - Xb0
+  #   beta_reference <- beta0
+  #   X_counterfactual <- X1
+  #   Cov_beta_reference <-   Cov_beta0
+  #   Cov_X_counterfactual <- Cov_X1
+  # }else{
+  #   XbC <- X0*beta1
+  #   composition_effect <- Xb1 - XbC
+  #   structure_effect <- XbC - Xb0
+  #   beta_reference <- beta1
+  #   X_counterfactual <- X0
+  #   Cov_beta_reference <-   Cov_beta1
+  #   Cov_X_counterfactual <- Cov_X0
+  # }
+  #
+  # Var_agg_observed_diff <- t(X1) %*% Cov_beta1 %*% X1 +
+  #   t(beta1) %*% Cov_X1 %*% beta1 +
+  #   sum(diag(Cov_X1 %*% Cov_beta1)) +
+  #   t(X0) %*% Cov_beta0 %*% X0 +
+  #   t(beta0) %*% Cov_X0 %*% beta0 +
+  #   sum(diag(Cov_X0 %*% Cov_beta0))
+  #
+  # Cov_observed_diff <- Cov_beta1 * X1 %*% t(X1) +
+  #   Cov_X1 * beta1 %*% t(beta1) +
+  #   Cov_X1 %*% Cov_beta1 +
+  #   Cov_beta0 * X0 %*% t(X0) +
+  #   Cov_X0 * beta0 %*% t(beta0) +
+  #   Cov_X0 %*% Cov_beta0
+  #
+  # Var_agg_composition_effect <- t(X_diff) %*% Cov_beta_reference %*% X_diff +
+  #   t(beta_reference) %*% Cov_X_diff %*% beta_reference +
+  #   sum(diag(Cov_X_diff %*% Cov_beta_reference))
+  #
+  # Cov_composition_effect <- Cov_beta_reference * X_diff %*% t(X_diff) +
+  #   Cov_X_diff * beta_reference %*% t(beta_reference) +
+  #   Cov_X_diff %*% Cov_beta_reference
+  #
+  # Var_agg_structure_effect <- t(X_counterfactual) %*% Cov_beta_diff %*% X_counterfactual +
+  #   t(beta_diff) %*% Cov_X_counterfactual %*% beta_diff +
+  #   sum(diag(Cov_X_counterfactual %*% Cov_beta_diff))
+  #
+  # Cov_structure_effect <- Cov_beta_diff * X_counterfactual %*% t(X_counterfactual) +
+  #   Cov_X_counterfactual * beta_diff %*% t(beta_diff) +
+  #   Cov_X_counterfactual %*% Cov_beta_diff
 
   decomposition_terms_se <- data.frame(Variable = c("Total", names(X0)),
-                                    Observed_difference = sqrt(c(Var_agg_observed_diff, diag(Cov_observed_diff))),
-                                    Composition_effect = sqrt(c( Var_agg_composition_effect , diag(Cov_composition_effect))),
-                                    Structure_effect = sqrt(c(Var_agg_structure_effect, diag(Cov_structure_effect))))
+                                    Observed_difference = sqrt(c(Var_agg_observed_diff,
+                                                                 diag(Cov_observed_diff))),
+                                    Composition_effect = sqrt(c(Var_agg_composition_effect,
+                                                                diag(Cov_composition_effect))),
+                                    Structure_effect = sqrt(c(Var_agg_structure_effect,
+                                                              diag(Cov_structure_effect))))
 
-  vcov_list <- list(Observed_difference=Cov_observed_diff,
-                    Composition_effect= Cov_composition_effect,
-                    Structure_effect= Cov_structure_effect)
+  vcov_list <- list(Observed_difference = Cov_observed_diff,
+                    Composition_effect = Cov_composition_effect,
+                    Structure_effect = Cov_structure_effect)
 
-  results <- list(decomposition_terms_se=decomposition_terms_se,
-                  decomposition_terms_vcov=vcov_list)
+  results <- list(decomposition_terms_se = decomposition_terms_se,
+                  decomposition_terms_vcov = vcov_list)
   return(results)
 }
 
