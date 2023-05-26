@@ -127,8 +127,9 @@
 #'                                     reference_0 = TRUE)
 #' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
-#'
+#' # Return standard errors for all detailed terms
 #' summary(deco_female_as_reference, aggregate_factors = FALSE)
+#'
 ob_deco <- function(formula,
                     data,
                     group,
@@ -409,8 +410,8 @@ ob_deco_calculate_terms <- function(beta0,
   X0 <- apply(X0, 2, weighted.mean, w=weights0)
   X1 <- apply(X1, 2, weighted.mean, w=weights1)
 
-  Xb0 <- X0*beta0
-  Xb1 <- X1*beta1
+  Xb0 <- X0 * beta0
+  Xb1 <- X1 * beta1
 
   observed_diff <- Xb1 - Xb0
   if(reference_0){
