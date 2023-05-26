@@ -119,9 +119,16 @@
 #'                                        bootstrap_iterations = 100)
 #' summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
 #'
-#' # ... to analytical standard errors (assuming homoskedasticity)
+#' # ... to analytical standard errors (assuming idenpendence between groups and
+#' # homoskedasticity)
+#' deco_female_as_reference <- ob_deco(formula = mod1,
+#'                                     data = nlys00,
+#'                                     group = female,
+#'                                     reference_0 = TRUE)
 #' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
+#'
+#' summary(deco_female_as_reference, aggregate_factors = FALSE)
 ob_deco <- function(formula,
                     data,
                     group,
@@ -448,8 +455,8 @@ ob_deco_calculate_vcov  <- function(beta0,
 
   ### New
 
-  Cov_X0 <- stats::cov.wt(X0, wt=weights0)$cov
-  Cov_X1 <- stats::cov.wt(X1, wt=weights1)$cov
+  Cov_X0 <- stats::cov.wt(X0, wt=weights0)$cov / nrow(X0)
+  Cov_X1 <- stats::cov.wt(X1, wt=weights1)$cov / nrow(X1)
 
   X0 <- apply(X0, 2, weighted.mean, w=weights0)
   X1 <- apply(X1, 2, weighted.mean, w=weights1)
