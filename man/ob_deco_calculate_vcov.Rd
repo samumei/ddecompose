@@ -18,5 +18,10 @@ ob_deco_calculate_vcov(
 }
 \description{
 assuming independence between groups
-see: https://www.stata.com/meeting/3german/jann.pdf
+see also: https://www.stata.com/meeting/3german/jann.pdf
+}
+\details{
+Var(xb) = Var(x)Var(b) + Var(x)E(b)^2 + Var(b)E(x)^2
+Cov(x1b1, x2b2) = Cov(x1,x2)Cov(b1,b2) + Cov(x1,x2)E(b1)E(b2) + Cov(b1,b2)E(x1)E(x2)
+Matrix notation Sigma_b * Sigma_X + Sigma_b * mu %*% mu' + Sigma_X * b %*% b'
 }
