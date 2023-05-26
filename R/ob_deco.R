@@ -468,13 +468,19 @@ ob_deco_calculate_vcov  <- function(beta0,
   Cov_observed_diff <-  Cov_Xb1 + Cov_Xb0
 
   if(reference_0){
-    Cov_XbC <- Cov_X1 * Cov_beta0 + Cov_beta0 * (X1 %*% t(X1)) + Cov_X1 * (beta0 %*% t(beta0))
-    Cov_structure_effect <-  Cov_Xb1 + Cov_XbC
-    Cov_composition_effect <-  Cov_Xb0 + Cov_XbC
+    Cov_structure_effect <- Cov_X1 * (Cov_beta1 + Cov_beta0) +
+      (Cov_beta1 + Cov_beta0) * (X1 %*% t(X1)) +
+      Cov_X1 * ((beta1 - beta0) %*% t((beta1 - beta0)))
+    Cov_composition_effect <-  (Cov_X1 + Cov_X0) * Cov_beta0 +
+      Cov_beta0 * ((X1 - X0)%*% t((X1 - X0))) +
+      (Cov_X1 + Cov_X0) * (beta0 %*% t(beta0))
   }else{
-    Cov_XbC <- Cov_X0 * Cov_beta1 + Cov_beta1 * (X0 %*% t(X0)) + Cov_X0 * (beta1 %*% t(beta1))
-    Cov_structure_effect <- Cov_Xb0 + Cov_XbC
-    Cov_composition_effect <-  Cov_Xb1 + Cov_XbC
+    Cov_structure_effect <- Cov_X0 * (Cov_beta1 + Cov_beta0) +
+      (Cov_beta1 + Cov_beta0) * (X0 %*% t(X0)) +
+      Cov_X0 * ((beta1 - beta0) %*% t((beta1 - beta0)))
+    Cov_composition_effect <-  (Cov_X1 + Cov_X0) * Cov_beta1 +
+      Cov_beta1 * ((X1 - X0)%*% t((X1 - X0))) +
+      (Cov_X1 + Cov_X0) * (beta1 %*% t(beta1))
   }
 
   Var_agg_observed_diff <-  sum(Cov_observed_diff)
