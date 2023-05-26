@@ -119,7 +119,7 @@
 #'                                        bootstrap_iterations = 100)
 #' summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
 #'
-#' # ... to analytical standard errors (assuming idenpendence between groups and
+#' # ... to analytical standard errors (assuming independence between groups and
 #' # homoskedasticity)
 #' deco_female_as_reference <- ob_deco(formula = mod1,
 #'                                     data = nlys00,
