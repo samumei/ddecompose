@@ -194,12 +194,18 @@ test_that("ob_deco() provides expected output", {
 # test_that("ob_deco() analytical and bootstrapped se are the same", {
 #
 #   set.seed(43825081)
-#   library("AER")
-#   data("CPS1985")
-#   formula <- log(wage) ~ education + experience + union + ethnicity
-#   data_used <- CPS1985
-#   data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
-#   data_used <- get_all_vars(formula, data_used, weights=weights, group=gender)
+  # library("AER")
+  # data("CPS1985")
+  # formula <- log(wage) ~ education + experience + union + ethnicity
+  # data_used <- CPS1985
+  # data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
+  # data_used <- get_all_vars(formula, data_used, weights=weights, group=gender)
+  # reference_0 <- TRUE
+  # cluster <- NULL
+  # bootstrap <- TRUE
+  # cores = 1
+  # bootstrap_iterations = 100
+  # normalize_factors = FALSE
 #
 #   deco_analytical_se <- ob_deco(formula = formula,
 #                                 data = data_used,
