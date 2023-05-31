@@ -226,11 +226,11 @@ ob_deco <- function(formula,
     bootstrap_estimates <- do.call("rbind", bootstrap_estimates)
     bootstrap_estimates$iteration <- rep(1:bootstrap_iterations, each=length(unique(bootstrap_estimates$Variable)))
     bootstrap_estimates <- stats::reshape(bootstrap_estimates,
-                                                  idvar = c("Variable","iteration"),
+                                                  idvar = c("Variable", "iteration"),
                                                   ids=unique(bootstrap_estimates$variable),
-                                                  times = setdiff(names(bootstrap_estimates),c("Variable","iteration")),
+                                                  times = setdiff(names(bootstrap_estimates), c("Variable", "iteration")),
                                                   timevar="effect",
-                                                  varying = list(setdiff(names(bootstrap_estimates),c("Variable","iteration"))),
+                                                  varying = list(setdiff(names(bootstrap_estimates), c("Variable", "iteration"))),
                                                   direction = "long",
                                                   v.names = "value")
     bootstrap_estimates <- stats::reshape(bootstrap_estimates,
@@ -371,6 +371,7 @@ bootstrap_estimate_ob_deco <- function(formula,
   if(is.null(cluster)){
   sampled_observations <- sample(1:nrow(data_used),
                                  size = nrow(data_used),
+                                 replace = TRUE,
                                  prob = data_used$weights/sum(data_used$weights, na.rm=TRUE))
   } else {
   unique_cluster <- unique(data_used$cluster)
