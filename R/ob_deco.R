@@ -234,8 +234,8 @@ ob_deco <- function(formula,
                                                   direction = "long",
                                                   v.names = "value")
     bootstrap_estimates <- stats::reshape(bootstrap_estimates,
-                                                  idvar = c("iteration","effect"),
-                                                  timevar="Variable",
+                                                  idvar = c("iteration", "effect"),
+                                                  timevar= "Variable",
                                                   direction = "wide")
     names(bootstrap_estimates) <- gsub("value[.]", "", names(bootstrap_estimates))
     bootstrap_estimates <- lapply(split(bootstrap_estimates, bootstrap_estimates$effect), function(x) stats::cov(x[, -c(1:2)]))
