@@ -143,8 +143,16 @@ deco_female_as_reference_bs <- ob_deco(formula = mod1,
                                        bootstrap_iterations = 100)
 summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
 
-# ... to analytical standard errors (assuming homoskedasticity)
+# ... to analytical standard errors (assuming independence between groups and
+# homoskedasticity)
+deco_female_as_reference <- ob_deco(formula = mod1,
+                                    data = nlys00,
+                                    group = female,
+                                    reference_0 = TRUE)
 summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+
+# Return standard errors for all detailed terms
+summary(deco_female_as_reference, aggregate_factors = FALSE)
 
 }
 \references{

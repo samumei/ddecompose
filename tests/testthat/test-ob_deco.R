@@ -78,17 +78,20 @@ test_that("ob_deco() does not throw an error", {
 #   testthat::expect_equal(ddeco_results$decomposition_terms$Structure_effect[2:4] * -1,
 #                          unname(oaxaca_results$twofold$variables[[2]][,4]))
 #
-#   # SE not correct
-#   browser()
+#   # SE similar
 #   testthat::expect_equal(ddeco_results$decomposition_vcov$decomposition_terms_se$Composition_effect[1],
-#                          unname(oaxaca_results$twofold$overall[2,3]))
+#                          unname(oaxaca_results$twofold$overall[2,3]),
+#                          tolerance = 0.03)
 #   testthat::expect_equal(ddeco_results$decomposition_vcov$decomposition_terms_se$Structure_effect[1],
-#                          unname(oaxaca_results$twofold$overall[2,5]))
+#                          unname(oaxaca_results$twofold$overall[2,5]),
+#                          tolerance = 0.1)
 #
 #   testthat::expect_equal(ddeco_results$decomposition_vcov$decomposition_terms_se$Composition_effect[2:4],
-#                          unname(oaxaca_results$twofold$variables[[2]][,3]))
+#                          unname(oaxaca_results$twofold$variables[[2]][,3]),
+#                          tolerance = 0.03)
 #   testthat::expect_equal(ddeco_results$decomposition_vcov$decomposition_terms_se$Structure_effect[2:4],
-#                          unname(oaxaca_results$twofold$variables[[2]][,5]))
+#                          unname(oaxaca_results$twofold$variables[[2]][,5]),
+#                          tolerance = 0.1)
 #
 #   # compare analytical se
 #   ddeco_results_analytical_se <- ob_deco(formula = ln.real.wage ~ age + female,
@@ -96,14 +99,18 @@ test_that("ob_deco() does not throw an error", {
 #                                          group = foreign.born)
 #
 #   testthat::expect_equal(ddeco_results_analytical_se$decomposition_vcov$decomposition_terms_se$Composition_effect[1],
-#                          unname(oaxaca_results$twofold$overall[2,3]))
+#                          unname(oaxaca_results$twofold$overall[2,3]),
+#                          tolerance = 0.03)
 #   testthat::expect_equal(ddeco_results_analytical_se$decomposition_vcov$decomposition_terms_se$Structure_effect[1],
-#                          unname(oaxaca_results$twofold$overall[2,5]))
+#                          unname(oaxaca_results$twofold$overall[2,5]),
+#                          tolerance = 0.1)
 #
 #   testthat::expect_equal(ddeco_results_analytical_se$decomposition_vcov$decomposition_terms_se$Composition_effect[2:4],
-#                          unname(oaxaca_results$twofold$variables[[2]][,3]))
+#                          unname(oaxaca_results$twofold$variables[[2]][,3]),
+#                          tolerance = 0.03)
 #   testthat::expect_equal(ddeco_results_analytical_se$decomposition_vcov$decomposition_terms_se$Structure_effect[2:4],
-#                          unname(oaxaca_results$twofold$variables[[2]][,5]))
+#                          unname(oaxaca_results$twofold$variables[[2]][,5]),
+#                          tolerance = 0.15)
 # })
 
 
@@ -191,35 +198,35 @@ test_that("ob_deco() provides expected output", {
 })
 
 
-# test_that("ob_deco() analytical and bootstrapped se are the same", {
-#
-#   set.seed(43825081)
-  # library("AER")
-  # data("CPS1985")
-  # formula <- log(wage) ~ education + experience + union + ethnicity
-  # data_used <- CPS1985
-  # data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
-  # data_used <- get_all_vars(formula, data_used, weights=weights, group=gender)
-  # reference_0 <- TRUE
-  # cluster <- NULL
-  # bootstrap <- TRUE
-  # cores = 1
-  # bootstrap_iterations = 100
-  # normalize_factors = FALSE
-#
-#   deco_analytical_se <- ob_deco(formula = formula,
-#                                 data = data_used,
-#                                 group = group)
-#   deco_bootstrapped_se <- ob_deco(formula = formula,
-#                                   data = data_used,
-#                                   group = group,
-#                                   bootstrap = TRUE,
-#                                   bootstrap_iterations = 100)
-#
-#   # browser()
-#   testthat::expect_equal(deco_analytical_se$decomposition_vcov$decomposition_terms_se,
-#                          deco_bootstrapped_se$decomposition_vcov$decomposition_terms_se)
-# })
+test_that("ob_deco() analytical and bootstrapped se are the same", {
+
+  set.seed(43825081)
+  library("AER")
+  data("CPS1985")
+  formula <- log(wage) ~ education + experience + union + ethnicity
+  data_used <- CPS1985
+  data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
+  data_used <- get_all_vars(formula, data_used, weights=weights, group=gender)
+  reference_0 <- TRUE
+  cluster <- NULL
+  bootstrap <- TRUE
+  cores = 1
+  bootstrap_iterations = 100
+  normalize_factors = FALSE
+
+  deco_analytical_se <- ob_deco(formula = formula,
+                                data = data_used,
+                                group = group)
+  deco_bootstrapped_se <- ob_deco(formula = formula,
+                                  data = data_used,
+                                  group = group,
+                                  bootstrap = TRUE,
+                                  bootstrap_iterations = 400)
+
+  testthat::expect_equal(deco_analytical_se$decomposition_vcov$decomposition_terms_se,
+                         deco_bootstrapped_se$decomposition_vcov$decomposition_terms_se,
+                         tolerance = 0.04)
+})
 
 
 

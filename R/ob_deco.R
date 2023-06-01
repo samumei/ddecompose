@@ -560,6 +560,7 @@ ob_deco_calculate_vcov  <- function(beta0,
                                                                 diag(Cov_composition_effect))),
                                     Structure_effect = sqrt(c(Var_agg_structure_effect,
                                                               diag(Cov_structure_effect))))
+  rownames(decomposition_terms_se)[1] <- "Total"
 
   vcov_list <- list(Observed_difference = Cov_observed_diff,
                     Composition_effect = Cov_composition_effect,
