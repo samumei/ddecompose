@@ -14,9 +14,22 @@ model_fit_surveyglm <- survey::svyglm(formula,
                               design=design,family=quasibinomial(link="logit"))
 
 model_fit_glm <- glm(formula, data = data_used, weights = weights, family = binomial(link = "logit"))
-model_fit_glm <- glm(formula, data = data_used, weights = weights, family = quasibinomial(link = "logit"))
+model_fit_quasiglm <- glm(formula, data = data_used, weights = weights, family = quasibinomial(link = "logit"))
+
+sglm <- summary(model_fit_glm)
+squasiglm <- summary(model_fit_quasiglm)
+ssurveryglm <- summary(model_fit_surveyglm)
+
+cbind(sglm$coefficients[,2],
+      squasiglm$coefficients[,2],
+      ssurveryglm$coefficients[,2])
 
 cbind(coef(model_fit_glm), coef(model_fit_surveyglm))
 testthat::expect_equal(coef(model_fit_glm),
+                       coef(model_fit_surveyglm),
+                       tolerance = 0.000001)
+
+cbind(coef(model_fit_quasiglm), coef(model_fit_surveyglm))
+testthat::expect_equal(coef(model_fit_quasiglm),
                        coef(model_fit_surveyglm),
                        tolerance = 0.000001)
