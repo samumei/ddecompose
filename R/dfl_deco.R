@@ -766,17 +766,16 @@ fit_and_predict_probabilities <- function(formula,
                               weights=~weights)
   model_fit <- survey::svyglm(formula,
                               data=data_used,
-                              design=design,family=quasibinomial(link="logit"))
+                              design=design,
+                              family=quasibinomial(link="logit"))
 
-  # Without survey package
+  # With glm
   #dep_var <- model.frame(mod_formula,df)[,1]
   #reg <- model.matrix(formula, data=data_used)
-  # model_fit <- glm(formula, data=data_used,
-  #                  weights=weights,
-  #                  family = binomial(link = "logit"),
-  #                  na.action=na.exclude, y=FALSE,
-  #                  model=FALSE)
-  #
+  #model_fit <- glm(formula,
+  #                  data=data_used,
+  #                  weights = weights,
+  #                  family = quasibinomial(link = "logit"))
 
   p_X_1  <- predict.glm(model_fit,
                         newdata=newdata,
