@@ -134,6 +134,9 @@ ob_deco <- function(formula,
                     data,
                     group,
                     weights = NULL,
+                    rifreg = FALSE,
+                    reweighting = FALSE,
+                    method = "logit",
                     na.action = na.exclude,
                     reference_0 = TRUE,
                     normalize_factors = FALSE,
@@ -143,6 +146,9 @@ ob_deco <- function(formula,
                     cluster = NULL,
                     cores = 1,
                     vcov=stats::vcov){
+
+  if(rifreg & !reweighting) warning("If you want to decompose rifregression it is highly recommended to apply reweighting!
+                                    See references for further information.")
 
   ## Get model.frame
   function_call <- match.call()
@@ -155,6 +161,8 @@ ob_deco <- function(formula,
   data_used <- na.action(data_used)
   data_used <- lapply(list(data_used), na.action)[[1]]
 
+  reference_group <- ifelse(reference_0, 0, 1)
+
   ## Get weights
   weights <- model.weights(data_used)
   if (!is.null(weights) && !is.numeric(weights)) {
@@ -162,6 +170,19 @@ ob_deco <- function(formula,
   }
   if (is.null(weights)) {
     data_used$weights <- rep(1, nrow(data_used))
+  }
+
+
+  if(reweighting) {
+    #browser()
+    dlf_deco_results <- dfl_deco(formula = formula,
+                             data = data_used,
+                             weights = weights,
+                             group = group,
+                             reference_0 = reference_0,
+                             method = method,
+                             estimate_statistics = FALSE)
+    reweighting_factor <- dlf_deco_results$reweighting_factor$Psi_X1
   }
 
   ## Check group variable
@@ -175,7 +196,6 @@ ob_deco <- function(formula,
     data_used[, "group"] <- as.factor(group_variable)
   }
 
-  reference_group <- ifelse(reference_0, 0, 1)
   reference_group_print <- levels(data_used[, "group"])[reference_group + 1]
 
   compute_analytical_se <- ifelse(bootstrap, FALSE, TRUE)
@@ -185,6 +205,7 @@ ob_deco <- function(formula,
                                               normalize_factors = normalize_factors,
                                               compute_analytical_se = compute_analytical_se,
                                               return_model_fit = TRUE,
+                                              rifreg = rifreg,
                                               vcov = vcov)
 
   if(bootstrap){
@@ -272,6 +293,7 @@ estimate_ob_deco <- function(formula,
                              normalize_factors,
                              compute_analytical_se,
                              return_model_fit,
+                             rifreg,
                              vcov){
 
   group0 <- levels(data_used[, "group"])[1]

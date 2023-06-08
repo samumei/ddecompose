@@ -11,6 +11,7 @@ estimate_ob_deco(
   normalize_factors,
   compute_analytical_se,
   return_model_fit,
+  rifreg,
   vcov
 )
 }
