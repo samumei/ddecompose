@@ -790,3 +790,30 @@ fit_and_predict_probabilities <- function(formula,
 }
 
 
+#' Trimming function to reduce influence of large weights
+#'
+#' This function implements the trimming algorithm proposed by Huber, Lechner,
+#' and Wunsch (2014).
+trim_weights <- function(weights,
+                         group_variable,
+                         group,
+                         threshold = NULL){
+
+  group <- levels(group_variable)[group+1]
+
+  # Step 1: Define lowest value of trimmed weight range
+  weights_control <- weights[which(group_variable==group)]
+  weights_in_trimming_range <- weights_control[which(weights_control/sum(weights_control) > threshold]
+  trim_value <- ifelse(length(weights_in_trimming_range) == 0, sum(weights), min(weights_in_trimming_range))
+
+  # Step 2: Trim weights in both samples above `trim value`
+  weights[which(weights >= trim_value)] <- 0
+
+  # Step 3: Reormalize weights
+  weights[which(weights != 0 & group_variable==group )] <- weights[which(weights != 0 & group_variable==group)]/sum(weights[which(weights != 0 & group_variable==group)])
+  weights[which(weights != 0 & group_variable!=group )] <- weights[which(weights != 0 & group_variable!=group)]/sum(weights[which(weights != 0 & group_variable!=group)])
+
+  return(weights)
+}
+
+
