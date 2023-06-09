@@ -8,8 +8,8 @@ dfl_deco(
   formula,
   data,
   weights,
-  na.action = na.exclude,
   group,
+  na.action = na.exclude,
   reference_0 = TRUE,
   reweight_marginals = TRUE,
   method = "logit",
@@ -25,23 +25,23 @@ dfl_deco(
 )
 }
 \arguments{
-\item{formula}{a `formula` object with outcome variable Y on left-hand side and
+\item{formula}{a `formula` object with outcome variable Y on the left-hand side and
 the covariates X on the right-hand side. For sequential decompositions,
 the sequence of covariates X are distinguished by the `|` operator. The covariates
 are used to estimate the reweighting factors.}
 
-\item{data}{a `data.frame` containing all variables and the observations for
+\item{data}{a `data.frame` containing all variables and observations for
 both groups.}
 
 \item{weights}{name of the observation weights variable or vector of
 observation weights.}
 
-\item{na.action}{a function to filter missing data (default `na.exclude`).}
-
 \item{group}{name of the a binary variable (numeric or factor)
 identifying the two groups that will be compared. The group identified by the
 lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
 first level of factor variable) is defined as group 0.}
+
+\item{na.action}{a function to filter missing data (default `na.exclude`).}
 
 \item{reference_0}{boolean: if `TRUE` (default), then the group 0 -- i.e.,
 the group identified by the lower ranked value in `group` -- will be defined
@@ -54,7 +54,7 @@ entered into `formula` sequence. Otherwise, the conditional distribution of
 first covariate(s) entered are reweigthed.}
 
 \item{method}{specifies the method fit and predict conditional probabilities
-used to derive the reweighting factor. At the moment, `logit` the only method
+used to derive the reweighting factor. At the moment, `logit` is the only method
 available.}
 
 \item{estimate_statistics}{boolean: if `TRUE` (default), then distributional
@@ -100,7 +100,7 @@ distribution to construct uniform confidence bands for quantiles.
 `dfl_deco` decomposes between-group differences in distributional
 statistics of an outcome variable into a structure effect and a composition effect.
 As proposed by DiNardo, Fortin, and Lemieux (1996), the procedure
-reweights the sample distribution of a reference group such the group's covariates
+reweights the sample distribution of a reference group that the group's covariates
 distribution matches the covariates distribution of a counterfactual group. The
 function allows detailed decompositions of the composition effect by sequentially
 reweighting (conditional) covariate distributions. The function computes

@@ -15,17 +15,17 @@
 #' @description `dfl_deco` decomposes between-group differences in distributional
 #' statistics of an outcome variable into a structure effect and a composition effect.
 #' As proposed by DiNardo, Fortin, and Lemieux (1996), the procedure
-#' reweights the sample distribution of a reference group such the group's covariates
+#' reweights the sample distribution of a reference group that the group's covariates
 #' distribution matches the covariates distribution of a counterfactual group. The
 #' function allows detailed decompositions of the composition effect by sequentially
 #' reweighting (conditional) covariate distributions. The function computes
 #' standard errors by bootstrapping the estimation.
 #'
-#' @param formula a `formula` object with outcome variable Y on left-hand side and
+#' @param formula a `formula` object with outcome variable Y on the left-hand side and
 #' the covariates X on the right-hand side. For sequential decompositions,
 #' the sequence of covariates X are distinguished by the `|` operator. The covariates
 #' are used to estimate the reweighting factors.
-#' @param data a `data.frame` containing all variables and the observations for
+#' @param data a `data.frame` containing all variables and observations for
 #' both groups.
 #' @param weights name of the observation weights variable or vector of
 #' observation weights.
@@ -43,7 +43,7 @@
 #' entered into `formula` sequence. Otherwise, the conditional distribution of
 #' first covariate(s) entered are reweigthed.
 #' @param method specifies the method fit and predict conditional probabilities
-#' used to derive the reweighting factor. At the moment, `logit` the only method
+#' used to derive the reweighting factor. At the moment, `logit` is the only method
 #' available.
 #' @param estimate_statistics boolean: if `TRUE` (default), then distributional
 #' statistics are estimated and the decomposition is performed. If `FALSE`,
@@ -204,8 +204,8 @@
 dfl_deco <-  function(formula,
                       data,
                       weights,
-                      na.action = na.exclude,
                       group,
+                      na.action = na.exclude,
                       reference_0=TRUE,
                       reweight_marginals=TRUE,
                       method="logit",
@@ -694,6 +694,8 @@ dfl_deco_estimate <- function(formula,
 
 
   }else{
+    decomposition_quantiles <- NULL
+    decomposition_other_statistics <- NULL
     Delta <- NULL
   }
 
@@ -757,7 +759,6 @@ fit_and_predict_probabilities <- function(formula,
                                           weights,
                                           method="logit",
                                           newdata=NULL){
-
 
   if(method=="logit"){
   # Fit with survey package
