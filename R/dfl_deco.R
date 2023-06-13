@@ -790,30 +790,39 @@ fit_and_predict_probabilities <- function(formula,
 }
 
 
-#' Trimming function to reduce influence of large weights
+#' Select observations with little common support to be trimmed
 #'
-#' This function implements the trimming algorithm proposed by Huber, Lechner,
-#' and Wunsch (2014).
-trim_weights <- function(weights,
-                         group_variable,
-                         group,
-                         threshold = NULL){
+#' This function implements the trimming rule proposed by Huber, Lechner,
+#' and Wunsch (2014). Observations above the trimming threshold are trimmed in
+#' the reference group as well as in the comparison group. If no trimmin threshold,
+#' the threshold is set to sqrt(N)/N with N the number of observation in the
+#' reweighted reference group. The function returns vector index of observation
+#' to be trimmed.
+#'
+#' @param reweigting_factor Estimated reweigting factor
+#' @param group_variable Variable identifying the reference and comparison group, respectively.
+#' @param group Identifier of reference group
+#' @param threshold threshold defining the maximal accepted relative weight of a reweighting factor/observation
+#'
+
+select_observations_to_be_trimmed <- function(reweighting_factor,
+                                              group_variable,
+                                              group,
+                                              threshold = NULL){
 
   group <- levels(group_variable)[group+1]
 
-  # Step 1: Define lowest value of trimmed weight range
-  weights_control <- weights[which(group_variable==group)]
-  weights_in_trimming_range <- weights_control[which(weights_control/sum(weights_control) > threshold]
-  trim_value <- ifelse(length(weights_in_trimming_range) == 0, sum(weights), min(weights_in_trimming_range))
+  reweighting_factor_control <- reweighting_factor[which(group_variable==group)]
+  if(is.null(threshold)){
+    nobs <- length(reweighting_factor_control)
+    threshold <- sqrt(nobs) / obs
+  }
+  reweighting_factor_in_trimming_range <- reweighting_factor_control[which(reweighting_factor_control / sum(reweighting_factor_control) > threshold]
+  trim_value <- ifelse(length(reweighting_factor_in_trimming_range) == 0, sum(reweighting_factor), min(reweighting_factor_in_trimming_range))
 
-  # Step 2: Trim weights in both samples above `trim value`
-  weights[which(weights >= trim_value)] <- 0
+  observations_to_be_trimmed <- which(reweighting_factor >= trim_value)
 
-  # Step 3: Reormalize weights
-  weights[which(weights != 0 & group_variable==group )] <- weights[which(weights != 0 & group_variable==group)]/sum(weights[which(weights != 0 & group_variable==group)])
-  weights[which(weights != 0 & group_variable!=group )] <- weights[which(weights != 0 & group_variable!=group)]/sum(weights[which(weights != 0 & group_variable!=group)])
-
-  return(weights)
+  return(observations_to_be_trimmed)
 }
 
 
