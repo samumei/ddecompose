@@ -15,15 +15,19 @@
 #' @description `dfl_deco` decomposes between-group differences in distributional
 #' statistics of an outcome variable into a structure effect and a composition effect.
 #' As proposed by DiNardo, Fortin, and Lemieux (1996), the procedure
-#' reweights the sample distribution of a reference group that the group's covariates
-#' distribution matches the covariates distribution of a counterfactual group. The
-#' function allows detailed decompositions of the composition effect by sequentially
-#' reweighting (conditional) covariate distributions. The function computes
-#' standard errors by bootstrapping the estimation.
+#' reweights the sample distribution of a reference group such that the group's
+#' covariates distribution matches the covariates distribution of a counterfactual
+#' group.
 #'
-#' @param formula a `formula` object with outcome variable Y on the left-hand side and
-#' the covariates X on the right-hand side. For sequential decompositions,
-#' the sequence of covariates X are distinguished by the `|` operator. The covariates
+#' Reweighting factors are derived by modelling the probability of belonging to
+#' the one group instead of the other conditional on covariates. The function
+#' allows detailed decompositions of the composition effect by sequentially
+#' reweighting (conditional) covariate distributions. Standard errors can be
+#' bootstrapped.
+#'
+#' @param formula a `formula` object with an outcome variable Y on the left-hand side
+#' and the covariates X on the right-hand side. For sequential decompositions,
+#' the sequence of covariates X are distinguished by the `|` operator. Covariates
 #' are used to estimate the reweighting factors.
 #' @param data a `data.frame` containing all variables and observations for
 #' both groups.
@@ -31,13 +35,14 @@
 #' observation weights.
 #' @param na.action a function to filter missing data (default `na.exclude`).
 #' @param group name of the a binary variable (numeric or factor)
-#' identifying the two groups that will be compared. The group identified by the
-#' lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
-#' first level of factor variable) is defined as group 0.
+#' identifying the two groups for which the differences are to be decomposed.
+#' The group identified by the lower ranked value in `group` (i.e., 0 in the
+#' case of a dummy variable or the first level of factor variable) is defined
+#' as group 0.
 #' @param reference_0 boolean: if `TRUE` (default), then the group 0 -- i.e.,
 #' the group identified by the lower ranked value in `group` -- will be defined
 #' as reference group. The reference group will be reweighted to match the
-#' covariates distribution of the counterfactual sample.
+#' covariates distribution of the sample of the comparison group.
 #' @param reweight_marginals If `TRUE` (default), then the sequential decomposition
 #' reweights first the marginal (joint) distribution of the last covariate (covariates)
 #' entered into `formula` sequence. Otherwise, the conditional distribution of
@@ -69,6 +74,7 @@
 #' interquantile range of the standard distribution to estimate standard errors.
 #' @param cores positive integer indicating the number of cores to use when
 #' computing bootstrap standard errors. Only required if \code{bootstrap = TRUE}.
+#' @param ... other parameters passed to the function estimating the conditional probabilities.
 #'
 #' @details
 #' The covariates entered into `formula` will be used to estimate the reweighting
@@ -145,66 +151,74 @@
 #' of the reweighting factor as well as the bootstrapped Kolmogorov-Smirnov
 #' distribution to construct uniform confidence bands for quantiles.
 #'
-#'
 #' @references
 #' DiNardo, John, Nicole M. Fortin, and Thomas Lemieux. 1996. "Labor Market
 #' Institutions and the Distribution of Wages, 1973-1992: A Semiparametric Approach."
 #' \emph{Econometrica}, 64(5), 1001-1044.
 #'
-#' Fortin, Firpo, and Lemieux (2012, p. 67) (Handbook Chapter)
-#'
 #' Firpo, Sergio P., Nicole M. Fortin, and Thomas Lemieux. 2018. “Decomposing Wage
 #' Distributions Using Recentered Influence Function Regressions.”
 #' \emph{Econometrics} 6(2), 28.
 #'
-#' Firpo, Sergio, and Cristine Pinto. 2016. "Identification and Estimation of
+#' Fortin, Nicole M., Thomas Lemieux, and Sergio Firpo. 2011. "Decomposition methods in economics."
+#' In Orley Ashenfelter and David Card, eds., \emph{Handbook of labor economics}. Vol. 4. Elsevier, 1-102.
+#'
+#' Firpo, Sergio P., and Cristine Pinto. 2016. "Identification and Estimation of
 #' Distributional Impacts of Interventions Using Changes in Inequality Measures."
 #' \emph{Journal of Applied Econometrics}, 31(3), 457– 486.
 #'
 #' @export
 #'
 #' @examples
-#' # library(AER)
-#' # data("CPS1985")
-#' # mod1 <- log(wage) ~ education + experience + ethnicity + region + sector
-#' # est1 <- dfl_deco(mod1, data=CPS1985, group=union)
-#' # est1
-#' #
-#' # plot(est1)
-#' #
-#' # # Bootstrap
-#' # est2 <- dfl_deco(mod1,
-#' #                 data=CPS1985,
-#' #                 group=union,
-#' #                 bootstrap=TRUE,
-#' #                 bootstrap_iteration=10,
-#' #                 bootstrap_robust=TRUE)
-#' # est2
-#' #
-#' # plot(est2, uniform_bands=TRUE)
-#' #
-#' # summary(est2)
-#' #
-#' #
-#' ## Replicate example from handbook chapter of Fortin, Firpo, and Lemieux (2011, p. 67, Table 5)
+#' ## Replicate example from handbook chapter of Fortin, Lemieux, and Firpo (FLF, 2011)
 #' data("men8305")
 #' men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
-#' ffl_model <- log(wage) ~ union*(education + experience) + education*experience
-#' ffl_male_example  <- dfl_deco(ffl_model,
-#'                               data = men8305,
-#'                               weights = weights,
-#'                               group = year,
-#'                               reference_0 = TRUE,
-#'                               statistics = c( "iq_range_p90_p10",
-#'                                               "iq_range_p90_p50",
-#'                                               "iq_range_p50_p10",
-#'                                                "variance",
-#'                                                "gini"))
-#' summary(ffl_male_example)
+#' flf_model <- log(wage) ~ union*(education + experience) + education*experience
+#' flf_male_inequality  <- dfl_deco(flf_model,
+#'                                  data = men8305,
+#'                                  weights = weights,
+#'                                  group = year)
+#'
+#' # Summarize results
+#' summary(flf_male_inequality)
+#'
+#' # Plot decomposition of qunatile differences
+#' plot(flf_male_inequality)
+#'
+#' # Bootstrap standard errors (using smaller sample for the sake of illustration)
+#' \dontrun{
+#' set.seed(123)
+#' flf_male_inequality_boot  <- dfl_deco(flf_model,
+#'                                  data = men8305[1:1000, ],
+#'                                  weights = weights,
+#'                                  group = year,
+#'                                  bootstrap = TRUE,
+#'                                  bootstrap_iterations = 100,
+#'                                  cores = 1)
+#'
+#' # Get standard errors and confidence intervals
+#' summary(flf_male_inequality_boot)
+#'
+#' # Plot quantile differences with uniform confidence intervals
+#' plot(flf_male_inequality_boot, uniform_bands=TRUE)
+#' }
+#'
+#' # Replicate statistics in table 5, p.67, in in FLF (2011)
+#' flf_male_inequality_table_5  <- dfl_deco(flf_model,
+#'                                          data = men8305,
+#'                                          weights = weights,
+#'                                          group = year,
+#'                                          reference_0 = TRUE,
+#'                                          statistics = c("iq_range_p90_p10",
+#'                                                         "iq_range_p90_p50",
+#'                                                         "iq_range_p50_p10",
+#'                                                         "variance",
+#'                                                         "gini"))
+#' summary(flf_male_inequality_table_5)
 #'
 #'
 #' # Trim observations
-#' ffl_male_example_trimming  <- dfl_deco(ffl_model,
+#' flf_male_example_trimming  <- dfl_deco(flf_model,
 #'                               data = men8305,
 #'                               weights = weights,
 #'                               group = year,
@@ -225,7 +239,7 @@ dfl_deco <-  function(formula,
                       na.action = na.exclude,
                       reference_0 = TRUE,
                       reweight_marginals = TRUE,
-                      method="logit",
+                      method = "logit",
                       estimate_statistics = TRUE,
                       statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10"),
                       probs = c(1:9)/10,
@@ -235,7 +249,8 @@ dfl_deco <-  function(formula,
                       bootstrap = FALSE,
                       bootstrap_iterations = 100,
                       bootstrap_robust = FALSE,
-                      cores=1){
+                      cores = 1,
+                      ...){
 
   ## Get model.frame
   function_call <- match.call()
@@ -264,7 +279,8 @@ dfl_deco <-  function(formula,
   }
 
   ## Get group variable and reference level
-  group_variable_name <- data_arguments[["group"]]
+  group_variable_name <- as.character(data_arguments[["group"]])
+  remove(group)
   group_variable <- data_used[, ncol(data_used)]
   names(data_used)[ncol(data_used)] <- "group_variable"
   check_group_variable <- is.numeric(group_variable)&length(unique(group_variable))==2|is.factor(group_variable)&length(unique(group_variable))==2
@@ -308,7 +324,8 @@ dfl_deco <-  function(formula,
                                probs = probs,
                                reweight_marginals = reweight_marginals,
                                trimming = trimming,
-                               trimming_threshold = trimming_threshold)
+                               trimming_threshold = trimming_threshold,
+                               ...)
 
 
    if(bootstrap){
@@ -327,14 +344,25 @@ dfl_deco <-  function(formula,
                                                                               probs = probs,
                                                                               reweight_marginals = reweight_marginals,
                                                                               trimming = trimming,
-                                                                              trimming_threshold = trimming_threshold))
+                                                                              trimming_threshold = trimming_threshold,
+                                                                              ...))
     } else {
       cores <- min(cores, parallel::detectCores() - 1)
       cluster <- parallel::makeCluster(cores)
-      parallel::clusterSetRNGStream(cluster, round(runif(1,0,100000)))
+      parallel::clusterSetRNGStream(cluster, round(runif(1, 0, 100000)))
       parallel::clusterExport(cl = cluster,
                               varlist = ls(),
                               envir = environment())
+      parallel::clusterExport(cl = cluster,
+                              c("dfl_deco_bootstrap",
+                                "fit_and_predict_probabilities",
+                                "dfl_deco_estimate",
+                                "select_observations_to_be_trimmed",
+                                "get_distributional_statistics",
+                                "estimate_iq_range",
+                                "estimate_iq_ratio"
+                                ))
+      #parallel::clusterEvalQ(cl = cluster, library("ddeco"))
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
                                                function(x) dfl_deco_bootstrap(formula = formula,
                                                                               dep_var = dep_var,
@@ -342,13 +370,14 @@ dfl_deco <-  function(formula,
                                                                               weights = weights,
                                                                               group_variable = group_variable,
                                                                               reference_group = reference_group,
-                                                                              method=method,
+                                                                              method = method,
                                                                               estimate_statistics = estimate_statistics,
                                                                               statistics = statistics,
                                                                               probs = probs,
                                                                               reweight_marginals = reweight_marginals,
                                                                               trimming = trimming,
-                                                                              trimming_threshold = trimming_threshold),
+                                                                              trimming_threshold = trimming_threshold,
+                                                                              ...),
                                                cl = cluster)
       parallel::stopCluster(cluster)
     }
@@ -365,9 +394,6 @@ dfl_deco <-  function(formula,
                                    direction = "long",
                                    v.names = "value")
 
-      # bs_se_deco_quantiles <- tidyr::pivot_longer(bootstrapped_quantiles,
-      #                                             col=names(bootstrapped_quantiles)[-1],
-      #                                             names_to="effect")
       bs_se_deco_quantiles <- lapply(split(bs_se_deco_quantiles, bs_se_deco_quantiles[,c("probs","effect")]),
                                      function(x) data.frame(probs=x$probs[1],
                                                             effect=x$effect[1],
@@ -377,13 +403,6 @@ dfl_deco <-  function(formula,
                                      )
 
       bs_se_deco_quantiles <- do.call("rbind",  bs_se_deco_quantiles)
-      # bs_se_deco_quantiles <- dplyr::summarise(dplyr::group_by(bs_se_deco_quantiles,
-      #                                                          probs,
-      #                                                          effect),
-      #                                          se=ifelse(bootstrap_robust,
-      #                                                    (quantile(value, 0.75) - quantile(value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
-      #                                                    sqrt(var(value))),
-      #                                          .groups="keep")
       bs_se_deco_quantiles <- stats::reshape(bs_se_deco_quantiles,
                                              idvar = c("probs"),
                                              timevar="effect",
@@ -391,11 +410,6 @@ dfl_deco <-  function(formula,
       names(bs_se_deco_quantiles) <- gsub("se[.]","",names( bs_se_deco_quantiles))
 
 
-
-      # bs_se_deco_quantiles <- tidyr::pivot_wider(bs_se_deco_quantiles,
-      #                                            id_cols = "probs",
-      #                                            names_from = "effect",
-      #                                            values_from = "se")
       bs_se_deco_quantiles <- bs_se_deco_quantiles[, names(results$decomposition_quantiles)]
 
 
@@ -407,10 +421,6 @@ dfl_deco <-  function(formula,
                                        varying = list(setdiff(names(bootstrapped_quantiles),c("probs","iteration"))),
                                        direction = "long",
                                        v.names = "value")
-
-      # bs_kolmogorov_smirnov_stat  <- tidyr::pivot_longer(bootstrapped_quantiles,
-      #                                             col=names(bootstrapped_quantiles)[-c(1,ncol(bootstrapped_quantiles))],
-      #                                             names_to="effect")
 
       bs_kolmogorov_smirnov_stat <- lapply(split(bs_kolmogorov_smirnov_stat, bs_kolmogorov_smirnov_stat[, c("probs","effect")]),
                                            function(x) data.frame(probs=x$probs[1],
@@ -424,13 +434,6 @@ dfl_deco <-  function(formula,
       )
       bs_kolmogorov_smirnov_stat <- do.call("rbind",  bs_kolmogorov_smirnov_stat)
       bs_kolmogorov_smirnov_stat$value_over_se <- bs_kolmogorov_smirnov_stat$value/bs_kolmogorov_smirnov_stat$se
-      # bs_kolmogorov_smirnov_stat <- dplyr::mutate(dplyr::group_by(bs_kolmogorov_smirnov_stat,
-      #                                                                probs,
-      #                                                                effect),
-      #                                             se=ifelse(bootstrap_robust,
-      #                                                       (quantile(value, 0.75) - quantile(value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
-      #                                                       sqrt(var(value))),
-      #                                             value_over_se=value/se)
       bs_kolmogorov_smirnov_stat <- lapply(split(bs_kolmogorov_smirnov_stat, bs_kolmogorov_smirnov_stat[, c("effect","iteration")]),
                                            function(x) data.frame(effect=x$effect[1],
                                                                   iteration=x$iteration[1],
@@ -439,13 +442,7 @@ dfl_deco <-  function(formula,
       )
 
 
-      # bs_kolmogorov_smirnov_stat <- dplyr::summarise(dplyr::group_by(bs_kolmogorov_smirnov_stat,
-      #                                                             effect,
-      #                                                             iteration),
-      #                                                kms_t_value = max(value_over_se),
-      #                                                .groups = "keep")
       bs_kolmogorov_smirnov_stat <- do.call("rbind", bs_kolmogorov_smirnov_stat)
-      # bs_kolmogorov_smirnov_stat <- as.data.frame(bs_kolmogorov_smirnov_stat)
 
     } else {
       bs_se_deco_quantiles <- NULL
@@ -464,10 +461,7 @@ dfl_deco <-  function(formula,
                                        direction = "long",
                                        v.names = "value")
 
-      # bs_se_deco_other_statistics <- tidyr::pivot_longer(bootstrapped_other_statistics,
-      #                                                    col=names(bootstrapped_other_statistics)[-1],
-      #                                                    names_to="effect")
-      bs_se_deco_other_statistics <- lapply(split(bs_se_deco_other_statistics, bs_se_deco_other_statistics[,c("statistic","effect")]),
+     bs_se_deco_other_statistics <- lapply(split(bs_se_deco_other_statistics, bs_se_deco_other_statistics[,c("statistic","effect")]),
                                      function(x) data.frame(statistic=x$statistic[1],
                                                             effect=x$effect[1],
                                                             se=ifelse(bootstrap_robust,
@@ -477,26 +471,11 @@ dfl_deco <-  function(formula,
 
       bs_se_deco_other_statistics <- do.call("rbind",  bs_se_deco_other_statistics)
 
-
-
-      # bs_se_deco_other_statistics <- dplyr::summarise(dplyr::group_by(bs_se_deco_other_statistics,
-      #                                                                 statistic,
-      #                                                                 effect),
-      #                                                 se=ifelse(bootstrap_robust,
-      #                                                           (quantile(value, 0.75) - quantile(value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
-      #                                                           sqrt(var(value))),
-      #                                                 .groups = "keep")
-
       bs_se_deco_other_statistics <- stats::reshape(bs_se_deco_other_statistics,
                                       idvar = c("statistic"),
                                       timevar="effect",
                                       direction = "wide")
       names(bs_se_deco_other_statistics) <- gsub("se[.]","",names( bs_se_deco_other_statistics ))
-
-      # bs_se_deco_other_statistics <- tidyr::pivot_wider(bs_se_deco_other_statistics,
-      #                                                   id_cols = "statistic",
-      #                                                   names_from = "effect",
-      #                                                   values_from = "se")
       bs_se_deco_other_statistics <- as.data.frame(bs_se_deco_other_statistics[match(results$decomposition_other_statistics$statistic,
                                                                                      bs_se_deco_other_statistics$statistic),
                                                                                names(results$decomposition_other_statistics)])
@@ -533,10 +512,10 @@ dfl_deco <-  function(formula,
 
   }
 
-  add_to_results <- list(bootstrapped_standard_errors=bootstrap_se,
-                         group_variable_name=group_variable_name,
-                         group_variable_levels=levels(group_variable),
-                         reference_group=reference_group_print)
+  add_to_results <- list(bootstrapped_standard_errors = bootstrap_se,
+                         group_variable_name = group_variable_name,
+                         group_variable_levels = levels(group_variable),
+                         reference_group = reference_group_print)
   results <- c(results, add_to_results)
 
   class(results) <- "dfl_deco"
@@ -563,7 +542,8 @@ dfl_deco_estimate <- function(formula,
                               probs,
                               reweight_marginals,
                               trimming,
-                              trimming_threshold){
+                              trimming_threshold,
+                              ...){
 
 # Estimate probabilities -------------------------------------------------------
 
@@ -575,7 +555,7 @@ dfl_deco_estimate <- function(formula,
   nvar <- length(formula)[2] # Number of detailed decomposition effects
   for(i in nvar:1){
     mod <- update(stats::formula(formula, rhs=nvar:i, collapse=TRUE), group_variable ~ .)
-    p1 <- fit_and_predict_probabilities(mod, data_used, weights, method = method)
+    p1 <- fit_and_predict_probabilities(mod, data_used, weights, method = method, ...)
     p0 <- 1-p1
     estimated_probabilities <- cbind(estimated_probabilities, p0/p1)
   }
@@ -811,7 +791,7 @@ dfl_deco_bootstrap <- function(formula,
 }
 
 
-#' Predict probabilities
+#' Predict conditional probabilities
 #'
 #' This function fits a binary choice model and predicts probabilities for every
 #' observations.
@@ -819,26 +799,17 @@ fit_and_predict_probabilities <- function(formula,
                                           data_used,
                                           weights,
                                           method="logit",
-                                          newdata=NULL){
+                                          newdata=NULL,
+                                          ...){
 
   if(method=="logit"){
-  # Fit with survey package
-  # design <- survey::svydesign(~0,
-  #                             data=data_used,
-  #                             weights=~weights)
-  # model_fit <- survey::svyglm(formula,
-  #                             data=data_used,
-  #                             design=design,
-  #                             family=quasibinomial(link="logit"))
 
-  # With glm
-  # dep_var <- model.frame(mod_formula, df)[,1]
-  # reg <- model.matrix(formula, data=data_used)
   data_used$`(weights)` <- weights
   model_fit <- glm(formula,
                    data = data_used,
                    weights = `(weights)`,
-                   family = quasibinomial(link = "logit"))
+                   family = quasibinomial(link = "logit"),
+                   ...)
 
   p_X_1  <- predict.glm(model_fit,
                         newdata=newdata,
