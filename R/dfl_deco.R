@@ -57,6 +57,8 @@
 #' @param probs a vector of length 1 or more with the probabilities of the quantiles
 #' to be estimated with default `c(1:9)/10`.
 #' @param custom_statistic_function a custom statistic function to pass as argument.
+#' @param trimming boolean: If `TRUE`, observations with dominant reweighting factor values are trimmend according to rule of Huber, Lechner, and Wunsch (2014). Per default, trimming is set to `FALSE`.
+#' @param trimming_threshold numeric: threshold defining the maximal accepted relative weight of the reweighting factor value of a single observation. If `NULL`, the threshold is set to $\sqrt(N)/N$, where N is the number of observations in the reference group.
 #' @param bootstrap boolean: If `FALSE`, then the estimation is not boostrapped and no
 #' standard errors are calculated.
 #' @param bootstrap_iterations positive integer indicating the number of bootstrap
@@ -184,38 +186,38 @@
 #' # summary(est2)
 #' #
 #' #
-#' # ## Example from handbook chapter of Fortin, Firpo, and Lemieux (2012, p. 67, Table 5)
-#' # # (see also Stata replication files
-#' # # https://sites.google.com/view/nicole-m-fortin/data-and-programs?pli=1)
-#' # load("data/men8305.rda")
-#' # mod2 <- log(wage) ~ union*(education + experience) + education*experience
-#' # ffl2012  <- dfl_deco(mod2,
-#' #                     data=men8305,
-#' #                     weights=weights,
-#' #                     group=year,
-#' #                     reference_0=TRUE,
-#' #                     statistics=c( "iq_range_p90_p10",
-#' #                                   "iq_range_p90_p50",
-#' #                                   "iq_range_p50_p10",
-#' #                                   "variance",
-#' #                                   "gini"))
-#' # ffl2012
+#' ## Replicate example from handbook chapter of Fortin, Firpo, and Lemieux (2011, p. 67, Table 5)
+#' data("men8305")
+#' ffl_model <- log(wage) ~ union*(education + experience) + education*experience
+#' ffl_male_example  <- dfl_deco(ffl_model,
+#'                               data = men8305,
+#'                               weights= weights,
+#'                               group=year,
+#'                               reference_0 = TRUE,
+#'                               statistics = c( "iq_range_p90_p10",
+#'                                               "iq_range_p90_p50",
+#'                                               "iq_range_p50_p10",
+#'                                                "variance",
+#'                                                "gini"))
+#' ffl_male_example
 #'
 dfl_deco <-  function(formula,
                       data,
                       weights,
                       group,
                       na.action = na.exclude,
-                      reference_0=TRUE,
-                      reweight_marginals=TRUE,
+                      reference_0 = TRUE,
+                      reweight_marginals = TRUE,
                       method="logit",
-                      estimate_statistics=TRUE,
-                      statistics=c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10"),
-                      probs=c(1:9)/10,
-                      custom_statistic_function=NULL,
-                      bootstrap=FALSE,
-                      bootstrap_iterations=100,
-                      bootstrap_robust=FALSE,
+                      estimate_statistics = TRUE,
+                      statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10"),
+                      probs = c(1:9)/10,
+                      custom_statistic_function = NULL,
+                      trimming = FALSE,
+                      trimming_threshold = NULL,
+                      bootstrap = FALSE,
+                      bootstrap_iterations = 100,
+                      bootstrap_robust = FALSE,
                       cores=1){
 
   ## Get model.frame
@@ -284,7 +286,9 @@ dfl_deco <-  function(formula,
                                estimate_statistics=estimate_statistics,
                                statistics=statistics,
                                probs=probs,
-                               reweight_marginals=reweight_marginals)
+                               reweight_marginals=reweight_marginals,
+                               trimming = trimming,
+                               trimming_threshold = trimming_threshold)
 
 
    if(bootstrap){
@@ -534,7 +538,9 @@ dfl_deco_estimate <- function(formula,
                               estimate_statistics,
                               statistics,
                               probs,
-                              reweight_marginals){
+                              reweight_marginals,
+                              trimming,
+                              trimming_threshold){
 
 # Estimate probabilities -------------------------------------------------------
 
@@ -591,6 +597,25 @@ dfl_deco_estimate <- function(formula,
                                                       function(i) paste0(paste0(paste0("X", 1:i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))))
     }
     names_decomposition_terms <- 1:nvar
+  }
+
+# Trimming: Set weights of reweighting_factors above trimming threshold to zero
+
+  if(trimming){
+
+   observations_to_be_trimmed <- list()
+
+   for(j in 1:ncol(psi)){
+     observations_to_be_trimmed[[j]] <- select_observations_to_be_trimmed(psi[, j],
+                                                                          group_variable = group_variable,
+                                                                          group = reference_group,
+                                                                          trimming_threshold = trimming_threshold)
+   }
+
+  observations_to_be_trimmed <- unique(do.call("c", observations_to_be_trimmed))
+
+  weights[observations_to_be_trimmed] <- 0
+
   }
 
 
@@ -794,31 +819,32 @@ fit_and_predict_probabilities <- function(formula,
 #'
 #' This function implements the trimming rule proposed by Huber, Lechner,
 #' and Wunsch (2014). Observations above the trimming threshold are trimmed in
-#' the reference group as well as in the comparison group. If no trimmin threshold,
-#' the threshold is set to sqrt(N)/N with N the number of observation in the
-#' reweighted reference group. The function returns vector index of observation
-#' to be trimmed.
+#' the reference group and in the comparison group. Per default, the timming
+#' is set to sqrt(N)/N, where N is the number of observation in the  reweighted
+#' reference group. The function returns vector index of observation to be trimmed.
 #'
 #' @param reweigting_factor Estimated reweigting factor
 #' @param group_variable Variable identifying the reference and comparison group, respectively.
 #' @param group Identifier of reference group
-#' @param threshold threshold defining the maximal accepted relative weight of a reweighting factor/observation
+#' @param trimming_threshold threshold defining the maximal accepted relative weight of a reweighting factor/observation. If `NULL`, the threshold is set to $\sqrt(N)/N$, where N is the number of observations in the reference group.
 #'
 
 select_observations_to_be_trimmed <- function(reweighting_factor,
                                               group_variable,
                                               group,
-                                              threshold = NULL){
+                                              trimming_threshold = NULL){
 
-  group <- levels(group_variable)[group+1]
+  group <- levels(group_variable)[group + 1]
 
   reweighting_factor_control <- reweighting_factor[which(group_variable==group)]
   if(is.null(threshold)){
     nobs <- length(reweighting_factor_control)
     threshold <- sqrt(nobs) / obs
   }
-  reweighting_factor_in_trimming_range <- reweighting_factor_control[which(reweighting_factor_control / sum(reweighting_factor_control) > threshold]
-  trim_value <- ifelse(length(reweighting_factor_in_trimming_range) == 0, sum(reweighting_factor), min(reweighting_factor_in_trimming_range))
+  reweighting_factor_in_trimming_range <- reweighting_factor_control[which(reweighting_factor_control / sum(reweighting_factor_control) > threshold)]
+  trim_value <- ifelse(length(reweighting_factor_in_trimming_range) == 0,
+                       sum(reweighting_factor),
+                       min(reweighting_factor_in_trimming_range))
 
   observations_to_be_trimmed <- which(reweighting_factor >= trim_value)
 
