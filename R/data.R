@@ -15,7 +15,7 @@
 #'   \item{msa}{Metropolitan statistical area (MSA) indicator}
 #'   \item{region}{Factor variable disinguishing 4 large regions}
 #'   \item{black}{Black indicator}
-#'   \item{hispanic}{Hiscpanic indicator}
+#'   \item{hispanic}{Hispanic indicator}
 #'   \item{education}{Factor variable indicating highest attained education}
 #'   \item{afqt}{Percentile score of armed force qualification test (AFTQ) devided by 10}
 #'   \item{family_responsibility}{Family responsibility indicator}
@@ -30,4 +30,31 @@
 #' "Decomposition Methods in Economics." In Orley Ashenfelter and David Card, eds.,
 #' Handbook of Labor Economics, Volume 4a., Chapter 1, 1-102.
 "nlys00"
+
+
+#' Sample of male wage data from the CPS 1983-1985 and 2001-2003
+#'
+#' @description A sample of the the Merged Outgoing Rotation Group of the
+#' Current Population Survey of 1983, 1984, 1985, 2003, 2004 and 2006 used as
+#' an example in the handbook chapter of Fortin, Lemieux & Firpo (2011). The
+#' data contains a selection of 8 variables and a sample of 40,347 observations
+#' of male workers.
+#'
+#' @format A data frame with 26,695 rows and 10 variables.
+#' \describe{
+#'   \item{wage}{Hourly wage in US dollars at constant prices}
+#'   \item{union}{Union status indicator}
+#'   \item{education}{Factor variable with 6 education levels: high-school graduates (reference), elementary, high-school dropouts , some college, college graduates, post college graduates}
+#'   \item{experience}{Factor variable with 9 potential experience levels, each of five years gap, 20 to 24 years as reference level)}
+#'   \item{married}{Married indicator}
+#'   \item{nonwhite}{Non-white indicator}
+#'   \item{year}{Indicator distinguishing pooled observations from the 1983 to 1985 period and those from 2003 to 2005}
+#'   \item{weights}{CPS sample weights}
+#' }
+#'
+#' @source
+#' Fortin, Nicole M., Thomas Lemieux, and Firpo Segio. 2011.
+#' "Decomposition Methods in Economics." In Orley Ashenfelter and David Card, eds.,
+#' Handbook of Labor Economics, Volume 4a., Chapter 1, 1-102.
+"men8305"
 
