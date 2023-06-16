@@ -86,6 +86,13 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
   }
 
   cat("Summary statistics of reweighting factors\n\n")
+
+  cat(paste0("Number of trimmed observations (not included in statistics): ",
+             length(x$trimmed_observations),
+             " (",
+             round(length(x$trimmed_observations)/nrow(x$reweighting_facor)*100, 1),
+             "%\n\n")
+
   if(is.null(x$bootstrapped_standard_errors)==FALSE){
     quantiles_reweighting_factor <- x$quantiles_reweighting_factor
     quantiles_reweighting_factor_se <- x$bootstrapped_standard_errors$quantiles_reweighting_factor

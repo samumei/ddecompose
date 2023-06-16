@@ -242,6 +242,9 @@ dfl_deco <-  function(formula,
   if (is.null(weights)) {
     weights <- rep(1, length(dep_var))
   }
+  if (sum(weights) <= 1) {
+    weights <- weights * length(weights)
+  }
 
   ## Get group variable and reference level
   group_variable_name <- data_arguments[["group"]]
@@ -305,7 +308,9 @@ dfl_deco <-  function(formula,
                                                                               estimate_statistics = estimate_statistics,
                                                                               statistics = statistics,
                                                                               probs = probs,
-                                                                              reweight_marginals = reweight_marginals))
+                                                                              reweight_marginals = reweight_marginals,
+                                                                              trimming = trimming,
+                                                                              trimming_threshold = trimming_threshold))
     } else {
       cores <- min(cores, parallel::detectCores() - 1)
       cluster <- parallel::makeCluster(cores)
@@ -324,7 +329,9 @@ dfl_deco <-  function(formula,
                                                                               estimate_statistics = estimate_statistics,
                                                                               statistics = statistics,
                                                                               probs = probs,
-                                                                              reweight_marginals = reweight_marginals),
+                                                                              reweight_marginals = reweight_marginals,
+                                                                              trimming = trimming,
+                                                                              trimming_threshold = trimming_threshold),
                                                cl = cluster)
       parallel::stopCluster(cluster)
     }
@@ -527,7 +534,6 @@ dfl_deco <-  function(formula,
 #' reweighting factors, estimates the distributional statistics and
 #' calculates the decomposition terms.
 #'
-#'
 dfl_deco_estimate <- function(formula,
                               dep_var,
                               data_used ,
@@ -613,8 +619,7 @@ dfl_deco_estimate <- function(formula,
    }
 
     observations_to_be_trimmed <- unique(do.call("c", observations_to_be_trimmed))
-
-  weights[observations_to_be_trimmed] <- 0
+    weights[observations_to_be_trimmed] <- 0
 
   }else{
 
@@ -732,17 +737,19 @@ dfl_deco_estimate <- function(formula,
   # Compute sample quantiles of reweighting factors ----------------------------
   quantiles_reweighting_factor <- data.frame(probs=c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1))
   rownames(quantiles_reweighting_factor) <- c("Min.", "10%-quantile", "25%-quantile", "50%-quantile", "75%-quantile", "90%-quantile", "Max.")
+  factors_to_be_considered <- setdiff(1:nrow(psi), observations_to_be_trimmed)
   for(i in 1:ncol(psi)){
     quantiles_reweighting_factor <- cbind(quantiles_reweighting_factor,
-                                          quantile(psi[, i], probs=quantiles_reweighting_factor$probs, na.rm=TRUE))
+                                          quantile(psi[factors_to_be_considered, i], probs=quantiles_reweighting_factor$probs, na.rm=TRUE))
     names(quantiles_reweighting_factor)[i+1] <- names(psi)[i]
   }
 
   # Export results
-  results <- list(decomposition_quantiles=decomposition_quantiles,
-                  decomposition_other_statistics=decomposition_other_statistics,
-                  reweighting_factor=psi,
-                  quantiles_reweighting_factor=quantiles_reweighting_factor)
+  results <- list(decomposition_quantiles = decomposition_quantiles,
+                  decomposition_other_statistics = decomposition_other_statistics,
+                  reweighting_factor = psi,
+                  quantiles_reweighting_factor = quantiles_reweighting_factor,
+                  trimmed_observations = observations_to_be_trimmed)
   return(results)
 }
 
@@ -758,6 +765,8 @@ dfl_deco_bootstrap <- function(formula,
                                statistics,
                                probs,
                                reweight_marginals,
+                               trimming,
+                               trimming_threshold,
                                ...){
   sampled_observations <- sample(1:nrow(data_used),
                                  nrow(data_used),
@@ -773,6 +782,8 @@ dfl_deco_bootstrap <- function(formula,
                                           statistics = statistics,
                                           probs = probs,
                                           reweight_marginals = reweight_marginals,
+                                          trimming,
+                                          trimming_threshold,
                                           ...)
 
   deco_estimates$reweighting_factor <- NULL
@@ -792,21 +803,21 @@ fit_and_predict_probabilities <- function(formula,
 
   if(method=="logit"){
   # Fit with survey package
-  design <- survey::svydesign(~0,
-                              data=data_used,
-                              weights=~weights)
-  model_fit <- survey::svyglm(formula,
-                              data=data_used,
-                              design=design,
-                              family=quasibinomial(link="logit"))
+  # design <- survey::svydesign(~0,
+  #                             data=data_used,
+  #                             weights=~weights)
+  # model_fit <- survey::svyglm(formula,
+  #                             data=data_used,
+  #                             design=design,
+  #                             family=quasibinomial(link="logit"))
 
   # With glm
-  #dep_var <- model.frame(mod_formula,df)[,1]
-  #reg <- model.matrix(formula, data=data_used)
-  #model_fit <- glm(formula,
-  #                  data=data_used,
-  #                  weights = weights,
-  #                  family = quasibinomial(link = "logit"))
+  # dep_var <- model.frame(mod_formula, df)[,1]
+  # reg <- model.matrix(formula, data=data_used)
+  model_fit <- glm(formula,
+                   data = data_used,
+                   weights = weights,
+                   family = quasibinomial(link = "logit"))
 
   p_X_1  <- predict.glm(model_fit,
                         newdata=newdata,
