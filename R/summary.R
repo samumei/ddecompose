@@ -135,10 +135,15 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
 #' @export
 #'
 #' @examples
-#' library("AER")
-#' data("CPS1985")
-#' mod2 <- log(wage) ~ education + experience + union + ethnicity
-#' deco_results <- ob_deco(formula = mod2, data = CPS1985, group = gender)
+#' data("nlys00")
+#' mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#' hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#' years_worked_military + part_time + industry
+#'
+#' deco_results <- ob_deco(formula = mod1,
+#'                         data = nlys00,
+#'                         group = female,
+#'                         reference_0 = TRUE)
 #'
 #' # Print standard errors
 #' summary(deco_results)
