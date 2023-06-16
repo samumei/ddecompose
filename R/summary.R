@@ -79,7 +79,6 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
       }
 
     }else{
-      cat("Decomposition of differences in other statistics\n\n")
       print(x$decomposition_other_statistics[, -1])
       cat("\n")
     }
@@ -90,8 +89,8 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
   cat(paste0("Number of trimmed observations (not included in statistics): ",
              length(x$trimmed_observations),
              " (",
-             round(length(x$trimmed_observations)/nrow(x$reweighting_facor)*100, 1),
-             "%\n\n"))
+             round(length(x$trimmed_observations)/nrow(x$reweighting_factor)*100, 1),
+             "%)\n\n"))
 
   if(is.null(x$bootstrapped_standard_errors)==FALSE){
     quantiles_reweighting_factor <- x$quantiles_reweighting_factor

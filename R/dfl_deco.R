@@ -188,18 +188,19 @@
 #' #
 #' ## Replicate example from handbook chapter of Fortin, Firpo, and Lemieux (2011, p. 67, Table 5)
 #' data("men8305")
+#' men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
 #' ffl_model <- log(wage) ~ union*(education + experience) + education*experience
 #' ffl_male_example  <- dfl_deco(ffl_model,
 #'                               data = men8305,
-#'                               weights= weights,
-#'                               group=year,
+#'                               weights = weights,
+#'                               group = year,
 #'                               reference_0 = TRUE,
 #'                               statistics = c( "iq_range_p90_p10",
 #'                                               "iq_range_p90_p50",
 #'                                               "iq_range_p50_p10",
 #'                                                "variance",
 #'                                                "gini"))
-#' ffl_male_example
+#' summary(ffl_male_example)
 #'
 dfl_deco <-  function(formula,
                       data,
@@ -814,9 +815,10 @@ fit_and_predict_probabilities <- function(formula,
   # With glm
   # dep_var <- model.frame(mod_formula, df)[,1]
   # reg <- model.matrix(formula, data=data_used)
+  data_used$`(weights)` <- weights
   model_fit <- glm(formula,
                    data = data_used,
-                   weights = weights,
+                   weights = `(weights)`,
                    family = quasibinomial(link = "logit"))
 
   p_X_1  <- predict.glm(model_fit,
