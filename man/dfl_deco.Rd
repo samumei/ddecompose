@@ -18,6 +18,8 @@ dfl_deco(
     "iq_range_p90_p50", "iq_range_p50_p10"),
   probs = c(1:9)/10,
   custom_statistic_function = NULL,
+  trimming = FALSE,
+  trimming_threshold = NULL,
   bootstrap = FALSE,
   bootstrap_iterations = 100,
   bootstrap_robust = FALSE,
@@ -72,6 +74,10 @@ in `formula`.}
 to be estimated with default `c(1:9)/10`.}
 
 \item{custom_statistic_function}{a custom statistic function to pass as argument.}
+
+\item{trimming}{boolean: If `TRUE`, observations with dominant reweighting factor values are trimmend according to rule of Huber, Lechner, and Wunsch (2014). Per default, trimming is set to `FALSE`.}
+
+\item{trimming_threshold}{numeric: threshold defining the maximal accepted relative weight of the reweighting factor value of a single observation. If `NULL`, the threshold is set to $\sqrt(N)/N$, where N is the number of observations in the reference group.}
 
 \item{bootstrap}{boolean: If `FALSE`, then the estimation is not boostrapped and no
 standard errors are calculated.}
@@ -196,22 +202,37 @@ please use `custom_statistic_function`.
 # summary(est2)
 #
 #
-# ## Example from handbook chapter of Fortin, Firpo, and Lemieux (2012, p. 67, Table 5)
-# # (see also Stata replication files
-# # https://sites.google.com/view/nicole-m-fortin/data-and-programs?pli=1)
-# load("data/men8305.rda")
-# mod2 <- log(wage) ~ union*(education + experience) + education*experience
-# ffl2012  <- dfl_deco(mod2,
-#                     data=men8305,
-#                     weights=weights,
-#                     group=year,
-#                     reference_0=TRUE,
-#                     statistics=c( "iq_range_p90_p10",
-#                                   "iq_range_p90_p50",
-#                                   "iq_range_p50_p10",
-#                                   "variance",
-#                                   "gini"))
-# ffl2012
+## Replicate example from handbook chapter of Fortin, Firpo, and Lemieux (2011, p. 67, Table 5)
+data("men8305")
+men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+ffl_model <- log(wage) ~ union*(education + experience) + education*experience
+ffl_male_example  <- dfl_deco(ffl_model,
+                              data = men8305,
+                              weights = weights,
+                              group = year,
+                              reference_0 = TRUE,
+                              statistics = c( "iq_range_p90_p10",
+                                              "iq_range_p90_p50",
+                                              "iq_range_p50_p10",
+                                               "variance",
+                                               "gini"))
+summary(ffl_male_example)
+
+
+# Trim observations
+ffl_male_example_trimming  <- dfl_deco(ffl_model,
+                              data = men8305,
+                              weights = weights,
+                              group = year,
+                              reference_0 = TRUE,
+                              statistics = c( "iq_range_p90_p10",
+                                              "iq_range_p90_p50",
+                                              "iq_range_p50_p10",
+                                               "variance",
+                                               "gini"),
+                              trimming = TRUE,
+                              trimming_threshold = 0.00005)
+ summary(ffl_male_example_trimming)
 
 }
 \references{

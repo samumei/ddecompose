@@ -14,7 +14,7 @@ A data frame with 5,396 rows and 15 variables.
   \item{msa}{Metropolitan statistical area (MSA) indicator}
   \item{region}{Factor variable disinguishing 4 large regions}
   \item{black}{Black indicator}
-  \item{hispanic}{Hiscpanic indicator}
+  \item{hispanic}{Hispanic indicator}
   \item{education}{Factor variable indicating highest attained education}
   \item{afqt}{Percentile score of armed force qualification test (AFTQ) devided by 10}
   \item{family_responsibility}{Family responsibility indicator}

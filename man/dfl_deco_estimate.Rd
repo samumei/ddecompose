@@ -15,7 +15,9 @@ dfl_deco_estimate(
   estimate_statistics,
   statistics,
   probs,
-  reweight_marginals
+  reweight_marginals,
+  trimming,
+  trimming_threshold
 )
 }
 \description{

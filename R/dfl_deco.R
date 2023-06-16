@@ -202,6 +202,22 @@
 #'                                                "gini"))
 #' summary(ffl_male_example)
 #'
+#'
+#' # Trim observations
+#' ffl_male_example_trimming  <- dfl_deco(ffl_model,
+#'                               data = men8305,
+#'                               weights = weights,
+#'                               group = year,
+#'                               reference_0 = TRUE,
+#'                               statistics = c( "iq_range_p90_p10",
+#'                                               "iq_range_p90_p50",
+#'                                               "iq_range_p50_p10",
+#'                                                "variance",
+#'                                                "gini"),
+#'                               trimming = TRUE,
+#'                               trimming_threshold = 0.00005)
+#'  summary(ffl_male_example_trimming)
+#'
 dfl_deco <-  function(formula,
                       data,
                       weights,
@@ -280,17 +296,17 @@ dfl_deco <-  function(formula,
     estimate_statistics <- FALSE
   }
 
-  results <- dfl_deco_estimate(formula=formula,
-                               dep_var=dep_var,
-                               data_used=data_used ,
-                               weights=weights,
-                               group_variable=group_variable,
-                               reference_group=reference_group,
+  results <- dfl_deco_estimate(formula = formula,
+                               dep_var = dep_var,
+                               data_used = data_used ,
+                               weights = weights,
+                               group_variable = group_variable,
+                               reference_group = reference_group,
                                method=method,
-                               estimate_statistics=estimate_statistics,
-                               statistics=statistics,
-                               probs=probs,
-                               reweight_marginals=reweight_marginals,
+                               estimate_statistics = estimate_statistics,
+                               statistics = statistics,
+                               probs = probs,
+                               reweight_marginals = reweight_marginals,
                                trimming = trimming,
                                trimming_threshold = trimming_threshold)
 
@@ -637,18 +653,18 @@ dfl_deco_estimate <- function(formula,
     nu1 <- get_distributional_statistics(dep_var,
                       weights,
                       group_variable,
-                      group=1,
-                      statistics=statistics,
+                      group = 1,
+                      statistics = statistics,
                       probs=probs,
-                      log_transformed=log_transformed)
+                      log_transformed = log_transformed)
 
     nu0 <- get_distributional_statistics(dep_var,
                       weights,
                       group_variable,
-                      group=0,
-                      statistics=statistics,
-                      probs=probs,
-                      log_transformed=log_transformed)
+                      group = 0,
+                      statistics = statistics,
+                      probs = probs,
+                      log_transformed = log_transformed)
 
     #if reference group==0, take inverse of rw factors
     psi_power <- ifelse(reference_group==1, 1, -1)
@@ -739,6 +755,9 @@ dfl_deco_estimate <- function(formula,
   quantiles_reweighting_factor <- data.frame(probs=c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1))
   rownames(quantiles_reweighting_factor) <- c("Min.", "10%-quantile", "25%-quantile", "50%-quantile", "75%-quantile", "90%-quantile", "Max.")
   factors_to_be_considered <- setdiff(1:nrow(psi), observations_to_be_trimmed)
+  factors_to_be_considered <- intersect(factors_to_be_considered,
+                                        which(group_variable == levels(group_variable)[reference_group + 1]))
+
   for(i in 1:ncol(psi)){
     quantiles_reweighting_factor <- cbind(quantiles_reweighting_factor,
                                           quantile(psi[factors_to_be_considered, i], probs=quantiles_reweighting_factor$probs, na.rm=TRUE))
@@ -855,11 +874,11 @@ select_observations_to_be_trimmed <- function(reweighting_factor,
   group <- levels(group_variable)[group + 1]
 
   reweighting_factor_control <- reweighting_factor[which(group_variable==group)]
-  if(is.null(threshold)){
+  if(is.null(trimming_threshold)){
     nobs <- length(reweighting_factor_control)
-    threshold <- sqrt(nobs) / obs
+    trimming_threshold <- sqrt(nobs) / obs
   }
-  reweighting_factor_in_trimming_range <- reweighting_factor_control[which(reweighting_factor_control / sum(reweighting_factor_control) > threshold)]
+  reweighting_factor_in_trimming_range <- reweighting_factor_control[which(reweighting_factor_control / sum(reweighting_factor_control) > trimming_threshold)]
   trim_value <- ifelse(length(reweighting_factor_in_trimming_range) == 0,
                        sum(reweighting_factor),
                        min(reweighting_factor_in_trimming_range))

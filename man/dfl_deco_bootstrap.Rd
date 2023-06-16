@@ -15,6 +15,8 @@ dfl_deco_bootstrap(
   statistics,
   probs,
   reweight_marginals,
+  trimming,
+  trimming_threshold,
   ...
 )
 }
