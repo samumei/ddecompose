@@ -612,9 +612,13 @@ dfl_deco_estimate <- function(formula,
                                                                           trimming_threshold = trimming_threshold)
    }
 
-  observations_to_be_trimmed <- unique(do.call("c", observations_to_be_trimmed))
+    observations_to_be_trimmed <- unique(do.call("c", observations_to_be_trimmed))
 
   weights[observations_to_be_trimmed] <- 0
+
+  }else{
+
+    observations_to_be_trimmed <- NULL
 
   }
 
@@ -631,6 +635,7 @@ dfl_deco_estimate <- function(formula,
                       statistics=statistics,
                       probs=probs,
                       log_transformed=log_transformed)
+
     nu0 <- get_distributional_statistics(dep_var,
                       weights,
                       group_variable,
