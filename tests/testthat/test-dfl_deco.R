@@ -112,3 +112,34 @@ test_that("glm and surveyglm return the same coefficients", {
                          tolerance = 0.000001)
 
 })
+
+
+test_that("dfl_deco() replicates Table 5, p. 67, in FLF 2011 Handbook Chapter", {
+
+  load("data-raw/men8305_full.rda")
+  men8305_full$weights <- men8305_full$weights/sum(men8305_full$weights) * length(men8305_full$weights)
+  flf_model <- log(wage) ~ union*(education + experience) + education*experience
+
+  # Replicate statistics in table 5, p.67, in in FLF (2011)
+  flf_male_inequality_table_5  <- dfl_deco(flf_model,
+                                           data = men8305_full,
+                                           weights = weights,
+                                           group = year,
+                                           reference_0 = TRUE,
+                                           statistics = c("iq_range_p90_p10",
+                                                           "iq_range_p90_p50",
+                                                           "iq_range_p50_p10",
+                                                            "variance"))
+  results_dfl_deco <- flf_male_inequality_table_5$decomposition_other_statistics
+  published_results_FLF_table_5 <- data.frame(statistic = results_dfl_deco$statistic,
+                                              `Observed difference` = c(0.0617, 0.1091, 0.1827, -0.0736),
+                                              `Structure effect` = c(0.0408, 0.0336, 0.1637, -0.1301),
+                                              `Composition effect` = c(0.0208, 0.0756, 0.0191, 0.0565))
+  rownames(results_dfl_deco) <- rownames(published_results_FLF_table_5) <- 1:4
+  names(published_results_FLF_table_5) <- names(results_dfl_deco)
+  testthat::expect_equal(results_dfl_deco,
+                         published_results_FLF_table_5,
+                         tolerance = 0.0075)
+})
+
+
