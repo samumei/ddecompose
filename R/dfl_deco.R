@@ -173,7 +173,10 @@
 #' ## Replicate example from handbook chapter of Fortin, Lemieux, and Firpo (FLF, 2011)
 #' data("men8305")
 #' men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+#'
 #' flf_model <- log(wage) ~ union*(education + experience) + education*experience
+#'
+#' Reweight sample from 1983-85
 #' flf_male_inequality  <- dfl_deco(flf_model,
 #'                                  data = men8305,
 #'                                  weights = weights,
@@ -184,6 +187,17 @@
 #'
 #' # Plot decomposition of qunatile differences
 #' plot(flf_male_inequality)
+#'
+#' # Use alternative reference group (i.e. reweight sample from 2003-05)
+#' flf_male_inequality_reference_0305  <- dfl_deco(flf_model,
+#'                                                 data = men8305,
+#'                                                 weights = weights,
+#'                                                 group = year,
+#'                                                 reference_0 = FALSE)
+#'
+#' # Summarize results
+#' summary(flf_male_inequality_reference_0305)
+#'
 #'
 #' # Bootstrap standard errors (using smaller sample for the sake of illustration)
 #' \dontrun{
@@ -199,38 +213,23 @@
 #' # Get standard errors and confidence intervals
 #' summary(flf_male_inequality_boot)
 #'
+#' # Plot quantile differences with pointwise confidence intervals
+#' plot(flf_male_inequality_boot)
+#'
 #' # Plot quantile differences with uniform confidence intervals
 #' plot(flf_male_inequality_boot, uniform_bands=TRUE)
+#'
 #' }
 #'
-#' # Replicate statistics in table 5, p.67, in in FLF (2011)
-#' flf_male_inequality_table_5  <- dfl_deco(flf_model,
-#'                                          data = men8305,
-#'                                          weights = weights,
-#'                                          group = year,
-#'                                          reference_0 = TRUE,
-#'                                          statistics = c("iq_range_p90_p10",
-#'                                                         "iq_range_p90_p50",
-#'                                                         "iq_range_p50_p10",
-#'                                                         "variance",
-#'                                                         "gini"))
-#' summary(flf_male_inequality_table_5)
-#'
-#'
 #' # Trim observations
-#' flf_male_example_trimming  <- dfl_deco(flf_model,
+#' flf_male_inequality_trimming  <- dfl_deco(flf_model,
 #'                               data = men8305,
 #'                               weights = weights,
 #'                               group = year,
 #'                               reference_0 = TRUE,
-#'                               statistics = c( "iq_range_p90_p10",
-#'                                               "iq_range_p90_p50",
-#'                                               "iq_range_p50_p10",
-#'                                                "variance",
-#'                                                "gini"),
 #'                               trimming = TRUE,
 #'                               trimming_threshold = 0.00005)
-#'  summary(ffl_male_example_trimming)
+#' summary(flf_male_inequality_trimming)
 #'
 dfl_deco <-  function(formula,
                       data,
