@@ -89,10 +89,12 @@ men8305 %>%
   dplyr::summarise(min=min(education_in_years, na.rm=TRUE),
                    max=max(education_in_years, na.rm=TRUE))
 
-
 # Select only variables used in FFL examples
 sel <- c("wage", "union", "education", "experience", "married", "nonwhite", "year", "weights")
 men8305 <- men8305[, sel]
+
+men8305_full <- men8305
+save(men8305_full, file="data-raw/men8305_full.rda")
 
 # Save 10% sample of original data set
 set.seed(123)

@@ -35,12 +35,12 @@
 #' Sample of male wage data from the CPS 1983-1985 and 2001-2003
 #'
 #' @description A sample of the the Merged Outgoing Rotation Group of the
-#' Current Population Survey of 1983, 1984, 1985, 2003, 2004 and 2006 used as
-#' an example in the handbook chapter of Fortin, Lemieux & Firpo (2011). The
-#' data contains a selection of 8 variables and a sample of 40,347 observations
-#' of male workers.
+#' Current Population Survey from 1983 to 1985 and 2003 to 2005, respectively,
+#' used as example by Fortin, Lemieux & Firpo  (2011) in their handbook chapter.
+#' The data set contains a selection of 8 variables and a sample of 40,347 observations
+#' of male workers (i.e., a tenth of the origninal data set).
 #'
-#' @format A data frame with 26,695 rows and 10 variables.
+#' @format A data frame with 40,347 rows and 8 variables.
 #' \describe{
 #'   \item{wage}{Hourly wage in US dollars at constant prices}
 #'   \item{union}{Union status indicator}
