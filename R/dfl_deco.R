@@ -231,6 +231,22 @@
 #'                               trimming_threshold = 0.00005)
 #' summary(flf_male_inequality_trimming)
 #'
+#'
+#' ## Sequential decomposition
+#' # Distinguishing the contribution of the marginal distribution of education
+#' # and experience from the contribution of unionization conditional on
+#' # education and experience
+#'
+#' model_sequential <- log(wage) ~ union*(education + experience) + education*experience | education*experience
+#'
+#' male_inequality_sequential  <- dfl_deco(model_sequential,
+#'                                         data = men8305,
+#'                                         weights = weights,
+#'                                         group = year)
+#'
+#' # Summarize results
+#' summary(male_inequality_sequential)
+#'
 dfl_deco <-  function(formula,
                       data,
                       weights,
