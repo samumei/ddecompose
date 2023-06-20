@@ -568,11 +568,13 @@ dfl_deco_estimate <- function(formula,
   estimated_probabilities <- rep(p0/p1, nrow(data_used))
 
   nvar <- length(formula)[2] # Number of detailed decomposition effects
+  covariates_labels <- vector("list", nvar)
   for(i in nvar:1){
     mod <- update(stats::formula(formula, rhs=nvar:i, collapse=TRUE), group_variable ~ .)
     p1 <- fit_and_predict_probabilities(mod, data_used, weights, method = method, ...)
     p0 <- 1-p1
     estimated_probabilities <- cbind(estimated_probabilities, p0/p1)
+    covariates_labels[[i]] <- attr(terms(mod), "term.labels")
   }
 
 
