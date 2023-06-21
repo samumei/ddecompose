@@ -1,18 +1,18 @@
 
 test_that("dfl_deco() does not throw an error", {
   set.seed(89342395)
-  data("nlys00")
-  formula <- log(wage) ~ age + central_city + msa + region + black +
-    hispanic + education + afqt + family_responsibility + years_worked_civilian +
-    years_worked_military + part_time + industry
+  data("men8385")
+  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+  model_sequential <- log(wage) ~ union + education + experience | education + experience
 
-  deco_results <- dfl_deco(formula = formula,
-                       data = nlys00[1:300,],
-                       weights = runif(nrow(nlys00[1:300,]), 0.5, 1.5),
-                       group = female)
+  deco_results  <- dfl_deco(model_sequential,
+                            data = men8305[1:1000, ],
+                            weights = weights,
+                            group = year)
 
-  testthat::expect_error(deco_results, NA)
+ testthat::expect_error(deco_results, NA)
 })
+
 
 
 test_that("dfl_deco_estimate() does not throw an error", {
