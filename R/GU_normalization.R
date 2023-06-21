@@ -178,8 +178,7 @@ GU_normalization_get_coefficients <- function(coef_names, est_coef){
   est_coef <- do.call("c",lapply(coef_names,
                                  GU_normalization_sum_coefficients,
                                  est_coef = est_coef))
-  names(est_coef) <- do.call("c", lapply(strsplit(names(est_coef), split="[.]"),
-                                         function(x) x[-1]))
+  names(est_coef) <- sapply(strsplit(names(est_coef), split = "\\."), function(x) x[2])
   return(est_coef)
 }
 
