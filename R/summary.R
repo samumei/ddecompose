@@ -157,9 +157,9 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
 #' summary(deco_results, aggregate_factors = TRUE)
 #'
 #' # custom aggregation of decompisition terms
-#' custom_aggregation <- list(human_capital = c("education", "experience"),
-#'                            union = "unionyes")
-#' summary(deco_results, custom_aggregation = custom_aggregation)
+#' # custom_aggregation <- list(human_capital = c("education", "experience"),
+#' #                            union = "unionyes")
+#' # summary(deco_results, custom_aggregation = custom_aggregation)
 #'
 summary.ob_deco <- function(x,
                             aggregate_factors = TRUE,

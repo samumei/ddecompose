@@ -5,8 +5,6 @@
 \title{summary method for class "dfl_deco"}
 \usage{
 \method{summary}{dfl_deco}(x, confidence_level = 0.95, digits = 4, ...)
-
-\method{summary}{dfl_deco}(x, confidence_level = 0.95, digits = 4, ...)
 }
 \arguments{
 \item{x}{an object of class "dfl_deco", a result of a call to [dfl_deco()].}
@@ -24,14 +22,7 @@ The function \code{summary.dfl_deco()} displays the decompositions
 terms save in \code{x}. If standard errors have been bootstrapped, standard
 errors and confidence bands are given. Uniform confidence bands for quantiles
 are constructed based on the bootstrappend Kolmogorov-Smirnov distribution.
-
-The function \code{summary.dfl_deco()} displays the decompositions
-terms save in \code{x}. If standard errors have been bootstrapped, standard
-errors and confidence bands are given. Uniform confidence bands for quantiles
-are constructed based on the bootstrappend Kolmogorov-Smirnov distribution.
 }
 \description{
-summary method for class "dfl_deco"
-
 summary method for class "dfl_deco"
 }

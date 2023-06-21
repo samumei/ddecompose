@@ -11,14 +11,6 @@
   confidence_level = 0.95,
   ...
 )
-
-\method{summary}{ob_deco}(
-  x,
-  aggregate_factors = TRUE,
-  custom_aggregation = NULL,
-  confidence_level = 0.95,
-  ...
-)
 }
 \arguments{
 \item{x}{an object of class "ob_deco", usually , a result of a call to [ob_deco()].}
@@ -37,23 +29,22 @@ a single variable are returned.}
 }
 \value{
 The function \code{summary.ob_deco()} summarizes the decompositions terms saved in \code{x}.
-
-The function \code{summary.ob_deco()} summarizes the decompositions terms saved in \code{x}.
 }
 \description{
 Apart from displaying the (detailed) decomposition results with standard
 errors, \code{summary.ob_deco()} allows to customize the aggregation of the
 detailed decomposition terms.
-
-Apart from displaying the (detailed) decomposition results with standard
-errors, \code{summary.ob_deco()} allows to customize the aggregation of the
-detailed decomposition terms.
 }
 \examples{
-library("AER")
-data("CPS1985")
-mod2 <- log(wage) ~ education + experience + union + ethnicity
-deco_results <- ob_deco(formula = mod2, data = CPS1985, group = gender)
+data("nlys00")
+mod1 <- log(wage) ~ age + central_city + msa + region + black +
+hispanic + education + afqt + family_responsibility + years_worked_civilian +
+years_worked_military + part_time + industry
+
+deco_results <- ob_deco(formula = mod1,
+                        data = nlys00,
+                        group = female,
+                        reference_0 = TRUE)
 
 # Print standard errors
 summary(deco_results)
@@ -62,24 +53,8 @@ summary(deco_results)
 summary(deco_results, aggregate_factors = TRUE)
 
 # custom aggregation of decompisition terms
-custom_aggregation <- list(human_capital = c("education", "experience"),
-                           union = "unionyes")
-summary(deco_results, custom_aggregation = custom_aggregation)
-
-library("AER")
-data("CPS1985")
-mod2 <- log(wage) ~ education + experience + union + ethnicity
-deco_results <- ob_deco(formula = mod2, data = CPS1985, group = gender)
-
-# Print standard errors
-summary(deco_results)
-
-# Aggregate decomposition terms associated with factor levels
-summary(deco_results, aggregate_factors = TRUE)
-
-# custom aggregation of decompisition terms
-custom_aggregation <- list(human_capital = c("education", "experience"),
-                           union = "unionyes")
-summary(deco_results, custom_aggregation = custom_aggregation)
+# custom_aggregation <- list(human_capital = c("education", "experience"),
+#                            union = "unionyes")
+# summary(deco_results, custom_aggregation = custom_aggregation)
 
 }

@@ -1,23 +1,5 @@
 test_that("ob_deco() does not throw an error", {
   set.seed(43825081)
-  library("AER")
-  data("CPS1985")
-  formula <- log(wage) ~ education + experience + union + ethnicity
-  data_used <- CPS1985
-  data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
-  # data_used[1,1] <- NA
-  data_used <- get_all_vars(formula, data_used, weights=weights, group=gender)
-
-  deco_results <- ob_deco(formula = formula,
-                          data = data_used,
-                          group = group)
-
-  testthat::expect_error(deco_results, NA)
-})
-
-
-test_that("ob_deco() does not throw an error without prior data preparation", {
-  set.seed(43825081)
   data("nlys00")
 
   mod1 <- log(wage) ~ age + central_city + msa + region + black +
@@ -249,16 +231,132 @@ test_that("reweighted ob decomposition does not throw an error", {
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
-  deco_female_as_reference <- ob_deco(formula = mod1,
+  reweighted_deco_results <- ob_deco(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,
                                       reweighting = TRUE)
   #browser()
-  testthat::expect_error(deco_female_as_reference, NA)
+  testthat::expect_error(reweighted_deco_results, NA)
 })
 
+test_that("reweighted ob decomposition aggregate results are as expected", {
+
+  set.seed(43825081)
+  data("nlys00")
+
+  mod1 <- log(wage) ~ age + central_city + msa + region + black +
+    hispanic + education + afqt + family_responsibility + years_worked_civilian +
+    years_worked_military + part_time + industry
+
+  reweighted_deco_results <- ob_deco(formula = mod1,
+                                     data = nlys00,
+                                     group = female,
+                                     reference_0 = TRUE,
+                                     reweighting = TRUE)
+
+  deco_results <- ob_deco(formula = mod1,
+                          data = nlys00,
+                          group = female,
+                          reference_0 = TRUE,
+                          reweighting = FALSE)
+
+  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Observed_difference,
+                         deco_results$decomposition_terms$Observed_difference)
+  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Composition_effect +
+                           reweighted_deco_results$decomposition_terms$Specification_error +
+                           reweighted_deco_results$decomposition_terms$Structure_effect +
+                           reweighted_deco_results$decomposition_terms$Reweighting_error,
+                         deco_results$decomposition_terms$Observed_difference)
+
+})
+
+test_that("reweighted ob decomposition aggregate results are as expected with male reference", {
+
+  set.seed(43825081)
+  data("nlys00")
+
+  mod1 <- log(wage) ~ age + central_city + msa + region + black +
+    hispanic + education + afqt + family_responsibility + years_worked_civilian +
+    years_worked_military + part_time + industry
+
+  reweighted_deco_results <- ob_deco(formula = mod1,
+                                     data = nlys00,
+                                     group = female,
+                                     reference_0 = FALSE,
+                                     reweighting = TRUE)
+
+  deco_results <- ob_deco(formula = mod1,
+                          data = nlys00,
+                          group = female,
+                          reference_0 = FALSE,
+                          reweighting = FALSE)
+
+  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Observed_difference,
+                         deco_results$decomposition_terms$Observed_difference)
+  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Composition_effect +
+                           reweighted_deco_results$decomposition_terms$Specification_error +
+                           reweighted_deco_results$decomposition_terms$Structure_effect +
+                           reweighted_deco_results$decomposition_terms$Reweighting_error,
+                         deco_results$decomposition_terms$Observed_difference)
+
+})
+
+
+test_that("reweighted ob decomposition aggregate results are as expected with normalization", {
+
+  set.seed(43825081)
+  data("nlys00")
+
+  mod1 <- log(wage) ~ age + central_city + msa + region + black +
+    hispanic + education + afqt + family_responsibility + years_worked_civilian +
+    years_worked_military + part_time + industry
+
+  reweighted_deco_results <- ob_deco(formula = mod1,
+                                     data = nlys00,
+                                     group = female,
+                                     reference_0 = TRUE,
+                                     reweighting = TRUE,
+                                     normalize_factors = TRUE)
+
+  deco_results <- ob_deco(formula = mod1,
+                          data = nlys00,
+                          group = female,
+                          reference_0 = TRUE,
+                          reweighting = FALSE,
+                          normalize_factors = TRUE)
+
+  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Observed_difference,
+                         deco_results$decomposition_terms$Observed_difference)
+  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Composition_effect +
+                           reweighted_deco_results$decomposition_terms$Specification_error +
+                           reweighted_deco_results$decomposition_terms$Structure_effect +
+                           reweighted_deco_results$decomposition_terms$Reweighting_error,
+                         deco_results$decomposition_terms$Observed_difference)
+
+})
+
+
+test_that("reweighted ob decomposition computes bootstrap SE", {
+
+  set.seed(43825081)
+  data("nlys00")
+
+  mod1 <- log(wage) ~ age + central_city + msa + region + black +
+    hispanic + education + afqt + family_responsibility + years_worked_civilian +
+    years_worked_military + part_time + industry
+
+  reweighted_deco_results <- ob_deco(formula = mod1,
+                                     data = nlys00,
+                                     group = female,
+                                     reference_0 = TRUE,
+                                     reweighting = TRUE,
+                                     normalize_factors = TRUE,
+                                     bootstrap = TRUE)
+
+  testthat::expect_error(reweighted_deco_results, NA)
+
+})
 
 
 

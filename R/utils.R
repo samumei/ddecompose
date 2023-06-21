@@ -6,8 +6,6 @@
 #' @import Formula
 #' @import parallel
 #' @import sandwich
-#' @import AER
-#' @import survey
 NULL
 
 # utils::globalVariables(c("variable", "probs", "value", "se", "gray"))

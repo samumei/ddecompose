@@ -16,7 +16,7 @@ select_observations_to_be_trimmed(
 
 \item{group}{Identifier of reference group}
 
-\item{trimming_threshold}{threshold defining the maximal accepted relative weight of a reweighting factor/observation. If `NULL`, the threshold is set to $\sqrt(N)/N$, where N is the number of observations in the reference group.}
+\item{trimming_threshold}{threshold defining the maximal accepted relative weight of a reweighting factor/observation. If `NULL`, the threshold is set to `sqrt(N)/N`, where N is the number of observations in the reference group.}
 
 \item{reweigting_factor}{Estimated reweigting factor}
 }

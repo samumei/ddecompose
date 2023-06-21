@@ -51,7 +51,7 @@
 #' to be estimated with default `c(1:9)/10`.
 #' @param custom_statistic_function a custom statistic function to pass as argument.
 #' @param trimming boolean: If `TRUE`, observations with dominant reweighting factor values are trimmend according to rule of Huber, Lechner, and Wunsch (2014). Per default, trimming is set to `FALSE`.
-#' @param trimming_threshold numeric: threshold defining the maximal accepted relative weight of the reweighting factor value of a single observation. If `NULL`, the threshold is set to $\sqrt(N)/N$, where N is the number of observations in the reference group.
+#' @param trimming_threshold numeric: threshold defining the maximal accepted relative weight of the reweighting factor value of a single observation. If `NULL`, the threshold is set to `sqrt(N)/N`, where N is the number of observations in the reference group.
 #' @param bootstrap boolean: If `FALSE`, then the estimation is not boostrapped and no
 #' standard errors are calculated.
 #' @param bootstrap_iterations positive integer indicating the number of bootstrap
@@ -164,7 +164,7 @@
 #'
 #' flf_model <- log(wage) ~ union*(education + experience) + education*experience
 #'
-#' Reweight sample from 1983-85
+#' # Reweighting sample from 1983-85
 #' flf_male_inequality  <- dfl_deco(flf_model,
 #'                                  data = men8305,
 #'                                  weights = weights,
@@ -854,7 +854,7 @@ fit_and_predict_probabilities <- function(formula,
 #' @param reweigting_factor Estimated reweigting factor
 #' @param group_variable Variable identifying the reference and comparison group, respectively.
 #' @param group Identifier of reference group
-#' @param trimming_threshold threshold defining the maximal accepted relative weight of a reweighting factor/observation. If `NULL`, the threshold is set to $\sqrt(N)/N$, where N is the number of observations in the reference group.
+#' @param trimming_threshold threshold defining the maximal accepted relative weight of a reweighting factor/observation. If `NULL`, the threshold is set to `sqrt(N)/N`, where N is the number of observations in the reference group.
 #'
 
 select_observations_to_be_trimmed <- function(reweighting_factor,
