@@ -555,30 +555,35 @@ dfl_deco_estimate <- function(formula,
   p0 <- 1-p1
   estimated_probabilities <- rep(p0/p1, nrow(data_used))
 
+  #browser()
   nvar <- length(formula)[2] # Number of detailed decomposition effects
   covariates_labels <- vector("list", nvar)
   for(i in nvar:1){
     mod <- update(stats::formula(formula, rhs=nvar:i, collapse=TRUE), group_variable ~ .)
     p1 <- fit_and_predict_probabilities(mod, data_used, weights, method = method, ...)
-    p0 <- 1-p1
+    p0 <- 1 - p1
     estimated_probabilities <- cbind(estimated_probabilities, p0/p1)
     covariates_labels[[i]] <- attr(terms(mod), "term.labels")[which(attr(terms(mod), "order") == 1)]
   }
 
-  # Collect covariate labels ---------------------------------------------------
-
+  # Collect covariates' labels ---------------------------------------------------
+  covariates_labels <- rev(covariates_labels)
+  all_covariates <- paste0(unique(do.call("c", covariates_labels)), collapse = ", ")
   if(nvar > 1){
     for(i in nvar:2){
        add_vars <- setdiff(covariates_labels[[i]], covariates_labels[[i-1]])
-       covariates_labels[[i]] <- paste0("X",
+       covariates_labels[[i]] <- paste0("Detailed effect X",
                                         i,
                                         ": ",
                                         paste0(add_vars, collapse = ", "),
                                         " | ",
                                         paste0(covariates_labels[[i-1]], collapse = ", "))
     }
+    covariates_labels[[1]] <- paste0("Detailed effect X1: ", paste0(covariates_labels[[1]], collapse = ", "))
+    covariates_labels <- c(paste0(c("Aggregate effect: ", all_covariates), collapse =""), covariates_labels)
+  }else{
+    covariates_labels[[1]] <- all_covariates
   }
-  covariates_labels[[1]] <- paste0("X1: ", paste0(covariates_labels[[1]], collapse = ", "))
 
 # Derive reweighting factors ---------------------------------------------------
 

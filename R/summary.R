@@ -17,15 +17,16 @@
 summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
   cat("Decomposition of difference between",
       paste0(x$group_variable_name, " == '",x$group_variable_levels[2],"'"),
-      "(group 1) and",
+      "(group 1) and\n",
       paste0(x$group_variable_name, " == '",x$group_variable_levels[1],"'"),
       "(group 0)\n\n")
 
-  cat("The composition effect accounts for between-group differences in distribution of the following covariates:\n")
-  for(i in length(x$covariates_labels)){
+  cat("Composition", ifelse(length(x$covariates_labels) == 1, "effect accounts", "effects account") ,"for between-group differences\nin the distribution of the following covariates:\n\n")
+  for(i in 1:length(x$covariates_labels)){
     cat(x$covariates_labels[[i]], "\n")
   }
   cat("\n")
+  cat("---------------------------------------------------------------------------------\n")
 
   if(is.null(x$decomposition_quantiles)==FALSE){
     cat("Decomposition of difference at conditional quantiles:\n\n")
@@ -59,8 +60,9 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
       }
 
     }else{
-      print(decomposition_quantiles)
+      print(decomposition_quantiles[,-1])
       cat("\n")
+      cat("---------------------------------------------------------------------------------\n")
     }
 
   }
@@ -86,6 +88,7 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
     }else{
       print(x$decomposition_other_statistics[, -1])
       cat("\n")
+      cat("---------------------------------------------------------------------------------\n")
     }
   }
 
