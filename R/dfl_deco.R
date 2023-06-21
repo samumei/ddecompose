@@ -1,15 +1,3 @@
-
-# - Namen der Variablen in Resultaten zusammentragen:
-#
-#   covariate_names <- as.character(rep(NA,nvar))
-# for(i in 1:nvar){
-#   covariate_names[i] <- paste0(gsub(" ","",
-#                                     strsplit(strsplit(as.character(stats::formula(formula,rhs=i)), "~")[[3]],
-#                                              c("[*]"))[[1]]),
-#                                collapse=", ")
-# }
-
-
 #' DFL reweighting decomposition
 #'
 #' @description `dfl_deco` decomposes between-group differences in distributional
@@ -574,9 +562,23 @@ dfl_deco_estimate <- function(formula,
     p1 <- fit_and_predict_probabilities(mod, data_used, weights, method = method, ...)
     p0 <- 1-p1
     estimated_probabilities <- cbind(estimated_probabilities, p0/p1)
-    covariates_labels[[i]] <- attr(terms(mod), "term.labels")
+    covariates_labels[[i]] <- attr(terms(mod), "term.labels")[which(attr(terms(mod), "order") == 1)]
   }
 
+  # Collect covariate labels ---------------------------------------------------
+
+  if(nvar > 1){
+    for(i in nvar:2){
+       add_vars <- setdiff(covariates_labels[[i]], covariates_labels[[i-1]])
+       covariates_labels[[i]] <- paste0("X",
+                                        i,
+                                        ": ",
+                                        paste0(add_vars, collapse = ", "),
+                                        " | ",
+                                        paste0(covariates_labels[[i-1]], collapse = ", "))
+    }
+  }
+  covariates_labels[[1]] <- paste0("X1: ", paste0(covariates_labels[[1]], collapse = ", "))
 
 # Derive reweighting factors ---------------------------------------------------
 
@@ -766,7 +768,8 @@ dfl_deco_estimate <- function(formula,
                   decomposition_other_statistics = decomposition_other_statistics,
                   reweighting_factor = psi,
                   quantiles_reweighting_factor = quantiles_reweighting_factor,
-                  trimmed_observations = observations_to_be_trimmed)
+                  trimmed_observations = observations_to_be_trimmed,
+                  covariates_labels = covariates_labels)
   return(results)
 }
 

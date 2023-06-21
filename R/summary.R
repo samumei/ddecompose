@@ -21,6 +21,11 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
       paste0(x$group_variable_name, " == '",x$group_variable_levels[1],"'"),
       "(group 0)\n\n")
 
+  cat("The composition effect accounts for between-group differences in distribution of the following covariates:\n")
+  for(i in length(x$covariates_labels)){
+    cat(x$covariates_labels[[i]], "\n")
+  }
+  cat("\n")
 
   if(is.null(x$decomposition_quantiles)==FALSE){
     cat("Decomposition of difference at conditional quantiles:\n\n")
