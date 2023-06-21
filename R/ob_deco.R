@@ -127,8 +127,8 @@
 #'                                     reference_0 = TRUE)
 #' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
-#' # Return standard errors for all detailed terms
-#' summary(deco_female_as_reference, aggregate_factors = FALSE)
+#' # Return standard errors for all detailed terms -> not yet working
+#' # summary(deco_female_as_reference, aggregate_factors = FALSE)
 #'
 ob_deco <- function(formula,
                     data,
@@ -136,7 +136,7 @@ ob_deco <- function(formula,
                     weights = NULL,
                     rifreg = FALSE,
                     reweighting = FALSE,
-                    method = "logit",
+                    reweighting_method = "logit",
                     na.action = na.exclude,
                     reference_0 = TRUE,
                     normalize_factors = FALSE,
@@ -173,23 +173,11 @@ ob_deco <- function(formula,
   }
 
 
-  if(reweighting) {
-    #browser()
-    dlf_deco_results <- dfl_deco(formula = formula,
-                             data = data_used,
-                             weights = weights,
-                             group = group,
-                             reference_0 = reference_0,
-                             method = method,
-                             estimate_statistics = FALSE)
-    reweighting_factor <- dlf_deco_results$reweighting_factor$Psi_X1
-  }
-
   ## Check group variable
   group_variable_name <- data_arguments[["group"]]
   group_variable <- data_used[, "group"]
   check_group_variable <- is.numeric(group_variable)&length(unique(group_variable))==2|is.factor(group_variable)&length(unique(group_variable))==2
-  if(check_group_variable==FALSE){
+  if(!check_group_variable){
     stop("Group variable must either be a binary numeric variable or a binary factor variable.")
   }
   if(is.numeric(group_variable)){
@@ -199,17 +187,20 @@ ob_deco <- function(formula,
   reference_group_print <- levels(data_used[, "group"])[reference_group + 1]
 
   compute_analytical_se <- ifelse(bootstrap, FALSE, TRUE)
+
   estimated_decomposition <- estimate_ob_deco(formula = formula,
                                               data_used = data_used,
                                               reference_0 = reference_0,
                                               normalize_factors = normalize_factors,
                                               compute_analytical_se = compute_analytical_se,
                                               return_model_fit = TRUE,
+                                              reweighting = reweighting,
+                                              reweighting_method = reweighting_method,
                                               rifreg = rifreg,
                                               vcov = vcov)
 
   if(bootstrap){
-    if(is.null(cluster)==FALSE){
+    if(!is.null(cluster)){
       if(length(cluster) != nrow(data_used)){
         stop("Vector `cluster` must have the same length as number of observations in `data`.")
       }
@@ -226,6 +217,9 @@ ob_deco <- function(formula,
                                                                                       data_used = data_used,
                                                                                       reference_0 = reference_0,
                                                                                       normalize_factors = normalize_factors,
+                                                                                      reweighting = reweighting,
+                                                                                      reweighting_method = reweighting_method,
+                                                                                      rifreg = rifreg,
                                                                                       cluster = cluster))
     } else {
       cores <- min(cores, parallel::detectCores() - 1)
@@ -239,6 +233,9 @@ ob_deco <- function(formula,
                                                                                       data_used = data_used,
                                                                                       reference_0 = reference_0,
                                                                                       normalize_factors = normalize_factors,
+                                                                                      reweighting = reweighting,
+                                                                                      reweighting_method = reweighting_method,
+                                                                                      rifreg = rifreg,
                                                                                       cluster = cluster),
                                                cl = core_cluster)
       parallel::stopCluster(core_cluster)
@@ -293,6 +290,8 @@ estimate_ob_deco <- function(formula,
                              normalize_factors,
                              compute_analytical_se,
                              return_model_fit,
+                             reweighting,
+                             reweighting_method,
                              rifreg,
                              vcov){
 
@@ -323,7 +322,6 @@ estimate_ob_deco <- function(formula,
     adjusted_coefficient_names <- NULL
   }
 
-  #browser()
   fit0 <- lm(formula, data = subset(data_used, group == group0), weights = weights)
   fit1 <- lm(formula, data = subset(data_used, group != group0), weights = weights)
 
@@ -337,46 +335,143 @@ estimate_ob_deco <- function(formula,
                                                est_coef = beta1)
   }
 
-  estimated_deco_terms <- ob_deco_calculate_terms(beta0 = beta0,
-                                                  beta1 = beta1,
-                                                  X0 = X0,
-                                                  X1 = X1,
-                                                  weights0 = weights0,
-                                                  weights1 = weights1,
-                                                  reference_0 = reference_0)
+  if(reweighting) {
+    dlf_deco_results <- dfl_deco(formula = formula,
+                                 data = data_used,
+                                 weights = weights,
+                                 group = group,
+                                 reference_0 = reference_0,
+                                 method = reweighting_method,
+                                 estimate_statistics = FALSE)
+    reweighting_factor <- dlf_deco_results$reweighting_factor$Psi_X1
+    data_used$weights_and_reweighting_factors <- data_used[, "weights"] * reweighting_factor
 
-  if(compute_analytical_se) {
-    Cov_beta0 <- vcov(fit0) #lapply(list(fit0), vcov)[[1]]
-    Cov_beta1 <- vcov(fit1) #lapply(list(fit1), vcov)[[1]]
-
-    if(normalize_factors){
-      Cov_beta0 <- GU_normalization_get_vcov(coef_names = adjusted_coefficient_names,
-                                             Cov_beta = Cov_beta0)
-      Cov_beta1 <- GU_normalization_get_vcov(coef_names = adjusted_coefficient_names,
-                                             Cov_beta = Cov_beta1)
+    if(reference_0) {
+      fit_reweighted <- lm(formula, data = subset(data_used, group == group0), weights = weights_and_reweighting_factors)
+    }
+    else {
+      fit_reweighted <- lm(formula, data = subset(data_used, group != group0), weights = weights_and_reweighting_factors)
     }
 
-    estimated_deco_vcov <-  ob_deco_calculate_vcov(beta0 = beta0,
-                                                   beta1 = beta1,
-                                                   X0 = X0,
-                                                   X1 = X1,
-                                                   weights0 = weights0,
-                                                   weights1 = weights1,
-                                                   Cov_beta0  =  Cov_beta0,
-                                                   Cov_beta1  =  Cov_beta1,
-                                                   reference_0 = reference_0)
-  }else{
+    beta_reweighted <- coef(fit_reweighted)
+
+    if(normalize_factors){
+      beta_reweighted <- GU_normalization_get_coefficients(coef_names = adjusted_coefficient_names,
+                                                 est_coef = beta_reweighted)
+    }
+
+    if(reference_0) {
+      deco_results_group0_group_reweighted <-
+        ob_deco_calculate_terms(beta0 = beta0,
+                                beta1 = beta_reweighted,
+                                X0 = X0,
+                                X1 = X0,
+                                weights0 = weights0,
+                                weights1 = weights0 * reweighting_factor[obs_0],
+                                reference_0 = TRUE)
+
+      deco_results_group_reweighted_group_1 <-
+        ob_deco_calculate_terms(beta0 = beta_reweighted,
+                                beta1 = beta1,
+                                X0 = X0,
+                                X1 = X1,
+                                weights0 = weights0 * reweighting_factor[obs_0],
+                                weights1 = weights1,
+                                reference_0 = TRUE)
+
+      deco_results <- deco_results_group0_group_reweighted
+      deco_results$Composition_effect <- deco_results_group0_group_reweighted$Composition_effect
+      deco_results$Specification_error <- deco_results_group0_group_reweighted$Structure_effect
+
+      deco_results$Structure_effect <- deco_results_group_reweighted_group_1$Structure_effect
+      deco_results$Reweighting_error <- deco_results_group_reweighted_group_1$Composition_effect
+
+      deco_results$Observed_difference <- deco_results_group0_group_reweighted$Observed_difference +
+        deco_results_group_reweighted_group_1$Observed_difference
+
+    }
+    else {
+      deco_results_group0_group_reweighted <-
+        ob_deco_calculate_terms(beta0 = beta0,
+                                beta1 = beta_reweighted,
+                                X0 = X0,
+                                X1 = X1,
+                                weights0 = weights0,
+                                weights1 = weights1 * reweighting_factor[obs_1],
+                                reference_0 = FALSE)
+
+      deco_results_group_reweighted_group_1 <-
+        ob_deco_calculate_terms(beta0 = beta_reweighted,
+                                beta1 = beta1,
+                                X0 = X1,
+                                X1 = X1,
+                                weights0 = weights1 * reweighting_factor[obs_1] ,
+                                weights1 = weights1,
+                                reference_0 = FALSE)
+
+      deco_results <- deco_results_group0_group_reweighted
+
+      deco_results$Composition_effect <- deco_results_group0_group_reweighted$Composition_effect
+      deco_results$Specification_error <- deco_results_group0_group_reweighted$Structure_effect
+
+      deco_results$Structure_effect <- deco_results_group_reweighted_group_1$Structure_effect
+      deco_results$Reweighting_error <- deco_results_group_reweighted_group_1$Composition_effect
+
+      deco_results$Observed_difference <- deco_results_group0_group_reweighted$Observed_difference +
+        deco_results_group_reweighted_group_1$Observed_difference
+    }
+
     estimated_deco_vcov <- NULL
+
   }
+  else {
+    deco_results <- ob_deco_calculate_terms(beta0 = beta0,
+                                                    beta1 = beta1,
+                                                    X0 = X0,
+                                                    X1 = X1,
+                                                    weights0 = weights0,
+                                                    weights1 = weights1,
+                                                    reference_0 = reference_0)
+    deco_results$Specification_error <- NA
+    deco_results$Reweighting_error <- NA
+    fit_reweighted <- NA
+
+
+    if(compute_analytical_se) {
+      Cov_beta0 <- vcov(fit0) #lapply(list(fit0), vcov)[[1]]
+      Cov_beta1 <- vcov(fit1) #lapply(list(fit1), vcov)[[1]]
+
+      if(normalize_factors){
+        Cov_beta0 <- GU_normalization_get_vcov(coef_names = adjusted_coefficient_names,
+                                               Cov_beta = Cov_beta0)
+        Cov_beta1 <- GU_normalization_get_vcov(coef_names = adjusted_coefficient_names,
+                                               Cov_beta = Cov_beta1)
+      }
+
+      estimated_deco_vcov <-  ob_deco_calculate_vcov(beta0 = beta0,
+                                                     beta1 = beta1,
+                                                     X0 = X0,
+                                                     X1 = X1,
+                                                     weights0 = weights0,
+                                                     weights1 = weights1,
+                                                     Cov_beta0  =  Cov_beta0,
+                                                     Cov_beta1  =  Cov_beta1,
+                                                     reference_0 = reference_0)
+    }else{
+      estimated_deco_vcov <- NULL
+    }
+  }
+
 
   if(return_model_fit){
     model_fits <- list(fit_group_0 = fit0,
-                       fit_group_1 = fit1)
+                       fit_group_1 = fit1,
+                       fit_group_reweighted = fit_reweighted)
   }else{
     model_fits <- NULL
   }
 
-  results <- list(decomposition_terms = estimated_deco_terms,
+  results <- list(decomposition_terms = deco_results,
                   decomposition_vcov = estimated_deco_vcov,
                   model_fits = model_fits,
                   GU_normalized_coefficient_names = adjusted_coefficient_names)
@@ -387,8 +482,11 @@ estimate_ob_deco <- function(formula,
 #'
 bootstrap_estimate_ob_deco <- function(formula,
                                        data_used,
-                                       reference_0 = TRUE,
-                                       normalize_factors = FALSE,
+                                       reference_0,
+                                       normalize_factors,
+                                       reweighting,
+                                       reweighting_method,
+                                       rifreg,
                                        cluster = NULL){
   if(is.null(cluster)){
   sampled_observations <- sample(1:nrow(data_used),
@@ -406,12 +504,17 @@ bootstrap_estimate_ob_deco <- function(formula,
   data_used$weights <- data_used$weights * sum(data_used[ ,"weights"], na.rm=TRUE) / sum(data_used[sampled_observations,"weights"], na.rm=TRUE)
   }
 
+  sink(nullfile()) # to supress output
   deco_estimates <- estimate_ob_deco(formula = formula,
                                      data_used = data_used[sampled_observations, ],
                                      reference_0 = reference_0,
                                      normalize_factors = normalize_factors,
+                                     reweighting = reweighting,
+                                     reweighting_method = reweighting_method,
+                                     rifreg = rifreg,
                                      compute_analytical_se = FALSE,
                                      return_model_fit = FALSE)
+  sink()
 
   deco_estimates <- deco_estimates[["decomposition_terms"]]
 
