@@ -2,14 +2,15 @@
 % Please edit documentation in R/dfl_deco.R
 \name{fit_and_predict_probabilities}
 \alias{fit_and_predict_probabilities}
-\title{Predict probabilities}
+\title{Predict conditional probabilities}
 \usage{
 fit_and_predict_probabilities(
   formula,
   data_used,
   weights,
   method = "logit",
-  newdata = NULL
+  newdata = NULL,
+  ...
 )
 }
 \description{

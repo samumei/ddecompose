@@ -23,13 +23,14 @@ dfl_deco(
   bootstrap = FALSE,
   bootstrap_iterations = 100,
   bootstrap_robust = FALSE,
-  cores = 1
+  cores = 1,
+  ...
 )
 }
 \arguments{
-\item{formula}{a `formula` object with outcome variable Y on the left-hand side and
-the covariates X on the right-hand side. For sequential decompositions,
-the sequence of covariates X are distinguished by the `|` operator. The covariates
+\item{formula}{a `formula` object with an outcome variable Y on the left-hand side
+and the covariates X on the right-hand side. For sequential decompositions,
+the sequence of covariates X are distinguished by the `|` operator. Covariates
 are used to estimate the reweighting factors.}
 
 \item{data}{a `data.frame` containing all variables and observations for
@@ -39,16 +40,17 @@ both groups.}
 observation weights.}
 
 \item{group}{name of the a binary variable (numeric or factor)
-identifying the two groups that will be compared. The group identified by the
-lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
-first level of factor variable) is defined as group 0.}
+identifying the two groups for which the differences are to be decomposed.
+The group identified by the lower ranked value in `group` (i.e., 0 in the
+case of a dummy variable or the first level of factor variable) is defined
+as group 0.}
 
 \item{na.action}{a function to filter missing data (default `na.exclude`).}
 
 \item{reference_0}{boolean: if `TRUE` (default), then the group 0 -- i.e.,
 the group identified by the lower ranked value in `group` -- will be defined
 as reference group. The reference group will be reweighted to match the
-covariates distribution of the counterfactual sample.}
+covariates distribution of the sample of the comparison group.}
 
 \item{reweight_marginals}{If `TRUE` (default), then the sequential decomposition
 reweights first the marginal (joint) distribution of the last covariate (covariates)
@@ -77,7 +79,7 @@ to be estimated with default `c(1:9)/10`.}
 
 \item{trimming}{boolean: If `TRUE`, observations with dominant reweighting factor values are trimmend according to rule of Huber, Lechner, and Wunsch (2014). Per default, trimming is set to `FALSE`.}
 
-\item{trimming_threshold}{numeric: threshold defining the maximal accepted relative weight of the reweighting factor value of a single observation. If `NULL`, the threshold is set to $\sqrt(N)/N$, where N is the number of observations in the reference group.}
+\item{trimming_threshold}{numeric: threshold defining the maximal accepted relative weight of the reweighting factor value of a single observation. If `NULL`, the threshold is set to `sqrt(N)/N`, where N is the number of observations in the reference group.}
 
 \item{bootstrap}{boolean: If `FALSE`, then the estimation is not boostrapped and no
 standard errors are calculated.}
@@ -92,6 +94,8 @@ interquantile range of the standard distribution to estimate standard errors.}
 
 \item{cores}{positive integer indicating the number of cores to use when
 computing bootstrap standard errors. Only required if \code{bootstrap = TRUE}.}
+
+\item{...}{other parameters passed to the function estimating the conditional probabilities.}
 }
 \value{
 an object of class `dfl_deco` containing a data.frame with the
@@ -106,11 +110,15 @@ distribution to construct uniform confidence bands for quantiles.
 `dfl_deco` decomposes between-group differences in distributional
 statistics of an outcome variable into a structure effect and a composition effect.
 As proposed by DiNardo, Fortin, and Lemieux (1996), the procedure
-reweights the sample distribution of a reference group that the group's covariates
-distribution matches the covariates distribution of a counterfactual group. The
-function allows detailed decompositions of the composition effect by sequentially
-reweighting (conditional) covariate distributions. The function computes
-standard errors by bootstrapping the estimation.
+reweights the sample distribution of a reference group such that the group's
+covariates distribution matches the covariates distribution of a counterfactual
+group.
+
+Reweighting factors are derived by modelling the probability of belonging to
+the one group instead of the other conditional on covariates. The function
+allows detailed decompositions of the composition effect by sequentially
+reweighting (conditional) covariate distributions. Standard errors can be
+bootstrapped.
 }
 \details{
 The covariates entered into `formula` will be used to estimate the reweighting
@@ -180,59 +188,82 @@ probabilities of the quantiles of interest. For other distributional statistics,
 please use `custom_statistic_function`.
 }
 \examples{
-# library(AER)
-# data("CPS1985")
-# mod1 <- log(wage) ~ education + experience + ethnicity + region + sector
-# est1 <- dfl_deco(mod1, data=CPS1985, group=union)
-# est1
-#
-# plot(est1)
-#
-# # Bootstrap
-# est2 <- dfl_deco(mod1,
-#                 data=CPS1985,
-#                 group=union,
-#                 bootstrap=TRUE,
-#                 bootstrap_iteration=10,
-#                 bootstrap_robust=TRUE)
-# est2
-#
-# plot(est2, uniform_bands=TRUE)
-#
-# summary(est2)
-#
-#
-## Replicate example from handbook chapter of Fortin, Firpo, and Lemieux (2011, p. 67, Table 5)
+## Replicate example from handbook chapter of Fortin, Lemieux, and Firpo (FLF, 2011)
 data("men8305")
 men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
-ffl_model <- log(wage) ~ union*(education + experience) + education*experience
-ffl_male_example  <- dfl_deco(ffl_model,
-                              data = men8305,
-                              weights = weights,
-                              group = year,
-                              reference_0 = TRUE,
-                              statistics = c( "iq_range_p90_p10",
-                                              "iq_range_p90_p50",
-                                              "iq_range_p50_p10",
-                                               "variance",
-                                               "gini"))
-summary(ffl_male_example)
 
+flf_model <- log(wage) ~ union*(education + experience) + education*experience
+
+# Reweighting sample from 1983-85
+flf_male_inequality  <- dfl_deco(flf_model,
+                                 data = men8305,
+                                 weights = weights,
+                                 group = year)
+
+# Summarize results
+summary(flf_male_inequality)
+
+# Plot decomposition of qunatile differences
+plot(flf_male_inequality)
+
+# Use alternative reference group (i.e. reweight sample from 2003-05)
+flf_male_inequality_reference_0305  <- dfl_deco(flf_model,
+                                                data = men8305,
+                                                weights = weights,
+                                                group = year,
+                                                reference_0 = FALSE)
+
+# Summarize results
+summary(flf_male_inequality_reference_0305)
+
+
+# Bootstrap standard errors (using smaller sample for the sake of illustration)
+\dontrun{
+set.seed(123)
+flf_male_inequality_boot  <- dfl_deco(flf_model,
+                                 data = men8305[1:1000, ],
+                                 weights = weights,
+                                 group = year,
+                                 bootstrap = TRUE,
+                                 bootstrap_iterations = 100,
+                                 cores = 1)
+
+# Get standard errors and confidence intervals
+summary(flf_male_inequality_boot)
+
+# Plot quantile differences with pointwise confidence intervals
+plot(flf_male_inequality_boot)
+
+# Plot quantile differences with uniform confidence intervals
+plot(flf_male_inequality_boot, uniform_bands=TRUE)
+
+}
 
 # Trim observations
-ffl_male_example_trimming  <- dfl_deco(ffl_model,
+flf_male_inequality_trimming  <- dfl_deco(flf_model,
                               data = men8305,
                               weights = weights,
                               group = year,
                               reference_0 = TRUE,
-                              statistics = c( "iq_range_p90_p10",
-                                              "iq_range_p90_p50",
-                                              "iq_range_p50_p10",
-                                               "variance",
-                                               "gini"),
                               trimming = TRUE,
                               trimming_threshold = 0.00005)
- summary(ffl_male_example_trimming)
+summary(flf_male_inequality_trimming)
+
+
+## Sequential decomposition
+# Distinguishing the contribution of the marginal distribution of education
+# and experience from the contribution of unionization conditional on
+# education and experience
+
+model_sequential <- log(wage) ~ union*(education + experience) + education*experience | education*experience
+
+male_inequality_sequential  <- dfl_deco(model_sequential,
+                                        data = men8305,
+                                        weights = weights,
+                                        group = year)
+
+# Summarize results
+summary(male_inequality_sequential)
 
 }
 \references{
@@ -240,13 +271,14 @@ DiNardo, John, Nicole M. Fortin, and Thomas Lemieux. 1996. "Labor Market
 Institutions and the Distribution of Wages, 1973-1992: A Semiparametric Approach."
 \emph{Econometrica}, 64(5), 1001-1044.
 
-Fortin, Firpo, and Lemieux (2012, p. 67) (Handbook Chapter)
-
 Firpo, Sergio P., Nicole M. Fortin, and Thomas Lemieux. 2018. “Decomposing Wage
 Distributions Using Recentered Influence Function Regressions.”
 \emph{Econometrics} 6(2), 28.
 
-Firpo, Sergio, and Cristine Pinto. 2016. "Identification and Estimation of
+Fortin, Nicole M., Thomas Lemieux, and Sergio Firpo. 2011. "Decomposition methods in economics."
+In Orley Ashenfelter and David Card, eds., \emph{Handbook of labor economics}. Vol. 4. Elsevier, 1-102.
+
+Firpo, Sergio P., and Cristine Pinto. 2016. "Identification and Estimation of
 Distributional Impacts of Interventions Using Changes in Inequality Measures."
 \emph{Journal of Applied Econometrics}, 31(3), 457– 486.
 }

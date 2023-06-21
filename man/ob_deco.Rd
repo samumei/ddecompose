@@ -11,7 +11,7 @@ ob_deco(
   weights = NULL,
   rifreg = FALSE,
   reweighting = FALSE,
-  method = "logit",
+  reweighting_method = "logit",
   na.action = na.exclude,
   reference_0 = TRUE,
   normalize_factors = FALSE,
@@ -154,8 +154,8 @@ deco_female_as_reference <- ob_deco(formula = mod1,
                                     reference_0 = TRUE)
 summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 
-# Return standard errors for all detailed terms
-summary(deco_female_as_reference, aggregate_factors = FALSE)
+# Return standard errors for all detailed terms -> not yet working
+# summary(deco_female_as_reference, aggregate_factors = FALSE)
 
 }
 \references{

@@ -7,8 +7,11 @@
 bootstrap_estimate_ob_deco(
   formula,
   data_used,
-  reference_0 = TRUE,
-  normalize_factors = FALSE,
+  reference_0,
+  normalize_factors,
+  reweighting,
+  reweighting_method,
+  rifreg,
   cluster = NULL
 )
 }

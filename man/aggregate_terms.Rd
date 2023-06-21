@@ -5,8 +5,6 @@
 \title{Aggregate decomposition terms}
 \usage{
 aggregate_terms(x, aggregate_factors = TRUE, custom_aggregation = NULL)
-
-aggregate_terms(x, aggregate_factors = TRUE, custom_aggregation = NULL)
 }
 \arguments{
 \item{x}{an object of class "ob_deco", usually , a result of a call to [ob_deco()].}
@@ -22,28 +20,12 @@ a single variable are returned.}
 \value{
 The function returns an updated object of class "ob_deco" containing
 the aggregated decomposition terms.
-
-The function returns an updated object of class "ob_deco" containing
-the aggregated decomposition terms.
 }
 \description{
 The function aggregates decomposition terms and calculates
 their covariance matrix based on detailed decomposition results.
-
-The function aggregates decomposition terms and calculates
-their covariance matrix based on detailed decomposition results.
 }
 \examples{
-library("AER")
-data("CPS1985")
-mod2 <- log(wage) ~ education + experience + union + ethnicity
-deco_results <- ob_deco(formula = mod2, data = CPS1985, group = gender)
-
-custom_aggregation <- list(human_capital = c("education", "experience"),
-                           union = "unionyes")
-aggregated_results <- aggregate_terms(deco_results,
-                                      custom_aggregation = custom_aggregation)
-
 # library("AER")
 # data("CPS1985")
 # mod2 <- log(wage) ~ education + experience + union + ethnicity
