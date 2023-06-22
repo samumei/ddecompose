@@ -135,6 +135,9 @@ ob_deco <- function(formula,
                     group,
                     weights = NULL,
                     rifreg = FALSE,
+                    rifreg_statistic = "quantiles",
+                    rifreg_probs = c(1:9)/10,
+                    custom_rif_function = NULL,
                     reweighting = FALSE,
                     reweighting_method = "logit",
                     na.action = na.exclude,
@@ -197,6 +200,10 @@ ob_deco <- function(formula,
                                               reweighting = reweighting,
                                               reweighting_method = reweighting_method,
                                               rifreg = rifreg,
+                                              rifreg_statistic = rifreg_statistic,
+                                              rifreg_probs = rifreg_probs,
+                                              custom_rif_function = custom_rif_function,
+                                              na.action = na.action,
                                               vcov = vcov)
 
   if(bootstrap){
@@ -220,6 +227,10 @@ ob_deco <- function(formula,
                                                                                       reweighting = reweighting,
                                                                                       reweighting_method = reweighting_method,
                                                                                       rifreg = rifreg,
+                                                                                      rifreg_statistic = rifreg_statistic,
+                                                                                      rifreg_probs = rifreg_probs,
+                                                                                      custom_rif_function = custom_rif_function,
+                                                                                      na.action = na.action,
                                                                                       cluster = cluster))
     } else {
       cores <- min(cores, parallel::detectCores() - 1)
@@ -236,6 +247,10 @@ ob_deco <- function(formula,
                                                                                       reweighting = reweighting,
                                                                                       reweighting_method = reweighting_method,
                                                                                       rifreg = rifreg,
+                                                                                      rifreg_statistic = rifreg_statistic,
+                                                                                      rifreg_probs = rifreg_probs,
+                                                                                      custom_rif_function = custom_rif_function,
+                                                                                      na.action = na.action,
                                                                                       cluster = cluster),
                                                cl = core_cluster)
       parallel::stopCluster(core_cluster)
@@ -244,17 +259,17 @@ ob_deco <- function(formula,
     bootstrap_estimates <- do.call("rbind", bootstrap_estimates)
     bootstrap_estimates$iteration <- rep(1:bootstrap_iterations, each=length(unique(bootstrap_estimates$Variable)))
     bootstrap_estimates <- stats::reshape(bootstrap_estimates,
-                                                  idvar = c("Variable", "iteration"),
-                                                  ids=unique(bootstrap_estimates$variable),
-                                                  times = setdiff(names(bootstrap_estimates), c("Variable", "iteration")),
-                                                  timevar="effect",
-                                                  varying = list(setdiff(names(bootstrap_estimates), c("Variable", "iteration"))),
-                                                  direction = "long",
-                                                  v.names = "value")
+                                          idvar = c("Variable", "iteration"),
+                                          ids=unique(bootstrap_estimates$variable),
+                                          times = setdiff(names(bootstrap_estimates), c("Variable", "iteration")),
+                                          timevar="effect",
+                                          varying = list(setdiff(names(bootstrap_estimates), c("Variable", "iteration"))),
+                                          direction = "long",
+                                          v.names = "value")
     bootstrap_estimates <- stats::reshape(bootstrap_estimates,
-                                                  idvar = c("iteration", "effect"),
-                                                  timevar= "Variable",
-                                                  direction = "wide")
+                                          idvar = c("iteration", "effect"),
+                                          timevar= "Variable",
+                                          direction = "wide")
     names(bootstrap_estimates) <- gsub("value[.]", "", names(bootstrap_estimates))
     bootstrap_estimates <- lapply(split(bootstrap_estimates, bootstrap_estimates$effect), function(x) stats::cov(x[, -c(1:2)]))
 
@@ -293,6 +308,10 @@ estimate_ob_deco <- function(formula,
                              reweighting,
                              reweighting_method,
                              rifreg,
+                             rifreg_statistic,
+                             rifreg_probs,
+                             custom_rif_function,
+                             na.action,
                              vcov){
 
   group0 <- levels(data_used[, "group"])[1]
@@ -322,11 +341,34 @@ estimate_ob_deco <- function(formula,
     adjusted_coefficient_names <- NULL
   }
 
-  fit0 <- lm(formula, data = subset(data_used, group == group0), weights = weights)
-  fit1 <- lm(formula, data = subset(data_used, group != group0), weights = weights)
+  if(rifreg) {
+    fit0 <- rifreg::rifreg(formula = formula,
+                                  data = subset(data_used, group == group0),
+                                  statistic = rifreg_statistic,
+                                  weights = weights,
+                                  probs = rifreg_probs,
+                                  custom_rif_function = custom_rif_function,
+                                  na.action = na.action,
+                           bootstrap = FALSE)
 
-  beta0 <- coef(fit0)
-  beta1 <- coef(fit1)
+    fit1 <- rifreg::rifreg(formula = formula,
+                                  data = subset(data_used, group != group0),
+                                  statistic = rifreg_statistic,
+                                  weights = weights,
+                                  probs = rifreg_probs,
+                                  custom_rif_function = custom_rif_function,
+                                  na.action = na.action,
+                           bootstrap = FALSE)
+    beta0 <- fit0$estimates[,1]
+    beta1 <- fit1$estimates[,1]
+  }
+  else {
+    fit0 <- lm(formula, data = subset(data_used, group == group0), weights = weights)
+    fit1 <- lm(formula, data = subset(data_used, group != group0), weights = weights)
+
+    beta0 <- coef(fit0)
+    beta1 <- coef(fit1)
+  }
 
   if(normalize_factors){
     beta0 <- GU_normalization_get_coefficients(coef_names = adjusted_coefficient_names,
@@ -343,21 +385,48 @@ estimate_ob_deco <- function(formula,
                                  reference_0 = reference_0,
                                  method = reweighting_method,
                                  estimate_statistics = FALSE)
+
     reweighting_factor <- dlf_deco_results$reweighting_factor$Psi_X1
     data_used$weights_and_reweighting_factors <- data_used[, "weights"] * reweighting_factor
 
-    if(reference_0) {
-      fit_reweighted <- lm(formula, data = subset(data_used, group == group0), weights = weights_and_reweighting_factors)
+    if(rifreg) {
+      if(reference_0) {
+        fit_reweighted <- rifreg::rifreg(formula = formula,
+                                                data = subset(data_used, group == group0),
+                                                statistic = rifreg_statistic,
+                                                weights = weights_and_reweighting_factors,
+                                                probs = rifreg_probs,
+                                                custom_rif_function = custom_rif_function,
+                                                na.action = na.action)
+      }
+      else {
+        fit_reweighted <- rifreg::rifreg(formula = formula,
+                                                data = subset(data_used, group != group0),
+                                                statistic = rifreg_statistic,
+                                                weights = weights_and_reweighting_factors,
+                                                probs = rifreg_probs,
+                                                custom_rif_function = custom_rif_function,
+                                                na.action = na.action)
+        }
+
+
+      beta_reweighted <- fit_reweighted$estimates[,1]
+
     }
     else {
-      fit_reweighted <- lm(formula, data = subset(data_used, group != group0), weights = weights_and_reweighting_factors)
+      if(reference_0) {
+        fit_reweighted <- lm(formula, data = subset(data_used, group == group0), weights = weights_and_reweighting_factors)
+      }
+      else {
+        fit_reweighted <- lm(formula, data = subset(data_used, group != group0), weights = weights_and_reweighting_factors)
+      }
+      beta_reweighted <- coef(fit_reweighted)
     }
 
-    beta_reweighted <- coef(fit_reweighted)
 
     if(normalize_factors){
       beta_reweighted <- GU_normalization_get_coefficients(coef_names = adjusted_coefficient_names,
-                                                 est_coef = beta_reweighted)
+                                                           est_coef = beta_reweighted)
     }
 
     if(reference_0) {
@@ -426,12 +495,12 @@ estimate_ob_deco <- function(formula,
   }
   else {
     deco_results <- ob_deco_calculate_terms(beta0 = beta0,
-                                                    beta1 = beta1,
-                                                    X0 = X0,
-                                                    X1 = X1,
-                                                    weights0 = weights0,
-                                                    weights1 = weights1,
-                                                    reference_0 = reference_0)
+                                            beta1 = beta1,
+                                            X0 = X0,
+                                            X1 = X1,
+                                            weights0 = weights0,
+                                            weights1 = weights1,
+                                            reference_0 = reference_0)
     deco_results$Specification_error <- NA
     deco_results$Reweighting_error <- NA
     fit_reweighted <- NA
@@ -486,22 +555,25 @@ bootstrap_estimate_ob_deco <- function(formula,
                                        normalize_factors,
                                        reweighting,
                                        reweighting_method,
-                                       rifreg,
+                                       rifreg,rifreg_statistic,
+                                       rifreg_probs,
+                                       custom_rif_function,
+                                       na.action,
                                        cluster = NULL){
   if(is.null(cluster)){
-  sampled_observations <- sample(1:nrow(data_used),
-                                 size = nrow(data_used),
-                                 replace = TRUE,
-                                 prob = data_used$weights/sum(data_used$weights, na.rm=TRUE))
+    sampled_observations <- sample(1:nrow(data_used),
+                                   size = nrow(data_used),
+                                   replace = TRUE,
+                                   prob = data_used$weights/sum(data_used$weights, na.rm=TRUE))
   } else {
-  unique_cluster <- unique(data_used$cluster)
-  cluster_weights <- data_used[match(unique_cluster, data_used$cluster), "cluster_weights"]
-  sampled_cluster <- sample(unique_cluster,
-                            size = length(unique_cluster),
-                            replace = TRUE,
-                            prob = cluster_weights/sum(data_used$weights, na.rm=TRUE))
-  sampled_observations <- do.call("c",sapply(sampled_cluster, function(x) which(data_used$cluster %in% x)))
-  data_used$weights <- data_used$weights * sum(data_used[ ,"weights"], na.rm=TRUE) / sum(data_used[sampled_observations,"weights"], na.rm=TRUE)
+    unique_cluster <- unique(data_used$cluster)
+    cluster_weights <- data_used[match(unique_cluster, data_used$cluster), "cluster_weights"]
+    sampled_cluster <- sample(unique_cluster,
+                              size = length(unique_cluster),
+                              replace = TRUE,
+                              prob = cluster_weights/sum(data_used$weights, na.rm=TRUE))
+    sampled_observations <- do.call("c",sapply(sampled_cluster, function(x) which(data_used$cluster %in% x)))
+    data_used$weights <- data_used$weights * sum(data_used[ ,"weights"], na.rm=TRUE) / sum(data_used[sampled_observations,"weights"], na.rm=TRUE)
   }
 
   sink(nullfile()) # to supress output
@@ -512,6 +584,10 @@ bootstrap_estimate_ob_deco <- function(formula,
                                      reweighting = reweighting,
                                      reweighting_method = reweighting_method,
                                      rifreg = rifreg,
+                                     rifreg_statistic = rifreg_statistic,
+                                     rifreg_probs = rifreg_probs,
+                                     custom_rif_function = custom_rif_function,
+                                     na.action = na.action,
                                      compute_analytical_se = FALSE,
                                      return_model_fit = FALSE)
   sink()
@@ -679,12 +755,12 @@ ob_deco_calculate_vcov  <- function(beta0,
   #   Cov_X_counterfactual %*% Cov_beta_diff
 
   decomposition_terms_se <- data.frame(Variable = c("Total", names(X0)),
-                                    Observed_difference = sqrt(c(Var_agg_observed_diff,
-                                                                 diag(Cov_observed_diff))),
-                                    Composition_effect = sqrt(c(Var_agg_composition_effect,
-                                                                diag(Cov_composition_effect))),
-                                    Structure_effect = sqrt(c(Var_agg_structure_effect,
-                                                              diag(Cov_structure_effect))))
+                                       Observed_difference = sqrt(c(Var_agg_observed_diff,
+                                                                    diag(Cov_observed_diff))),
+                                       Composition_effect = sqrt(c(Var_agg_composition_effect,
+                                                                   diag(Cov_composition_effect))),
+                                       Structure_effect = sqrt(c(Var_agg_structure_effect,
+                                                                 diag(Cov_structure_effect))))
   rownames(decomposition_terms_se)[1] <- "Total"
 
   vcov_list <- list(Observed_difference = Cov_observed_diff,

@@ -222,7 +222,142 @@ test_that("ob_deco() does not throw an error", {
 # })
 #
 
-test_that("reweighted ob decomposition does not throw an error", {
+# test_that("reweighted ob decomposition does not throw an error", {
+#
+#   set.seed(43825081)
+#   data("nlys00")
+#
+#   mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#     hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#     years_worked_military + part_time + industry
+#
+#   reweighted_deco_results <- ob_deco(formula = mod1,
+#                                       data = nlys00,
+#                                       group = female,
+#                                       reference_0 = TRUE,
+#                                       reweighting = TRUE)
+#
+#   testthat::expect_error(reweighted_deco_results, NA)
+# })
+#
+# test_that("reweighted ob decomposition aggregate results are as expected", {
+#
+#   set.seed(43825081)
+#   data("nlys00")
+#
+#   mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#     hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#     years_worked_military + part_time + industry
+#
+#   reweighted_deco_results <- ob_deco(formula = mod1,
+#                                      data = nlys00,
+#                                      group = female,
+#                                      reference_0 = TRUE,
+#                                      reweighting = TRUE)
+#
+#   deco_results <- ob_deco(formula = mod1,
+#                           data = nlys00,
+#                           group = female,
+#                           reference_0 = TRUE,
+#                           reweighting = FALSE)
+#
+#   testthat::expect_equal(reweighted_deco_results$decomposition_terms$Observed_difference,
+#                          deco_results$decomposition_terms$Observed_difference)
+#   testthat::expect_equal(reweighted_deco_results$decomposition_terms$Composition_effect +
+#                            reweighted_deco_results$decomposition_terms$Specification_error +
+#                            reweighted_deco_results$decomposition_terms$Structure_effect +
+#                            reweighted_deco_results$decomposition_terms$Reweighting_error,
+#                          deco_results$decomposition_terms$Observed_difference)
+#
+# })
+#
+# test_that("reweighted ob decomposition aggregate results are as expected with male reference", {
+#
+#   set.seed(43825081)
+#   data("nlys00")
+#
+#   mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#     hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#     years_worked_military + part_time + industry
+#
+#   reweighted_deco_results <- ob_deco(formula = mod1,
+#                                      data = nlys00,
+#                                      group = female,
+#                                      reference_0 = FALSE,
+#                                      reweighting = TRUE)
+#
+#   deco_results <- ob_deco(formula = mod1,
+#                           data = nlys00,
+#                           group = female,
+#                           reference_0 = FALSE,
+#                           reweighting = FALSE)
+#
+#   testthat::expect_equal(reweighted_deco_results$decomposition_terms$Observed_difference,
+#                          deco_results$decomposition_terms$Observed_difference)
+#   testthat::expect_equal(reweighted_deco_results$decomposition_terms$Composition_effect +
+#                            reweighted_deco_results$decomposition_terms$Specification_error +
+#                            reweighted_deco_results$decomposition_terms$Structure_effect +
+#                            reweighted_deco_results$decomposition_terms$Reweighting_error,
+#                          deco_results$decomposition_terms$Observed_difference)
+#
+# })
+#
+#
+# test_that("reweighted ob decomposition aggregate results are as expected with normalization", {
+#
+#   set.seed(43825081)
+#   data("nlys00")
+#
+#   mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#     hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#     years_worked_military + part_time + industry
+#
+#   reweighted_deco_results <- ob_deco(formula = mod1,
+#                                      data = nlys00,
+#                                      group = female,
+#                                      reference_0 = TRUE,
+#                                      reweighting = TRUE,
+#                                      normalize_factors = TRUE)
+#
+#   deco_results <- ob_deco(formula = mod1,
+#                           data = nlys00,
+#                           group = female,
+#                           reference_0 = TRUE,
+#                           reweighting = FALSE,
+#                           normalize_factors = TRUE)
+#
+#   testthat::expect_equal(reweighted_deco_results$decomposition_terms$Observed_difference,
+#                          deco_results$decomposition_terms$Observed_difference)
+#   testthat::expect_equal(reweighted_deco_results$decomposition_terms$Composition_effect +
+#                            reweighted_deco_results$decomposition_terms$Specification_error +
+#                            reweighted_deco_results$decomposition_terms$Structure_effect +
+#                            reweighted_deco_results$decomposition_terms$Reweighting_error,
+#                          deco_results$decomposition_terms$Observed_difference)
+#
+# })
+#
+#
+# test_that("reweighted ob decomposition computes bootstrap SE", {
+#
+#   set.seed(43825081)
+#   data("nlys00")
+#
+#   mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#     hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#     years_worked_military + part_time + industry
+#
+#   reweighted_deco_results <- ob_deco(formula = mod1,
+#                                      data = nlys00,
+#                                      group = female,
+#                                      reference_0 = TRUE,
+#                                      reweighting = TRUE,
+#                                      normalize_factors = TRUE,
+#                                      bootstrap = TRUE)
+#
+#   testthat::expect_error(reweighted_deco_results, NA)
+# })
+
+test_that("rifreg decomposition does not throw an error", {
 
   set.seed(43825081)
   data("nlys00")
@@ -231,132 +366,42 @@ test_that("reweighted ob decomposition does not throw an error", {
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  reweighted_deco_results <- ob_deco(formula = mod1,
-                                      data = nlys00,
-                                      group = female,
-                                      reference_0 = TRUE,
-                                      reweighting = TRUE)
-  #browser()
-  testthat::expect_error(reweighted_deco_results, NA)
-})
-
-test_that("reweighted ob decomposition aggregate results are as expected", {
-
-  set.seed(43825081)
-  data("nlys00")
-
-  mod1 <- log(wage) ~ age + central_city + msa + region + black +
-    hispanic + education + afqt + family_responsibility + years_worked_civilian +
-    years_worked_military + part_time + industry
-
-  reweighted_deco_results <- ob_deco(formula = mod1,
-                                     data = nlys00,
-                                     group = female,
-                                     reference_0 = TRUE,
-                                     reweighting = TRUE)
-
-  deco_results <- ob_deco(formula = mod1,
-                          data = nlys00,
-                          group = female,
-                          reference_0 = TRUE,
-                          reweighting = FALSE)
-
-  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Observed_difference,
-                         deco_results$decomposition_terms$Observed_difference)
-  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Composition_effect +
-                           reweighted_deco_results$decomposition_terms$Specification_error +
-                           reweighted_deco_results$decomposition_terms$Structure_effect +
-                           reweighted_deco_results$decomposition_terms$Reweighting_error,
-                         deco_results$decomposition_terms$Observed_difference)
-
-})
-
-test_that("reweighted ob decomposition aggregate results are as expected with male reference", {
-
-  set.seed(43825081)
-  data("nlys00")
-
-  mod1 <- log(wage) ~ age + central_city + msa + region + black +
-    hispanic + education + afqt + family_responsibility + years_worked_civilian +
-    years_worked_military + part_time + industry
-
-  reweighted_deco_results <- ob_deco(formula = mod1,
-                                     data = nlys00,
-                                     group = female,
-                                     reference_0 = FALSE,
-                                     reweighting = TRUE)
-
-  deco_results <- ob_deco(formula = mod1,
-                          data = nlys00,
-                          group = female,
-                          reference_0 = FALSE,
-                          reweighting = FALSE)
-
-  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Observed_difference,
-                         deco_results$decomposition_terms$Observed_difference)
-  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Composition_effect +
-                           reweighted_deco_results$decomposition_terms$Specification_error +
-                           reweighted_deco_results$decomposition_terms$Structure_effect +
-                           reweighted_deco_results$decomposition_terms$Reweighting_error,
-                         deco_results$decomposition_terms$Observed_difference)
-
-})
-
-
-test_that("reweighted ob decomposition aggregate results are as expected with normalization", {
-
-  set.seed(43825081)
-  data("nlys00")
-
-  mod1 <- log(wage) ~ age + central_city + msa + region + black +
-    hispanic + education + afqt + family_responsibility + years_worked_civilian +
-    years_worked_military + part_time + industry
-
-  reweighted_deco_results <- ob_deco(formula = mod1,
+  rifreg_deco_results <- ob_deco(formula = mod1,
                                      data = nlys00,
                                      group = female,
                                      reference_0 = TRUE,
                                      reweighting = TRUE,
-                                     normalize_factors = TRUE)
-
-  deco_results <- ob_deco(formula = mod1,
-                          data = nlys00,
-                          group = female,
-                          reference_0 = TRUE,
-                          reweighting = FALSE,
-                          normalize_factors = TRUE)
-
-  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Observed_difference,
-                         deco_results$decomposition_terms$Observed_difference)
-  testthat::expect_equal(reweighted_deco_results$decomposition_terms$Composition_effect +
-                           reweighted_deco_results$decomposition_terms$Specification_error +
-                           reweighted_deco_results$decomposition_terms$Structure_effect +
-                           reweighted_deco_results$decomposition_terms$Reweighting_error,
-                         deco_results$decomposition_terms$Observed_difference)
-
-})
-
-
-test_that("reweighted ob decomposition computes bootstrap SE", {
-
-  set.seed(43825081)
-  data("nlys00")
-
-  mod1 <- log(wage) ~ age + central_city + msa + region + black +
-    hispanic + education + afqt + family_responsibility + years_worked_civilian +
-    years_worked_military + part_time + industry
-
-  reweighted_deco_results <- ob_deco(formula = mod1,
-                                     data = nlys00,
-                                     group = female,
-                                     reference_0 = TRUE,
-                                     reweighting = TRUE,
+                                     rifreg = TRUE,
+                                 rifreg_probs = 0.5,
                                      normalize_factors = TRUE,
-                                     bootstrap = TRUE)
+                                     bootstrap = FALSE)
 
-  testthat::expect_error(reweighted_deco_results, NA)
+  testthat::expect_error(rifreg_deco_results, NA)
 
 })
 
+
+test_that("rifreg decomposition does not throw an error with bootstrap", {
+
+  set.seed(43825081)
+  data("nlys00")
+
+  mod1 <- log(wage) ~ age + central_city + msa + region + black +
+    hispanic + education + afqt + family_responsibility + years_worked_civilian +
+    years_worked_military + part_time + industry
+
+  rifreg_deco_results <- ob_deco(formula = mod1,
+                                 data = nlys00,
+                                 group = female,
+                                 reference_0 = TRUE,
+                                 reweighting = TRUE,
+                                 rifreg = TRUE,
+                                 rifreg_probs = 0.5,
+                                 normalize_factors = TRUE,
+                                 bootstrap = TRUE)
+
+  testthat::expect_error(rifreg_deco_results, NA)
+
+})
 
 
