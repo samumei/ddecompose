@@ -178,6 +178,10 @@ GU_normalization_get_coefficients <- function(coef_names, est_coef){
   est_coef <- do.call("c",lapply(coef_names,
                                  GU_normalization_sum_coefficients,
                                  est_coef = est_coef))
+  if(!all(!grepl("\\.", names(coef_names)))) {
+    stop("Category names of covariates cannot contain dots (.) in GU_normalization.
+         Please remove dots from the category names of all covariates you want to normalize. ")
+  }
   names(est_coef) <- sapply(strsplit(names(est_coef), split = "\\."), function(x) x[2])
   return(est_coef)
 }
