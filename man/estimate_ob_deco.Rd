@@ -14,6 +14,10 @@ estimate_ob_deco(
   reweighting,
   reweighting_method,
   rifreg,
+  rifreg_statistic,
+  rifreg_probs,
+  custom_rif_function,
+  na.action,
   vcov
 )
 }

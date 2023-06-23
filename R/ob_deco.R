@@ -236,6 +236,26 @@ ob_deco <- function(formula,
                                                 na.action = na.action,
                                                 vcov = vcov)
 
+    estimated_decomposition <- list(estimated_decomposition)
+
+    # set name
+    if(rifreg) {
+      if(rifreg_statistic == "quantiles") {
+        deco_name <- paste0("quantile_", as.character(rifreg_probs))
+      }
+      else {
+        deco_name <- rifreg_statistic
+      }
+    }
+    else {
+      if(reweighting) {
+        deco_name <- "reweighted_ob_deco"
+      }
+      else{
+        deco_name <- "ob_deco"
+      }
+    }
+    names(estimated_decomposition) <- deco_name
   }
 
 
@@ -288,14 +308,22 @@ ob_deco <- function(formula,
                                                cl = core_cluster)
       parallel::stopCluster(core_cluster)
     }
-browser()
 
-  for(i in 1:length(                                                                                      custom_rif_functionrifreg_probs)) {
-    current_bootstrap_estimates <- lapply(bootstrap_estimates, function(x) x[[i]])
-    bootstrap_vcov <- retrieve_bootstrap_vcov(current_bootstrap_estimates, bootstrap_iterations)
-    estimated_decomposition[[i]][["decomposition_vcov"]][["decomposition_terms_se"]] <- bootstrap_vcov$decomposition_terms_se
-    estimated_decomposition[[i]][["decomposition_vcov"]][["decomposition_terms_vcov"]] <- bootstrap_vcov$decomposition_terms_vcov
-  }
+    if(rifreg & rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
+      for(i in 1:length(rifreg_probs)) {
+        current_bootstrap_estimates <- lapply(bootstrap_estimates, function(x) x[[i]])
+        bootstrap_vcov <- retrieve_bootstrap_vcov(current_bootstrap_estimates, bootstrap_iterations)
+        estimated_decomposition[[i]][["decomposition_vcov"]][["decomposition_terms_se"]] <- bootstrap_vcov$decomposition_terms_se
+        estimated_decomposition[[i]][["decomposition_vcov"]][["decomposition_terms_vcov"]] <- bootstrap_vcov$decomposition_terms_vcov
+      }
+    }
+    else {
+        current_bootstrap_estimates <- lapply(bootstrap_estimates, function(x) x[[1]])
+        bootstrap_vcov <- retrieve_bootstrap_vcov(current_bootstrap_estimates, bootstrap_iterations)
+        estimated_decomposition[[1]][["decomposition_vcov"]][["decomposition_terms_se"]] <- bootstrap_vcov$decomposition_terms_se
+        estimated_decomposition[[1]][["decomposition_vcov"]][["decomposition_terms_vcov"]] <- bootstrap_vcov$decomposition_terms_vcov
+    }
+
 
 # estimated_decomposition$decomposition_vcov$decomposition_terms_se <- bootstrap_vcov$decomposition_terms_se
 # estimated_decomposition$decomposition_vcov$decomposition_terms_vcov <- bootstrap_vcov$decomposition_terms_vcov
@@ -605,7 +633,7 @@ bootstrap_estimate_ob_deco <- function(formula,
     if(rifreg & rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
       deco_estimates <- lapply(rifreg_probs, estimate_ob_deco,
                                         formula = formula,
-                               data_used = data_used,
+                               data_used = data_used[sampled_observations, ],
                                         reference_0 = reference_0,
                                normalize_factors = normalize_factors,
                                         compute_analytical_se = FALSE,
@@ -617,7 +645,7 @@ bootstrap_estimate_ob_deco <- function(formula,
                                         custom_rif_function = custom_rif_function,
                                         na.action = na.action,
                                         vcov = NULL)
-      browser()
+
       deco_estimates <- lapply(deco_estimates, function(x) x$decomposition_terms)
 
   }
@@ -637,7 +665,7 @@ bootstrap_estimate_ob_deco <- function(formula,
                                        vcov = NULL,
                                        return_model_fit = FALSE)
 
-    #deco_estimates <- list(deco_estimates[["decomposition_terms"]])
+    deco_estimates <- list(deco_estimates[["decomposition_terms"]])
   }
   sink()
 
@@ -647,26 +675,32 @@ bootstrap_estimate_ob_deco <- function(formula,
 }
 
 retrieve_bootstrap_vcov <- function(bootstrap_estimates, bootstrap_iterations) {
-  bootstrap_estimates <- do.call("rbind", bootstrap_estimates)
-  bootstrap_estimates$iteration <- rep(1:bootstrap_iterations, each=length(unique(bootstrap_estimates$Variable)))
-  bootstrap_estimates <- stats::reshape(bootstrap_estimates,
+  bootstrap_estimates_as_dataframe <- do.call("rbind", bootstrap_estimates)
+  bootstrap_estimates_as_dataframe$iteration <- rep(1:bootstrap_iterations, each=length(unique(bootstrap_estimates_as_dataframe$Variable)))
+  bootstrap_estimates_long <- stats::reshape(bootstrap_estimates_as_dataframe,
                                         idvar = c("Variable", "iteration"),
-                                        ids=unique(bootstrap_estimates$variable),
-                                        times = setdiff(names(bootstrap_estimates), c("Variable", "iteration")),
+                                        ids=unique(bootstrap_estimates_as_dataframe$variable),
+                                        times = setdiff(names(bootstrap_estimates_as_dataframe), c("Variable", "iteration")),
                                         timevar="effect",
-                                        varying = list(setdiff(names(bootstrap_estimates), c("Variable", "iteration"))),
+                                        varying = list(setdiff(names(bootstrap_estimates_as_dataframe), c("Variable", "iteration"))),
                                         direction = "long",
                                         v.names = "value")
-  bootstrap_estimates <- stats::reshape(bootstrap_estimates,
+  bootstrap_estimates_wide <- stats::reshape(bootstrap_estimates_long,
                                         idvar = c("iteration", "effect"),
                                         timevar= "Variable",
                                         direction = "wide")
-  names(bootstrap_estimates) <- gsub("value[.]", "", names(bootstrap_estimates))
-  bootstrap_estimates <- lapply(split(bootstrap_estimates, bootstrap_estimates$effect), function(x) stats::cov(x[, -c(1:2)]))
+
+  names(bootstrap_estimates_wide) <- gsub("value[.]", "", names(bootstrap_estimates_wide))
+  bootstrap_estimates <- lapply(split(bootstrap_estimates_wide, bootstrap_estimates_wide$effect), function(x) stats::cov(x[, -c(1:2)]))
 
   decomposition_terms_se <- as.data.frame(do.call("cbind", lapply(bootstrap_estimates, function(x) sqrt(diag(x)))))
   decomposition_terms_se$Variable <- rownames(decomposition_terms_se)
-  decomposition_terms_se <- decomposition_terms_se[, c("Variable", "Observed_difference", "Composition_effect", "Structure_effect")]
+  decomposition_terms_se <- decomposition_terms_se[, c("Variable",
+                                                       "Observed_difference",
+                                                       "Composition_effect",
+                                                       "Structure_effect",
+                                                       "Specification_error",
+                                                       "Reweighting_error")]
 
   decomposition_terms_vcov <- lapply(bootstrap_estimates, function(x) x[-1,-1])
 
