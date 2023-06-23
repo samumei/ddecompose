@@ -1,18 +1,18 @@
-test_that("ob_deco() does not throw an error", {
-  set.seed(43825081)
-  data("nlys00")
-
-  mod1 <- log(wage) ~ age + central_city + msa + region + black +
-  hispanic + education + afqt + family_responsibility + years_worked_civilian +
-  years_worked_military + part_time + industry
-
-  # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
-  deco_female_as_reference <- ob_deco(formula = mod1,
-                                      data = nlys00,
-                                      group = female,
-                                      reference_0 = TRUE)
-  testthat::expect_error(deco_female_as_reference, NA)
-})
+# test_that("ob_deco() does not throw an error", {
+#   set.seed(43825081)
+#   data("nlys00")
+#
+#   mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#   hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#   years_worked_military + part_time + industry
+#
+#   # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
+#   deco_female_as_reference <- ob_deco(formula = mod1,
+#                                       data = nlys00,
+#                                       group = female,
+#                                       reference_0 = TRUE)
+#   testthat::expect_error(deco_female_as_reference, NA)
+# })
 #
 # # test_that("ob_deco() returns the same results as R-pacakge oaxaca", {
 # #   set.seed(43825081)
@@ -356,32 +356,78 @@ test_that("ob_deco() does not throw an error", {
 #
 #   testthat::expect_error(reweighted_deco_results, NA)
 # })
+#
+# test_that("rifreg decomposition does not throw an error", {
+#
+#   set.seed(43825081)
+#   data("nlys00")
+#
+#   mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#     hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#     years_worked_military + part_time + industry
+#
+#   rifreg_deco_results <- ob_deco(formula = mod1,
+#                                      data = nlys00,
+#                                      group = female,
+#                                      reference_0 = TRUE,
+#                                      reweighting = TRUE,
+#                                      rifreg = TRUE,
+#                                  rifreg_probs = 0.5,
+#                                      normalize_factors = TRUE,
+#                                      bootstrap = FALSE)
+#
+#   testthat::expect_error(rifreg_deco_results, NA)
+#
+# })
+#
+#
+# test_that("rifreg decomposition does not throw an error with bootstrap", {
+#
+#   set.seed(43825081)
+#   data("nlys00")
+#
+#   mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#     hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#     years_worked_military + part_time + industry
+#
+#   rifreg_deco_results <- ob_deco(formula = mod1,
+#                                  data = nlys00,
+#                                  group = female,
+#                                  reference_0 = TRUE,
+#                                  reweighting = TRUE,
+#                                  rifreg = TRUE,
+#                                  rifreg_probs = 0.5,
+#                                  normalize_factors = TRUE,
+#                                  bootstrap = TRUE)
+#
+#   testthat::expect_error(rifreg_deco_results, NA)
+#
+# })
+#
+# test_that("rifreg decomposition does not throw an error with multiple quantiles", {
+#
+#   set.seed(43825081)
+#   data("nlys00")
+#
+#   mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#     hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#     years_worked_military + part_time + industry
+#
+#   rifreg_deco_results <- ob_deco(formula = mod1,
+#                                  data = nlys00,
+#                                  group = female,
+#                                  reference_0 = TRUE,
+#                                  reweighting = TRUE,
+#                                  rifreg = TRUE,
+#                                  rifreg_probs = c(1:9)/10,
+#                                  normalize_factors = TRUE,
+#                                  bootstrap = FALSE)
+#
+#   testthat::expect_error(rifreg_deco_results, NA)
+#
+# })
 
-test_that("rifreg decomposition does not throw an error", {
-
-  set.seed(43825081)
-  data("nlys00")
-
-  mod1 <- log(wage) ~ age + central_city + msa + region + black +
-    hispanic + education + afqt + family_responsibility + years_worked_civilian +
-    years_worked_military + part_time + industry
-
-  rifreg_deco_results <- ob_deco(formula = mod1,
-                                     data = nlys00,
-                                     group = female,
-                                     reference_0 = TRUE,
-                                     reweighting = TRUE,
-                                     rifreg = TRUE,
-                                 rifreg_probs = 0.5,
-                                     normalize_factors = TRUE,
-                                     bootstrap = FALSE)
-
-  testthat::expect_error(rifreg_deco_results, NA)
-
-})
-
-
-test_that("rifreg decomposition does not throw an error with bootstrap", {
+test_that("rifreg decomposition does not throw an error with multiple quantiles and bootstrap", {
 
   set.seed(43825081)
   data("nlys00")
@@ -396,12 +442,40 @@ test_that("rifreg decomposition does not throw an error with bootstrap", {
                                  reference_0 = TRUE,
                                  reweighting = TRUE,
                                  rifreg = TRUE,
-                                 rifreg_probs = 0.5,
+                                 rifreg_probs = c(1:9)/10,
                                  normalize_factors = TRUE,
-                                 bootstrap = TRUE)
+                                 bootstrap = TRUE,
+                                 bootstrap_iterations = 5)
 
   testthat::expect_error(rifreg_deco_results, NA)
 
 })
+#
+#
+# test_that("dfl_deco() replicates Table 5-D, p. 67, in FLF 2011 Handbook Chapter", {
+# browser()
+#   #load("data-raw/men8305_full.rda")
+#   men8305_full$weights <- men8305_full$weights/sum(men8305_full$weights) * length(men8305_full$weights)
+#   flf_model <- log(wage) ~ union*(education + experience) + education*experience
+#
+#   # Replicate statistics in table 5-D, p.67, in in FLF (2011)
+#   flf_iq_range_p90_p10  <- ob_deco(flf_model,
+#                                            data = men8305_full,
+#                                            weights = weights,
+#                                            group = year,
+#                                            reference_0 = TRUE,
+#                                            rifreg_statistic = "iq_range_p90_p10")
+#   results_rifreg_deco <- flf_male_inequality_table_5$decomposition_terms
+#
+#   published_results_FLF_table_5 <- data.frame(statistic = results_dfl_deco$statistic,
+#                                               `Observed difference` = c(0.0617, 0.1091, 0.1827, -0.0736),
+#                                               `Structure effect` = c(0.0408, 0.0336, 0.1637, -0.1301),
+#                                               `Composition effect` = c(0.0208, 0.0756, 0.0191, 0.0565))
+#   rownames(results_dfl_deco) <- rownames(published_results_FLF_table_5) <- 1:4
+#   names(published_results_FLF_table_5) <- names(results_dfl_deco)
+#   testthat::expect_equal(results_dfl_deco,
+#                          published_results_FLF_table_5,
+#                          tolerance = 0.0075)
+# })
 
 

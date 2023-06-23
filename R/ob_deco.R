@@ -191,20 +191,53 @@ ob_deco <- function(formula,
 
   compute_analytical_se <- ifelse(bootstrap, FALSE, TRUE)
 
-  estimated_decomposition <- estimate_ob_deco(formula = formula,
-                                              data_used = data_used,
-                                              reference_0 = reference_0,
-                                              normalize_factors = normalize_factors,
-                                              compute_analytical_se = compute_analytical_se,
-                                              return_model_fit = TRUE,
-                                              reweighting = reweighting,
-                                              reweighting_method = reweighting_method,
-                                              rifreg = rifreg,
-                                              rifreg_statistic = rifreg_statistic,
-                                              rifreg_probs = rifreg_probs,
-                                              custom_rif_function = custom_rif_function,
-                                              na.action = na.action,
-                                              vcov = vcov)
+  if(reweighting) {
+    dlf_deco_results <- dfl_deco(formula = formula,
+                                 data = data_used,
+                                 weights = weights,
+                                 group = group,
+                                 reference_0 = reference_0,
+                                 method = reweighting_method,
+                                 estimate_statistics = FALSE)
+
+    reweighting_factor <- dlf_deco_results$reweighting_factor$Psi_X1
+    data_used$weights_and_reweighting_factors <- data_used[, "weights"] * reweighting_factor
+  }
+
+  if(rifreg & rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
+      estimated_decomposition <- lapply(rifreg_probs, estimate_ob_deco,
+                                        formula = formula, data_used = data_used,
+                                        reference_0 = reference_0, normalize_factors = normalize_factors,
+                                        compute_analytical_se = compute_analytical_se,
+                                        return_model_fit = TRUE,
+                                        reweighting = reweighting,
+                                        reweighting_method = reweighting_method,
+                                        rifreg = rifreg,
+                                        rifreg_statistic = rifreg_statistic,
+                                        custom_rif_function = custom_rif_function,
+                                        na.action = na.action,
+                                        vcov = vcov)
+
+      names(estimated_decomposition) <- paste0("quantile_", as.character(rifreg_probs))
+  }
+  else {
+    estimated_decomposition <- estimate_ob_deco(formula = formula,
+                                                data_used = data_used,
+                                                reference_0 = reference_0,
+                                                normalize_factors = normalize_factors,
+                                                compute_analytical_se = compute_analytical_se,
+                                                return_model_fit = TRUE,
+                                                reweighting = reweighting,
+                                                reweighting_method = reweighting_method,
+                                                rifreg = rifreg,
+                                                rifreg_statistic = rifreg_statistic,
+                                                rifreg_probs = rifreg_probs,
+                                                custom_rif_function = custom_rif_function,
+                                                na.action = na.action,
+                                                vcov = vcov)
+
+  }
+
 
   if(bootstrap){
     if(!is.null(cluster)){
@@ -255,32 +288,22 @@ ob_deco <- function(formula,
                                                cl = core_cluster)
       parallel::stopCluster(core_cluster)
     }
+browser()
 
-    bootstrap_estimates <- do.call("rbind", bootstrap_estimates)
-    bootstrap_estimates$iteration <- rep(1:bootstrap_iterations, each=length(unique(bootstrap_estimates$Variable)))
-    bootstrap_estimates <- stats::reshape(bootstrap_estimates,
-                                          idvar = c("Variable", "iteration"),
-                                          ids=unique(bootstrap_estimates$variable),
-                                          times = setdiff(names(bootstrap_estimates), c("Variable", "iteration")),
-                                          timevar="effect",
-                                          varying = list(setdiff(names(bootstrap_estimates), c("Variable", "iteration"))),
-                                          direction = "long",
-                                          v.names = "value")
-    bootstrap_estimates <- stats::reshape(bootstrap_estimates,
-                                          idvar = c("iteration", "effect"),
-                                          timevar= "Variable",
-                                          direction = "wide")
-    names(bootstrap_estimates) <- gsub("value[.]", "", names(bootstrap_estimates))
-    bootstrap_estimates <- lapply(split(bootstrap_estimates, bootstrap_estimates$effect), function(x) stats::cov(x[, -c(1:2)]))
+  for(i in 1:length(                                                                                      custom_rif_functionrifreg_probs)) {
+    current_bootstrap_estimates <- lapply(bootstrap_estimates, function(x) x[[i]])
+    bootstrap_vcov <- retrieve_bootstrap_vcov(current_bootstrap_estimates, bootstrap_iterations)
+    estimated_decomposition[[i]][["decomposition_vcov"]][["decomposition_terms_se"]] <- bootstrap_vcov$decomposition_terms_se
+    estimated_decomposition[[i]][["decomposition_vcov"]][["decomposition_terms_vcov"]] <- bootstrap_vcov$decomposition_terms_vcov
+  }
 
-    decomposition_terms_se <- as.data.frame(do.call("cbind", lapply(bootstrap_estimates, function(x) sqrt(diag(x)))))
-    decomposition_terms_se$Variable <- rownames(decomposition_terms_se)
-    decomposition_terms_se <- decomposition_terms_se[, c("Variable", "Observed_difference", "Composition_effect", "Structure_effect")]
+# estimated_decomposition$decomposition_vcov$decomposition_terms_se <- bootstrap_vcov$decomposition_terms_se
+# estimated_decomposition$decomposition_vcov$decomposition_terms_vcov <- bootstrap_vcov$decomposition_terms_vcov
 
-    decomposition_terms_vcov <- lapply(bootstrap_estimates, function(x) x[-1,-1])
+    # bootstrap_vcov <- lapply(bootstrap_estimates, retrieve_bootstrap_vcov,
+    #                          bootstrap_iterations = bootstrap_iterations)
 
-    estimated_decomposition$decomposition_vcov$decomposition_terms_se <- decomposition_terms_se
-    estimated_decomposition$decomposition_vcov$decomposition_terms_vcov <- decomposition_terms_vcov
+
   }
 
   add_to_results <- list(group_variable_name=group_variable_name,
@@ -323,12 +346,23 @@ estimate_ob_deco <- function(formula,
   weights1 <- data_used[obs_1, "weights"]
 
   if(normalize_factors){
+    if(reweighting) {
+      # store reweighting weights
+      weights_and_reweighting_factors <- data_used$weights_and_reweighting_factors
+    }
+
     normalized_data <- GU_normalization(formula=formula,
                                         data=data_used,
                                         weights=weights,
                                         group=group)
     formula <- normalized_data$formula
     data_used <- normalized_data$data
+
+    if(reweighting) {
+      # attach reweighting weights again
+      data_used$weights_and_reweighting_factors <- weights_and_reweighting_factors
+    }
+
     adjusted_coefficient_names <- normalized_data$adjusted_coefficient_names
     X0 <- normalized_data$regressors_for_prediction[obs_0, ]
     X1 <- normalized_data$regressors_for_prediction[obs_1, ]
@@ -359,6 +393,7 @@ estimate_ob_deco <- function(formula,
                                   custom_rif_function = custom_rif_function,
                                   na.action = na.action,
                            bootstrap = FALSE)
+
     beta0 <- fit0$estimates[,1]
     beta1 <- fit1$estimates[,1]
   }
@@ -378,17 +413,6 @@ estimate_ob_deco <- function(formula,
   }
 
   if(reweighting) {
-    dlf_deco_results <- dfl_deco(formula = formula,
-                                 data = data_used,
-                                 weights = weights,
-                                 group = group,
-                                 reference_0 = reference_0,
-                                 method = reweighting_method,
-                                 estimate_statistics = FALSE)
-
-    reweighting_factor <- dlf_deco_results$reweighting_factor$Psi_X1
-    data_used$weights_and_reweighting_factors <- data_used[, "weights"] * reweighting_factor
-
     if(rifreg) {
       if(reference_0) {
         fit_reweighted <- rifreg::rifreg(formula = formula,
@@ -436,7 +460,7 @@ estimate_ob_deco <- function(formula,
                                 X0 = X0,
                                 X1 = X0,
                                 weights0 = weights0,
-                                weights1 = weights0 * reweighting_factor[obs_0],
+                                weights1 = data_used[obs_0, "weights_and_reweighting_factors"],
                                 reference_0 = TRUE)
 
       deco_results_group_reweighted_group_1 <-
@@ -444,7 +468,7 @@ estimate_ob_deco <- function(formula,
                                 beta1 = beta1,
                                 X0 = X0,
                                 X1 = X1,
-                                weights0 = weights0 * reweighting_factor[obs_0],
+                                weights0 = data_used[obs_0, "weights_and_reweighting_factors"],
                                 weights1 = weights1,
                                 reference_0 = TRUE)
 
@@ -466,7 +490,7 @@ estimate_ob_deco <- function(formula,
                                 X0 = X0,
                                 X1 = X1,
                                 weights0 = weights0,
-                                weights1 = weights1 * reweighting_factor[obs_1],
+                                weights1 = data_used[obs_1, "weights_and_reweighting_factors"],
                                 reference_0 = FALSE)
 
       deco_results_group_reweighted_group_1 <-
@@ -474,7 +498,7 @@ estimate_ob_deco <- function(formula,
                                 beta1 = beta1,
                                 X0 = X1,
                                 X1 = X1,
-                                weights0 = weights1 * reweighting_factor[obs_1] ,
+                                weights0 = data_used[obs_1, "weights_and_reweighting_factors"],
                                 weights1 = weights1,
                                 reference_0 = FALSE)
 
@@ -555,7 +579,8 @@ bootstrap_estimate_ob_deco <- function(formula,
                                        normalize_factors,
                                        reweighting,
                                        reweighting_method,
-                                       rifreg,rifreg_statistic,
+                                       rifreg,
+                                       rifreg_statistic,
                                        rifreg_probs,
                                        custom_rif_function,
                                        na.action,
@@ -577,27 +602,77 @@ bootstrap_estimate_ob_deco <- function(formula,
   }
 
   sink(nullfile()) # to supress output
-  deco_estimates <- estimate_ob_deco(formula = formula,
-                                     data_used = data_used[sampled_observations, ],
-                                     reference_0 = reference_0,
-                                     normalize_factors = normalize_factors,
-                                     reweighting = reweighting,
-                                     reweighting_method = reweighting_method,
-                                     rifreg = rifreg,
-                                     rifreg_statistic = rifreg_statistic,
-                                     rifreg_probs = rifreg_probs,
-                                     custom_rif_function = custom_rif_function,
-                                     na.action = na.action,
-                                     compute_analytical_se = FALSE,
-                                     return_model_fit = FALSE)
+    if(rifreg & rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
+      deco_estimates <- lapply(rifreg_probs, estimate_ob_deco,
+                                        formula = formula,
+                               data_used = data_used,
+                                        reference_0 = reference_0,
+                               normalize_factors = normalize_factors,
+                                        compute_analytical_se = FALSE,
+                                        return_model_fit = FALSE,
+                                        reweighting = reweighting,
+                                        reweighting_method = reweighting_method,
+                                        rifreg = rifreg,
+                                        rifreg_statistic = rifreg_statistic,
+                                        custom_rif_function = custom_rif_function,
+                                        na.action = na.action,
+                                        vcov = NULL)
+      browser()
+      deco_estimates <- lapply(deco_estimates, function(x) x$decomposition_terms)
+
+  }
+  else {
+    deco_estimates <- estimate_ob_deco(formula = formula,
+                                       data_used = data_used[sampled_observations, ],
+                                       reference_0 = reference_0,
+                                       normalize_factors = normalize_factors,
+                                       reweighting = reweighting,
+                                       reweighting_method = reweighting_method,
+                                       rifreg = rifreg,
+                                       rifreg_statistic = rifreg_statistic,
+                                       rifreg_probs = rifreg_probs,
+                                       custom_rif_function = custom_rif_function,
+                                       na.action = na.action,
+                                       compute_analytical_se = FALSE,
+                                       vcov = NULL,
+                                       return_model_fit = FALSE)
+
+    #deco_estimates <- list(deco_estimates[["decomposition_terms"]])
+  }
   sink()
 
-  deco_estimates <- deco_estimates[["decomposition_terms"]]
+
 
   return(deco_estimates)
 }
 
+retrieve_bootstrap_vcov <- function(bootstrap_estimates, bootstrap_iterations) {
+  bootstrap_estimates <- do.call("rbind", bootstrap_estimates)
+  bootstrap_estimates$iteration <- rep(1:bootstrap_iterations, each=length(unique(bootstrap_estimates$Variable)))
+  bootstrap_estimates <- stats::reshape(bootstrap_estimates,
+                                        idvar = c("Variable", "iteration"),
+                                        ids=unique(bootstrap_estimates$variable),
+                                        times = setdiff(names(bootstrap_estimates), c("Variable", "iteration")),
+                                        timevar="effect",
+                                        varying = list(setdiff(names(bootstrap_estimates), c("Variable", "iteration"))),
+                                        direction = "long",
+                                        v.names = "value")
+  bootstrap_estimates <- stats::reshape(bootstrap_estimates,
+                                        idvar = c("iteration", "effect"),
+                                        timevar= "Variable",
+                                        direction = "wide")
+  names(bootstrap_estimates) <- gsub("value[.]", "", names(bootstrap_estimates))
+  bootstrap_estimates <- lapply(split(bootstrap_estimates, bootstrap_estimates$effect), function(x) stats::cov(x[, -c(1:2)]))
 
+  decomposition_terms_se <- as.data.frame(do.call("cbind", lapply(bootstrap_estimates, function(x) sqrt(diag(x)))))
+  decomposition_terms_se$Variable <- rownames(decomposition_terms_se)
+  decomposition_terms_se <- decomposition_terms_se[, c("Variable", "Observed_difference", "Composition_effect", "Structure_effect")]
+
+  decomposition_terms_vcov <- lapply(bootstrap_estimates, function(x) x[-1,-1])
+
+  return(list(decomposition_terms_se = decomposition_terms_se,
+              decomposition_terms_vcov = decomposition_terms_vcov))
+}
 
 #' Calculate decomposition terms based on model.matrix and estimated OLS coefficients
 #'
