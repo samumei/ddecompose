@@ -21,7 +21,11 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
       paste0(x$group_variable_name, " == '",x$group_variable_levels[1],"'"),
       "(group 0)\n\n")
 
-  cat("Composition", ifelse(length(x$covariates_labels) == 1, "effect accounts", "effects account") ,"for between-group differences\nin the distribution of the following covariates:\n\n")
+  if(length(x$covariates_labels) == 1){
+    cat("Composition effect accounts for between-group differences\nin the distribution of the following covariates:\n\n")
+  }else{
+    cat("Composition effects of the sequential decomposition account \nfor between-group differences in the distribution of the\nfollowing covariates:\n\n")
+  }
   for(i in 1:length(x$covariates_labels)){
     cat(x$covariates_labels[[i]], "\n")
   }

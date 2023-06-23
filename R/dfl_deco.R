@@ -555,7 +555,6 @@ dfl_deco_estimate <- function(formula,
   p0 <- 1-p1
   estimated_probabilities <- rep(p0/p1, nrow(data_used))
 
-  #browser()
   nvar <- length(formula)[2] # Number of detailed decomposition effects
   covariates_labels <- vector("list", nvar)
   for(i in nvar:1){
@@ -566,28 +565,37 @@ dfl_deco_estimate <- function(formula,
     covariates_labels[[i]] <- attr(terms(mod), "term.labels")[which(attr(terms(mod), "order") == 1)]
   }
 
+
   # Collect covariates' labels ---------------------------------------------------
+
   covariates_labels <- rev(covariates_labels)
   all_covariates <- paste0(unique(do.call("c", covariates_labels)), collapse = ", ")
   if(nvar > 1){
+    covariate_index <- nvar:1
     for(i in nvar:2){
        add_vars <- setdiff(covariates_labels[[i]], covariates_labels[[i-1]])
-       covariates_labels[[i]] <- paste0("Detailed effect X",
-                                        i,
+       add_index <- paste0(paste0("X", covariate_index[i]), "|", paste0(paste0("X",covariate_index[(i-1):1]), collapse = ","))
+       covariates_labels[[i]] <- paste0("Detailed effect ",
+                                        add_index,
                                         ": ",
                                         paste0(add_vars, collapse = ", "),
                                         " | ",
                                         paste0(covariates_labels[[i-1]], collapse = ", "))
     }
-    covariates_labels[[1]] <- paste0("Detailed effect X1: ", paste0(covariates_labels[[1]], collapse = ", "))
-    covariates_labels <- c(paste0(c("Aggregate effect: ", all_covariates), collapse =""), covariates_labels)
+    covariates_labels[[1]] <- paste0("Detailed effect X",
+                                     nvar,
+                                     ": ",
+                                     paste0(covariates_labels[[1]], collapse = ", "))
+
+    covariates_labels <- c(paste0(c("Aggregate effect: ", all_covariates), collapse =""), rev(covariates_labels))
   }else{
     covariates_labels[[1]] <- all_covariates
   }
 
+
 # Derive reweighting factors ---------------------------------------------------
 
-  # e.g., in the case of Y ~ X1 | X2 | X3
+  # e.g., in the case of Y ~ X1 + X2 + X3 | X2 + X3 | X3
   # Matrix probs contains nvar+1 columns:
   # first column  [P(g=0)/P(g=1)]
   # second column [P(g=0|X3)/P(g=1|X3)]
@@ -597,33 +605,50 @@ dfl_deco_estimate <- function(formula,
   psi <- NULL
 
   if(reweight_marginals){
-    # e.g., in the case of Y ~ X1 | X2 | X3
-    # if reweight_marginals==TRUE:
-    # first column  [P(g=1)/P(g=0)]*[P(g=0|X3)/P(g=1|X3)]
-    # second column [P(g=1)/P(g=0)]*[P(g=0|X2,X3)/P(g=1|X2,X3)]
-    # third column  [P(g=1)/P(g=0)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
+    # e.g., in the case of Y ~ X1 + X2 + X3 | X2 + X3 | X3
+    # if reweight_marginals==TRUE,
+    # then the matrix psi has the following columns:
+    # first column:  [P(g=1)/P(g=0)]*[P(g=0|X3)/P(g=1|X3)]
+    # second column: [P(g=1)/P(g=0)]*[P(g=0|X2,X3)/P(g=1|X2,X3)]
+    # third column:  [P(g=1)/P(g=0)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
     for(i in 1:nvar){
-      psi <- cbind(psi, (estimated_probabilities[, 1]^-1)*estimated_probabilities[, i+1])
+      psi <- cbind(psi, (estimated_probabilities[, 1]^-1) * estimated_probabilities[, i+1])
     }
     psi <- as.data.frame(psi)
     names(psi) <- paste0("Psi_",
-                         sapply(nvar:1, function(i) paste0(paste0("X",i:nvar), collapse=",")))
-    names_decomposition_terms <- nvar:1
+                         sapply(nvar:1, function(i) paste0(paste0("X", i:nvar), collapse=",")))
+
+    #names_decomposition_terms <- nvar:1
+    names_decomposition_terms <- paste0("X", nvar)
+    if(nvar>1){
+       names_decomposition_terms <- c(names_decomposition_terms,
+                                       sapply((nvar-1):1,
+                                             function(i) paste0(paste0(paste0("X", i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))))
+
+    }
   }else{
-    # if reweight_marginals==FALSE:
+    # if reweight_marginals==FALSE,
+    # then the matrix psi has the following columns:
     # first column  [P(g=1|X2,X3)/P(g=0|X2,X3)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
     # second column [P(g=1|X3)/P(g=0|X3)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
     # third column  [P(g=1)/P(g=0)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
     for(i in nvar:1){
-      psi <- cbind(psi, (estimated_probabilities[, i]^-1)*estimated_probabilities[, nvar+1])
+      psi <- cbind(psi, (estimated_probabilities[, i]^-1) * estimated_probabilities[, nvar+1])
     }
     psi <- as.data.frame(psi)
-    names(psi)[nvar] <- paste0("Psi_", paste0(paste0("X",1:nvar), collapse=","))
+    names(psi)[nvar] <- paste0("Psi_", paste0(paste0("X", 1:nvar), collapse=","))
+
+    names_decomposition_terms <- paste0("X", nvar)
     if(nvar>1){
       names(psi)[1:(nvar-1)] <- paste0("Psi_", sapply(1:(nvar-1),
                                                       function(i) paste0(paste0(paste0("X", 1:i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))))
+      names_decomposition_terms <- c(sapply(1:(nvar-1),
+                                            function(i) paste0(paste0(paste0("X", i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))),
+                                     names_decomposition_terms)
     }
-    names_decomposition_terms <- 1:nvar
+    #names_decomposition_terms <- 1:nvar
+
+
   }
 
 # Trimming: Set weights of reweighting_factors above trimming threshold to zero
@@ -671,8 +696,9 @@ dfl_deco_estimate <- function(formula,
                       log_transformed = log_transformed)
 
     #if reference group==0, take inverse of rw factors
-    psi_power <- ifelse(reference_group==1, 1, -1)
+    psi_power <- ifelse(reference_group == 1, 1, -1)
     nuC <- NULL
+
     for(i in 1:nvar){
       psi[,i] <- psi[,i]^psi_power
       nuC <- cbind(nuC,
@@ -704,18 +730,18 @@ dfl_deco_estimate <- function(formula,
     if(reference_group==1){
       Delta <- cbind(Delta,
                      nu1-nuC[, 1])
-      colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. X", names_decomposition_terms[1], sep="")
+      colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep="")
       for(i in 2:nvar){
         Delta <- cbind(Delta, nuC[,i-1]-nuC[,i])
-        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. X", names_decomposition_terms[i], sep="")
+        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep="")
       }
     }else{
       for(i in nvar:2){
         Delta <- cbind(Delta, nuC[,i]-nuC[,i-1])
-        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. X", names_decomposition_terms[i], sep="")
+        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep="")
       }
       Delta <- cbind(Delta, nuC[,1]-nu0)
-      colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. X", names_decomposition_terms[1], sep="")
+      colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep="")
     }
 
     Delta <- Delta[, c(1:3,

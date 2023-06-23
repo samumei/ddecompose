@@ -1,14 +1,15 @@
 
 test_that("dfl_deco() does not throw an error", {
   set.seed(89342395)
-  data("men8385")
+  data("men8305")
   men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
-  model_sequential <- log(wage) ~ union + education + experience | education + experience
+  model_sequential <- log(wage) ~ union + experience + education | experience + education | education
 
   deco_results  <- dfl_deco(model_sequential,
                             data = men8305[1:1000, ],
                             weights = weights,
-                            group = year)
+                            group = year,
+                            reweight_marginals=TRUE)
 
  testthat::expect_error(deco_results, NA)
 })
