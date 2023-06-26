@@ -62,8 +62,8 @@
 #' data("nlys00")
 #'
 #' mod1 <- log(wage) ~ age + central_city + msa + region + black +
-#' hispanic + education + afqt + family_responsibility + years_worked_civilian +
-#' years_worked_military + part_time + industry
+#'   hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#'   years_worked_military + part_time + industry
 #'
 #' # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
 #' deco_female_as_reference <- ob_deco(formula = mod1,
@@ -189,7 +189,8 @@ ob_deco <- function(formula,
 
   reference_group_print <- levels(data_used[, "group"])[reference_group + 1]
 
-  compute_analytical_se <- ifelse(bootstrap, FALSE, TRUE)
+  if(!bootstrap & !rifreg & !reweighting) compute_analytical_se <- TRUE
+  else compute_analytical_se <- FALSE
 
   if(reweighting) {
     dlf_deco_results <- dfl_deco(formula = formula,
@@ -724,12 +725,13 @@ ob_deco_calculate_terms <- function(beta0,
   Xb0 <- X0 * beta0
   Xb1 <- X1 * beta1
 
-  observed_diff <- Xb1 - Xb0
   if(reference_0){
+    observed_diff <- Xb0 - Xb1
     XbC <- X1*beta0
-    structure_effect <- Xb1 - XbC
-    composition_effect <- XbC - Xb0
+    composition_effect <- Xb0 - XbC
+    structure_effect <- XbC - Xb1
   }else{
+    observed_diff <- Xb1 - Xb0
     XbC <- X0*beta1
     composition_effect <- Xb1 - XbC
     structure_effect <- XbC - Xb0

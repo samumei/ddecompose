@@ -92,8 +92,8 @@ two groups.
 data("nlys00")
 
 mod1 <- log(wage) ~ age + central_city + msa + region + black +
-hispanic + education + afqt + family_responsibility + years_worked_civilian +
-years_worked_military + part_time + industry
+  hispanic + education + afqt + family_responsibility + years_worked_civilian +
+  years_worked_military + part_time + industry
 
 # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
 deco_female_as_reference <- ob_deco(formula = mod1,
