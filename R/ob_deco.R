@@ -140,8 +140,8 @@ ob_deco <- function(formula,
                     custom_rif_function = NULL,
                     reweighting = FALSE,
                     reweighting_method = "logit",
-                    na.action = na.exclude,
                     reference_0 = TRUE,
+                    na.action = na.omit,
                     normalize_factors = FALSE,
                     bootstrap = FALSE,
                     bootstrap_iterations = 100,
@@ -162,19 +162,20 @@ ob_deco <- function(formula,
   data_arguments[[1]] <- as.name("get_all_vars") #as.name("model.frame")
   data_used <- eval.parent(data_arguments)
   data_used <- na.action(data_used)
-  data_used <- lapply(list(data_used), na.action)[[1]]
-
-  reference_group <- ifelse(reference_0, 0, 1)
+  #data_used <- lapply(list(data_used), na.action)[[1]]
 
   ## Get weights
-  weights <- model.weights(data_used)
+  data_arguments[[1]] <- as.name("model.frame")
+  # data_model <- eval.parent(data_arguments)
+  # data_model_na <- na.action(data_model)
+  # data_model_without_na <- lapply(list(data_model_na), na.action)[[1]]
+  weights <- model.weights(eval.parent(data_arguments))
   if (!is.null(weights) && !is.numeric(weights)) {
     stop("'weights' must be a numeric vector")
   }
   if (is.null(weights)) {
     data_used$weights <- rep(1, nrow(data_used))
   }
-
 
   ## Check group variable
   group_variable_name <- data_arguments[["group"]]
@@ -187,6 +188,7 @@ ob_deco <- function(formula,
     data_used[, "group"] <- as.factor(group_variable)
   }
 
+  reference_group <- ifelse(reference_0, 0, 1)
   reference_group_print <- levels(data_used[, "group"])[reference_group + 1]
 
   if(!bootstrap & !rifreg & !reweighting) compute_analytical_se <- TRUE
