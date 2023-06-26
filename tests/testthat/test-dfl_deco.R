@@ -1,7 +1,6 @@
 
 test_that("dfl_deco() does not throw an error", {
   set.seed(89342395)
-  data("men8385")
   men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
   model_sequential <- log(wage) ~ union + education + experience | education + experience
 
@@ -17,7 +16,6 @@ test_that("dfl_deco() does not throw an error", {
 
 test_that("dfl_deco_estimate() does not throw an error", {
   set.seed(89342395)
-  data("men8385")
   men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
   data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
   formula <- Formula::as.Formula(log(wage) ~ union*(education + experience) + education*experience)
@@ -61,7 +59,6 @@ test_that("dfl_deco_estimate() does not throw an error", {
 
 test_that("dfl_deco() does not throw an error without estimating statistics", {
   set.seed(89342395)
-  data("nlys00")
   formula <- log(wage) ~ age + central_city + msa + region + black +
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
