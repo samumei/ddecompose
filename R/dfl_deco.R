@@ -898,7 +898,7 @@ select_observations_to_be_trimmed <- function(reweighting_factor,
   reweighting_factor_control <- reweighting_factor[which(group_variable==group)]
   if(is.null(trimming_threshold)){
     nobs <- length(reweighting_factor_control)
-    trimming_threshold <- sqrt(nobs) / obs
+    trimming_threshold <- sqrt(nobs) / nobs
   }
   reweighting_factor_in_trimming_range <- reweighting_factor_control[which(reweighting_factor_control / sum(reweighting_factor_control) > trimming_threshold)]
   trim_value <- ifelse(length(reweighting_factor_in_trimming_range) == 0,

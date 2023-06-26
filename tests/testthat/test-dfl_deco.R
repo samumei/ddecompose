@@ -77,6 +77,73 @@ test_that("dfl_deco() does not throw an error without estimating statistics", {
 })
 
 
+
+test_that("select_observations_to_be_trimmed() trimms observations as intended", {
+
+  set.seed(123)
+  expected_trimmed_observations <- c(1:5, 101:102)
+  reweighting_factor <- rep(1/100, 200)
+  group_variable <- as.factor(rep(c("no","yes"), each = 100))
+  group <- 0
+  reweighting_factor[expected_trimmed_observations] <- 20
+  trimming_threshold = NULL
+
+  trimmed_observations <- select_observations_to_be_trimmed(reweighting_factor,
+                                    group_variable,
+                                    group,
+                                    trimming_threshold)
+
+  testthat::expect_equal(trimmed_observations,
+                         expected_trimmed_observations)
+
+})
+
+test_that("dfl_deco() trimms estimated factors as expected", {
+
+  set.seed(123)
+  data_used <- data.frame(x = c(c(1, 1, rep(2, 98)),
+                                c(rep(1, 90), rep(2 , 10))),
+                          group = rep(c(0, 1), each = 100))
+  data_used$y <- data_used$x + data_used$group + rnorm(200, 0, 0.5)
+  data_used$x <- as.factor(data_used$x)
+  levels(data_used$x) <- c("A", "B")
+  data_used$group <- as.factor(data_used$group)
+  expected_trimmed_observations <- which(data_used$x == "A")
+
+  # p_g_given_X <- data_used %>%
+  #   dplyr::group_by(x) %>%
+  #   dplyr::summarise(p = mean(group == "1")) %>%
+  #   dplyr::pull(p)
+  #
+  # data_used$psi <- p_g_given_X[1]/(1-p_g_given_X[1])
+  # data_used[which(data_used$x == "B"), "psi"] <-   p_g_given_X[2]/(1-p_g_given_X[2])
+  #
+
+  # reweighting_factor <-   data_used$psi
+  # group_variable <- data_used$group
+  # group <- 0
+  # trimming_threshold = NULL
+  #
+  # trimmed_observations <- select_observations_to_be_trimmed(reweighting_factor,
+  #                                                           group_variable,
+  #                                                           group,
+  #                                                           trimming_threshold)
+  # deco_results_untrimmed <- dfl_deco(y ~ x,
+  #                                   data_used,
+  #                                   group = group)
+
+  deco_results_trimmed <- dfl_deco(y ~ x,
+                                   data_used,
+                                   group = group,
+                                   trimming = TRUE)
+
+  testthat::expect_equal(deco_results_trimmed$trimmed_observations,
+                         expected_trimmed_observations)
+
+})
+
+
+
 # test_that("glm and surveyglm return the same coefficients", {
 #   set.seed(123)
 #   data("nlys00")
