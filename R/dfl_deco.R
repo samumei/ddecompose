@@ -651,7 +651,12 @@ dfl_deco_estimate <- function(formula,
 
   }
 
-# Trimming: Set weights of reweighting_factors above trimming threshold to zero
+  # Take inverse of reweighting factor if reference group is 0 -----------------
+
+  psi_power <- ifelse(reference_group == 1, 1, -1)
+  psi <- psi^psi_power
+
+  # Trimming: Set weights of reweighting_factors above trimming threshold to zero
 
   if(trimming){
 
@@ -696,11 +701,10 @@ dfl_deco_estimate <- function(formula,
                       log_transformed = log_transformed)
 
     #if reference group==0, take inverse of rw factors
-    psi_power <- ifelse(reference_group == 1, 1, -1)
+
     nuC <- NULL
 
     for(i in 1:nvar){
-      psi[,i] <- psi[,i]^psi_power
       nuC <- cbind(nuC,
                    get_distributional_statistics(dep_var,
                               weights*psi[,i],
