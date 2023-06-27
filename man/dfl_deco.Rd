@@ -239,16 +239,6 @@ plot(flf_male_inequality_boot, uniform_bands=TRUE)
 
 }
 
-# Trim observations
-flf_male_inequality_trimming  <- dfl_deco(flf_model,
-                              data = men8305,
-                              weights = weights,
-                              group = year,
-                              reference_0 = TRUE,
-                              trimming = TRUE,
-                              trimming_threshold = 0.00005)
-summary(flf_male_inequality_trimming)
-
 
 ## Sequential decomposition
 # Distinguishing the contribution of the marginal distribution of education
@@ -264,6 +254,27 @@ male_inequality_sequential  <- dfl_deco(model_sequential,
 
 # Summarize results
 summary(male_inequality_sequential)
+
+
+# Trim observations with weak common support
+# (i.e. observations with relative factor weights > \sqrt(N)/N)
+
+set.seed(123)
+data_weak_common_support <- data.frame(d = factor(c(c("A", "A", rep("B", 98)),
+                                                  c(rep("A", 90), rep("B", 10)))),
+                                       group = rep(c(0, 1), each = 100))
+data_weak_common_support$y <- ifelse(data_weak_common_support$d == "A", 1, 2) +
+                              data_weak_common_support$group +
+                              rnorm(200, 0, 0.5)
+
+deco_results_trimmed <- dfl_deco(y ~ d,
+                                 data_weak_common_support,
+                                 group = group,
+                                 trimming = TRUE)
+
+identical(deco_results_trimmed$trimmed_observations,
+          which(data_weak_common_support$d == "A"))
+
 
 }
 \references{
