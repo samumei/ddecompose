@@ -15,8 +15,8 @@ ob_deco(
   custom_rif_function = NULL,
   reweighting = FALSE,
   reweighting_method = "logit",
-  na.action = na.exclude,
   reference_0 = TRUE,
+  na.action = na.omit,
   normalize_factors = FALSE,
   bootstrap = FALSE,
   bootstrap_iterations = 100,
@@ -39,14 +39,14 @@ first level of factor variable) is defined as group 0.}
 \item{weights}{numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
 The default (\code{NULL}) is equivalent to \code{weights = rep(1, length(dep_var))}.}
 
-\item{na.action}{generic function that defines how NAs in the data should be handled.
-Default is \code{na.omit}, leading to exclusion of observations that contain one or more missings.
-See \link[stats]{na.action} for further details.}
-
 \item{reference_0}{boolean: if `TRUE` (default), then the group 0 -- i.e.,
 the group identified by the lower ranked value in `group` -- will be defined
 as reference group. The reference group will be reweighted to match the
 covariates distribution of the counterfactual sample.}
+
+\item{na.action}{generic function that defines how NAs in the data should be handled.
+Default is \code{na.omit}, leading to exclusion of observations that contain one or more missings.
+See \link[stats]{na.action} for further details.}
 
 \item{normalize_factors}{boolean: If `TRUE`, then factor variables are normalized as
 proposed by Gardeazabal/Ugidos (2004) and results are not dependent on the factor's

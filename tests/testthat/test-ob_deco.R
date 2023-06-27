@@ -497,6 +497,7 @@
 #
 # #   Abweichungen: sind sie wirklich grösser als beim OLS?? -> ja, schon..
 # #   NORMALizarione anschauen --> erst beim detaillierten Zeugs.
+# #   Modellspezifikation in Paper anschauen
 # #   Gewichte anschauen
 # #   Ihre Berechnungen in Stata-File anschauen
 # #   Umgewichtung haben sie starke umgewichtungen.
@@ -660,17 +661,21 @@
 #   gsoep29$tenure <- with(gsoep29, ifelse(bcerwzeit >= 0, bcerwzeit, NA))
 #   gsoep29$ISEI <- with(gsoep29, ifelse(isei12 > 0, isei12, NA))
 #
-#   gsoep29 <- na.omit(gsoep29[, c("bcsex", "lnwage", "schooling", "ft_experience", "ft_experience2", "tenure", "ISEI", "bcphrf")])
-#   browser()
+#   gsoep29 <- na.omit(gsoep29[, c("bcsex", "lnwage", "schooling", "ft_experience", "ft_experience2", "tenure", "ISEI", "bcphrf", "oeffd12")])
+#
+#   # # Filter the data to include only categories 1 and 2
+#   # gsoep29 <- gsoep29[gsoep29$bcsex %in% c("[1] Maennlich", "[2] Weiblich"), ]
+#   #
+#   # # Update the "group" variable in the filtered data
+#   # gsoep29$bcsex <- factor(gsoep29$bcsex)
+#
+#   gsoep29$female <- with(gsoep29, ifelse(bcsex == "[1] Maennlich", 0, 1))
 #
 #   # without weights
 #   ob_deco_results <- ob_deco(formula = lnwage ~ schooling + ft_experience + ft_experience2,
 #                              data = gsoep29,
-#                              group = bcsex,
-#                              weights = bcphrf,
+#                              group = female,
 #                              reference_0 = TRUE)
-#
-#   browser()
 #
 #   testthat::expect_equal(ob_deco_results$ob_deco$decomposition_terms$Observed_difference[1],
 #                          0.250,
@@ -686,16 +691,16 @@
 #
 #   testthat::expect_equal(ob_deco_results$ob_deco$decomposition_terms$Structure_effect[1:3],
 #                          c(0.101, -0.121, 0.0856),
-#                          tolerance = 0.0075)
+#                          tolerance = 0.01)
 #
 #   testthat::expect_equal(sum(ob_deco_results$ob_deco$decomposition_terms$Structure_effect[4:5]),
 #                          0.136,
 #                          tolerance = 0.0075)
-#   browser()
+#
 #   # with weights
 #   ob_deco_results_weights <- ob_deco(formula = lnwage ~ schooling + ft_experience + ft_experience2,
 #                                      data = gsoep29,
-#                                      group = bcsex,
+#                                      group = female,
 #                                      weights = bcphrf,
 #                                      reference_0 = TRUE)
 #
@@ -718,5 +723,107 @@
 #   testthat::expect_equal(sum(ob_deco_results_weights$ob_deco$decomposition_terms$Structure_effect[4:5]),
 #                          0.119,
 #                          tolerance = 0.0075)
+#
+# })
+#
+#
+# test_that("same results as in lecture slides", {
+#
+#
+#   # get and prepare data
+#   #gsoep29 <- readstata13::read.dta13("data-raw/gsoep29.dta")
+#   total_n <- nrow(gsoep29)
+#   gsoep29$age <- 2012 - gsoep29$bcgeburt
+#   gsoep29 <- subset(gsoep29, age >=25 & age <= 55)
+#   total_n - nrow(gsoep29)
+#
+#   gsoep29$wage <- with(gsoep29, ifelse(labgro12 > 0 & bctatzeit > 0, labgro12 / (bctatzeit * 4.3), NA))
+#   gsoep29$lnwage <- log(gsoep29$wage)
+#
+#   gsoep29$schooling <- with(gsoep29, ifelse(bcbilzeit > 0, bcbilzeit, NA))
+#   gsoep29$ft_experience <- with(gsoep29, ifelse(expft12 >= 0, expft12, NA))
+#   gsoep29$ft_experience2 <- with(gsoep29, ifelse(expft12 >= 0, expft12^2, NA))
+#
+#   gsoep29$public <- ifelse(gsoep29$oeffd12 == "[1] Ja" | gsoep29$oeffd12 == "[2] Nein", as.integer(gsoep29$oeffd12 == "[1] Ja"), NA)
+#
+#   summary(gsoep29[c("lnwage", "schooling", "ft_experience", "ft_experience2")])
+#
+#
+#   #summary(gsoep29[c("bcsex", "wage", "lnwage", "schooling", "ft_experience", "ft_experience2")])
+#
+#   # gsoep29$tenure <- with(gsoep29, ifelse(bcerwzeit >= 0, bcerwzeit, NA))
+#   # gsoep29$ISEI <- with(gsoep29, ifelse(isei12 > 0, isei12, NA))
+#
+#   gsoep29 <- na.omit(gsoep29[, c("lnwage", "schooling", "ft_experience", "ft_experience2", "public")])
+#
+#
+# ### RIF Regression
+#
+#
+# # (gsoep29[gsoep29$public == 0, c("lnwage", "schooling", "ft_experience", "ft_experience2")])
+#
+#
+# # slide 7, p.29
+# rifreg_deco <- ob_deco(formula = lnwage ~ schooling + ft_experience + ft_experience2,
+#                           data = gsoep29,
+#                           group = public,
+#                           rifreg = TRUE,
+#                           reweighting = FALSE,
+#                           rifreg_statistic = "variance",
+#                           reference_0 = TRUE)
+#
+# # WERTE AUS SLIDES ANPASSEN!
+# testthat::expect_equal(rifreg_deco$variance$decomposition_terms$Observed_difference[1],
+#                        0.165342,
+#                        tolerance = 0.0075)
+#
+# testthat::expect_equal(rifreg_deco$variance$decomposition_terms$Composition_effect[c(1, 3)],
+#                        c(-0.0289454, -0.025752),
+#                        tolerance = 0.0075)
+#
+# testthat::expect_equal(sum(rifreg_deco$variance$decomposition_terms$Composition_effect[4:5]),
+#                        -0.0031934,
+#                        tolerance = 0.0075)
+#
+# testthat::expect_equal(rifreg_deco$variance$decomposition_terms$Structure_effect[1:3],
+#                        c(0.1942874, -0.2323155, 0.34344 ),
+#                        tolerance = 0.0075)
+#
+# testthat::expect_equal(sum(rifreg_deco$variance$decomposition_terms$Structure_effect[4:5]),
+#                        0.0831629,
+#                        tolerance = 0.0075)
+#
+#   # ### Reweighted RIF Regression
+#   # rw_rifreg_deco <- ob_deco(formula = lnwage ~ schooling + ft_experience + ft_experience2,
+#   #                                                        data = gsoep29,
+#   #                                                        group = female,
+#   #                                                        weights = bcphrf,
+#   #                                                        rifreg = TRUE,
+#   #                                                        reweighting = TRUE,
+#   #                                                        rifreg_statistic = "quantiles",
+#   #                                                        rifreg_probs = 0.1,
+#   #                                                        reference_0 = TRUE)
+#   #
+#   # testthat::expect_equal(rw_rifreg_deco$quantile_0.1$decomposition_terms$Observed_difference[1],
+#   #                        -0.0257792,
+#   #                        tolerance = 0.0075)
+#   #
+#   # testthat::expect_equal(rw_rifreg_deco$quantile_0.1$decomposition_terms$Composition_effect[c(1, 3)],
+#   #                        c(-0.0261005, -0.0018931),
+#   #                        tolerance = 0.0075)
+#   #
+#   # testthat::expect_equal(sum(rw_rifreg_deco$quantile_0.1$decomposition_terms$Composition_effect[4:5]),
+#   #                        -0.0242074,
+#   #                        tolerance = 0.0075)
+#   #
+#   # testthat::expect_equal(rw_rifreg_deco$quantile_0.1$decomposition_terms$Structure_effect[1:3],
+#   #                        c(0.0003214, -0.8911651, 0.5277574 ),
+#   #                        tolerance = 0.0075)
+#   #
+#   # testthat::expect_equal(sum(rw_rifreg_deco$quantile_0.1$decomposition_terms$Structure_effect[4:5]),
+#   #                        0.3637291,
+#   #                        tolerance = 0.0075)
+#   #
+#
 #
 # })
