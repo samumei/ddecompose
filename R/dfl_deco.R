@@ -562,18 +562,20 @@ dfl_deco_estimate <- function(formula,
 # Estimate probabilities -------------------------------------------------------
 
   mod <- group_variable ~ 1
-  p1 <- mean(fit_and_predict_probabilities(mod, data_used, weights, method = "logit"))
+  p1 <- mean(fit_and_predict_probabilities(mod, data_used, weights, method = "logit")[[1]])
   p0 <- 1-p1
   estimated_probabilities <- rep(p0/p1, nrow(data_used))
 
   nvar <- length(formula)[2] # Number of detailed decomposition effects
-  covariates_labels <- vector("list", nvar)
+  covariates_labels <- fitted_models <- vector("list", nvar)
   for(i in nvar:1){
     mod <- update(stats::formula(formula, rhs=nvar:i, collapse=TRUE), group_variable ~ .)
-    p1 <- fit_and_predict_probabilities(mod, data_used, weights, method = method, ...)
+    fitted_model <- fit_and_predict_probabilities(mod, data_used, weights, method = method, ...)
+    p1 <- fitted_model[[1]]
     p0 <- 1 - p1
     estimated_probabilities <- cbind(estimated_probabilities, p0/p1)
     covariates_labels[[i]] <- attr(terms(mod), "term.labels")[which(attr(terms(mod), "order") == 1)]
+    fitted_models[[i]] <- fitted_model[[2]]
   }
 
 
@@ -864,8 +866,8 @@ dfl_deco_bootstrap <- function(formula,
 fit_and_predict_probabilities <- function(formula,
                                           data_used,
                                           weights,
-                                          method="logit",
-                                          newdata=NULL,
+                                          method = "logit",
+                                          newdata = NULL,
                                           ...){
 
   if(method=="logit"){
@@ -877,15 +879,17 @@ fit_and_predict_probabilities <- function(formula,
                    family = quasibinomial(link = "logit"),
                    ...)
 
-  p_X_1  <- predict.glm(model_fit,
-                        newdata=newdata,
-                        type="response",
-                        na.action = na.exclude)
+  fitted_probabilities  <- predict.glm(model_fit,
+                                       newdata=newdata,
+                                       type="response",
+                                       na.action = na.exclude)
   }
 
   ### Include here prediction with ranger::ranger!
 
-  return(p_X_1)
+  results <- list(fitted_probabilities,
+                  model_fit)
+  return(results)
 }
 
 
