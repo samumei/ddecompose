@@ -227,22 +227,23 @@
 #'
 #'
 #' # Trim observations with weak common support
+#' # (i.e. observations with relative factor weights > \sqrt(N)/N)
 #'
 #' set.seed(123)
-#' data_weak_common_support <- data.frame(x = c(c(1, 1, rep(2, 98)),
-#'                                              c(rep(1, 90), rep(2 , 10))),
+#' data_weak_common_support <- data.frame(d = factor(c(c("A", "A", rep("B", 98)),
+#'                                                   c(rep("A", 90), rep("B", 10)))),
 #'                                        group = rep(c(0, 1), each = 100))
-#' data_weak_common_support$y <- data_weak_common_support$x + data_weak_common_support$group + rnorm(200, 0, 0.5)
-#' data_weak_common_support$x <- as.factor(data_weak_common_support$x)
-#' levels(data_weak_common_support$x) <- c("A", "B")
+#' data_weak_common_support$y <- ifelse(data_weak_common_support$d == "A", 1, 2) +
+#'                               data_weak_common_support$group +
+#'                               rnorm(200, 0, 0.5)
 #'
-#' deco_results_trimmed <- dfl_deco(y ~ x,
+#' deco_results_trimmed <- dfl_deco(y ~ d,
 #'                                  data_weak_common_support,
 #'                                  group = group,
 #'                                  trimming = TRUE)
 #'
 #' identical(deco_results_trimmed$trimmed_observations,
-#'           which(data_weak_common_support$x == "A"))
+#'           which(data_weak_common_support$d == "A"))
 #'
 #'
 dfl_deco <-  function(formula,
