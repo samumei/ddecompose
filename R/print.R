@@ -52,7 +52,9 @@ print.ob_deco <- function(x, ...){
 
   cat("Coefficients of", paste0("'",x$reference_group,"'"), "(reference group) were used to estimate\ncounterfactual mean outcome.\n\n")
 
-  decomposition_terms <- x$decomposition_terms[,-1]
+
+  decomposition_terms <- x[[1]]["decomposition_terms"][["decomposition_terms"]][, -1]
+
   names(decomposition_terms) <- gsub("_", " ", names(decomposition_terms))
   aggregate_decomposition <- decomposition_terms[1, ]
   detailed_decomposition <-  decomposition_terms[-1, ]

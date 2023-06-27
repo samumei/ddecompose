@@ -178,7 +178,7 @@ summary.ob_deco <- function(x,
 
   cat("Coefficients of", paste0("'",x$reference_group,"'"), "(reference group) were used to estimate\ncounterfactual mean outcome.\n\n")
 
-  x <- aggregate_terms(x,
+  x <- aggregate_terms(x[[1]],
                        aggregate_factors = aggregate_factors,
                        custom_aggregation = custom_aggregation)
   decomposition_terms <- x$decomposition_terms[,-1]
