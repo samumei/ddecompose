@@ -209,16 +209,6 @@
 #'
 #' }
 #'
-#' # Trim observations
-#' flf_male_inequality_trimming  <- dfl_deco(flf_model,
-#'                               data = men8305,
-#'                               weights = weights,
-#'                               group = year,
-#'                               reference_0 = TRUE,
-#'                               trimming = TRUE,
-#'                               trimming_threshold = 0.00005)
-#' summary(flf_male_inequality_trimming)
-#'
 #'
 #' ## Sequential decomposition
 #' # Distinguishing the contribution of the marginal distribution of education
@@ -234,6 +224,27 @@
 #'
 #' # Summarize results
 #' summary(male_inequality_sequential)
+#'
+#'
+#' # Trim observations with weak common support
+#' # (i.e. observations with relative factor weights > \sqrt(N)/N)
+#'
+#' set.seed(123)
+#' data_weak_common_support <- data.frame(d = factor(c(c("A", "A", rep("B", 98)),
+#'                                                   c(rep("A", 90), rep("B", 10)))),
+#'                                        group = rep(c(0, 1), each = 100))
+#' data_weak_common_support$y <- ifelse(data_weak_common_support$d == "A", 1, 2) +
+#'                               data_weak_common_support$group +
+#'                               rnorm(200, 0, 0.5)
+#'
+#' deco_results_trimmed <- dfl_deco(y ~ d,
+#'                                  data_weak_common_support,
+#'                                  group = group,
+#'                                  trimming = TRUE)
+#'
+#' identical(deco_results_trimmed$trimmed_observations,
+#'           which(data_weak_common_support$d == "A"))
+#'
 #'
 dfl_deco <-  function(formula,
                       data,
@@ -551,43 +562,53 @@ dfl_deco_estimate <- function(formula,
 # Estimate probabilities -------------------------------------------------------
 
   mod <- group_variable ~ 1
-  p1 <- mean(fit_and_predict_probabilities(mod, data_used, weights, method = "logit"))
+  p1 <- mean(fit_and_predict_probabilities(mod, data_used, weights, method = "logit")[[1]])
   p0 <- 1-p1
   estimated_probabilities <- rep(p0/p1, nrow(data_used))
 
-  #browser()
   nvar <- length(formula)[2] # Number of detailed decomposition effects
-  covariates_labels <- vector("list", nvar)
+  covariates_labels <- fitted_models <- vector("list", nvar)
   for(i in nvar:1){
     mod <- update(stats::formula(formula, rhs=nvar:i, collapse=TRUE), group_variable ~ .)
-    p1 <- fit_and_predict_probabilities(mod, data_used, weights, method = method, ...)
+    fitted_model <- fit_and_predict_probabilities(mod, data_used, weights, method = method, ...)
+    p1 <- fitted_model[[1]]
     p0 <- 1 - p1
     estimated_probabilities <- cbind(estimated_probabilities, p0/p1)
     covariates_labels[[i]] <- attr(terms(mod), "term.labels")[which(attr(terms(mod), "order") == 1)]
+    fitted_models[[i]] <- fitted_model[[2]]
   }
 
+
   # Collect covariates' labels ---------------------------------------------------
+
   covariates_labels <- rev(covariates_labels)
   all_covariates <- paste0(unique(do.call("c", covariates_labels)), collapse = ", ")
   if(nvar > 1){
+    covariate_index <- nvar:1
     for(i in nvar:2){
        add_vars <- setdiff(covariates_labels[[i]], covariates_labels[[i-1]])
-       covariates_labels[[i]] <- paste0("Detailed effect X",
-                                        i,
+       add_index <- paste0(paste0("X", covariate_index[i]), "|", paste0(paste0("X",covariate_index[(i-1):1]), collapse = ","))
+       covariates_labels[[i]] <- paste0("Detailed effect ",
+                                        add_index,
                                         ": ",
                                         paste0(add_vars, collapse = ", "),
                                         " | ",
                                         paste0(covariates_labels[[i-1]], collapse = ", "))
     }
-    covariates_labels[[1]] <- paste0("Detailed effect X1: ", paste0(covariates_labels[[1]], collapse = ", "))
-    covariates_labels <- c(paste0(c("Aggregate effect: ", all_covariates), collapse =""), covariates_labels)
+    covariates_labels[[1]] <- paste0("Detailed effect X",
+                                     nvar,
+                                     ": ",
+                                     paste0(covariates_labels[[1]], collapse = ", "))
+
+    covariates_labels <- c(paste0(c("Aggregate effect: ", all_covariates), collapse =""), rev(covariates_labels))
   }else{
     covariates_labels[[1]] <- all_covariates
   }
 
+
 # Derive reweighting factors ---------------------------------------------------
 
-  # e.g., in the case of Y ~ X1 | X2 | X3
+  # e.g., in the case of Y ~ X1 + X2 + X3 | X2 + X3 | X3
   # Matrix probs contains nvar+1 columns:
   # first column  [P(g=0)/P(g=1)]
   # second column [P(g=0|X3)/P(g=1|X3)]
@@ -597,36 +618,58 @@ dfl_deco_estimate <- function(formula,
   psi <- NULL
 
   if(reweight_marginals){
-    # e.g., in the case of Y ~ X1 | X2 | X3
-    # if reweight_marginals==TRUE:
-    # first column  [P(g=1)/P(g=0)]*[P(g=0|X3)/P(g=1|X3)]
-    # second column [P(g=1)/P(g=0)]*[P(g=0|X2,X3)/P(g=1|X2,X3)]
-    # third column  [P(g=1)/P(g=0)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
+    # e.g., in the case of Y ~ X1 + X2 + X3 | X2 + X3 | X3
+    # if reweight_marginals==TRUE,
+    # then the matrix psi has the following columns:
+    # first column:  [P(g=1)/P(g=0)]*[P(g=0|X3)/P(g=1|X3)]
+    # second column: [P(g=1)/P(g=0)]*[P(g=0|X2,X3)/P(g=1|X2,X3)]
+    # third column:  [P(g=1)/P(g=0)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
     for(i in 1:nvar){
-      psi <- cbind(psi, (estimated_probabilities[, 1]^-1)*estimated_probabilities[, i+1])
+      psi <- cbind(psi, (estimated_probabilities[, 1]^-1) * estimated_probabilities[, i+1])
     }
     psi <- as.data.frame(psi)
     names(psi) <- paste0("Psi_",
-                         sapply(nvar:1, function(i) paste0(paste0("X",i:nvar), collapse=",")))
-    names_decomposition_terms <- nvar:1
+                         sapply(nvar:1, function(i) paste0(paste0("X", i:nvar), collapse=",")))
+
+    #names_decomposition_terms <- nvar:1
+    names_decomposition_terms <- paste0("X", nvar)
+    if(nvar>1){
+       names_decomposition_terms <- c(names_decomposition_terms,
+                                       sapply((nvar-1):1,
+                                             function(i) paste0(paste0(paste0("X", i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))))
+
+    }
   }else{
-    # if reweight_marginals==FALSE:
+    # if reweight_marginals==FALSE,
+    # then the matrix psi has the following columns:
     # first column  [P(g=1|X2,X3)/P(g=0|X2,X3)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
     # second column [P(g=1|X3)/P(g=0|X3)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
     # third column  [P(g=1)/P(g=0)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
     for(i in nvar:1){
-      psi <- cbind(psi, (estimated_probabilities[, i]^-1)*estimated_probabilities[, nvar+1])
+      psi <- cbind(psi, (estimated_probabilities[, i]^-1) * estimated_probabilities[, nvar+1])
     }
     psi <- as.data.frame(psi)
-    names(psi)[nvar] <- paste0("Psi_", paste0(paste0("X",1:nvar), collapse=","))
+    names(psi)[nvar] <- paste0("Psi_", paste0(paste0("X", 1:nvar), collapse=","))
+
+    names_decomposition_terms <- paste0("X", nvar)
     if(nvar>1){
       names(psi)[1:(nvar-1)] <- paste0("Psi_", sapply(1:(nvar-1),
                                                       function(i) paste0(paste0(paste0("X", 1:i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))))
+      names_decomposition_terms <- c(sapply(1:(nvar-1),
+                                            function(i) paste0(paste0(paste0("X", i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))),
+                                     names_decomposition_terms)
     }
-    names_decomposition_terms <- 1:nvar
+    #names_decomposition_terms <- 1:nvar
+
+
   }
 
-# Trimming: Set weights of reweighting_factors above trimming threshold to zero
+  # Take inverse of reweighting factor if reference group is 0 -----------------
+
+  psi_power <- ifelse(reference_group == 1, 1, -1)
+  psi <- psi^psi_power
+
+  # Trimming: Set weights of reweighting_factors above trimming threshold to zero
 
   if(trimming){
 
@@ -671,10 +714,10 @@ dfl_deco_estimate <- function(formula,
                       log_transformed = log_transformed)
 
     #if reference group==0, take inverse of rw factors
-    psi_power <- ifelse(reference_group==1, 1, -1)
+
     nuC <- NULL
+
     for(i in 1:nvar){
-      psi[,i] <- psi[,i]^psi_power
       nuC <- cbind(nuC,
                    get_distributional_statistics(dep_var,
                               weights*psi[,i],
@@ -704,18 +747,18 @@ dfl_deco_estimate <- function(formula,
     if(reference_group==1){
       Delta <- cbind(Delta,
                      nu1-nuC[, 1])
-      colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. X", names_decomposition_terms[1], sep="")
+      colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep="")
       for(i in 2:nvar){
         Delta <- cbind(Delta, nuC[,i-1]-nuC[,i])
-        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. X", names_decomposition_terms[i], sep="")
+        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep="")
       }
     }else{
       for(i in nvar:2){
         Delta <- cbind(Delta, nuC[,i]-nuC[,i-1])
-        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. X", names_decomposition_terms[i], sep="")
+        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep="")
       }
       Delta <- cbind(Delta, nuC[,1]-nu0)
-      colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. X", names_decomposition_terms[1], sep="")
+      colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep="")
     }
 
     Delta <- Delta[, c(1:3,
@@ -823,8 +866,8 @@ dfl_deco_bootstrap <- function(formula,
 fit_and_predict_probabilities <- function(formula,
                                           data_used,
                                           weights,
-                                          method="logit",
-                                          newdata=NULL,
+                                          method = "logit",
+                                          newdata = NULL,
                                           ...){
 
   if(method=="logit"){
@@ -836,15 +879,17 @@ fit_and_predict_probabilities <- function(formula,
                    family = quasibinomial(link = "logit"),
                    ...)
 
-  p_X_1  <- predict.glm(model_fit,
-                        newdata=newdata,
-                        type="response",
-                        na.action = na.exclude)
+  fitted_probabilities  <- predict.glm(model_fit,
+                                       newdata=newdata,
+                                       type="response",
+                                       na.action = na.exclude)
   }
 
   ### Include here prediction with ranger::ranger!
 
-  return(p_X_1)
+  results <- list(fitted_probabilities,
+                  model_fit)
+  return(results)
 }
 
 
@@ -872,7 +917,7 @@ select_observations_to_be_trimmed <- function(reweighting_factor,
   reweighting_factor_control <- reweighting_factor[which(group_variable==group)]
   if(is.null(trimming_threshold)){
     nobs <- length(reweighting_factor_control)
-    trimming_threshold <- sqrt(nobs) / obs
+    trimming_threshold <- sqrt(nobs) / nobs
   }
   reweighting_factor_in_trimming_range <- reweighting_factor_control[which(reweighting_factor_control / sum(reweighting_factor_control) > trimming_threshold)]
   trim_value <- ifelse(length(reweighting_factor_in_trimming_range) == 0,
