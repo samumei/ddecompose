@@ -177,7 +177,7 @@ ob_deco <- function(formula,
 
   reference_group <- ifelse(reference_0, 0, 1)
   reference_group_print <- levels(data_used[, "group"])[reference_group + 1]
-  browser()
+
   # Get formula(s)
   formula <- Formula::as.Formula(formula)
   #data_arguments$formula <- formula
@@ -246,7 +246,6 @@ ob_deco <- function(formula,
       names(estimated_decomposition) <- paste0("quantile_", as.character(rifreg_probs))
   }
   else {
-    browser()
     estimated_decomposition <- estimate_ob_deco(formula = formula_decomposition,
                                                 data_used = data_used,
                                                 reference_0 = reference_0,

@@ -25,15 +25,3 @@ the aggregated decomposition terms.
 The function aggregates decomposition terms and calculates
 their covariance matrix based on detailed decomposition results.
 }
-\examples{
-# library("AER")
-# data("CPS1985")
-# mod2 <- log(wage) ~ education + experience + union + ethnicity
-# deco_results <- ob_deco(formula = mod2, data = CPS1985, group = gender)
-#
-# custom_aggregation <- list(human_capital = c("education", "experience"),
-#                            union = "unionyes")
-# aggregated_results <- aggregate_terms(deco_results2,
-#                                       custom_aggregation = custom_aggregation)
-
-}
