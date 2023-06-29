@@ -164,19 +164,6 @@ ob_deco <- function(formula,
   data_used <- na.action(data_used)
   #data_used <- lapply(list(data_used), na.action)[[1]]
 
-  ## Get weights
-  data_arguments[[1]] <- as.name("model.frame")
-  # data_model <- eval.parent(data_arguments)
-  # data_model_na <- na.action(data_model)
-  # data_model_without_na <- lapply(list(data_model_na), na.action)[[1]]
-  weights <- model.weights(eval.parent(data_arguments))
-  if (!is.null(weights) && !is.numeric(weights)) {
-    stop("'weights' must be a numeric vector")
-  }
-  if (is.null(weights)) {
-    data_used$weights <- rep(1, nrow(data_used))
-  }
-
   ## Check group variable
   group_variable_name <- data_arguments[["group"]]
   group_variable <- data_used[, "group"]
@@ -190,12 +177,47 @@ ob_deco <- function(formula,
 
   reference_group <- ifelse(reference_0, 0, 1)
   reference_group_print <- levels(data_used[, "group"])[reference_group + 1]
+  browser()
+  # Get formula(s)
+  formula <- Formula::as.Formula(formula)
+  #data_arguments$formula <- formula
+
+  nvar <- length(formula)[2] # Number of detailed decomposition effects
+  if(nvar == 1) {
+    if(reweighting) {
+      print("The same model specification is used for decomposition and to compute reweighting weights.")
+    }
+    formula_reweighting <- formula
+    formula_decomposition <- formula
+  }
+  else {
+    if(!nvar == 2) stop("Cannot parse formula. See documentation and examples for further details.")
+    if(!reweighting) warning("Parameter \"reweighting\" is set to FALSE. No reweighting is applied and given reweighting formula is ignored.")
+    formula_decomposition <- stats::formula(formula, rhs=1, collapse=TRUE)
+    formula_reweighting <- stats::formula(formula, rhs=2, collapse=TRUE)
+  }
+
+
+  ## Get weights
+  data_arguments[[1]] <- as.name("model.frame")
+  # data_model <- eval.parent(data_arguments)
+  # data_model_na <- na.action(data_model)
+  # data_model_without_na <- lapply(list(data_model_na), na.action)[[1]]
+  weights <- model.weights(eval.parent(data_arguments))
+  if (!is.null(weights) && !is.numeric(weights)) {
+    stop("'weights' must be a numeric vector")
+  }
+  if (is.null(weights)) {
+    data_used$weights <- rep(1, nrow(data_used))
+  }
+
+
 
   if(!bootstrap & !rifreg & !reweighting) compute_analytical_se <- TRUE
   else compute_analytical_se <- FALSE
 
   if(reweighting) {
-    dlf_deco_results <- dfl_deco(formula = formula,
+    dlf_deco_results <- dfl_deco(formula = formula_reweighting,
                                  data = data_used,
                                  weights = weights,
                                  group = group,
@@ -209,7 +231,7 @@ ob_deco <- function(formula,
 
   if(rifreg & rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
       estimated_decomposition <- lapply(rifreg_probs, estimate_ob_deco,
-                                        formula = formula, data_used = data_used,
+                                        formula = formula_decomposition, data_used = data_used,
                                         reference_0 = reference_0, normalize_factors = normalize_factors,
                                         compute_analytical_se = compute_analytical_se,
                                         return_model_fit = TRUE,
@@ -224,7 +246,8 @@ ob_deco <- function(formula,
       names(estimated_decomposition) <- paste0("quantile_", as.character(rifreg_probs))
   }
   else {
-    estimated_decomposition <- estimate_ob_deco(formula = formula,
+    browser()
+    estimated_decomposition <- estimate_ob_deco(formula = formula_decomposition,
                                                 data_used = data_used,
                                                 reference_0 = reference_0,
                                                 normalize_factors = normalize_factors,
@@ -276,7 +299,7 @@ ob_deco <- function(formula,
 
     if(cores == 1) {
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
-                                               function(x) bootstrap_estimate_ob_deco(formula = formula,
+                                               function(x) bootstrap_estimate_ob_deco(formula = formula_decomposition,
                                                                                       data_used = data_used,
                                                                                       reference_0 = reference_0,
                                                                                       normalize_factors = normalize_factors,
@@ -296,7 +319,7 @@ ob_deco <- function(formula,
                               varlist = ls(),
                               envir = environment())
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
-                                               function(x) bootstrap_estimate_ob_deco(formula = formula,
+                                               function(x) bootstrap_estimate_ob_deco(formula = formula_decomposition,
                                                                                       data_used = data_used,
                                                                                       reference_0 = reference_0,
                                                                                       normalize_factors = normalize_factors,
