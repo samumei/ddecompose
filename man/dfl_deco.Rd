@@ -20,6 +20,7 @@ dfl_deco(
   custom_statistic_function = NULL,
   trimming = FALSE,
   trimming_threshold = NULL,
+  return_model = TRUE,
   bootstrap = FALSE,
   bootstrap_iterations = 100,
   bootstrap_robust = FALSE,
@@ -80,6 +81,9 @@ to be estimated with default `c(1:9)/10`.}
 \item{trimming}{boolean: If `TRUE`, observations with dominant reweighting factor values are trimmend according to rule of Huber, Lechner, and Wunsch (2014). Per default, trimming is set to `FALSE`.}
 
 \item{trimming_threshold}{numeric: threshold defining the maximal accepted relative weight of the reweighting factor value of a single observation. If `NULL`, the threshold is set to `sqrt(N)/N`, where N is the number of observations in the reference group.}
+
+\item{return_model}{boolean: If `TRUE` (default), the object(s) of the model fit(s) used to predict
+conditional probabilities for the reweighting factor(s) are returned.}
 
 \item{bootstrap}{boolean: If `FALSE`, then the estimation is not boostrapped and no
 standard errors are calculated.}

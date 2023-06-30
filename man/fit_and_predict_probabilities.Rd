@@ -9,6 +9,7 @@ fit_and_predict_probabilities(
   data_used,
   weights,
   method = "logit",
+  return_model = FALSE,
   newdata = NULL,
   ...
 )

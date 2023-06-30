@@ -7,11 +7,28 @@ test_that("dfl_deco() does not throw an error", {
   deco_results  <- dfl_deco(model_sequential,
                             data = men8305[1:1000, ],
                             weights = weights,
-                            group = year,
-                            reweight_marginals=TRUE)
+                            group = year)
 
  testthat::expect_error(deco_results, NA)
 })
+
+
+
+test_that("dfl_deco() does not return fitted models if required", {
+  set.seed(89342395)
+  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+  model_sequential <- log(wage) ~ union + experience + education | experience + education | education
+
+  deco_results  <- dfl_deco(model_sequential,
+                            data = men8305[1:1000, ],
+                            weights = weights,
+                            group = year,
+                            return_model = FALSE)
+
+  testthat::expect_error(deco_results, NA)
+})
+
+
 
 
 
@@ -50,7 +67,8 @@ test_that("dfl_deco_estimate() does not throw an error", {
                     probs = probs,
                     reweight_marginals = reweight_marginals,
                     trimming = trimming,
-                    trimming_threshold = trimming_threshold)
+                    trimming_threshold = trimming_threshold,
+                    return_model = TRUE)
 
   testthat::expect_error(deco_results, NA)
 

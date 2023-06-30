@@ -52,6 +52,8 @@
 #' @param custom_statistic_function a custom statistic function to pass as argument.
 #' @param trimming boolean: If `TRUE`, observations with dominant reweighting factor values are trimmend according to rule of Huber, Lechner, and Wunsch (2014). Per default, trimming is set to `FALSE`.
 #' @param trimming_threshold numeric: threshold defining the maximal accepted relative weight of the reweighting factor value of a single observation. If `NULL`, the threshold is set to `sqrt(N)/N`, where N is the number of observations in the reference group.
+#' @param return_model boolean: If `TRUE` (default), the object(s) of the model fit(s)
+#' used to predict the conditional probabilities for the reweighting factor(s) are returned.
 #' @param bootstrap boolean: If `FALSE`, then the estimation is not boostrapped and no
 #' standard errors are calculated.
 #' @param bootstrap_iterations positive integer indicating the number of bootstrap
@@ -260,6 +262,7 @@ dfl_deco <-  function(formula,
                       custom_statistic_function = NULL,
                       trimming = FALSE,
                       trimming_threshold = NULL,
+                      return_model = TRUE,
                       bootstrap = FALSE,
                       bootstrap_iterations = 100,
                       bootstrap_robust = FALSE,
@@ -339,6 +342,7 @@ dfl_deco <-  function(formula,
                                reweight_marginals = reweight_marginals,
                                trimming = trimming,
                                trimming_threshold = trimming_threshold,
+                               return_model = return_model,
                                ...)
 
 
@@ -359,6 +363,7 @@ dfl_deco <-  function(formula,
                                                                               reweight_marginals = reweight_marginals,
                                                                               trimming = trimming,
                                                                               trimming_threshold = trimming_threshold,
+                                                                              return_model = FALSE,
                                                                               ...))
     } else {
       cores <- min(cores, parallel::detectCores() - 1)
@@ -391,6 +396,7 @@ dfl_deco <-  function(formula,
                                                                               reweight_marginals = reweight_marginals,
                                                                               trimming = trimming,
                                                                               trimming_threshold = trimming_threshold,
+                                                                              return_model = FALSE,
                                                                               ...),
                                                cl = cluster)
       parallel::stopCluster(cluster)
@@ -425,8 +431,6 @@ dfl_deco <-  function(formula,
 
 
       bs_se_deco_quantiles <- bs_se_deco_quantiles[, names(results$decomposition_quantiles)]
-
-
 
       bs_kolmogorov_smirnov_stat  <-  stats::reshape(bootstrapped_quantiles,
                                        idvar = c("probs","iteration"),
@@ -557,26 +561,38 @@ dfl_deco_estimate <- function(formula,
                               reweight_marginals,
                               trimming,
                               trimming_threshold,
+                              return_model,
                               ...){
 
 # Estimate probabilities -------------------------------------------------------
 
   mod <- group_variable ~ 1
-  p1 <- mean(fit_and_predict_probabilities(mod, data_used, weights, method = "logit")[[1]])
+  p1 <- mean(fit_and_predict_probabilities(mod, data_used, weights, method = "logit", return_model = FALSE)[[1]])
   p0 <- 1-p1
   estimated_probabilities <- rep(p0/p1, nrow(data_used))
 
   nvar <- length(formula)[2] # Number of detailed decomposition effects
   covariates_labels <- fitted_models <- vector("list", nvar)
+
   for(i in nvar:1){
     mod <- update(stats::formula(formula, rhs=nvar:i, collapse=TRUE), group_variable ~ .)
-    fitted_model <- fit_and_predict_probabilities(mod, data_used, weights, method = method, ...)
+    fitted_model <- fit_and_predict_probabilities(mod,
+                                                  data_used,
+                                                  weights,
+                                                  method = method,
+                                                  return_model = return_model,
+                                                  ...)
+
     p1 <- fitted_model[[1]]
     p0 <- 1 - p1
     estimated_probabilities <- cbind(estimated_probabilities, p0/p1)
+
     covariates_labels[[i]] <- attr(terms(mod), "term.labels")[which(attr(terms(mod), "order") == 1)]
-    fitted_models[[i]] <- fitted_model[[2]]
+    fitted_models[i] <- fitted_model[2]
   }
+
+  #browser()
+  names(fitted_models) <- sapply(nvar:1, function(i) paste0("P(g=1|", paste0(paste0("X", nvar:i), collapse = ","), ")"))
 
 
   # Collect covariates' labels ---------------------------------------------------
@@ -817,7 +833,8 @@ dfl_deco_estimate <- function(formula,
                   reweighting_factor = psi,
                   quantiles_reweighting_factor = quantiles_reweighting_factor,
                   trimmed_observations = observations_to_be_trimmed,
-                  covariates_labels = covariates_labels)
+                  covariates_labels = covariates_labels,
+                  fitted_models = fitted_models)
   return(results)
 }
 
@@ -867,6 +884,7 @@ fit_and_predict_probabilities <- function(formula,
                                           data_used,
                                           weights,
                                           method = "logit",
+                                          return_model = FALSE,
                                           newdata = NULL,
                                           ...){
 
@@ -887,8 +905,13 @@ fit_and_predict_probabilities <- function(formula,
 
   ### Include here prediction with ranger::ranger!
 
+  if(as.logical(return_model) != TRUE){
+    model_fit <- NULL
+  }
+
   results <- list(fitted_probabilities,
                   model_fit)
+
   return(results)
 }
 

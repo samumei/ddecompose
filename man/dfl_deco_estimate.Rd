@@ -18,6 +18,7 @@ dfl_deco_estimate(
   reweight_marginals,
   trimming,
   trimming_threshold,
+  return_model,
   ...
 )
 }
