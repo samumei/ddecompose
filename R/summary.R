@@ -80,7 +80,7 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
         cat(paste0(names(decomposition_other_statistics)[i],":"), "\n")
         cat("---------------------------------------------------------------------------------\n")
         results_to_print <- as.data.frame(cbind(decomposition_other_statistics[,c(1, i)],
-                                                decomposition_other_statistics[,i]))
+                                                decomposition_other_statistics_se[,i]))
         results_to_print$ci_p_low <- results_to_print[,2] - qnorm(1-(1-confidence_level)/2)*results_to_print[,3]
         results_to_print$ci_p_high <- results_to_print[,2] + qnorm(1-(1-confidence_level)/2)*results_to_print[,3]
 
