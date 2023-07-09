@@ -374,14 +374,13 @@ dfl_deco <-  function(formula,
                               envir = environment())
       parallel::clusterExport(cl = cluster,
                               c("dfl_deco_bootstrap",
-                                "fit_and_predict_probabilities",
                                 "dfl_deco_estimate",
+                                "fit_and_predict_probabilities",
                                 "select_observations_to_be_trimmed",
                                 "get_distributional_statistics",
                                 "estimate_iq_range",
                                 "estimate_iq_ratio"
                                 ))
-      #parallel::clusterEvalQ(cl = cluster, library("ddeco"))
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
                                                function(x) dfl_deco_bootstrap(formula = formula,
                                                                               dep_var = dep_var,
@@ -571,6 +570,7 @@ dfl_deco_estimate <- function(formula,
   p0 <- 1-p1
   estimated_probabilities <- rep(p0/p1, nrow(data_used))
 
+  formula <- Formula::as.Formula(formula)
   nvar <- length(formula)[2] # Number of detailed decomposition effects
   covariates_labels <- fitted_models <- vector("list", nvar)
 
@@ -853,10 +853,12 @@ dfl_deco_bootstrap <- function(formula,
                                trimming,
                                trimming_threshold,
                                ...){
+
   sampled_observations <- sample(1:nrow(data_used),
                                  nrow(data_used),
                                  replace=TRUE,
                                  prob=weights/sum(weights,na.rm=TRUE))
+
   deco_estimates <- dfl_deco_estimate(formula=formula,
                                           dep_var = dep_var[sampled_observations],
                                           data_used = data_used[sampled_observations,],
@@ -867,13 +869,22 @@ dfl_deco_bootstrap <- function(formula,
                                           statistics = statistics,
                                           probs = probs,
                                           reweight_marginals = reweight_marginals,
-                                          trimming,
-                                          trimming_threshold,
+                                          trimming = trimming,
+                                          trimming_threshold = trimming_threshold,
                                           ...)
 
   deco_estimates$reweighting_factor <- NULL
+
   return(deco_estimates)
 }
+
+
+
+
+
+
+
+
 
 
 #' Predict conditional probabilities
