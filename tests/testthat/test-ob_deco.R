@@ -895,7 +895,7 @@ deco_union <- ob_deco(formula = model_deco,
                       normalize_factors = TRUE,
                       reference_0 = FALSE)
 
-estimated_deco <- deco_union$ob_deco$decomposition_terms[-1, 3:4]
+estimated_deco <- deco_union$ob_deco$decomposition_terms[which(rownames(deco_union$ob_deco$decomposition_terms) %in% rownames(expected_deco)), names(expected_deco)]
 
 testthat::expect_equal(estimated_deco,
                        expected_deco,
