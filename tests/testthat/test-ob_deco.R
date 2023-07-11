@@ -869,12 +869,12 @@
 #
 # mC <- m1_union * (union_share0) + m1_non_union * (1- union_share0)
 #
-# intercept_0 <- m0
-# intercept_1 <- m1
-# coef_union_0 <- m0_union - m0
-# coef_union_1 <- m1_union - m1
-# coef_non_union_0 <- m0_non_union - m0
-# coef_non_union_1 <- m1_non_union - m1
+# intercept_0 <- (m0_union + m0_non_union)/2
+# intercept_1 <- (m1_union + m1_non_union)/2
+# coef_union_0 <- m0_union - intercept_0
+# coef_union_1 <- m1_union - intercept_1
+# coef_non_union_0 <- m0_non_union - intercept_0
+# coef_non_union_1 <- m1_non_union - intercept_1
 #
 # detailed_wage_structure_effect <- c((intercept_1 - intercept_0),
 #                                     (coef_union_1 - coef_union_0) * union_share0,
@@ -885,7 +885,7 @@
 #                                 coef_non_union_1 * ((1-union_share1) - (1-union_share0)))
 #
 # expected_deco <- data.frame(`Composition_effect` = detailed_composition_effect,
-#                              `Structure_effect` = detailed_wage_structure_effect)
+#                             `Structure_effect` = detailed_wage_structure_effect)
 #
 # model_deco <- wage ~ union
 # deco_union <- ob_deco(formula = model_deco,

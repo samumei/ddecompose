@@ -53,12 +53,21 @@ GU_normalization <- function(formula, data, weights, group){
 
   term_labels <- attr(function_terms, "term.labels")
 
-
   unadjusted_regressors <- data_used[, -c(1, which(names(data_used) %in% c("(weights)","(group)")))]
-  adjusted_regressors <- data.frame(matrix(nrow=nrow(unadjusted_regressors), ncol=0))
+  if(is.null(nrow(unadjusted_regressors))){
+    unadjusted_regressors <- data.frame(unadjusted_regressors)
+    names(unadjusted_regressors) <- term_labels
 
+  }
 
-  regressors_for_prediction <- matrix(nrow=nrow(unadjusted_regressors), ncol=0)
+  n_obs <- nrow(unadjusted_regressors)
+  n_regressors <- ncol(unadjusted_regressors)
+  if(n_regressors == 0){
+    stop("GU normalization requires a model with at least one variable regressor.")
+  }
+  adjusted_regressors <- data.frame(matrix(nrow = n_obs, ncol=0))
+  regressors_for_prediction <- matrix(nrow = n_obs, ncol= 0)
+
   if(attr(function_terms, "intercept")==1){
     # regressors_for_prediction <- model.matrix(object = stats::update(formula, . ~ . - 1), data =  data)
     regressors_for_prediction <- cbind(rep(1, nrow(regressors_for_prediction)), regressors_for_prediction)
@@ -72,7 +81,7 @@ GU_normalization <- function(formula, data, weights, group){
 
   adjusted_coefficient_names <- list()
 
-  for(i in 1:ncol(unadjusted_regressors)){
+  for(i in 1:n_regressors){
 
     regressor_i <- unadjusted_regressors[,i]
     regressor_name_i <- colnames(unadjusted_regressors)[i]
