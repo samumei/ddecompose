@@ -31,10 +31,12 @@
 #' the group identified by the lower ranked value in `group` -- will be defined
 #' as reference group. The reference group will be reweighted to match the
 #' covariates distribution of the sample of the comparison group.
-#' @param reweight_marginals If `TRUE` (default), then the sequential decomposition
-#' reweights first the marginal (joint) distribution of the last covariate (covariates)
-#' entered into `formula` sequence. Otherwise, the conditional distribution of
-#' first covariate(s) entered are reweigthed.
+#' @param reweight_marginals determines the groups whose composition of covariates
+#' that are entered last into the sequence are used to evaluate the detailed contribution
+#' of the covariates entered first into the sequence. If `TRUE` (default), then
+#' the sequential decomposition  reweights first the marginal (joint) distribution
+#' of the last covariate (covariates) entered into `formula` sequence. Otherwise,
+#' the conditional distribution of first covariate(s) entered are reweigthed.
 #' @param method specifies the method fit and predict conditional probabilities
 #' used to derive the reweighting factor. At the moment, `logit` is the only method
 #' available.
@@ -44,9 +46,9 @@
 #' @param statistics a character vector that defines the distributional statistics
 #' for which the decomposition is perforemd. Per default, `c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")`
 #' are estimated and decomposed. Also implemented are `c("iq_ratio_p90_p10", "iq_ratio_p90_p50", "iq_ratio_p50_p10")`.
-#' Note: The function calculates the Gini coefficient for untransformed variable
+#' Note: The function calculates the Gini coefficient for the untransformed variable
 #' (i.e., exp(log(Y))), if the logarithm of a variable Y is set as outcome variable
-#' in `formula`.
+#' in `formula`).
 #' @param probs a vector of length 1 or more with the probabilities of the quantiles
 #' to be estimated with default `c(1:9)/10`.
 #' @param custom_statistic_function a custom statistic function to pass as argument.
