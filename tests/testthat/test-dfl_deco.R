@@ -28,9 +28,30 @@ test_that("dfl_deco() does not return fitted models if required", {
   testthat::expect_error(deco_results, NA)
 })
 
+test_that("bootstrapping dfl_deco() does not throw an error", {
 
+  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+  flf_model <- log(wage) ~ union + experience + education
 
+  set.seed(123)
+  deco_results_boot_single_core  <- dfl_deco(flf_model,
+                                 data = men8305[1:1000, ],
+                                 weights = weights,
+                                 group = year,
+                                 bootstrap = TRUE,
+                                 bootstrap_iterations = 10,
+                                 cores = 1)
+  set.seed(123)
+  deco_results_boot_parallel  <- dfl_deco(flf_model,
+                                 data = men8305[1:1000, ],
+                                 weights = weights,
+                                 group = year,
+                                 bootstrap = TRUE,
+                                 bootstrap_iterations = 10,
+                                 cores = 2)
 
+  testthat::expect_error(deco_results_boot_single_core, NA)
+})
 
 test_that("dfl_deco_estimate() does not throw an error", {
   set.seed(89342395)

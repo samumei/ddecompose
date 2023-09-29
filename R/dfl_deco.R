@@ -31,10 +31,12 @@
 #' the group identified by the lower ranked value in `group` -- will be defined
 #' as reference group. The reference group will be reweighted to match the
 #' covariates distribution of the sample of the comparison group.
-#' @param reweight_marginals If `TRUE` (default), then the sequential decomposition
-#' reweights first the marginal (joint) distribution of the last covariate (covariates)
-#' entered into `formula` sequence. Otherwise, the conditional distribution of
-#' first covariate(s) entered are reweigthed.
+#' @param reweight_marginals determines the groups whose composition of covariates
+#' that are entered last into the sequence are used to evaluate the detailed contribution
+#' of the covariates entered first into the sequence. If `TRUE` (default), then
+#' the sequential decomposition  reweights first the marginal (joint) distribution
+#' of the last covariate (covariates) entered into `formula` sequence. Otherwise,
+#' the conditional distribution of first covariate(s) entered are reweigthed.
 #' @param method specifies the method fit and predict conditional probabilities
 #' used to derive the reweighting factor. At the moment, `logit` is the only method
 #' available.
@@ -44,9 +46,9 @@
 #' @param statistics a character vector that defines the distributional statistics
 #' for which the decomposition is perforemd. Per default, `c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")`
 #' are estimated and decomposed. Also implemented are `c("iq_ratio_p90_p10", "iq_ratio_p90_p50", "iq_ratio_p50_p10")`.
-#' Note: The function calculates the Gini coefficient for untransformed variable
+#' Note: The function calculates the Gini coefficient for the untransformed variable
 #' (i.e., exp(log(Y))), if the logarithm of a variable Y is set as outcome variable
-#' in `formula`.
+#' in `formula`).
 #' @param probs a vector of length 1 or more with the probabilities of the quantiles
 #' to be estimated with default `c(1:9)/10`.
 #' @param custom_statistic_function a custom statistic function to pass as argument.
@@ -67,28 +69,7 @@
 #' @param ... other parameters passed to the function estimating the conditional probabilities.
 #'
 #' @details
-#' The covariates entered into `formula` will be used to estimate the reweighting
-#' factors, i.e. the propensities of belonging to one of the groups. `formula` also
-#' allows to specify interaction terms in the conditional probability models.
-#'
-#' If you are interest in an aggregate decomposition and no sequential decomposition
-#' should be performend, the all covariates have to be entered at once, e.g.
-#' `Y ~ X1 + X2 + X3`.
-#'
-#' If you are interested in a sequential decomposition, the the decomposition sequence
-#' has to be distinguished by the `|` operator. For instance, `Y ~ X1 | X2 + X3`
-#' would decomposes the aggregate composition effect into the contribution of X1
-#' and of the remaining two covariates, respectively. The function sequentially
-#' collapses the multiple parts of the `formula` object. For instance, if
-#' `reweight_marginals=TRUE` (see below), then it estimtates in a first step
-#' the reweighting factor based on `X2 + X3` and then in a second step the one
-#' based on `X1 + X2 + X3`.
-#'
-#' You can also specify the detailed models in every part of `formula`. This is
-#' useful if you want to estimate in every step a fully saturated model, e.g.
-#' `Y ~ X1*X2*X3 | X2*X3`.
-#'
-#' The observed difference to be decomposed is equals the value of the
+#' The observed difference to be decomposed equals the value of the
 #' distributioal statistic of `group` 0 substracted from the value of the same
 #' statistic of `group` 1.
 #'
@@ -99,25 +80,57 @@
 #' the reference group. The wage structure effect will be evaluated using the
 #' covariates' distribution of the counterfactual group.
 #'
-#' If `reweight_marginals=TRUE`, the sequential decomposition is performed by
-#' reweighting the marginal distribution of the last covariate or the joint
-#' distribution of the last covariates in the sequence. For instance, if we have
-#' `Y ~ X1 | X2 + X3`, then the reference group would be first reweighted such
-#' that its distribution of covariates X2 and X3 matches the one of the
-#' counterfactual group. Thus, we use the marginal distribution of X2 and X3 of
-#' the counterfactual group but the conditional distribution of X1 given X2
-#' and X3 as well as the (wage) structure of the reference group to evaluated
+#' The covariates entered into `formula` will be used to estimate the reweighting
+#' factors, i.e. the propensities of belonging to one of the two groups.
+#' `formula` also allows to specify interaction terms in the conditional
+#' probability models.
+#'
+#' If you are interested in an aggregate decomposition, then all covariates have
+#' to be entered at once, e.g. `Y ~ X1 + X2 + X3`.
+#'
+#' If you are interested in a sequential decomposition, the the decomposition sequence
+#' has to be distinguished by the `|` operator. For instance, `Y ~ X1 | X2 + X3`
+#' would decompose the aggregate composition effect into the contribution of X1
+#' and of the remaining two covariates, respectively. The function sequentially
+#' collapses the multiple parts of the `formula` object. For instance, if
+#' `reweight_marginals=TRUE` (see below), then it estimtates in a first step
+#' the reweighting factor based on `X2 + X3` and then in a second step the one
+#' based on `X1 + X2 + X3`.
+#'
+#' You can also specify the detailed models in every part of `formula`. This is
+#' useful if you want to estimate in every step a fully saturated model, e.g.
+#' `Y ~ X1*X2*X3 | X2*X3`.
+#'
+#' Sequential decompositions are path-dependent. The results depend on the sequence
+#' the covariates enter the decomposition. Even for the same sequence, a sequential
+#' decomposition yields different results when we evaluate the contribution of
+#' a covariate entered first into the sequence using the reference group's
+#' composition of covariates  entered last into the sequence or when we evaluate
+#' it using the counterfactual's composition.
+#'
+#' If `reweight_marginals=TRUE`, we evaluate the contribution of covariates
+#' entered first into the sequence using the composition of covariates entered
+#' last from the counterfactual group. We first reweight the marginal distribution
+#' of the last covariate or the joint distribution of the last covariates, respectively.
+#' For instance, if we have `Y ~ X1 | X2 + X3`, then we would evaluate the contribution
+#' of X1 given X2 and X3 by using the composition of X2 and X3 from the reference group.
+#' We would first reweight the reference group such that its distribution of covariates
+#' X2 and X3 matches the one of the counterfactual group. Thus, we use the marginal
+#' distribution of X2 and X3 of the counterfactual group but the conditional distribution
+#' of X1 given X2 and X3 as well as the (wage) structure of the reference group to evaluated
 #' the first composition effect.
 #'
-#' If `reweight_marginals=FALSE`, the sequential decomposition is performed by
-#' reweighting the conditional distribution of the first covariate or the joint
-#' distribution of the first covariates in the sequence. For instance, if we have
-#' `Y ~ X1 | X2 + X3`, then the reference group would be first reweighted such
-#' that its conditional distribution of X1 given covariates X2 and X3 matches
-#' the one of the counterfacutal group. Thus, we use the conditional distribution
-#' of X1 given X2 and X3 of the counterfactual group but the joint distribution
-#' of X2 and X3 as well as the (wage) structure of the reference group to evaluate
-#' the first composition effect.
+#' If `reweight_marginals=FALSE`, we evaluate the contribution of covariates
+#' entered first into the sequence using the composition of covariates entered
+#' last from the reference group. We first reweight the conditional
+#' distribution of the first covariate or the joint distribution of the first
+#' covariates, respectively, in the sequence. For  instance, if we have
+#' `Y ~ X1 | X2 + X3`, then the reference group would be first reweighted
+#' such that its conditional distribution of X1 given covariates X2 and X3
+#'  matches the one of the counterfacutal group. Thus, we use the conditional
+#' distribution of X1 given X2 and X3 of the counterfactual group but the
+#' joint distribution of X2 and X3 as well as the (wage) structure of the
+#' reference group to evaluate the first composition effect.
 #'
 #' `method="logit"` uses a logit model to estimate the conditional probabilities
 #' used to derive the reweighting factors. You can specify interaction terms
@@ -175,7 +188,7 @@
 #' # Summarize results
 #' summary(flf_male_inequality)
 #'
-#' # Plot decomposition of qunatile differences
+#' # Plot decomposition of quantile differences
 #' plot(flf_male_inequality)
 #'
 #' # Use alternative reference group (i.e. reweight sample from 2003-05)
@@ -213,11 +226,15 @@
 #'
 #'
 #' ## Sequential decomposition
-#' # Distinguishing the contribution of the marginal distribution of education
-#' # and experience from the contribution of unionization conditional on
-#' # education and experience
+#'
+#' # Here we distinguish the contribution of education and experience
+#' # from the contribution of unionization conditional on education and experience.
 #'
 #' model_sequential <- log(wage) ~ union*(education + experience) + education*experience | education*experience
+#'
+#' # First variant:
+#' # Contribution of union is evaluated using composition of
+#' # education and experience from 2003-2005 (group 1)
 #'
 #' male_inequality_sequential  <- dfl_deco(model_sequential,
 #'                                         data = men8305,
@@ -226,6 +243,24 @@
 #'
 #' # Summarize results
 #' summary(male_inequality_sequential)
+#'
+#' # Second variant:
+#' # Contribution of union is evaluated using composition of
+#' # education and experience from 1983-1985 (group 0)
+#'
+#' male_inequality_sequential_2  <- dfl_deco(model_sequential,
+#'                                         data = men8305,
+#'                                         weights = weights,
+#'                                         group = year,
+#'                                         reweight_marginals = FALSE)
+#'
+#' # Summarize results
+#' summary(male_inequality_sequential_2)
+#'
+#' # The domposition effects associated with (conditional) unionization for deciles
+#' cbind(male_inequality_sequential$decomposition_quantiles$prob,
+#'       male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
+#'       male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`)
 #'
 #'
 #' # Trim observations with weak common support
@@ -374,14 +409,13 @@ dfl_deco <-  function(formula,
                               envir = environment())
       parallel::clusterExport(cl = cluster,
                               c("dfl_deco_bootstrap",
-                                "fit_and_predict_probabilities",
                                 "dfl_deco_estimate",
+                                "fit_and_predict_probabilities",
                                 "select_observations_to_be_trimmed",
                                 "get_distributional_statistics",
                                 "estimate_iq_range",
                                 "estimate_iq_ratio"
                                 ))
-      #parallel::clusterEvalQ(cl = cluster, library("ddeco"))
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
                                                function(x) dfl_deco_bootstrap(formula = formula,
                                                                               dep_var = dep_var,
@@ -571,6 +605,7 @@ dfl_deco_estimate <- function(formula,
   p0 <- 1-p1
   estimated_probabilities <- rep(p0/p1, nrow(data_used))
 
+  formula <- Formula::as.Formula(formula)
   nvar <- length(formula)[2] # Number of detailed decomposition effects
   covariates_labels <- fitted_models <- vector("list", nvar)
 
@@ -852,10 +887,12 @@ dfl_deco_bootstrap <- function(formula,
                                trimming,
                                trimming_threshold,
                                ...){
+
   sampled_observations <- sample(1:nrow(data_used),
                                  nrow(data_used),
                                  replace=TRUE,
                                  prob=weights/sum(weights,na.rm=TRUE))
+
   deco_estimates <- dfl_deco_estimate(formula=formula,
                                           dep_var = dep_var[sampled_observations],
                                           data_used = data_used[sampled_observations,],
@@ -866,13 +903,22 @@ dfl_deco_bootstrap <- function(formula,
                                           statistics = statistics,
                                           probs = probs,
                                           reweight_marginals = reweight_marginals,
-                                          trimming,
-                                          trimming_threshold,
+                                          trimming = trimming,
+                                          trimming_threshold = trimming_threshold,
                                           ...)
 
   deco_estimates$reweighting_factor <- NULL
+
   return(deco_estimates)
 }
+
+
+
+
+
+
+
+
 
 
 #' Predict conditional probabilities
