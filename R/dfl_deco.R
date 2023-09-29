@@ -591,7 +591,6 @@ dfl_deco_estimate <- function(formula,
     fitted_models[i] <- fitted_model[2]
   }
 
-  #browser()
   names(fitted_models) <- sapply(nvar:1, function(i) paste0("P(g=1|", paste0(paste0("X", nvar:i), collapse = ","), ")"))
 
 

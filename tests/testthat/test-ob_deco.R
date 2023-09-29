@@ -441,7 +441,7 @@
 #
 #
 # test_that("dfl_deco() replicates Table 5-D, p. 67, in FLF 2011 Handbook Chapter", {
-# browser()
+#
 #   #load("data-raw/men8305_full.rda")
 #   men8305_full$weights <- men8305_full$weights/sum(men8305_full$weights) * length(men8305_full$weights)
 #   flf_model <- log(wage) ~ union*(education + experience) + education*experience
@@ -453,9 +453,10 @@
 #                                            group = year,
 #                                            reference_0 = TRUE,
 #                                            rifreg_statistic = "iq_range_p90_p10")
-#   results_rifreg_deco <- flf_male_inequality_table_5$decomposition_terms
+#   browser()
+#   results_rifreg_deco <- flf_iq_range_p90_p10$ob_deco$decomposition_terms
 #
-#   published_results_FLF_table_5 <- data.frame(statistic = results_dfl_deco$statistic,
+#   published_results_FLF_table_5 <- data.frame(statistic = results_rifreg_deco$Variable,
 #                                               `Observed difference` = c(0.0617, 0.1091, 0.1827, -0.0736),
 #                                               `Structure effect` = c(0.0408, 0.0336, 0.1637, -0.1301),
 #                                               `Composition effect` = c(0.0208, 0.0756, 0.0191, 0.0565))
@@ -725,8 +726,8 @@
 #                          tolerance = 0.0075)
 #
 # })
-
-
+#
+#
 # test_that("same results as in lecture slides", {
 #
 #
@@ -754,7 +755,7 @@
 #   # gsoep29$tenure <- with(gsoep29, ifelse(bcerwzeit >= 0, bcerwzeit, NA))
 #   # gsoep29$ISEI <- with(gsoep29, ifelse(isei12 > 0, isei12, NA))
 #
-#   gsoep29 <- na.omit(gsoep29[, c("lnwage", "schooling", "ft_experience", "ft_experience2", "female")])
+#   gsoep29 <- na.omit(gsoep29[, c("lnwage", "schooling", "ft_experience", "ft_experience2", "public")])
 #
 #
 #
@@ -790,17 +791,19 @@
 #                        tolerance = 0.0075)
 #
 # })
-
+#
 # test_that("same results as in lecture exercise 5", {
 #   # get and prepare data
 #   #gsoep29 <- readstata13::read.dta13("data-raw/gsoep29.dta")
 #   total_n <- nrow(gsoep29)
 #   gsoep29$age <- 2012 - gsoep29$bcgeburt
 #   gsoep29 <- subset(gsoep29, age >=25 & age <= 55)
-#   total_n - nrow(gsoep29)
+#   n_2 <- nrow(gsoep29)
+#   total_n - n_2
 #
 #   gsoep29$wage <- with(gsoep29, ifelse(labgro12 > 0 & bctatzeit > 0, labgro12 / (bctatzeit * 4.3), NA))
 #   gsoep29$lnwage <- log(gsoep29$wage)
+#
 #
 #   gsoep29$schooling <- with(gsoep29, ifelse(bcbilzeit > 0, bcbilzeit, NA))
 #   gsoep29$ft_experience <- with(gsoep29, ifelse(expft12 >= 0, expft12, NA))
@@ -808,29 +811,31 @@
 #
 #   gsoep29$female <- with(gsoep29, ifelse(bcsex == "[1] Maennlich", 0, 1))
 #
-#   summary(gsoep29[c("lnwage", "schooling", "ft_experience", "ft_experience2", "female")])
+#   summary(gsoep29[c("lnwage", "schooling", "ft_experience", "ft_experience2", "female")]) # means are identical to exercice
 #
 #   gsoep29 <- na.omit(gsoep29[, c("lnwage", "schooling", "ft_experience", "ft_experience2", "bcsex", "bcphrf", "female" )])
-#
+#   n_3 <- nrow(gsoep29)
+#   n_2 - n_3
 #
 # browser()
 #   ### Reweighted RIF Regression
-#   rw_rifreg_deco <- ob_deco(formula = lnwage ~ schooling + ft_experience + ft_experience2 | schooling*ft_experience*ft_experience,
+#   rw_rifreg_deco <- ob_deco(formula = lnwage ~ schooling + ft_experience + ft_experience2 | schooling * ft_experience + schooling * I(ft_experience^2),
 #                                                          data = gsoep29,
 #                                                          group = female,
 #                                                          rifreg = TRUE,
 #                                                          reweighting = TRUE,
 #                                                          rifreg_statistic = "quantiles",
 #                                                          rifreg_probs = 0.1,
-#                                                          reference_0 = TRUE)
-#
+#                                                          reference_0 = FALSE)
+# browser()
 #   testthat::expect_equal(rw_rifreg_deco$quantile_0.1$decomposition_terms$Observed_difference[1],
-#                          -0.0257792,
+#                          0.2486877,
 #                          tolerance = 0.0075)
 #
 #   testthat::expect_equal(rw_rifreg_deco$quantile_0.1$decomposition_terms$Composition_effect[c(1, 3)],
 #                          c(-0.0261005, -0.0018931),
 #                          tolerance = 0.0075)
+#
 #
 #   testthat::expect_equal(sum(rw_rifreg_deco$quantile_0.1$decomposition_terms$Composition_effect[4:5]),
 #                          -0.0242074,
@@ -847,4 +852,4 @@
 #
 #
 # })
-
+#
