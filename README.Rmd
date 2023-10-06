@@ -1,0 +1,431 @@
+---
+output:
+  github_document:
+    toc: true
+    toc_depth: 3
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# `ddeco`: Detailed Decomposition Methods
+
+
+
+## Overview
+
+Decomposition methods have long been utilized in labor economics, sociology, and econometrics to parse the differential contributions of observable factors to some distributional statistic of an outcome variable. These methodologies dissect complex phenomena—such as income inequality, wage disparities, or educational attainment—into constituent parts, allowing for a nuanced understanding of underlying causal mechanisms. By offering a 'counterfactual' framework, these techniques enable scholars to gauge what the outcome distribution might look like under different scenarios, thus illuminating avenues for policy intervention.
+
+The package `ddeco` provides a set of popular decomposition methods dissecting differences at the mean and beyond. The function `ob_deco()` allows classic Oaxaca-Blinder decomposition at the mean, but also enables reweighted RIF regression decomposition for various distributional statistics beyond the mean (e.g. quantiles or Gini coefficient). The function `dfl_deco()` decomposes between-group differences in distributional statistics of an outcome variable using inverse propensity reweighting as proposed by DiNardo, Fortin, and Lemieux (1996). The package also entails summary, print and plot functions for the results and computes bootstrapped standard errors.  
+
+This documentation provides a brief overview over the functions implemented in the package. For a more detailed discussion of decomposition methods including their respective assumptions and limitations, refer to Fortin et al. (2011) and Firpo et al. (2018). 
+
+
+## Installation 
+
+You can either install the CRAN version of `ddeco`
+```{r, eval=FALSE}
+install.packages("rifreg")
+```
+
+or the latest development version from GitHub:
+```{r , eval=FALSE}
+devtools::install_github("samumei/ddeco")
+```
+
+## Background
+
+### Oaxaca-Blinder Decomposition (and Reweighted Variant)
+
+The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) decomposes group differences in the mean of an outcome variable (e.g. wage). The group differences in the mean $\widehat\Delta^\mu_O$ are decomposed into two parts. One part, the "composition effect" $\widehat\Delta^\mu_X$, is explained by differences in the observable covariates (e.g. educational level or experience). The other part, the "structure effect" $\widehat\Delta^\mu_S$, is due to different returns to these covariates. Given a group $A$ and $B$, the group difference in the outcome variable $Y$ can be written as: 
+
+$$\widehat\Delta^\mu_O = \overline Y_B - \overline Y_A,$$
+with the composition and structure effect as:
+
+$$\widehat\Delta^\mu_O = \underbrace{(\widehat \beta_{B0} - \widehat \beta_{A0}) + \sum^K_{k=1}\overline X_{Bk}(\widehat \beta_{Bk} - \widehat \beta_{Ak})}_{\widehat\Delta^\mu_S \text{ (Unexplained)}} + \underbrace{\sum^K_{k=1} (\overline X_{Bk} - \overline X_{Ak})\widehat \beta_{Ak}}_{\widehat\Delta^\mu_X \text{ (Explained)}}$$
+where $\beta_{g}$ are the intercept and slope coefficents of covariates $k = 1,..., K$, in the OLS regression models of group $g = A, B$. In this notation, the counterfactual reference scenario is $\overline X_{Bk}\beta_{Ak}$, the covariates' mean of group $B$, mutliplied by the covariates' coefficients of group $A$. However, the reference group could also be the set as $\overline X_{Ak}\beta_{Bk}$. 
+
+The terms $\widehat\Delta^\mu_S $ and $\widehat\Delta^\mu_X$ denote the \emph{aggregate decomposition}, i.e. the overall structure and composition effect. In the \emph{detailed decomposition}, the contribution of each covariate $k$ to the structure and composition effect is estimated. For instance, the contribution of covariate $k = 1$ to the structure effect is $\overline X_{B1}(\widehat \beta_{B1} - \widehat \beta_{A1})$ and $(\overline X_{B1} - \overline X_{A1})\widehat \beta_{A1}$ to the composition effect.
+
+#### Reweighted Regression Decompostion
+
+Barsky et al. (2002) pointed out that OB decompositions do not provide consistent estimates of the wage structure and composition effect if the conditional mean function is non linear. They propose using a reweighting approach as in DiNardo et al. (1996) in the decomposition. In this reweighting approach, the reweighting function $\widehat\Psi(X_i)$ makes the characteristics of group $A$ similar to those of group $B$, defined as $X^C_A$. In addition, the OLS regression coefficients are estimated for the reweighted group $\overline X^C_A$, yielding $\widehat \beta^C_A$. Analogues, group A could be set as reference group, thereby the characteristics of group $B$ would be reweighted to be similar of to those of group $A$. 
+
+To decompose the overall group difference in the reweighted regression decomposition, $\overline X^C_A\widehat \beta^C_A$ is used as counterfactual scenario. The overall gap is then decomposed as: 
+
+$$
+\begin{aligned} \widehat\Delta^\mu_{O,R} &= (\widehat \beta_{B0} - \widehat \beta^C_{A0}) + \sum^K_{k=1} (\overline X_{Bk}\widehat \beta_{Bk} - \overline X^C_{Ak}\widehat \beta^C_{Ak})) + \sum^K_{k=1} (\overline X^C_{Ak}\beta^C_{Ak} - \overline X_{Ak}\widehat \beta_{Ak}) \\
+ &= \widehat\Delta^\mu_{S,R}  + \widehat\Delta^\mu_{X,R}. 
+\end{aligned}
+$$
+These decompostion parts are further divided into pure structure and composition effects, $\widehat\Delta^\mu_{S,p}$ and $\widehat\Delta^\mu_{X,p}$ respectively, and into reweighting error $\widehat\Delta^\mu_{S,e}$ and specification error $\widehat\Delta^\mu_{X,e}$. The structure effect $\widehat\Delta^\mu_{S,R}$ can be written as 
+
+$$\widehat\Delta^\mu_{S,R} = \underbrace{(\widehat \beta_{B0} - \widehat \beta^C_{A0}) + \sum^K_{k=1}\overline X_{Bk}(\widehat \beta_{Bk} - \widehat \beta^C_{Ak})}_{\widehat\Delta^\mu_{S,p} \text{ (Pure structure effect)}} + \underbrace{\sum^K_{k=1} (\overline X_{Bk} - \overline X^C_{Ak})\widehat \beta^C_{Ak}.}_{\widehat\Delta^\mu_{S,e} \text{ (Reweighting error)}}$$
+
+Similarly, the composition effect can be written as
+
+$$\widehat\Delta^\mu_{X,R} = \underbrace{\sum^K_{k=1} (\overline X^C_{Ak} - \overline X_{Ak})\widehat \beta_{Ak}}_{\widehat\Delta^\mu_{X,p} \text{ (Pure composition effect)}} + \underbrace{(\widehat \beta^C_{A0} - \widehat \beta_{A0}) + \sum^K_{k=1}\overline X^C_{Ak}(\widehat \beta^C_{Ak} - \widehat \beta_{Ak}).}_{\widehat\Delta^\mu_{X,e} \text{ (Specification error)}}$$
+
+The reweighted regression decomposition enhances the original OB decomposition method in two aspects. First, the structure effect is estimated by comparing $\widehat \beta_{B0}$ with the reweighted estimates of group $A$, $\widehat \beta^C_{A0}$ instead of $\widehat \beta_{A0}$. Therefore, the pure wage structure effect entails the true underlying structural differences in group $A$ and $B$ (Fortin et al. 2011). The reweighting error indicates how accurate the reweighting function $\widehat\Psi(X_i)$ and will be zero if the composition of group $B$ is equal to the reweighted group $A$.  
+
+Second, the pure composition effect displays the differences between the composition of group $A$ and the reweighted group $A$. If the model is truly linear and correctly specified, the specification error is zero and $\widehat\Delta^\mu_{X,p} = \widehat\Delta^\mu_{X,R}$. If the specification error is not close to zero, it is advisable to revise the model specification. While the original OB decomposition only allows for decomposition at the mean, the following methods provide means to decompose other distributional metrics. 
+
+
+
+### Reweighted RIF Regression Decomposition 
+
+To estimate decompositions beyond the mean, we implemented a reweighted RIF regression decomposition as proposed by Firpo et al. (2018). Firpo et al. propose to approximate the conditional expectation of the RIF given the explanatory variables with a linear regression. The regression coefficients can be consistent estimates of the average derivatives $\widehat{\alpha}(\nu)$ if the conditional expectations of the RIF are linear in $X$ (see Firpo et al., 2009, [Rothe 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
+
+In the reweighted RIF regression decompositions, first the RIF of the outcome variable $Y$ and a distributional statistic of interest $\nu$ is computed. Then, an OLS regression of the transformed outcome variable $Y$ is run on the explanatory variables $X$. Thereafter, the decompostion method is analogous to the original OB method:
+
+$$\widehat\Delta^\nu_{O,R} = \underbrace{(\widehat \beta_{B0} - \widehat \beta^C_{A0}) + \sum^K_{k=1}\overline X_{Bk}(\widehat \beta_{Bk} - \widehat \beta^C_{Ak})}_{\widehat\Delta^\nu_{S,p} \text{ (Pure structure effect)}} + \underbrace{\sum^K_{k=1} (\overline X_{Bk} - \overline X^C_{Ak})\widehat \beta^C_{Ak}}_{\widehat\Delta^\nu_{S,e} \text{ (Reweighting error)}} + \underbrace{\sum^K_{k=1} (\overline X^C_{Ak} - \overline X_{Ak})\widehat \beta_{Ak}}_{\widehat\Delta^\nu_{X,p} \text{ (Pure composition effect)}} + \underbrace{(\widehat \beta^C_{A0} - \widehat \beta_{A0}) + \sum^K_{k=1}\overline X^C_{Ak}(\widehat \beta^C_{Ak} - \widehat \beta_{Ak}).}_{\widehat\Delta^\nu_{X,e} \text{ (Specification error)}}$$
+with $\widehat \beta$ being the coefficients of the OLS regression of the transformed outcome variable $Y$ run on the explanatory variables $X$ of group $A$ and $B$. 
+
+
+By default, the RIF of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddeco`. Moreover, the package allows to calculate the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More further information on RIF regressions can be found in the documentation of the `rifreg` (CITE) package written by the same authors as `ddeco`.
+
+It is possible to compute the RIF regression decomposition without reweighting. However, it is strongly advisable to use reweighting and assess the reweighting and specification error, as large errors highlight inconsistent estimations.
+
+
+
+### Decomposition Through Reweighting (DiNardo, Fortin, and Lemieux 1996)
+
+Another method to decompose group differences in an outcome variable beyond the mean is using inverse propensity reweighting as proposed by DiNardo, Fortin, and Lemieux (1996). We implement this decompostion method in the function `dfl_deco()`. The procedure reweights the sample distribution of a reference group such that the group's covariates distribution matches the covariates distribution of a counterfactual group. Reweighting factors are derived by modelling the probability of belonging to the one group instead of the other conditional on covariates. The function allows detailed decompositions of the composition effect by sequentially reweighting (conditional) covariate distributions. 
+
+If group $A$ is set as reference, it is reweighted to match the distribution of characteristics of group $B$. First, a logit model is run to estimate the probability of belonging to group $B$ conditional on covariates: 
+
+$$ Pr(D_B = 1 | X) = 1 - Pr(D_A = 1 | X ). $$
+
+Next, the reweighting factor $\widehat\Psi(X)$ for observations in group $A$ is estimated:
+
+$$ \widehat\Psi(X_i) = \frac{\widehat Pr(D_B = 1 | X) / \widehat Pr(D_B = 1) }{\widehat Pr(D_B = 0 | X) / \widehat Pr(D_B = 0)}.$$
+Note that the same estimation method for $\widehat\Psi(X)$ is applied when computing the reweighting factor for the reweighted OB and RIF regression decomposition discussed above. Using $\widehat\Psi(X)$ to reweight the sample obersavtions in group $A$, the counterfactual statistic of interest then be computed. For instance, to estimate the overall wage gap at a specific quantile $Q_X$ and decompose it into aggregate structure and composition effect following approach is applied: 
+
+$$
+\begin{aligned}
+\widehat\Delta^{Q_X}_O &= Q_{B,X} - Q_{A,X} \\
+&= \underbrace{Q^C_{A,X}- Q_{A,X} }_{\widehat\Delta^{Q_X}_S \text{ (Unexplained)}} + \underbrace{Q_{B,X} - Q^C_{A,X}}_{\widehat\Delta^{Q_X}_X \text{ (Explained)}}
+\end{aligned}
+$$
+
+with $Q_{gX}$ being the estimated Quantile in groups $g = A, B$ and $Q^C_AX$ being the quantile estimate in the reweighted group $A$. For further details on this method, including the detailed decomposition, refer to DiNardo et al. (1996) and Fortin et al. (2011, p. 63-69). 
+
+
+
+### Inference
+
+`rifreg` allows to bootstrap standard errors. Analytical standard errors can be nontrivial when the RIF introduces an additional estimation step. In particular, this is the case for quantiles where the density has to be estimated (see [Firpo, Fortin, and Lemieux, 2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)). 
+
+Per default, `summary.rifreg` and `plot.rifreg`return heteroscedasticity-consistent standard errors estimated with `sandwich::sandwich()` if the variance is not bootstrapped. Note, however, that these standard errors do not take the variance introduced by the RIF estimation step into account.
+
+## Example
+
+In this basic example, we use a sample of the male wage data from the Current Population Survey from 1983 to 1985 as used in Firpo et al. (2009a). 
+```{r}
+library(rifreg)
+data("men8385")
+```
+
+
+### Unconditional quantile regressions
+
+We are interested in the unconditional quantile partial effects (UQPE) of union membership on log hourly wages. We therefore estimate RIF regressions on union status and control for demographic characteristics. The parameter `statistic` specifies quantiles as our distributional statistic of interest, while `probs` defines the probabilities of the quantiles.
+
+```{r}
+ffl_model <- log(wage) ~ union + nonwhite + married + education + experience
+fit_uqr <- rifreg(ffl_model,
+  data = men8385,
+  weights = weights,
+  statistic = "quantiles",
+  probs = 1:9 / 10
+)
+fit_uqr
+```
+
+The `summary` method returns the estimated coefficients and the standard errors. Per default, `summary` returns heteroscedasticity-consistent standard errors estimated if the variance is not bootstrapped.
+```{r, eval=FALSE}
+summary(fit_uqr)
+```
+
+`rifreg` comes with a convenient plot function. It illustrates the estimated UQPE across the distribution. The confidence bands are based on the same standard errors as returned by `summary`.
+```{r}
+plot(fit_uqr, varselect = "unionyes")
+```
+
+
+### Bootstrapping standard errors
+
+Setting `bootstrap=TRUE` bootstraps standard errors by resampling from all observations and reestimating both the RIF and the regression in every iteration. We can set number of `bootstrap_iterations` and the number of `cores`.  
+
+```{r}
+fit_uqr <- rifreg(ffl_model,
+  data = men8385,
+  weights = weights,
+  statistic = "quantiles",
+  bootstrap = TRUE,
+  bootstrap_iterations = 100, 
+  cores = 4,
+  probs = 1:9 / 10
+)
+
+plot(fit_uqr,
+  varselect = "unionyes",
+  confidence_interval = 0.95
+)
+```
+
+
+### Other distributional statistics 
+
+`rifreg` performs RIF regressions for other distributional statistics than  quantiles. Per default, the "mean", "variance", "quantiles", "gini",  "interquantile_range" and "interquantile_ratio" are available. 
+```{r}
+ffl_model2 <- wage ~ union + nonwhite + married + education + experience
+fit_gini <- rifreg(ffl_model2,
+  data = men8385,
+  weights = weights,
+  statistic = "gini"
+)
+fit_d9d1 <- rifreg(ffl_model2,
+  data = men8385,
+  weights = weights,
+  statistic = "interquantile_ratio",
+  probs = c(0.9, 0.1)
+)
+cbind(fit_gini$estimates, fit_d9d1$estimates)
+```
+
+### User-written RIF functions
+
+Users may write their own RIF function. Custom RIF functions must specify a `dep_var` parameter for the outcome variable $Y$, a `weights` for potential sample weights, and `probs`. If they are not needed, they must be set to `NULL` in the function definition (e.g. `probs = NULL`).
+
+The following example shows how to write the RIF for the top 10 percent income share and, then, to estimate the RIF regression using this custom function. The formula for this specific RIF can be found in Essam-Nssah & Lambert (2012) or Rios-Avila (2020).
+```{r}
+ffl_model2 <- wage ~ union + nonwhite + married + education + experience
+
+# custom RIF function for top 10% percent income share
+custom_top_inc_share <- function(dep_var,
+                                 weights,
+                                 probs = NULL,
+                                 top_share = 0.1) {
+  top_share <- 1 - top_share
+  weighted_mean <- weighted.mean(
+    x = dep_var,
+    w = weights
+  )
+  weighted_quantile <- Hmisc::wtd.quantile(
+    x = dep_var,
+    weights = weights,
+    probs = top_share
+  )
+  lorenz_ordinate <- sum(dep_var[which(dep_var <= weighted_quantile)] *
+    weights[which(dep_var <= weighted_quantile)]) /
+    sum(dep_var * weights)
+  if_lorenz_ordinate <- -(dep_var / weighted_mean) * lorenz_ordinate +
+    ifelse(dep_var < weighted_quantile,
+      dep_var - (1 - top_share) * weighted_quantile,
+      top_share * weighted_quantile
+    ) / weighted_mean
+  rif_top_income_share <- (1 - lorenz_ordinate) - if_lorenz_ordinate
+  rif <- data.frame(rif_top_income_share, weights)
+  names(rif) <- c("rif_top_income_share", "weights")
+  return(rif)
+}
+
+fit_top_10 <- rifreg(ffl_model2,
+  data = men8385,
+  weights = weights,
+  statistic = "custom",
+  custom_rif_function = custom_top_inc_share,
+  top_share = 0.1
+)
+
+fit_top_10
+```
+
+## Replication of Firpo, Fortin, and Lemieux (2009a)
+
+To validate the functions and provide users with an additional example, we replicate the RIF regression estimates in Firpo et al. (2009a: 962-966). In their empirical example, Firpo et al. estimate the impact of union status on log wages using a large sample of 266'956 male U.S. workers from 1983-1985 based on the Outgoing Rotation Group (ORG) supplement of the Current Population Survey. To reproduce the code below, make sure you download the [entire data set from the journal's website](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_data%20and%20programs_0.zip).
+
+### Data preparation
+
+```{r}
+library("dplyr")
+
+## getting the data from the journal's website
+# url <- "https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_data%20and%20programs_0.zip"
+# download.file(url = url, destfile = "6822_data%20and%20programs_0.zip")
+# men8385 <- readstata13::read.dta13(file = unzip("6822_data%20and%20programs_0.zip","men8385.dta"))
+
+## Load data
+men8385 <- readstata13::read.dta13("data-raw/men8385.dta")
+
+# Save dummies as factor variables
+# nine potential experience categories (each of five years gap)
+men8385$experience <- 5
+men8385[which(men8385$ex1 == 1), "experience"] <- 1
+men8385[which(men8385$ex2 == 1), "experience"] <- 2
+men8385[which(men8385$ex3 == 1), "experience"] <- 3
+men8385[which(men8385$ex4 == 1), "experience"] <- 4
+# 5 = reference group
+men8385[which(men8385$ex6 == 1), "experience"] <- 6
+men8385[which(men8385$ex7 == 1), "experience"] <- 7
+men8385[which(men8385$ex8 == 1), "experience"] <- 8
+men8385[which(men8385$ex9 == 1), "experience"] <- 9
+
+# Education
+men8385$education <- 2
+men8385[which(men8385$ed0 == 1), "education"] <- 0
+men8385[which(men8385$ed1 == 1), "education"] <- 1
+# high school = reference group
+men8385[which(men8385$ed3 == 1), "education"] <- 3
+men8385[which(men8385$ed4 == 1), "education"] <- 4
+men8385[which(men8385$ed5 == 1), "education"] <- 5
+
+men8385$education <- as.character(men8385$education)
+men8385$experience <- as.character(men8385$experience)
+men8385$experience <- dplyr::recode_factor(men8385$experience,
+  "5" = "20-24",
+  "1" = "0-4",
+  "2" = "5-9",
+  "3" = "10-14",
+  "4" = "15-19",
+  "6" = "25-29",
+  "7" = "30-34",
+  "8" = "35-39",
+  "9" = ">=40"
+)
+
+men8385$education <- dplyr::recode_factor(men8385$education,
+  "2" = "High School",
+  "0" = "Elementary",
+  "1" = "HS dropout",
+  "3" = "Some College",
+  "4" = "College",
+  "5" = "Post-graduate"
+)
+
+# Save log wage as wage hourly wage in dollars
+men8385$wage <- exp(men8385$lwage)
+
+# Rename/relevel remaining indicators
+men8385$union <- as.factor(men8385$covered)
+men8385$covered <- NULL
+
+men8385$married <- as.factor(men8385$marr)
+men8385$marr <- NULL
+men8385$nonwhite <- as.factor(men8385$nonwhite)
+levels(men8385$married) <- levels(men8385$nonwhite) <- levels(men8385$union) <- c("no", "yes")
+
+# Rename weight and education in years variable
+names(men8385)[names(men8385) == "eweight"] <- "weights"
+names(men8385)[names(men8385) == "educ"] <- "education_in_years"
+names(men8385)[names(men8385) == "exper"] <- "experience_in_years"
+
+# Check experience and age groups
+men8385 %>%
+  group_by(experience) %>%
+  dplyr::summarise(
+    min = min(experience_in_years, na.rm = TRUE),
+    max = max(experience_in_years, na.rm = TRUE)
+  )
+
+men8385 %>%
+  group_by(education) %>%
+  dplyr::summarise(
+    min = min(education_in_years, na.rm = TRUE),
+    max = max(education_in_years, na.rm = TRUE)
+  )
+
+# Select relevant variables
+sel_vars <- c("wage", "union", "nonwhite", "married", "education", "experience", "weights", "age", "education_in_years", "experience_in_years")
+men8385 <- men8385[, sel_vars]
+```
+
+### 'Unconditional quantile regressions'
+
+The model is specified as in Firpo, Fortin, and Lemieux (2007a), omitting weights, computing bootstrapped standard errors with 200 iterations and setting a fixed bandwidth of 0.06 for the kernel density estimation. We also compute a OLS model for comparison with the original results. 
+
+```{r}
+library(rifreg)
+
+set.seed(121095)
+ffl_model_2009 <- log(wage) ~ union + nonwhite + married + education + experience
+ffl_uqr_fit <- rifreg(
+  formula = ffl_model_2009,
+  data = men8385,
+  statistic = "quantiles",
+  probs = seq(0.05, 0.95, 0.05),
+  bw = 0.06,
+  bootstrap = TRUE,
+  bootstrap_iterations = 200, 
+  cores = 1
+)
+
+ffl_ols_fit <- lm(
+  formula = ffl_model_2009,
+  data = men8385
+)
+```
+
+### Results
+
+```{r }
+estimates <- data.frame(ffl_uqr_fit$estimates[1:9, c("rif_quantile_0.1", "rif_quantile_0.5", "rif_quantile_0.9")])
+standard_errors <- data.frame(ffl_uqr_fit$bootstrap_se[1:9, c("rif_quantile_0.1", "rif_quantile_0.5", "rif_quantile_0.9")])
+results <- cbind(estimates, standard_errors)[, c(1, 4, 2, 5, 3, 6)]
+results$ols <- ffl_ols_fit$coefficients[1:9]
+names(results) <- c("Coefficient 0.1", "SE", "Coefficient 0.5", "SE", "Coefficient 0.9", "SE", "OLS")
+
+knitr::kable(results, digits = 3)
+```
+
+Our results largely match those by Firpo, Fortin, and Lemieux (2009a: 964, Table I). The OLS results are identical as expected. The RIF regression results differ only in a few instances at the third decimal place from the original paper.
+
+```{r, fig.show='hide'}
+rifreg_plot <- plot(ffl_uqr_fit, varselect = "unionyes")
+```
+
+```{r }
+rifreg_plot +
+  geom_hline(yintercept = ffl_ols_fit$coefficients["unionyes"], linetype = "dashed") +
+  geom_text(aes(x = 0.8, y = ffl_ols_fit$coefficients["unionyes"] + 0.03, label = "OLS estimate"), color = "black") +
+  ylab("Effect of Union") +
+  xlab("Quantiles") +
+  labs(title = "Unconditional Quantile Regression in R") +
+  theme(strip.background = element_blank(), strip.text.x = element_blank())
+```
+
+Looking at the plots, we see that our plots correspond to those presented by Firpo, Fortin, and Lemieux (2009a: 965). The plot example illustrates, how the plot from the generic `rifreg::plot()` function can be further enhanced, for instance with a horizontal line indicating the OLS coefficient for comparison. 
+
+This validation example illustrates that the `rifreg` package works as intended in computing RIF regressions and reliably yields the expected results. 
+
+## Credits
+
+David Gallusser & Samuel Meier
+
+## References
+
+Cowell, Frank A., and Emmanuel Flachaire. 2007. "Income distribution and inequality measurement: The problem of extreme values." *Journal of Econometrics* 141: 1044–1072.
+
+Essama-Nssah, Boniface, and Peter J. Lambert. 2012. “Influence Functions for Policy Impact Analysis.” In John A. Bishop and Rafael Salas, eds., *Inequality, Mobility and Segregation: Essays in Honor of Jacques Silber*. Bigley, UK: Emerald Group Publishing
+Limited.
+
+Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2007a. “Unconditional Quantile Regressions.” *Tech-
+nical Working Paper 339, National Bureau of Economic Research*. Cambridge, MA. 
+
+Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2009a. "Unconditional Quantile Regressions." *Econometrica* 77(3): 953-973.
+
+Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2009b. "Supplement to 'Unconditional Quantile Regressions'." *Econometrica Supplemental Material*, 77.
+
+Rios-Avila, Fernando (2020): "Recentered influence functions (RIFs) in Stata: RIF regression and RIF decomposition." *The Stata Journal* 20(1): 51-94.
+
+Rothe, Christoph (2015): "Decomposing the Composition Effect. The Role of Covariates in Determining Between-Group Differences in Economic Outcomes." *Journal of Business & Economic Statistics* 33(3): 323-337.
+

@@ -27,7 +27,7 @@
 #' The group identified by the lower ranked value in `group` (i.e., 0 in the
 #' case of a dummy variable or the first level of factor variable) is defined
 #' as group 0.
-#' @param reference_0 boolean: if `TRUE` (default), then the group 0 -- i.e.,
+#' @param reference_0 Boolean: if `TRUE` (default), then the group 0 -- i.e.,
 #' the group identified by the lower ranked value in `group` -- will be defined
 #' as reference group. The reference group will be reweighted to match the
 #' covariates distribution of the sample of the comparison group.
@@ -40,7 +40,7 @@
 #' @param method specifies the method fit and predict conditional probabilities
 #' used to derive the reweighting factor. At the moment, `logit` is the only method
 #' available.
-#' @param estimate_statistics boolean: if `TRUE` (default), then distributional
+#' @param estimate_statistics Boolean: if `TRUE` (default), then distributional
 #' statistics are estimated and the decomposition is performed. If `FALSE`,
 #' the function only returns the propensity weights.
 #' @param statistics a character vector that defines the distributional statistics
@@ -52,16 +52,16 @@
 #' @param probs a vector of length 1 or more with the probabilities of the quantiles
 #' to be estimated with default `c(1:9)/10`.
 #' @param custom_statistic_function a custom statistic function to pass as argument.
-#' @param trimming boolean: If `TRUE`, observations with dominant reweighting factor values are trimmend according to rule of Huber, Lechner, and Wunsch (2014). Per default, trimming is set to `FALSE`.
+#' @param trimming Boolean: If `TRUE`, observations with dominant reweighting factor values are trimmend according to rule of Huber, Lechner, and Wunsch (2014). Per default, trimming is set to `FALSE`.
 #' @param trimming_threshold numeric: threshold defining the maximal accepted relative weight of the reweighting factor value of a single observation. If `NULL`, the threshold is set to `sqrt(N)/N`, where N is the number of observations in the reference group.
-#' @param return_model boolean: If `TRUE` (default), the object(s) of the model fit(s)
+#' @param return_model Boolean: If `TRUE` (default), the object(s) of the model fit(s)
 #' used to predict the conditional probabilities for the reweighting factor(s) are returned.
-#' @param bootstrap boolean: If `FALSE`, then the estimation is not boostrapped and no
+#' @param bootstrap Boolean: If `FALSE`, then the estimation is not bootstrapped and no
 #' standard errors are calculated.
 #' @param bootstrap_iterations positive integer indicating the number of bootstrap
 #'  iterations to execute. Only required if \code{bootstrap = TRUE}.
-#' @param bootstrap_robust boolean: if `FALSE` (default), then bootstrapped standard
-#' errores are estimated as the standard deviations of the bootstrapp estimates.
+#' @param bootstrap_robust Boolean: if `FALSE` (default), then bootstrapped standard
+#' errors are estimated as the standard deviations of the bootstrap estimates.
 #' Otherwise, the function uses the bootstrap interquartile range rescaled by the
 #' interquantile range of the standard distribution to estimate standard errors.
 #' @param cores positive integer indicating the number of cores to use when

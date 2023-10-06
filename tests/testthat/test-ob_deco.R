@@ -854,7 +854,7 @@
 # })
 
 
-test_that("Test GU normalization", {
+testthat::test_that("Test GU normalization", {
 
 data("men8305")
 data0 <- subset(men8305, year == "1983-1985")
