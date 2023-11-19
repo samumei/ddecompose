@@ -1,174 +1,214 @@
 #' DFL reweighting decomposition
 #'
-#' @description `dfl_deco` decomposes between-group differences in distributional
-#' statistics of an outcome variable into a structure effect and a composition effect.
-#' As proposed by DiNardo, Fortin, and Lemieux (1996), the procedure
-#' reweights the sample distribution of a reference group such that the group's
-#' covariates distribution matches the covariates distribution of a counterfactual
-#' group.
+#' @description \code{dfl_deco} decomposes between-group differences in distributional
+#' statistics of an outcome variable into a structure effect and a composition
+#' effect. Following DiNardo, Fortin, and Lemieux (1996), the procedure reweights
+#' the sample distribution of a reference group such that the group's covariates
+#' distribution matches the covariates distribution of a comparison group.
 #'
-#' Reweighting factors are derived by modelling the probability of belonging to
-#' the one group instead of the other conditional on covariates. The function
-#' allows detailed decompositions of the composition effect by sequentially
-#' reweighting (conditional) covariate distributions. Standard errors can be
-#' bootstrapped.
+#' The function derives counterfactual distributions with inverse probability
+#' weigthing. Reweighting factors are estimate by modelling the probability of
+#' belonging to the comparison group conditional on covariates.
 #'
-#' @param formula a `formula` object with an outcome variable Y on the left-hand side
+#' The function allows detailed decompositions of the composition effect by
+#' sequentially reweighting (conditional) covariate distributions. Standard
+#' errors can be bootstrapped.
+#'
+#' @param formula a \code{formula} object with an outcome variable Y on the left-hand side
 #' and the covariates X on the right-hand side. For sequential decompositions,
-#' the sequence of covariates X are distinguished by the `|` operator. Covariates
-#' are used to estimate the reweighting factors.
-#' @param data a `data.frame` containing all variables and observations for
+#' the sequence of covariates X are distinguished by the \code{|} operator. Covariates
+#' are used to estimate conditional probabilities for the reweighting factors.
+#' @param data a \code{data.frame} containing all variables and observations of
 #' both groups.
 #' @param weights name of the observation weights variable or vector of
 #' observation weights.
-#' @param na.action a function to filter missing data (default `na.exclude`).
-#' @param group name of the a binary variable (numeric or factor)
-#' identifying the two groups for which the differences are to be decomposed.
-#' The group identified by the lower ranked value in `group` (i.e., 0 in the
+#' @param na.action a function to filter missing data (default \code{na.exclude}).
+#' @param group name of a binary variable (numeric or factor) identifying the
+#' two groups for which the differences are to be decomposed. The group
+#' identified by the lower ranked value in \code{group} (i.e., 0 in the
 #' case of a dummy variable or the first level of factor variable) is defined
-#' as group 0.
-#' @param reference_0 boolean: if `TRUE` (default), then the group 0 -- i.e.,
-#' the group identified by the lower ranked value in `group` -- will be defined
+#' as group 0. Per default, group 0 is the reference group (see \code{reference_0}).
+#' @param reference_0 boolean: if \code{TRUE} (default), then the group 0 -- i.e.,
+#' the group identified by the lower ranked value in \code{group} -- will be defined
 #' as reference group. The reference group will be reweighted to match the
 #' covariates distribution of the sample of the comparison group.
-#' @param reweight_marginals determines the groups whose composition of covariates
-#' that are entered last into the sequence are used to evaluate the detailed contribution
-#' of the covariates entered first into the sequence. If `TRUE` (default), then
-#' the sequential decomposition  reweights first the marginal (joint) distribution
-#' of the last covariate (covariates) entered into `formula` sequence. Otherwise,
-#' the conditional distribution of first covariate(s) entered are reweigthed.
+#' @param right_to_left determines the direction of a sequential decomposition.
+#' If \code{TRUE} (default), the sequential decomposition starts right and reweights
+#' first the reference group using only the variables entered last into the
+#' \code{formula} sequence. Sequentially, the other variables are added. Otherwise,
+#' the decomposition start left and using all variables entered into
+#' \code{formula} object from the start, sequentially removing variables.
 #' @param method specifies the method fit and predict conditional probabilities
-#' used to derive the reweighting factor. At the moment, `logit` is the only method
-#' available.
-#' @param estimate_statistics boolean: if `TRUE` (default), then distributional
-#' statistics are estimated and the decomposition is performed. If `FALSE`,
-#' the function only returns the propensity weights.
+#' used to derive the reweighting factor. At the moment, \code{"logit"} and \code{"random forests"} are
+#' the only methods available.
+#' @param estimate_statistics boolean: if \code{TRUE} (default), then distributional
+#' statistics are estimated and the decomposition is performed. If \code{FALSE},
+#' the function only returns the fitted inverse propensity weights.
 #' @param statistics a character vector that defines the distributional statistics
-#' for which the decomposition is perforemd. Per default, `c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")`
+#' for which the decomposition is perforemd. Per default,
+#' \code{c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")}
 #' are estimated and decomposed. Also implemented are `c("iq_ratio_p90_p10", "iq_ratio_p90_p50", "iq_ratio_p50_p10")`.
 #' Note: The function calculates the Gini coefficient for the untransformed variable
-#' (i.e., exp(log(Y))), if the logarithm of a variable Y is set as outcome variable
-#' in `formula`).
+#' (i.e., \code{exp(log(Y))}), if the logarithm of a variable Y is set as outcome variable
+#' in \code{formula}).
 #' @param probs a vector of length 1 or more with the probabilities of the quantiles
-#' to be estimated with default `c(1:9)/10`.
+#' to be estimated with default \code{c(1:9)/10}.
 #' @param custom_statistic_function a custom statistic function to pass as argument.
-#' @param trimming boolean: If `TRUE`, observations with dominant reweighting factor values are trimmend according to rule of Huber, Lechner, and Wunsch (2014). Per default, trimming is set to `FALSE`.
-#' @param trimming_threshold numeric: threshold defining the maximal accepted relative weight of the reweighting factor value of a single observation. If `NULL`, the threshold is set to `sqrt(N)/N`, where N is the number of observations in the reference group.
-#' @param return_model boolean: If `TRUE` (default), the object(s) of the model fit(s)
-#' used to predict the conditional probabilities for the reweighting factor(s) are returned.
-#' @param bootstrap boolean: If `FALSE`, then the estimation is not boostrapped and no
-#' standard errors are calculated.
-#' @param bootstrap_iterations positive integer indicating the number of bootstrap
-#'  iterations to execute. Only required if \code{bootstrap = TRUE}.
-#' @param bootstrap_robust boolean: if `FALSE` (default), then bootstrapped standard
+#' @param trimming boolean: If \code{TRUE}, observations with dominant reweighting factor
+#' values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
+#' default, trimming is set to \code{FALSE}.
+#' @param trimming_threshold numeric: threshold defining the maximal accepted
+#' relative weight of the reweighting factor value (i.e., inverse probability weight)
+#' of a single observation. If \code{NULL}, the threshold is set to \eqn{sqrt(N)/N},
+#' where \eqn{N} is the number of observations in the reference group.
+#' @param return_model boolean: If \code{TRUE} (default), the object(s) of the model
+#' fit(s) used to predict the conditional probabilities for the reweighting factor(s)
+#' are returned.
+#' @param bootstrap boolean: If \code{FALSE} (default), then the estimation is not boostrapped
+#' and no standard errors are calculated.
+#' @param bootstrap_iterations positive integer with default \code{100} indicating the
+#' number of bootstrap iterations to be executed.
+#' @param bootstrap_robust boolean: if \code{FALSE} (default), then bootstrapped standard
 #' errores are estimated as the standard deviations of the bootstrapp estimates.
 #' Otherwise, the function uses the bootstrap interquartile range rescaled by the
 #' interquantile range of the standard distribution to estimate standard errors.
-#' @param cores positive integer indicating the number of cores to use when
-#' computing bootstrap standard errors. Only required if \code{bootstrap = TRUE}.
+#' @param cores positive integer with default \code{1} indicating the number of cores
+#' to use when computing bootstrap standard errors.
 #' @param ... other parameters passed to the function estimating the conditional probabilities.
 #'
 #' @details
-#' The observed difference to be decomposed equals the value of the
-#' distributioal statistic of `group` 0 substracted from the value of the same
-#' statistic of `group` 1.
+#' The observed difference to be decomposed equals the difference between the values
+#' of the distributional statistic of \code{group} 1 and \code{group} 0, respectively:
 #'
-#' If `reference_0=TRUE`, then group 0 is the reference group and its observations
+#' \deqn{\DeltaO = \nu1 - \nu0,}
+#'
+#' where \eqn{\nut = \nu(F_t)} denotes the statistics of the outcome distribution
+#' \eqn{F_t} of group \eqn{t}. Group 0 is identified by the lower ranked value
+#' of the \code{group} variable.
+#'
+#' If \code{reference_0=TRUE}, then group 0 is the reference group and its observations
 #' are reweighted such that they match the covariates distribution of group 1, the
-#' counterfacutal group. Group 0 is identified by the lower ranked value of the
-#' `group` variable. The composition effect is evaluated using the structure of
-#' the reference group. The wage structure effect will be evaluated using the
-#' covariates' distribution of the counterfactual group.
+#' comparison group. The counterfactual outcome distribution corresponds to
 #'
-#' The covariates entered into `formula` will be used to estimate the reweighting
-#' factors, i.e. the propensities of belonging to one of the two groups.
-#' `formula` also allows to specify interaction terms in the conditional
-#' probability models.
+#' \deqn{F_C(y) = \int F_0(y|x)dF_1(x),}
 #'
-#' If you are interested in an aggregate decomposition, then all covariates have
-#' to be entered at once, e.g. `Y ~ X1 + X2 + X3`.
+#' combining the covariates distribution \eqn{F_1(x)} of group 1 with
+#' the conditional outcome distribution \eqn{F_0(y|x)} of group 0.
 #'
-#' If you are interested in a sequential decomposition, the the decomposition sequence
-#' has to be distinguished by the `|` operator. For instance, `Y ~ X1 | X2 + X3`
-#' would decompose the aggregate composition effect into the contribution of X1
-#' and of the remaining two covariates, respectively. The function sequentially
-#' collapses the multiple parts of the `formula` object. For instance, if
-#' `reweight_marginals=TRUE` (see below), then it estimtates in a first step
-#' the reweighting factor based on `X2 + X3` and then in a second step the one
-#' based on `X1 + X2 + X3`.
+#' The distributional statistic of the counterfactual distribution,
+#' \eqn{\nuC = \nu(F_C)}, allows to decompose the observed difference into
+#' a (wage) structure effect (\eqn{\DeltaS = \nu1 - \nuC}) and a
+#' composition effect (\eqn{\DeltaC = \nuC - \nu0}).
 #'
-#' You can also specify the detailed models in every part of `formula`. This is
-#' useful if you want to estimate in every step a fully saturated model, e.g.
-#' `Y ~ X1*X2*X3 | X2*X3`.
+#' If \code{reference_0=FALSE}, then the counterfactual is derived by combining
+#' the covariates distribution of group 0 with the conditional outcome
+#' distribution of group 1, the composition effect becomes
+#' \eqn{\DeltaC = \nu1 - \nuC} and the structure effect
+#' \eqn{\DeltaS = \nuC - \nu0}, respectively.
 #'
-#' Sequential decompositions are path-dependent. The results depend on the sequence
-#' the covariates enter the decomposition. Even for the same sequence, a sequential
-#' decomposition yields different results when we evaluate the contribution of
-#' a covariate entered first into the sequence using the reference group's
-#' composition of covariates  entered last into the sequence or when we evaluate
-#' it using the counterfactual's composition.
+#' The counterfactual distribution is derived by reweighting the reference
+#' group. With \code{reference_0=TRUE}, we have
 #'
-#' If `reweight_marginals=TRUE`, we evaluate the contribution of covariates
-#' entered first into the sequence using the composition of covariates entered
-#' last from the counterfactual group. We first reweight the marginal distribution
-#' of the last covariate or the joint distribution of the last covariates, respectively.
-#' For instance, if we have `Y ~ X1 | X2 + X3`, then we would evaluate the contribution
-#' of X1 given X2 and X3 by using the composition of X2 and X3 from the reference group.
-#' We would first reweight the reference group such that its distribution of covariates
-#' X2 and X3 matches the one of the counterfactual group. Thus, we use the marginal
-#' distribution of X2 and X3 of the counterfactual group but the conditional distribution
-#' of X1 given X2 and X3 as well as the (wage) structure of the reference group to evaluated
-#' the first composition effect.
+#' \deqn{F_C(y) = \int F_0(y|x)\Psi(x)dF_0(x),}
 #'
-#' If `reweight_marginals=FALSE`, we evaluate the contribution of covariates
-#' entered first into the sequence using the composition of covariates entered
-#' last from the reference group. We first reweight the conditional
-#' distribution of the first covariate or the joint distribution of the first
-#' covariates, respectively, in the sequence. For  instance, if we have
-#' `Y ~ X1 | X2 + X3`, then the reference group would be first reweighted
-#' such that its conditional distribution of X1 given covariates X2 and X3
-#'  matches the one of the counterfacutal group. Thus, we use the conditional
-#' distribution of X1 given X2 and X3 of the counterfactual group but the
-#' joint distribution of X2 and X3 as well as the (wage) structure of the
-#' reference group to evaluate the first composition effect.
+#' where \eqn{\Psi(x)} is the reweighting factor, i.e. the inverse probabilities
+#' of belonging to the comparison group.
 #'
-#' `method="logit"` uses a logit model to estimate the conditional probabilities
-#' used to derive the reweighting factors. You can specify interaction terms
-#' within the `formula` object.
+#' The covariates are defined in \code{formula}. The reweighting factors is
+#' estimated on the pooled sample with observations from both groups. \code{method = "logit"}
+#' uses a logit model to fit the conditional probabilities. \code{method = "random forests"}
+#' uses the \strong{Ranger} implementation of the random forests classifier.
 #'
-#' Per default, the function decomposes the between-group differences for
-#' quantiles, the mean, the variance, the Gini coefficient and the interquantile
-#' range between the 9th and the 1st decile, the 9th decile and the median, and
-#' the median and the first decile, respectively. Implemented are also the
-#' interquantile ratios for between the same quantiles.
+#' The counterfactual statistics are then estimated with the observed data of
+#' the reference group and the fitted reweighting factors.
 #'
-#' The quantiles can be specified by `probs` that sets the corresponding
+#' \code{formula} allows to specify interaction terms in the conditional
+#' probability models. If you are interested in an aggregate decomposition,
+#' then all covariates have to be entered at once, e.g. \code{Y ~ X + Z}.
+#'
+#' The procedure allows for sequential decomposition of the composition effect.
+#' In this case more than one reweighting factor based on different sets of
+#' covariates are estimated.
+#'
+#' If you are interested in a sequential decomposition, the decomposition
+#' sequence has to be distinguished by the \code{|} operator in the \code{formula}
+#' object. For instance, \code{Y ~ X | Z} would decompose the aggregate composition
+#' effect into the contribution of covariate(s) X and the one of covariate(s) Z,
+#' respectively.
+#'
+#' In this two-fold sequential decomposition, we have the detailed composition
+#' effects
+#'
+#' \deqn{\DeltaC_X = \nu1 - \nuCX}
+#' and
+#' \deqn{\DeltaC_Z = \nuCX - \nu_C}
+#'
+#' which sum up to the aggregate composition effect \eqn{\DeltaC}.
+#'  \eqn{\nuC} is definied as above. It captures the contribution of all
+#' covariates (i.e., X and Z). In contrast, \eqn{\nuCX} corresponds
+#' to the statistic of the counterfactual distribution isolating the contribution
+#' of covariate(s) X in contrast to the one of covariate(s) Z.
+#'
+#' If \code{right_to_left=TRUE}, then the counterfactual is defined as
+#' \deqn{F_CX(y) = \iint F_0(y|x,z)dF_0(x|z)dF_1(z),}
+#'
+#' where \eqn{F_1(x|z)} is the conditional distribution of X given Z of
+#' group 1 and \eqn{F_0(z)} the distribution of Z. Otherwise, we have
+#' \deqn{F_CX(y) = \iint F_{0}(y|x,z)dF_1(x|z)dF_0(z).}
+#'
+#' Note can also specify the detailed models in every part of \code{formula}.
+#' This is useful if you want to estimate in every step a fully saturated model,
+#' e.g. \code{Y ~ X * Z | Z}. If not further specified, the variables are
+#' additively included in the model used to derived the aggregate reweighting
+#' factor.
+#'
+#' The detailed decomposition terms are path-dependent. The results depend on the sequence
+#' the covariates enter the decomposition (e.g, \code{Y ~ X | Z} yields different
+#' detailed decomposition terms than \code{Y ~ Z | X}) . Even for the same sequence,
+#' the results differ depending on the 'direction' of the decomposition. In
+#' the example above using \code{right_to_left=TRUE}, the contribution of Z is evaluated
+#' using the conditional distribution of X given Z from group 0. If we use
+#' \code{right_to_left=FALSE} instead, the same contribution is evaluated using
+#' the conditional distribution from group 1.
+#'
+#' Per default, the distributinal statistics, for which the between group ifferences
+#' are decomposed, are quantiles, the mean, the variance, the Gini coefficient
+#' and the interquantile range between the 9th and the 1st decile, the 9th decile
+#' and the median, and the median and the first decile, respectively. The interquantile
+#' ratios between the same quantiles are implemented, as well.
+#'
+#' The quantiles can be specified by \code{probs} that sets the corresponding
 #' probabilities of the quantiles of interest. For other distributional statistics,
-#' please use `custom_statistic_function`.
+#' please use \code{custom_statistic_function}
 #'
-#' @return an object of class `dfl_deco` containing a data.frame with the
+#' @return an object of class \code{dfl_deco} containing a data.frame with the
 #' decomposition results for the quantiles and for the other distributional
 #' statistics, respectively, a data.frame with the estimated reweighting factor
 #' for every observation, a data.frame with sample quantiles of the reweighting
-#' factors and a list with standard errors for the decomposition terms, the quantiles
-#' of the reweighting factor as well as the bootstrapped Kolmogorov-Smirnov
-#' distribution to construct uniform confidence bands for quantiles.
+#' factors and a list with standard errors for the decomposition terms, the
+#' quantiles of the reweighting factor as well as the bootstrapped
+#' Kolmogorov-Smirnov distribution to construct uniform confidence bands for
+#' quantiles.
 #'
 #' @references
 #' DiNardo, John, Nicole M. Fortin, and Thomas Lemieux. 1996. "Labor Market
 #' Institutions and the Distribution of Wages, 1973-1992: A Semiparametric Approach."
 #' \emph{Econometrica}, 64(5), 1001-1044.
 #'
-#' Firpo, Sergio P., Nicole M. Fortin, and Thomas Lemieux. 2018. “Decomposing Wage
-#' Distributions Using Recentered Influence Function Regressions.”
+#' Firpo, Sergio P., Nicole M. Fortin, and Thomas Lemieux. 2018. "Decomposing Wage
+#' Distributions Using Recentered Influence Function Regressions."
 #' \emph{Econometrics} 6(2), 28.
 #'
 #' Fortin, Nicole M., Thomas Lemieux, and Sergio Firpo. 2011. "Decomposition methods in economics."
-#' In Orley Ashenfelter and David Card, eds., \emph{Handbook of labor economics}. Vol. 4. Elsevier, 1-102.
+#' In Orley Ashenfelter and David Card, eds., \emph{Handbook of Labor Economics}. Vol. 4. Elsevier, 1-102.
 #'
 #' Firpo, Sergio P., and Cristine Pinto. 2016. "Identification and Estimation of
 #' Distributional Impacts of Interventions Using Changes in Inequality Measures."
-#' \emph{Journal of Applied Econometrics}, 31(3), 457– 486.
+#' \emph{Journal of Applied Econometrics}, 31(3), 457-486.
+#'
+#' Huber, Martin, Michael Lechner, and Conny Wunsch. 2013. "The performance of
+#' estimators based on the propensity score." \emph{Journal of Econometrics},
+#' 175(1), 1-21.
 #'
 #' @export
 #'
@@ -252,7 +292,7 @@
 #'                                         data = men8305,
 #'                                         weights = weights,
 #'                                         group = year,
-#'                                         reweight_marginals = FALSE)
+#'                                         right_to_left = FALSE)
 #'
 #' # Summarize results
 #' summary(male_inequality_sequential_2)
@@ -261,7 +301,6 @@
 #' cbind(male_inequality_sequential$decomposition_quantiles$prob,
 #'       male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
 #'       male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`)
-#'
 #'
 #' # Trim observations with weak common support
 #' # (i.e. observations with relative factor weights > \sqrt(N)/N)
@@ -289,7 +328,7 @@ dfl_deco <-  function(formula,
                       group,
                       na.action = na.exclude,
                       reference_0 = TRUE,
-                      reweight_marginals = TRUE,
+                      right_to_left = TRUE,
                       method = "logit",
                       estimate_statistics = TRUE,
                       statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10"),
@@ -337,7 +376,7 @@ dfl_deco <-  function(formula,
   names(data_used)[ncol(data_used)] <- "group_variable"
   check_group_variable <- is.numeric(group_variable)&length(unique(group_variable))==2|is.factor(group_variable)&length(unique(group_variable))==2
   if(check_group_variable==FALSE){
-     stop("Group variable must either be a binary numeric variable or a binary factor variable.")
+    stop("Group variable must either be a binary numeric variable or a binary factor variable.")
   }
 
   if(is.numeric(group_variable)){
@@ -364,6 +403,11 @@ dfl_deco <-  function(formula,
     estimate_statistics <- FALSE
   }
 
+  if(method %in% c("logit", "random forests") == FALSE){
+    stop("Only 'logit' and 'random forests' are available methods to estimate reweighting factors")
+  }
+
+
   results <- dfl_deco_estimate(formula = formula,
                                dep_var = dep_var,
                                data_used = data_used ,
@@ -374,14 +418,14 @@ dfl_deco <-  function(formula,
                                estimate_statistics = estimate_statistics,
                                statistics = statistics,
                                probs = probs,
-                               reweight_marginals = reweight_marginals,
+                               right_to_left = right_to_left,
                                trimming = trimming,
                                trimming_threshold = trimming_threshold,
                                return_model = return_model,
                                ...)
 
 
-   if(bootstrap){
+  if(bootstrap){
     cat("Bootstrapping standard errors...\n")
     if(cores == 1) {
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
@@ -395,7 +439,7 @@ dfl_deco <-  function(formula,
                                                                               estimate_statistics = estimate_statistics,
                                                                               statistics = statistics,
                                                                               probs = probs,
-                                                                              reweight_marginals = reweight_marginals,
+                                                                              right_to_left = right_to_left,
                                                                               trimming = trimming,
                                                                               trimming_threshold = trimming_threshold,
                                                                               return_model = FALSE,
@@ -415,7 +459,7 @@ dfl_deco <-  function(formula,
                                 "get_distributional_statistics",
                                 "estimate_iq_range",
                                 "estimate_iq_ratio"
-                                ))
+                              ))
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
                                                function(x) dfl_deco_bootstrap(formula = formula,
                                                                               dep_var = dep_var,
@@ -427,7 +471,7 @@ dfl_deco <-  function(formula,
                                                                               estimate_statistics = estimate_statistics,
                                                                               statistics = statistics,
                                                                               probs = probs,
-                                                                              reweight_marginals = reweight_marginals,
+                                                                              right_to_left = right_to_left,
                                                                               trimming = trimming,
                                                                               trimming_threshold = trimming_threshold,
                                                                               return_model = FALSE,
@@ -441,12 +485,12 @@ dfl_deco <-  function(formula,
       bootstrapped_quantiles$iteration <- rep(1:bootstrap_iterations, each=length(probs))
 
       bs_se_deco_quantiles <-  stats::reshape(bootstrapped_quantiles,
-                                   idvar = c("probs","iteration"),
-                                   times = setdiff(names( bootstrapped_quantiles),c("probs","iteration")),
-                                   timevar="effect",
-                                   varying = list(setdiff(names( bootstrapped_quantiles),c("probs","iteration"))),
-                                   direction = "long",
-                                   v.names = "value")
+                                              idvar = c("probs","iteration"),
+                                              times = setdiff(names( bootstrapped_quantiles),c("probs","iteration")),
+                                              timevar="effect",
+                                              varying = list(setdiff(names( bootstrapped_quantiles),c("probs","iteration"))),
+                                              direction = "long",
+                                              v.names = "value")
 
       bs_se_deco_quantiles <- lapply(split(bs_se_deco_quantiles, bs_se_deco_quantiles[,c("probs","effect")]),
                                      function(x) data.frame(probs=x$probs[1],
@@ -454,7 +498,7 @@ dfl_deco <-  function(formula,
                                                             se=ifelse(bootstrap_robust,
                                                                       (quantile(x$value, 0.75) - quantile(x$value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
                                                                       sqrt(var(x$value))))
-                                     )
+      )
 
       bs_se_deco_quantiles <- do.call("rbind",  bs_se_deco_quantiles)
       bs_se_deco_quantiles <- stats::reshape(bs_se_deco_quantiles,
@@ -467,12 +511,12 @@ dfl_deco <-  function(formula,
       bs_se_deco_quantiles <- bs_se_deco_quantiles[, names(results$decomposition_quantiles)]
 
       bs_kolmogorov_smirnov_stat  <-  stats::reshape(bootstrapped_quantiles,
-                                       idvar = c("probs","iteration"),
-                                       times = setdiff(names(bootstrapped_quantiles),c("probs","iteration")),
-                                       timevar="effect",
-                                       varying = list(setdiff(names(bootstrapped_quantiles),c("probs","iteration"))),
-                                       direction = "long",
-                                       v.names = "value")
+                                                     idvar = c("probs","iteration"),
+                                                     times = setdiff(names(bootstrapped_quantiles),c("probs","iteration")),
+                                                     timevar="effect",
+                                                     varying = list(setdiff(names(bootstrapped_quantiles),c("probs","iteration"))),
+                                                     direction = "long",
+                                                     v.names = "value")
 
       bs_kolmogorov_smirnov_stat <- lapply(split(bs_kolmogorov_smirnov_stat, bs_kolmogorov_smirnov_stat[, c("probs","effect")]),
                                            function(x) data.frame(probs=x$probs[1],
@@ -482,7 +526,7 @@ dfl_deco <-  function(formula,
                                                                   se=ifelse(bootstrap_robust,
                                                                             (quantile(x$value, 0.75) - quantile(x$value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
                                                                             sqrt(var(x$value)))
-                                                                  )
+                                           )
       )
       bs_kolmogorov_smirnov_stat <- do.call("rbind",  bs_kolmogorov_smirnov_stat)
       bs_kolmogorov_smirnov_stat$value_over_se <- bs_kolmogorov_smirnov_stat$value/bs_kolmogorov_smirnov_stat$se
@@ -490,7 +534,7 @@ dfl_deco <-  function(formula,
                                            function(x) data.frame(effect=x$effect[1],
                                                                   iteration=x$iteration[1],
                                                                   kms_t_value = max(x$value_over_se)
-                                                                  )
+                                           )
       )
 
 
@@ -505,28 +549,28 @@ dfl_deco <-  function(formula,
       bootstrapped_other_statistics$iteration <- rep(1:bootstrap_iterations, each=length(unique(bootstrapped_other_statistics$statistic)))
 
       bs_se_deco_other_statistics <- stats::reshape(bootstrapped_other_statistics,
-                                       idvar = c("statistic","iteration"),
-                                       ids=unique(bootstrapped_other_statistics$statistic),
-                                       times = setdiff(names(bootstrapped_other_statistics),c("statistic","iteration")),
-                                       timevar="effect",
-                                       varying = list(setdiff(names(bootstrapped_other_statistics),c("statistic","iteration"))),
-                                       direction = "long",
-                                       v.names = "value")
+                                                    idvar = c("statistic","iteration"),
+                                                    ids=unique(bootstrapped_other_statistics$statistic),
+                                                    times = setdiff(names(bootstrapped_other_statistics),c("statistic","iteration")),
+                                                    timevar="effect",
+                                                    varying = list(setdiff(names(bootstrapped_other_statistics),c("statistic","iteration"))),
+                                                    direction = "long",
+                                                    v.names = "value")
 
-     bs_se_deco_other_statistics <- lapply(split(bs_se_deco_other_statistics, bs_se_deco_other_statistics[,c("statistic","effect")]),
-                                     function(x) data.frame(statistic=x$statistic[1],
-                                                            effect=x$effect[1],
-                                                            se=ifelse(bootstrap_robust,
-                                                                      (quantile(x$value, 0.75) - quantile(x$value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
-                                                                      sqrt(var(x$value))))
+      bs_se_deco_other_statistics <- lapply(split(bs_se_deco_other_statistics, bs_se_deco_other_statistics[,c("statistic","effect")]),
+                                            function(x) data.frame(statistic=x$statistic[1],
+                                                                   effect=x$effect[1],
+                                                                   se=ifelse(bootstrap_robust,
+                                                                             (quantile(x$value, 0.75) - quantile(x$value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
+                                                                             sqrt(var(x$value))))
       )
 
       bs_se_deco_other_statistics <- do.call("rbind",  bs_se_deco_other_statistics)
 
       bs_se_deco_other_statistics <- stats::reshape(bs_se_deco_other_statistics,
-                                      idvar = c("statistic"),
-                                      timevar="effect",
-                                      direction = "wide")
+                                                    idvar = c("statistic"),
+                                                    timevar="effect",
+                                                    direction = "wide")
       names(bs_se_deco_other_statistics) <- gsub("se[.]","",names( bs_se_deco_other_statistics ))
       bs_se_deco_other_statistics <- as.data.frame(bs_se_deco_other_statistics[match(results$decomposition_other_statistics$statistic,
                                                                                      bs_se_deco_other_statistics$statistic),
@@ -552,7 +596,7 @@ dfl_deco <-  function(formula,
                                                              values_from = "se")
     bs_se_quantiles_reweighting_factor <- as.data.frame(bs_se_quantiles_reweighting_factor[, names(results$quantiles_reweighting_factor)])
     bs_se_quantiles_reweighting_factor[which(bs_se_quantiles_reweighting_factor$probs %in% c(0,1)),
-                                      2:ncol(bs_se_quantiles_reweighting_factor)] <- NA
+                                       2:ncol(bs_se_quantiles_reweighting_factor)] <- NA
 
     bootstrap_se <- list(decomposition_quantiles=bs_se_deco_quantiles,
                          decomposition_other_statistics=bs_se_deco_other_statistics,
@@ -592,13 +636,13 @@ dfl_deco_estimate <- function(formula,
                               estimate_statistics,
                               statistics,
                               probs,
-                              reweight_marginals,
+                              right_to_left,
                               trimming,
                               trimming_threshold,
                               return_model,
                               ...){
 
-# Estimate probabilities -------------------------------------------------------
+  # Estimate probabilities -------------------------------------------------------
 
   mod <- group_variable ~ 1
   p1 <- mean(fit_and_predict_probabilities(mod, data_used, weights, method = "logit", return_model = FALSE)[[1]])
@@ -636,14 +680,14 @@ dfl_deco_estimate <- function(formula,
   if(nvar > 1){
     covariate_index <- nvar:1
     for(i in nvar:2){
-       add_vars <- setdiff(covariates_labels[[i]], covariates_labels[[i-1]])
-       add_index <- paste0(paste0("X", covariate_index[i]), "|", paste0(paste0("X",covariate_index[(i-1):1]), collapse = ","))
-       covariates_labels[[i]] <- paste0("Detailed effect ",
-                                        add_index,
-                                        ": ",
-                                        paste0(add_vars, collapse = ", "),
-                                        " | ",
-                                        paste0(covariates_labels[[i-1]], collapse = ", "))
+      add_vars <- setdiff(covariates_labels[[i]], covariates_labels[[i-1]])
+      add_index <- paste0(paste0("X", covariate_index[i]), "|", paste0(paste0("X",covariate_index[(i-1):1]), collapse = ","))
+      covariates_labels[[i]] <- paste0("Detailed effect ",
+                                       add_index,
+                                       ": ",
+                                       paste0(add_vars, collapse = ", "),
+                                       " | ",
+                                       paste0(covariates_labels[[i-1]], collapse = ", "))
     }
     covariates_labels[[1]] <- paste0("Detailed effect X",
                                      nvar,
@@ -656,7 +700,7 @@ dfl_deco_estimate <- function(formula,
   }
 
 
-# Derive reweighting factors ---------------------------------------------------
+  # Derive reweighting factors ---------------------------------------------------
 
   # e.g., in the case of Y ~ X1 + X2 + X3 | X2 + X3 | X3
   # Matrix probs contains nvar+1 columns:
@@ -667,9 +711,9 @@ dfl_deco_estimate <- function(formula,
 
   psi <- NULL
 
-  if(reweight_marginals){
+  if(right_to_left){
     # e.g., in the case of Y ~ X1 + X2 + X3 | X2 + X3 | X3
-    # if reweight_marginals==TRUE,
+    # if right_to_left==TRUE,
     # then the matrix psi has the following columns:
     # first column:  [P(g=1)/P(g=0)]*[P(g=0|X3)/P(g=1|X3)]
     # second column: [P(g=1)/P(g=0)]*[P(g=0|X2,X3)/P(g=1|X2,X3)]
@@ -684,13 +728,13 @@ dfl_deco_estimate <- function(formula,
     #names_decomposition_terms <- nvar:1
     names_decomposition_terms <- paste0("X", nvar)
     if(nvar>1){
-       names_decomposition_terms <- c(names_decomposition_terms,
-                                       sapply((nvar-1):1,
-                                             function(i) paste0(paste0(paste0("X", i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))))
+      names_decomposition_terms <- c(names_decomposition_terms,
+                                     sapply((nvar-1):1,
+                                            function(i) paste0(paste0(paste0("X", i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))))
 
     }
   }else{
-    # if reweight_marginals==FALSE,
+    # if right_to_left==FALSE,
     # then the matrix psi has the following columns:
     # first column  [P(g=1|X2,X3)/P(g=0|X2,X3)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
     # second column [P(g=1|X3)/P(g=0|X3)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
@@ -723,14 +767,14 @@ dfl_deco_estimate <- function(formula,
 
   if(trimming){
 
-   observations_to_be_trimmed <- list()
+    observations_to_be_trimmed <- list()
 
-   for(j in 1:ncol(psi)){
-     observations_to_be_trimmed[[j]] <- select_observations_to_be_trimmed(psi[, j],
-                                                                          group_variable = group_variable,
-                                                                          group = reference_group,
-                                                                          trimming_threshold = trimming_threshold)
-   }
+    for(j in 1:ncol(psi)){
+      observations_to_be_trimmed[[j]] <- select_observations_to_be_trimmed(psi[, j],
+                                                                           group_variable = group_variable,
+                                                                           group = reference_group,
+                                                                           trimming_threshold = trimming_threshold)
+    }
 
     observations_to_be_trimmed <- unique(do.call("c", observations_to_be_trimmed))
     weights[observations_to_be_trimmed] <- 0
@@ -742,26 +786,25 @@ dfl_deco_estimate <- function(formula,
   }
 
 
-# Estimate distributional statistics and perform decomposition -----------------
+  # Estimate distributional statistics and perform decomposition -----------------
   if(estimate_statistics){
 
     log_transformed <- grepl(pattern = "log[(]", strsplit(as.character(formula), split="~")[[2]])
-
     nu1 <- get_distributional_statistics(dep_var,
-                      weights,
-                      group_variable,
-                      group = 1,
-                      statistics = statistics,
-                      probs=probs,
-                      log_transformed = log_transformed)
+                                         weights,
+                                         group_variable,
+                                         group = 1,
+                                         statistics = statistics,
+                                         probs = probs,
+                                         log_transformed = log_transformed)
 
     nu0 <- get_distributional_statistics(dep_var,
-                      weights,
-                      group_variable,
-                      group = 0,
-                      statistics = statistics,
-                      probs = probs,
-                      log_transformed = log_transformed)
+                                         weights,
+                                         group_variable,
+                                         group = 0,
+                                         statistics = statistics,
+                                         probs = probs,
+                                         log_transformed = log_transformed)
 
     #if reference group==0, take inverse of rw factors
 
@@ -770,76 +813,76 @@ dfl_deco_estimate <- function(formula,
     for(i in 1:nvar){
       nuC <- cbind(nuC,
                    get_distributional_statistics(dep_var,
-                              weights*psi[,i],
-                              group_variable,
-                              group=reference_group,
-                              statistics=statistics,
-                              probs=probs,
-                              log_transformed=log_transformed))
+                                                 weights*psi[,i],
+                                                 group_variable,
+                                                 group=reference_group,
+                                                 statistics=statistics,
+                                                 probs=probs,
+                                                 log_transformed=log_transformed))
     }
     nuC <- as.matrix(nuC)
 
 
 
-  # Aggregate decomposition ----------------------------------------------------
-  Delta <- cbind(nu1 - nu0,
-                 nu1 - nuC[, nvar],
-                 nuC[, nvar] - nu0)
-  if(reference_group==1){
-    colnames(Delta) <- c("Observed difference", "Composition effect", "Structure effect")
-  } else {
-    colnames(Delta) <- c("Observed difference", "Structure effect", "Composition effect")
-  }
-
-
-  # Detailed decomposition -----------------------------------------------------
-  if(nvar>1){
+    # Aggregate decomposition ----------------------------------------------------
+    Delta <- cbind(nu1 - nu0,
+                   nu1 - nuC[, nvar],
+                   nuC[, nvar] - nu0)
     if(reference_group==1){
-      Delta <- cbind(Delta,
-                     nu1-nuC[, 1])
-      colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep="")
-      for(i in 2:nvar){
-        Delta <- cbind(Delta, nuC[,i-1]-nuC[,i])
-        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep="")
-      }
-    }else{
-      for(i in nvar:2){
-        Delta <- cbind(Delta, nuC[,i]-nuC[,i-1])
-        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep="")
-      }
-      Delta <- cbind(Delta, nuC[,1]-nu0)
-      colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep="")
+      colnames(Delta) <- c("Observed difference", "Composition effect", "Structure effect")
+    } else {
+      colnames(Delta) <- c("Observed difference", "Structure effect", "Composition effect")
     }
 
-    Delta <- Delta[, c(1:3,
-                       order(colnames(Delta)[-c(1:3)])+3)]
-  }
 
-  Delta <- as.data.frame(Delta)
+    # Detailed decomposition -----------------------------------------------------
+    if(nvar>1){
+      if(reference_group==1){
+        Delta <- cbind(Delta,
+                       nu1-nuC[, 1])
+        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep="")
+        for(i in 2:nvar){
+          Delta <- cbind(Delta, nuC[,i-1]-nuC[,i])
+          colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep="")
+        }
+      }else{
+        for(i in nvar:2){
+          Delta <- cbind(Delta, nuC[,i]-nuC[,i-1])
+          colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep="")
+        }
+        Delta <- cbind(Delta, nuC[,1]-nu0)
+        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep="")
+      }
 
-  # Save quantiles and other statistics in different objects -------------------
+      Delta <- Delta[, c(1:3,
+                         order(colnames(Delta)[-c(1:3)])+3)]
+    }
 
-  if("quantiles" %in% statistics){
-    decomposition_quantiles <- Delta[1:length(probs), ]
-    cn <- names(decomposition_quantiles)
-    decomposition_quantiles$probs <- probs
-    decomposition_quantiles <- decomposition_quantiles[,c("probs", cn)]
-  }else{
-    decomposition_quantiles <- NULL
-  }
-  if("quantiles" %in% statistics & length(statistics) > 1){
-    decomposition_other_statistics <- Delta[(length(probs)+1):nrow(Delta), ]
-  }else if("quantiles" %in% statistics == FALSE){
-    decomposition_other_statistics <- Delta
-  }else{
-    decomposition_other_statistics <- NULL
-  }
+    Delta <- as.data.frame(Delta)
 
-  if(is.null(decomposition_other_statistics)==FALSE){
-    cn <- names(decomposition_other_statistics)
-    decomposition_other_statistics$statistic <- rownames(decomposition_other_statistics)
-    decomposition_other_statistics <- decomposition_other_statistics[,c("statistic", cn)]
-  }
+    # Save quantiles and other statistics in different objects -------------------
+
+    if("quantiles" %in% statistics){
+      decomposition_quantiles <- Delta[1:length(probs), ]
+      cn <- names(decomposition_quantiles)
+      decomposition_quantiles$probs <- probs
+      decomposition_quantiles <- decomposition_quantiles[,c("probs", cn)]
+    }else{
+      decomposition_quantiles <- NULL
+    }
+    if("quantiles" %in% statistics & length(statistics) > 1){
+      decomposition_other_statistics <- Delta[(length(probs)+1):nrow(Delta), ]
+    }else if("quantiles" %in% statistics == FALSE){
+      decomposition_other_statistics <- Delta
+    }else{
+      decomposition_other_statistics <- NULL
+    }
+
+    if(is.null(decomposition_other_statistics)==FALSE){
+      cn <- names(decomposition_other_statistics)
+      decomposition_other_statistics$statistic <- rownames(decomposition_other_statistics)
+      decomposition_other_statistics <- decomposition_other_statistics[,c("statistic", cn)]
+    }
 
 
   }else{
@@ -883,7 +926,7 @@ dfl_deco_bootstrap <- function(formula,
                                estimate_statistics,
                                statistics,
                                probs,
-                               reweight_marginals,
+                               right_to_left,
                                trimming,
                                trimming_threshold,
                                ...){
@@ -894,31 +937,23 @@ dfl_deco_bootstrap <- function(formula,
                                  prob=weights/sum(weights,na.rm=TRUE))
 
   deco_estimates <- dfl_deco_estimate(formula=formula,
-                                          dep_var = dep_var[sampled_observations],
-                                          data_used = data_used[sampled_observations,],
-                                          weights = (weights[sampled_observations]/sum(weights[sampled_observations],na.rm=TRUE))*sum(weights,na.rm=TRUE),
-                                          group_variable=group_variable[sampled_observations],
-                                          reference_group=reference_group,
-                                          estimate_statistics=estimate_statistics,
-                                          statistics = statistics,
-                                          probs = probs,
-                                          reweight_marginals = reweight_marginals,
-                                          trimming = trimming,
-                                          trimming_threshold = trimming_threshold,
-                                          ...)
+                                      dep_var = dep_var[sampled_observations],
+                                      data_used = data_used[sampled_observations,],
+                                      weights = (weights[sampled_observations]/sum(weights[sampled_observations],na.rm=TRUE))*sum(weights,na.rm=TRUE),
+                                      group_variable=group_variable[sampled_observations],
+                                      reference_group=reference_group,
+                                      estimate_statistics=estimate_statistics,
+                                      statistics = statistics,
+                                      probs = probs,
+                                      right_to_left = right_to_left,
+                                      trimming = trimming,
+                                      trimming_threshold = trimming_threshold,
+                                      ...)
 
   deco_estimates$reweighting_factor <- NULL
 
   return(deco_estimates)
 }
-
-
-
-
-
-
-
-
 
 
 #' Predict conditional probabilities
@@ -935,20 +970,37 @@ fit_and_predict_probabilities <- function(formula,
 
   if(method=="logit"){
 
-  data_used$`(weights)` <- weights
-  model_fit <- glm(formula,
-                   data = data_used,
-                   weights = `(weights)`,
-                   family = quasibinomial(link = "logit"),
-                   ...)
+    data_used$`(weights)` <- weights
+    model_fit <- glm(formula,
+                     data = data_used,
+                     weights = `(weights)`,
+                     family = quasibinomial(link = "logit"),
+                     ...)
 
-  fitted_probabilities  <- predict.glm(model_fit,
-                                       newdata=newdata,
-                                       type="response",
-                                       na.action = na.exclude)
+    fitted_probabilities  <- predict.glm(model_fit,
+                                         newdata = newdata,
+                                         type="response",
+                                         na.action = na.exclude)
   }
 
   ### Include here prediction with ranger::ranger!
+  if(method=="random forests"){
+
+    data_used$`(weights)` <- weights
+    model_fit <- ranger::ranger(formula,
+                                data = data_used,
+                                case.weights = data_used$`(weights)`,
+                                classification = TRUE,
+                                probability = TRUE,
+                                ...)
+
+    if(is.null(newdata)){
+      newdata <- data_used
+    }
+    fitted_probabilities  <- ranger:::predict.ranger(model_fit,
+                                                     data = newdata)$predictions[,2]
+  }
+
 
   if(as.logical(return_model) != TRUE){
     model_fit <- NULL
