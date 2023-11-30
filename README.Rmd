@@ -122,65 +122,112 @@ with $Q_{gX}$ being the estimated Quantile in groups $g = A, B$ and $Q^C_AX$ bei
 
 ### Inference
 
-`rifreg` allows to bootstrap standard errors. Analytical standard errors can be nontrivial when the RIF introduces an additional estimation step. In particular, this is the case for quantiles where the density has to be estimated (see [Firpo, Fortin, and Lemieux, 2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)). 
+`ddeco` allows to bootstrap standard errors in both the `ob_deco()` and `dfl_deco()` function. Analytical standard errors can be nontrivial when the RIF introduces an additional estimation step. In particular, this is the case for quantiles where the density has to be estimated (see [Firpo, Fortin, and Lemieux, 2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)). 
 
-Per default, `summary.rifreg` and `plot.rifreg`return heteroscedasticity-consistent standard errors estimated with `sandwich::sandwich()` if the variance is not bootstrapped. Note, however, that these standard errors do not take the variance introduced by the RIF estimation step into account.
 
-## Example
+## Examples
 
-In this basic example, we use a sample of the male wage data from the Current Population Survey from 1983 to 1985 as used in Firpo et al. (2009a). 
+The following examples illustrate the workings of the main decomposition functions in `ddeco`. We use a sample of the National Longitudinal Survey (NLSY) 79 containig wage data from 2000 of workers who were aged 35 to 43 in that year. The data is from O'Neill and O'Neill (2006) and is used as an illustration of the Oxaca-Blinder mean decomposition in Firpo, Fortin, and Lemieuex (2011). The data contains 2655 male and 2654 female observations, respectively.
+
 ```{r}
-library(rifreg)
-data("men8385")
+library(ddeco)
+data("nlys00")
 ```
 
 
-### Unconditional quantile regressions
+### Oaxaca-Blinder Decomposition 
 
-We are interested in the unconditional quantile partial effects (UQPE) of union membership on log hourly wages. We therefore estimate RIF regressions on union status and control for demographic characteristics. The parameter `statistic` specifies quantiles as our distributional statistic of interest, while `probs` defines the probabilities of the quantiles.
+We are interested in the change of mean log hourly wages from 1988-1990 and 2014-2016. The change is decomposed into a composition and wage structure effect. 
+
+The parameter `statistic` specifies quantiles as our distributional statistic of interest, while `probs` defines the probabilities of the quantiles.
 
 ```{r}
-ffl_model <- log(wage) ~ union + nonwhite + married + education + experience
-fit_uqr <- rifreg(ffl_model,
-  data = men8385,
-  weights = weights,
-  statistic = "quantiles",
-  probs = 1:9 / 10
-)
-fit_uqr
+  
+
+  model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
+
+  ob_deco_estimate <- ob_deco(formula = model,
+                                      data = nlys00,
+                                      group = female)
 ```
 
 The `summary` method returns the estimated coefficients and the standard errors. Per default, `summary` returns heteroscedasticity-consistent standard errors estimated if the variance is not bootstrapped.
 ```{r, eval=FALSE}
-summary(fit_uqr)
+summary(ob_deco_estimate)
 ```
 
-`rifreg` comes with a convenient plot function. It illustrates the estimated UQPE across the distribution. The confidence bands are based on the same standard errors as returned by `summary`.
+`ddeco` comes with a convenient plot function. It illustrates the estimated UQPE across the distribution. The confidence bands are based on the same standard errors as returned by `summary`. 
+
+-> DO WE NEED PLOT FUNCTION FOR CLASSIC OB DECO?
 ```{r}
-plot(fit_uqr, varselect = "unionyes")
+plot(ob_deco_estimate, varselect = c("education"))
 ```
 
 
-### Bootstrapping standard errors
+#### Maybe add Reweighting, Weights, and Changing the Reference Group examples
 
+To add reweighting in 
 Setting `bootstrap=TRUE` bootstraps standard errors by resampling from all observations and reestimating both the RIF and the regression in every iteration. We can set number of `bootstrap_iterations` and the number of `cores`.  
 
 ```{r}
-fit_uqr <- rifreg(ffl_model,
-  data = men8385,
-  weights = weights,
-  statistic = "quantiles",
-  bootstrap = TRUE,
-  bootstrap_iterations = 100, 
-  cores = 4,
-  probs = 1:9 / 10
-)
+  model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
 
-plot(fit_uqr,
-  varselect = "unionyes",
-  confidence_interval = 0.95
-)
+  ob_deco_estimate <- ob_deco(formula = model,
+                              data = nlys00,
+                              group = female, 
+                              reweighting = TRUE)
+
+
 ```
+
+
+
+### Reweighted RIF Regression Decomposition
+
+The same function is used to decompose RIF regressions. Setting `rifreg = TRUE` and indicating `rifreg_statistic`, decomposes the gap at the specified statistic. The default is `rifreg_statistic = "quantiles"` and `rifreg_probs = c(1:9)/10`, meaning the gap is decomposed at each decile. 
+
+```{r}
+  model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
+
+  ob_deco_estimate <- ob_deco(formula = model,
+                              data = nlys00,
+                              group = female, 
+                              reweighting = TRUE, 
+                              rifreg = TRUE,
+                              bootstrap = TRUE,
+                              bootstrap_iteration = 10)
+
+
+```
+
+
+
+
+To decompose the the difference in the Gini coefficient of two groups, `rifreg_statistic = "gini"` needs to be indicated accordingly. The RIF functions for the following functions are currently implemented: `"quantiles"`, `"mean"`, `"variance"`, `"gini"`, `"interquantile_range"`, and `"interquantile_ratio"`. However, `ob_deco` also allows to pass a custom RIF function for the decomposition, by setting `rifreg_statistic = "custom"` and passing the custom function to `custom_rif_function`. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ### Other distributional statistics 
@@ -249,6 +296,8 @@ fit_top_10 <- rifreg(ffl_model2,
 
 fit_top_10
 ```
+
+
 
 ## Replication of Firpo, Fortin, and Lemieux (2009a)
 
