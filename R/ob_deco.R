@@ -23,6 +23,23 @@
 #' the group identified by the lower ranked value in `group` -- will be defined
 #' as reference group. The reference group will be reweighted to match the
 #' covariates distribution of the counterfactual sample.
+#' @param rifreg boolean: if `TRUE`, then a RIF regression for the statistic
+#' indicated in `rifreg_statistic` is computed and decomposed.
+#' @param rifreg_statistic string containing the distributional statistic for which to compute the RIF. Can be one of
+#'                  "quantiles", "mean", "variance", "gini", "interquantile_range", "interquantile_ratio", or "custom".
+#'                  Default is "quantiles". If "custom" is selected, a \code{custom_rif_function} needs to be provided.
+#' @param rifreg_probs a vector of length 1 or more with probabilities of quantiles. Each quantile is indicated with a value between 0 and 1.
+#'              Default is \code{c(1:9)/10}. If \code{statistic = "quantiles"}, a single RIF regression for every quantile in \code{probs}
+#'              is estimated. An interquantile ratio (range) is defined by the ratio (difference) between the \code{max(probs)}-quantile and
+#'              the \code{min(probs)}-quantile.
+#' @param custom_rif_function the RIF function to compute the RIF of the custom distributional statistic.
+#'                            Default is NULL. Only needs to be provided if \code{statistic = "custom"}.
+#'                            Every custom_rif_function needs the parameters \code{dep_var}, \code{weights} and \code{probs}.
+#'                            If they are not needed, they must be set to NULL in the function definition (e.g. \code{probs = NULL}).
+#'                            A custom function must return a data frame containing at least a "rif" and "weights" column.
+#'                            See \code{examples} for further details.
+#' @param reweighting boolean: if `TRUE`, then reweighted RIF regressions are computed.
+#' @param reweighting_method
 #' @param normalize_factors boolean: If `TRUE`, then factor variables are normalized as
 #' proposed by Gardeazabal/Ugidos (2004) and results are not dependent on the factor's
 #' reference group. Per default (\code{normalize_factors  = FALSE}), factors are
