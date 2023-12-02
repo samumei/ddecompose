@@ -1,7 +1,7 @@
 
 test_that("dfl_deco() does not throw an error", {
   set.seed(89342395)
-  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+
   model_sequential <- log(wage) ~ union + experience + education | experience + education | education
 
   deco_results  <- dfl_deco(model_sequential,
@@ -16,7 +16,7 @@ test_that("dfl_deco() does not throw an error", {
 
 test_that("dfl_deco() does not return fitted models if required", {
   set.seed(89342395)
-  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+
   model_sequential <- log(wage) ~ union + experience + education | experience + education | education
 
   deco_results  <- dfl_deco(model_sequential,
@@ -30,7 +30,7 @@ test_that("dfl_deco() does not return fitted models if required", {
 
 test_that("bootstrapping dfl_deco() does not throw an error", {
 
-  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+
   flf_model <- log(wage) ~ union + experience + education
 
   set.seed(123)
@@ -55,7 +55,7 @@ test_that("bootstrapping dfl_deco() does not throw an error", {
 
 test_that("dfl_deco_estimate() does not throw an error", {
   set.seed(89342395)
-  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+
   data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
   formula <- Formula::as.Formula(log(wage) ~ union*(education + experience) + education*experience)
   data_used <- model.frame(formula, data_sample, weights = weights, group = year)
@@ -97,7 +97,7 @@ test_that("dfl_deco_estimate() does not throw an error", {
 
 test_that("fit_and_predict_probabilities works properly with ranger random forests estimation", {
   set.seed(89342395)
-  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+
   data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
   formula <- Formula::as.Formula(log(wage) ~ union + education + experience)
   data_used <- model.frame(formula, data_sample, weights = weights, group = year)
@@ -124,7 +124,7 @@ test_that("fit_and_predict_probabilities works properly with ranger random fores
 
 test_that("dfl_deco_estimate() works properly with ranger random forests estimation", {
   set.seed(89342395)
-  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+
   data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
   formula <- Formula::as.Formula(log(wage) ~ union + education + experience)
   data_used <- model.frame(formula, data_sample, weights = weights, group = year)
