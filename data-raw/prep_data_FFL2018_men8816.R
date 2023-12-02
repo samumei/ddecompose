@@ -142,7 +142,6 @@ if (nrow(df_88_90) > 0) {
 }
 
 
-
 ## Assignment for year 14-16
 df_14_16 <- men8816 %>%
   dplyr::filter(year >= 114, year <= 116)
@@ -227,7 +226,7 @@ cpi_month <- read.dta13("data-raw/cpimonth.dta")
 
 ## Merging the CPI data
 
-men8816 <- merge(men8816, cpi_month, by = c("year", "cmonth"))
+men8816 <- merge(men8816, cpi_month, by = c("year", "cmonth"), all = FALSE)
 
 ## Deflating wages
 men8816$lwage1 <- men8816$lwage1 - log(men8816$cpi / men8816$acpi)

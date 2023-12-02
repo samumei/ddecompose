@@ -790,11 +790,12 @@ test_that("ob_deco() replicates Table 2, p. 25-26, in FFL (2018)", {
 
   # load("data/men8816.rda")
 
-  # Create 'wage_var' equal to 'lwage2' where 'lwage2' is less than or equal to 7.4
-  men8816$wage_var <- ifelse(men8816$lwage2 <= 7.4, men8816$lwage2, NA)
+  # # Create 'wage_var' equal to 'lwage2' where 'lwage2' is less than or equal to 7.4
+  # men8816$wage_var <- ifelse(men8816$lwage2 <= 7.4, men8816$lwage2, NA)
+  #
+  # # Create 'wage_gini' as the exponential of 'lwage2' where 'lwage2' is less than or equal to 7.4
+  # men8816$wage_gini <- ifelse(men8816$lwage2 <= 7.4, exp(men8816$lwage2), NA)
 
-  # Create 'wage_gini' as the exponential of 'lwage2' where 'lwage2' is less than or equal to 7.4
-  men8816$wage_gini <- ifelse(men8816$lwage2 <= 7.4, exp(men8816$lwage2), NA)
 
   var_model <- as.formula(paste("wage_var ~ covered + nonwhite + nmarr +
     ed0 + ed1 + ed3 + ed4 + ed5 + ",
@@ -808,11 +809,23 @@ test_that("ob_deco() replicates Table 2, p. 25-26, in FFL (2018)", {
     paste(grep(paste0("^occd(", paste(c(11:60, 80:91), collapse = "|"), ")$"), names(men8816), value = T), collapse = " + "), " + ",
     paste(grep(paste0("^indd(", paste(c(1, 3:14), collapse = "|"), ")$"), names(men8816), value = T), collapse = " + "), " + pub"))
 
-  men8816<- na.omit(men8816)
 
 
-  men_88_90 <- men8816[men8816$year == "88-90", ]
-  men_14_16 <- men8816[men8816$year == "14-16", ]
+#
+#   men_88_90 <- men8816[men8816$year == "88-90", ]
+#   men_88_90<- na.omit(men_88_90)
+#
+#   men_14_16 <- men8816[men8816$year == "14-16", ]
+#   men_14_16<- na.omit(men_14_16)
+browser()
+
+  # men_88_90 <- readstata13::read.dta13("data-raw/ddeco literature/FFL_2018/usmen8890_t2.dta")
+  # men_14_16 <- readstata13::read.dta13("data-raw/ddeco literature/FFL_2018/usmen1416_t2.dta")
+
+  men_88_90 <- men_88_90[complete.cases(men_88_90$wage_var), ]
+  men_14_16 <- men_14_16[complete.cases(men_14_16$wage_var), ]
+
+
 
   rifreg_var_88_90  <- rifreg::rifreg(var_model,
                                 data = men_88_90,
@@ -839,34 +852,35 @@ test_that("ob_deco() replicates Table 2, p. 25-26, in FFL (2018)", {
 
   ### Inequality Measures - Estimated Values
   weighted_variance <- function(dep_var, weights) {
+
     # Ensure weights sum to 1
-    weights <- weights / sum(weights)
+    weights <- weights / sum(weights, na.rm = TRUE)
 
     # Mean of the data
-    weighted_mean <- sum(weights * dep_var)
+    weighted_mean <- sum(weights * dep_var, na.rm = TRUE)
 
     # Weighted variance
-    sum(weights * (dep_var - weighted_mean)^2)
+    sum(weights * (dep_var - weighted_mean)^2, na.rm = TRUE)
   }
 
   var_88_90 <- weighted_variance(dep_var = men_88_90$wage_var, weights = men_88_90$eweight)
-  testthat::expect_equal(round(as.numeric(100*var_88_90), 3), 100*0.341, tolerance = 0.003)
+  testthat::expect_equal(round(as.numeric(var_88_90), 3), 0.341)
 
 
   ### Boolean and Education
-  testthat::expect_equal(round(as.numeric(100*rifreg_var_88_90$estimates[1:9,1]), 3),
-                         100*c(0.203, -0.075, -0.002, 0.039, 0.074, 0.104, 0.028, 0.121, 0.301), tolerance = 0.011)
+  testthat::expect_equal(round(as.numeric(rifreg_var_88_90$estimates[1:9,1]), 3),
+                         c(0.203, -0.075, -0.002, 0.039, 0.074, 0.104, 0.028, 0.121, 0.301))
   ### Experience
-  testthat::expect_equal(round(as.numeric(100*rifreg_var_88_90$estimates[10:17,1]), 3),
-                         100*c(0.047, -0.098, -0.078, -0.050, 0.023, 0.022, 0.015, -0.031), tolerance = 0.07)
+  testthat::expect_equal(round(as.numeric(rifreg_var_88_90$estimates[10:17,1]), 3),
+                         c(0.047, -0.098, -0.078, -0.050, 0.023, 0.022, 0.015, -0.031))
   ### Occupations
-  testthat::expect_equal(round(as.numeric(100*rifreg_var_88_90$estimates[18:33,1]), 3),
-                         100*c(0.235, 0.090, 0.107, 0.081, -0.001, 0.524, -0.020, 0.013,
-                           0.088, 0.208, 0.525, 0.188, 0.226, 0.004, 0.119, 0.015), tolerance = 0.05)
+  testthat::expect_equal(round(as.numeric(rifreg_var_88_90$estimates[18:33,1]), 3),
+                         c(0.235, 0.090, 0.107, 0.081, -0.001, 0.524, -0.020, 0.013,
+                           0.088, 0.208, 0.525, 0.188, 0.226, 0.004, 0.119, 0.015))
   ### Industries
-  testthat::expect_equal(round(as.numeric(100*rifreg_var_88_90$estimates[34:47,1]), 3),
-                         100*c(0.079, 0.018, -0.037, -0.012, 0.060, 0.013, -0.001, 0.065,
-                           0.048, 0.018, -0.008, 0.136, -0.038, -0.058), tolerance = 0.08)
+  testthat::expect_equal(round(as.numeric(rifreg_var_88_90$estimates[34:47,1]), 3),
+                         c(0.079, 0.018, -0.037, -0.012, 0.060, 0.013, -0.001, 0.065,
+                           0.048, 0.018, -0.008, 0.136, -0.038, -0.058))
 
   ## Test year 14-16
 
@@ -876,44 +890,44 @@ test_that("ob_deco() replicates Table 2, p. 25-26, in FFL (2018)", {
 
 
   ### Boolean and Education
-  testthat::expect_equal(round(as.numeric(100*rifreg_var_14_16$estimates[1:9,1]), 3),
-                         100*c(0.205, -0.040, 0.005, 0.001, 0.073, 0.129, -0.001, 0.166, 0.401), tolerance = 0.03)
+  testthat::expect_equal(round(as.numeric(rifreg_var_14_16$estimates[1:9,1]), 3),
+                         c(0.205, -0.040, 0.005, 0.001, 0.073, 0.129, -0.001, 0.166, 0.401))
   ### Experience
-  testthat::expect_equal(round(as.numeric(100*rifreg_var_14_16$estimates[10:17,1]), 3),
-                         100*c(0.027, -0.093, -0.070, -0.006, 0.024, 0.017, 0.022, -0.012), tolerance = 0.1)
+  testthat::expect_equal(round(as.numeric(rifreg_var_14_16$estimates[10:17,1]), 3),
+                         c(0.027, -0.093, -0.070, -0.006, 0.024, 0.017, 0.022, -0.012))
   ### Occupations
-  testthat::expect_equal(round(as.numeric(100*rifreg_var_14_16$estimates[18:33,1]), 3),
-                         100*c(0.415, 0.200, 0.202, 0.134, 0.065, 0.637, 0.115, 0.069,
-                           0.177, 0.197, 0.409, 0.208, 0.222, 0.020, 0.145, 0.042), tolerance = 0.06)
+  testthat::expect_equal(round(as.numeric(rifreg_var_14_16$estimates[18:33,1]), 3),
+                         c(0.415, 0.200, 0.202, 0.134, 0.065, 0.637, 0.115, 0.069,
+                           0.177, 0.197, 0.409, 0.208, 0.222, 0.020, 0.145, 0.042))
   ### Industries
-  testthat::expect_equal(round(as.numeric(100*rifreg_var_14_16$estimates[34:47,1]), 3),
-                         100*c(0.013, 0.014, -0.053, -0.027, 0.016, -0.029, 0.055, 0.064,
-                           0.071, -0.042, -0.064, 0.054, -0.071, -0.055), tolerance = 0.13)
+  testthat::expect_equal(round(as.numeric(rifreg_var_14_16$estimates[34:47,1]), 3),
+                         c(0.013, 0.014, -0.053, -0.027, 0.016, -0.029, 0.055, 0.064,
+                           0.071, -0.042, -0.064, 0.054, -0.071, -0.055))
 
 
 
-
+browser()
   # Gini
   ## Test year 88-90
 
   ### Inequality Measures - Estimated Values
   gini_88_90 <- rifreg::compute_gini(dep_var = men_88_90$wage_gini, weights = men_88_90$eweight)
-  testthat::expect_equal(round(as.numeric(100*gini_88_90), 3), 100*0.330, tolerance = 0.004)
+  testthat::expect_equal(round(as.numeric(gini_88_90), 3), 0.330, tolerance = 0.004)
 
   ### Boolean and Education
-  testthat::expect_equal(round(as.numeric(100*rifreg_gini_88_90$estimates[1:9,1]), 3),
-                         100*c(0.261, -0.067, 0.006, 0.022, 0.051, 0.048, 0.006, 0.053, 0.157), tolerance = 0.04)
+  testthat::expect_equal(round(as.numeric(rifreg_gini_88_90$estimates[1:9,1]), 3),
+                         c(0.261, -0.067, 0.006, 0.022, 0.051, 0.048, 0.006, 0.053, 0.157))
   ### Experience
-  testthat::expect_equal(round(as.numeric(100*rifreg_gini_88_90$estimates[10:17,1]), 3),
-                         100*c(0.031, -0.036, -0.035, -0.026, 0.012, 0.008, 0.008, -0.015), tolerance = 0.3)
+  testthat::expect_equal(round(as.numeric(rifreg_gini_88_90$estimates[10:17,1]), 3),
+                         c(0.031, -0.036, -0.035, -0.026, 0.012, 0.008, 0.008, -0.015))
   ### Occupations
-  testthat::expect_equal(round(as.numeric(100*rifreg_gini_88_90$estimates[18:33,1]), 3),
-                         100*c(0.132, 0.027, 0.013, 0.025, -0.012, 0.337, -0.035, 0.017,
-                           0.043, 0.152, 0.429, 0.101, 0.114, 0.011, 0.079, 0.030), tolerance = 0.11)
+  testthat::expect_equal(round(as.numeric(rifreg_gini_88_90$estimates[18:33,1]), 3),
+                         c(0.132, 0.027, 0.013, 0.025, -0.012, 0.337, -0.035, 0.017,
+                           0.043, 0.152, 0.429, 0.101, 0.114, 0.011, 0.079, 0.030))
   ### Industries
-  testthat::expect_equal(round(as.numeric(100*rifreg_gini_88_90$estimates[34:47,1]), 3),
-                         100*c(0.036, -0.001, -0.011, 0.001, 0.038, -0.005, -0.010, 0.052,
-                           0.018, 0.019, -0.001, 0.051, -0.036, -0.030), tolerance = 0.24)
+  testthat::expect_equal(round(as.numeric(rifreg_gini_88_90$estimates[34:47,1]), 3),
+                         c(0.036, -0.001, -0.011, 0.001, 0.038, -0.005, -0.010, 0.052,
+                           0.018, 0.019, -0.001, 0.051, -0.030, -0.036))
 
 
   ## Test year 14-16
@@ -923,20 +937,20 @@ test_that("ob_deco() replicates Table 2, p. 25-26, in FFL (2018)", {
   testthat::expect_equal(round(as.numeric(gini_14_16), 3), 0.396)
 
   ### Boolean and Education
-  testthat::expect_equal(round(as.numeric(100*rifreg_gini_14_16$estimates[1:9,1]), 3),
-                         100*c(0.290, -0.039, 0.005, 0.008, 0.057, 0.063, -0.006, 0.061, 0.177), tolerance = 0.06)
+  testthat::expect_equal(round(as.numeric(rifreg_gini_14_16$estimates[1:9,1]), 3),
+                         c(0.290, -0.039, 0.005, 0.008, 0.057, 0.063, -0.006, 0.061, 0.177))
 
   ### Experience
-  testthat::expect_equal(round(as.numeric(100*rifreg_gini_14_16$estimates[10:17,1]), 3),
-                         100*c(0.021, -0.030, -0.028, 0.003, 0.014, 0.007, 0.008, -0.005), tolerance = 0.26)
+  testthat::expect_equal(round(as.numeric(rifreg_gini_14_16$estimates[10:17,1]), 3),
+                         c(0.021, -0.030, -0.028, 0.003, 0.014, 0.007, 0.008, -0.005))
   ### Occupations
-  testthat::expect_equal(round(as.numeric(100*rifreg_gini_14_16$estimates[18:33,1]), 3),
-                         100*c(0.203, 0.080, 0.054, 0.068, 0.012, 0.363, 0.011, 0.044,
-                           0.084, 0.105, 0.219, 0.107, 0.127, 0.028, 0.094, 0.040), tolerance = 0.2)
+  testthat::expect_equal(round(as.numeric(rifreg_gini_14_16$estimates[18:33,1]), 3),
+                         c(0.203, 0.080, 0.054, 0.068, 0.012, 0.363, 0.011, 0.044,
+                           0.084, 0.105, 0.219, 0.107, 0.127, 0.028, 0.094, 0.040))
   ### Industries
-  testthat::expect_equal(round(as.numeric(100*rifreg_gini_14_16$estimates[34:47,1]), 3),
-                         100*c(-0.001, 0.002, -0.019, -0.006, 0.023, -0.019, 0.041, 0.053,
-                           0.035, -0.014, -0.018, 0.023, -0.029, -0.048), tolerance = 0.7)
+  testthat::expect_equal(round(as.numeric(rifreg_gini_14_16$estimates[34:47,1]), 3),
+                         c(-0.001, 0.002, -0.019, -0.006, 0.023, -0.019, 0.041, 0.053,
+                           0.035, -0.014, -0.018, 0.023, -0.029, -0.048))
 
 })
 
@@ -1313,7 +1327,7 @@ test_that("ob_deco() replicates Table 3, p. 29, in FFL (2018)", {
 # })
 
 
-<<<<<<< Updated upstream
+
 test_that("Test GU normalization", {
 
 data("men8305")
@@ -1333,6 +1347,7 @@ union_share0 <- mean(as.numeric(data0$union)) - 1
 union_share1 <- mean(as.numeric(data1$union)) - 1
 
 mC <- m1_union * (union_share0) + m1_non_union * (1- union_share0)
-=======
->>>>>>> Stashed changes
+
+})
+
 
