@@ -1,7 +1,7 @@
 
 test_that("dfl_deco() does not throw an error", {
   set.seed(89342395)
-  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+
   model_sequential <- log(wage) ~ union + experience + education | experience + education | education
 
   deco_results  <- dfl_deco(model_sequential,
@@ -9,14 +9,14 @@ test_that("dfl_deco() does not throw an error", {
                             weights = weights,
                             group = year)
 
- testthat::expect_error(deco_results, NA)
+  testthat::expect_error(deco_results, NA)
 })
 
 
 
 test_that("dfl_deco() does not return fitted models if required", {
   set.seed(89342395)
-  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+
   model_sequential <- log(wage) ~ union + experience + education | experience + education | education
 
   deco_results  <- dfl_deco(model_sequential,
@@ -30,32 +30,32 @@ test_that("dfl_deco() does not return fitted models if required", {
 
 test_that("bootstrapping dfl_deco() does not throw an error", {
 
-  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+
   flf_model <- log(wage) ~ union + experience + education
 
   set.seed(123)
   deco_results_boot_single_core  <- dfl_deco(flf_model,
-                                 data = men8305[1:1000, ],
-                                 weights = weights,
-                                 group = year,
-                                 bootstrap = TRUE,
-                                 bootstrap_iterations = 10,
-                                 cores = 1)
+                                             data = men8305[1:1000, ],
+                                             weights = weights,
+                                             group = year,
+                                             bootstrap = TRUE,
+                                             bootstrap_iterations = 10,
+                                             cores = 1)
   set.seed(123)
   deco_results_boot_parallel  <- dfl_deco(flf_model,
-                                 data = men8305[1:1000, ],
-                                 weights = weights,
-                                 group = year,
-                                 bootstrap = TRUE,
-                                 bootstrap_iterations = 10,
-                                 cores = 2)
+                                          data = men8305[1:1000, ],
+                                          weights = weights,
+                                          group = year,
+                                          bootstrap = TRUE,
+                                          bootstrap_iterations = 10,
+                                          cores = 2)
 
   testthat::expect_error(deco_results_boot_single_core, NA)
 })
 
 test_that("dfl_deco_estimate() does not throw an error", {
   set.seed(89342395)
-  men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+
   data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
   formula <- Formula::as.Formula(log(wage) ~ union*(education + experience) + education*experience)
   data_used <- model.frame(formula, data_sample, weights = weights, group = year)
@@ -73,23 +73,92 @@ test_that("dfl_deco_estimate() does not throw an error", {
   probs = c(1:9)/10
   trimming = TRUE
   trimming_threshold = 0.00005
-  reweight_marginals = TRUE
+  right_to_left = TRUE
   method = "logit"
 
   deco_results <- dfl_deco_estimate(formula = formula,
-                    dep_var = dep_var,
-                    data_used = data_used ,
-                    weights = weights,
-                    group_variable = group_variable,
-                    reference_group = reference_group,
-                    method=method,
-                    estimate_statistics = TRUE,
-                    statistics = statistics,
-                    probs = probs,
-                    reweight_marginals = reweight_marginals,
-                    trimming = trimming,
-                    trimming_threshold = trimming_threshold,
-                    return_model = TRUE)
+                                    dep_var = dep_var,
+                                    data_used = data_used ,
+                                    weights = weights,
+                                    group_variable = group_variable,
+                                    reference_group = reference_group,
+                                    method=method,
+                                    estimate_statistics = TRUE,
+                                    statistics = statistics,
+                                    probs = probs,
+                                    right_to_left = right_to_left,
+                                    trimming = trimming,
+                                    trimming_threshold = trimming_threshold,
+                                    return_model = TRUE)
+
+  testthat::expect_error(deco_results, NA)
+
+})
+
+test_that("fit_and_predict_probabilities works properly with ranger random forests estimation", {
+  set.seed(89342395)
+
+  data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
+  formula <- Formula::as.Formula(log(wage) ~ union + education + experience)
+  data_used <- model.frame(formula, data_sample, weights = weights, group = year)
+  dep_var <- model.response(data_used, "numeric")
+
+  weights <- model.weights(data_used)
+  group_variable_name <- "year"
+  group_variable <- data_used[, ncol(data_used)]
+  names(data_used)[ncol(data_used)] <- "group_variable"
+
+  method = "random forests"
+  formula_new <- group_variable ~ union + education + experience
+
+  fits <- fit_and_predict_probabilities(formula_new,
+                                        data_used,
+                                        weights,
+                                        method = method,
+                                        return_model = TRUE,
+                                        newdata = NULL)
+
+  testthat::expect_error(fits, NA)
+
+})
+
+test_that("dfl_deco_estimate() works properly with ranger random forests estimation", {
+  set.seed(89342395)
+
+  data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
+  formula <- Formula::as.Formula(log(wage) ~ union + education + experience)
+  data_used <- model.frame(formula, data_sample, weights = weights, group = year)
+  dep_var <- model.response(data_used, "numeric")
+
+  weights <- model.weights(data_used)
+  group_variable_name <- "year"
+  group_variable <- data_used[, ncol(data_used)]
+  names(data_used)[ncol(data_used)] <- "group_variable"
+
+  reference_0 <- TRUE
+  reference_group <- ifelse(reference_0, 0, 1)
+
+  statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")
+  probs = c(1:9)/10
+  trimming = FALSE
+  trimming_threshold = NULL
+  right_to_left = TRUE
+  method = "random forests"
+
+  deco_results <- dfl_deco_estimate(formula = formula,
+                                    dep_var = dep_var,
+                                    data_used = data_used ,
+                                    weights = weights,
+                                    group_variable = group_variable,
+                                    reference_group = reference_group,
+                                    method=method,
+                                    estimate_statistics = TRUE,
+                                    statistics = statistics,
+                                    probs = probs,
+                                    right_to_left = right_to_left,
+                                    trimming = trimming,
+                                    trimming_threshold = trimming_threshold,
+                                    return_model = TRUE)
 
   testthat::expect_error(deco_results, NA)
 
@@ -125,9 +194,9 @@ test_that("select_observations_to_be_trimmed() trimms observations as intended",
   trimming_threshold = NULL
 
   trimmed_observations <- select_observations_to_be_trimmed(reweighting_factor,
-                                    group_variable,
-                                    group,
-                                    trimming_threshold)
+                                                            group_variable,
+                                                            group,
+                                                            trimming_threshold)
 
   testthat::expect_equal(trimmed_observations,
                          expected_trimmed_observations)

@@ -11,7 +11,7 @@ dfl_deco(
   group,
   na.action = na.exclude,
   reference_0 = TRUE,
-  reweight_marginals = TRUE,
+  right_to_left = TRUE,
   method = "logit",
   estimate_statistics = TRUE,
   statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10",
@@ -29,167 +29,216 @@ dfl_deco(
 )
 }
 \arguments{
-\item{formula}{a `formula` object with an outcome variable Y on the left-hand side
+\item{formula}{a \code{formula} object with an outcome variable Y on the left-hand side
 and the covariates X on the right-hand side. For sequential decompositions,
-the sequence of covariates X are distinguished by the `|` operator. Covariates
-are used to estimate the reweighting factors.}
+the sequence of covariates X are distinguished by the \code{|} operator. Covariates
+are used to estimate conditional probabilities for the reweighting factors.}
 
-\item{data}{a `data.frame` containing all variables and observations for
+\item{data}{a \code{data.frame} containing all variables and observations of
 both groups.}
 
 \item{weights}{name of the observation weights variable or vector of
 observation weights.}
 
-\item{group}{name of the a binary variable (numeric or factor)
-identifying the two groups for which the differences are to be decomposed.
-The group identified by the lower ranked value in `group` (i.e., 0 in the
+\item{group}{name of a binary variable (numeric or factor) identifying the
+two groups for which the differences are to be decomposed. The group
+identified by the lower ranked value in \code{group} (i.e., 0 in the
 case of a dummy variable or the first level of factor variable) is defined
-as group 0.}
+as group 0. Per default, group 0 is the reference group (see \code{reference_0}).}
 
-\item{na.action}{a function to filter missing data (default `na.exclude`).}
+\item{na.action}{a function to filter missing data (default \code{na.exclude}).}
 
-\item{reference_0}{boolean: if `TRUE` (default), then the group 0 -- i.e.,
-the group identified by the lower ranked value in `group` -- will be defined
+\item{reference_0}{boolean: if \code{TRUE} (default), then the group 0 -- i.e.,
+the group identified by the lower ranked value in \code{group} -- will be defined
 as reference group. The reference group will be reweighted to match the
 covariates distribution of the sample of the comparison group.}
 
-\item{reweight_marginals}{If `TRUE` (default), then the sequential decomposition
-reweights first the marginal (joint) distribution of the last covariate (covariates)
-entered into `formula` sequence. Otherwise, the conditional distribution of
-first covariate(s) entered are reweigthed.}
+\item{right_to_left}{determines the direction of a sequential decomposition.
+If \code{TRUE} (default), the sequential decomposition starts right and reweights
+first the reference group using only the variables entered last into the
+\code{formula} sequence. Sequentially, the other variables are added. Otherwise,
+the decomposition start left and using all variables entered into
+\code{formula} object from the start, sequentially removing variables.}
 
 \item{method}{specifies the method fit and predict conditional probabilities
-used to derive the reweighting factor. At the moment, `logit` is the only method
-available.}
+used to derive the reweighting factor. At the moment, \code{"logit"} and \code{"random forests"} are
+the only methods available.}
 
-\item{estimate_statistics}{boolean: if `TRUE` (default), then distributional
-statistics are estimated and the decomposition is performed. If `FALSE`,
-the function only returns the propensity weights.}
+\item{estimate_statistics}{boolean: if \code{TRUE} (default), then distributional
+statistics are estimated and the decomposition is performed. If \code{FALSE},
+the function only returns the fitted inverse propensity weights.}
 
 \item{statistics}{a character vector that defines the distributional statistics
-for which the decomposition is perforemd. Per default, `c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")`
+for which the decomposition is perforemd. Per default,
+\code{c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")}
 are estimated and decomposed. Also implemented are `c("iq_ratio_p90_p10", "iq_ratio_p90_p50", "iq_ratio_p50_p10")`.
-Note: The function calculates the Gini coefficient for untransformed variable
-(i.e., exp(log(Y))), if the logarithm of a variable Y is set as outcome variable
-in `formula`.}
+Note: The function calculates the Gini coefficient for the untransformed variable
+(i.e., \code{exp(log(Y))}), if the logarithm of a variable Y is set as outcome variable
+in \code{formula}).}
 
 \item{probs}{a vector of length 1 or more with the probabilities of the quantiles
-to be estimated with default `c(1:9)/10`.}
+to be estimated with default \code{c(1:9)/10}.}
 
 \item{custom_statistic_function}{a custom statistic function to pass as argument.}
 
-\item{trimming}{boolean: If `TRUE`, observations with dominant reweighting factor values are trimmend according to rule of Huber, Lechner, and Wunsch (2014). Per default, trimming is set to `FALSE`.}
+\item{trimming}{boolean: If \code{TRUE}, observations with dominant reweighting factor
+values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
+default, trimming is set to \code{FALSE}.}
 
-\item{trimming_threshold}{numeric: threshold defining the maximal accepted relative weight of the reweighting factor value of a single observation. If `NULL`, the threshold is set to `sqrt(N)/N`, where N is the number of observations in the reference group.}
+\item{trimming_threshold}{numeric: threshold defining the maximal accepted
+relative weight of the reweighting factor value (i.e., inverse probability weight)
+of a single observation. If \code{NULL}, the threshold is set to \eqn{sqrt(N)/N},
+where \eqn{N} is the number of observations in the reference group.}
 
-\item{return_model}{boolean: If `TRUE` (default), the object(s) of the model fit(s) used to predict
-conditional probabilities for the reweighting factor(s) are returned.}
+\item{return_model}{boolean: If \code{TRUE} (default), the object(s) of the model
+fit(s) used to predict the conditional probabilities for the reweighting factor(s)
+are returned.}
 
-\item{bootstrap}{boolean: If `FALSE`, then the estimation is not boostrapped and no
-standard errors are calculated.}
+\item{bootstrap}{boolean: If \code{FALSE} (default), then the estimation is not boostrapped
+and no standard errors are calculated.}
 
-\item{bootstrap_iterations}{positive integer indicating the number of bootstrap
-iterations to execute. Only required if \code{bootstrap = TRUE}.}
+\item{bootstrap_iterations}{positive integer with default \code{100} indicating the
+number of bootstrap iterations to be executed.}
 
-\item{bootstrap_robust}{boolean: if `FALSE` (default), then bootstrapped standard
+\item{bootstrap_robust}{boolean: if \code{FALSE} (default), then bootstrapped standard
 errores are estimated as the standard deviations of the bootstrapp estimates.
 Otherwise, the function uses the bootstrap interquartile range rescaled by the
 interquantile range of the standard distribution to estimate standard errors.}
 
-\item{cores}{positive integer indicating the number of cores to use when
-computing bootstrap standard errors. Only required if \code{bootstrap = TRUE}.}
+\item{cores}{positive integer with default \code{1} indicating the number of cores
+to use when computing bootstrap standard errors.}
 
 \item{...}{other parameters passed to the function estimating the conditional probabilities.}
 }
 \value{
-an object of class `dfl_deco` containing a data.frame with the
+an object of class \code{dfl_deco} containing a data.frame with the
 decomposition results for the quantiles and for the other distributional
 statistics, respectively, a data.frame with the estimated reweighting factor
 for every observation, a data.frame with sample quantiles of the reweighting
-factors and a list with standard errors for the decomposition terms, the quantiles
-of the reweighting factor as well as the bootstrapped Kolmogorov-Smirnov
-distribution to construct uniform confidence bands for quantiles.
+factors and a list with standard errors for the decomposition terms, the
+quantiles of the reweighting factor as well as the bootstrapped
+Kolmogorov-Smirnov distribution to construct uniform confidence bands for
+quantiles.
 }
 \description{
-`dfl_deco` decomposes between-group differences in distributional
-statistics of an outcome variable into a structure effect and a composition effect.
-As proposed by DiNardo, Fortin, and Lemieux (1996), the procedure
-reweights the sample distribution of a reference group such that the group's
-covariates distribution matches the covariates distribution of a counterfactual
-group.
+\code{dfl_deco} decomposes between-group differences in distributional
+statistics of an outcome variable into a structure effect and a composition
+effect. Following DiNardo, Fortin, and Lemieux (1996), the procedure reweights
+the sample distribution of a reference group such that the group's covariates
+distribution matches the covariates distribution of a comparison group.
 
-Reweighting factors are derived by modelling the probability of belonging to
-the one group instead of the other conditional on covariates. The function
-allows detailed decompositions of the composition effect by sequentially
-reweighting (conditional) covariate distributions. Standard errors can be
-bootstrapped.
+The function derives counterfactual distributions with inverse probability
+weigthing. Reweighting factors are estimate by modelling the probability of
+belonging to the comparison group conditional on covariates.
+
+The function allows detailed decompositions of the composition effect by
+sequentially reweighting (conditional) covariate distributions. Standard
+errors can be bootstrapped.
 }
 \details{
-The covariates entered into `formula` will be used to estimate the reweighting
-factors, i.e. the propensities of belonging to one of the groups. `formula` also
-allows to specify interaction terms in the conditional probability models.
+The observed difference to be decomposed equals the difference between the values
+of the distributional statistic of \code{group} 1 and \code{group} 0, respectively:
 
-If you are interest in an aggregate decomposition and no sequential decomposition
-should be performend, the all covariates have to be entered at once, e.g.
-`Y ~ X1 + X2 + X3`.
+\deqn{\DeltaO = \nu1 - \nu0,}
 
-If you are interested in a sequential decomposition, the the decomposition sequence
-has to be distinguished by the `|` operator. For instance, `Y ~ X1 | X2 + X3`
-would decomposes the aggregate composition effect into the contribution of X1
-and of the remaining two covariates, respectively. The function sequentially
-collapses the multiple parts of the `formula` object. For instance, if
-`reweight_marginals=TRUE` (see below), then it estimtates in a first step
-the reweighting factor based on `X2 + X3` and then in a second step the one
-based on `X1 + X2 + X3`.
+where \eqn{\nut = \nu(F_t)} denotes the statistics of the outcome distribution
+\eqn{F_t} of group \eqn{t}. Group 0 is identified by the lower ranked value
+of the \code{group} variable.
 
-You can also specify the detailed models in every part of `formula`. This is
-useful if you want to estimate in every step a fully saturated model, e.g.
-`Y ~ X1*X2*X3 | X2*X3`.
-
-The observed difference to be decomposed is equals the value of the
-distributioal statistic of `group` 0 substracted from the value of the same
-statistic of `group` 1.
-
-If `reference_0=TRUE`, then group 0 is the reference group and its observations
+If \code{reference_0=TRUE}, then group 0 is the reference group and its observations
 are reweighted such that they match the covariates distribution of group 1, the
-counterfacutal group. Group 0 is identified by the lower ranked value of the
-`group` variable. The composition effect is evaluated using the structure of
-the reference group. The wage structure effect will be evaluated using the
-covariates' distribution of the counterfactual group.
+comparison group. The counterfactual outcome distribution corresponds to
 
-If `reweight_marginals=TRUE`, the sequential decomposition is performed by
-reweighting the marginal distribution of the last covariate or the joint
-distribution of the last covariates in the sequence. For instance, if we have
-`Y ~ X1 | X2 + X3`, then the reference group would be first reweighted such
-that its distribution of covariates X2 and X3 matches the one of the
-counterfactual group. Thus, we use the marginal distribution of X2 and X3 of
-the counterfactual group but the conditional distribution of X1 given X2
-and X3 as well as the (wage) structure of the reference group to evaluated
-the first composition effect.
+\deqn{F_C(y) = \int F_0(y|x)dF_1(x),}
 
-If `reweight_marginals=FALSE`, the sequential decomposition is performed by
-reweighting the conditional distribution of the first covariate or the joint
-distribution of the first covariates in the sequence. For instance, if we have
-`Y ~ X1 | X2 + X3`, then the reference group would be first reweighted such
-that its conditional distribution of X1 given covariates X2 and X3 matches
-the one of the counterfacutal group. Thus, we use the conditional distribution
-of X1 given X2 and X3 of the counterfactual group but the joint distribution
-of X2 and X3 as well as the (wage) structure of the reference group to evaluate
-the first composition effect.
+combining the covariates distribution \eqn{F_1(x)} of group 1 with
+the conditional outcome distribution \eqn{F_0(y|x)} of group 0.
 
-`method="logit"` uses a logit model to estimate the conditional probabilities
-used to derive the reweighting factors. You can specify interaction terms
-within the `formula` object.
+The distributional statistic of the counterfactual distribution,
+\eqn{\nuC = \nu(F_C)}, allows to decompose the observed difference into
+a (wage) structure effect (\eqn{\DeltaS = \nu1 - \nuC}) and a
+composition effect (\eqn{\DeltaC = \nuC - \nu0}).
 
-Per default, the function decomposes the between-group differences for
-quantiles, the mean, the variance, the Gini coefficient and the interquantile
-range between the 9th and the 1st decile, the 9th decile and the median, and
-the median and the first decile, respectively. Implemented are also the
-interquantile ratios for between the same quantiles.
+If \code{reference_0=FALSE}, then the counterfactual is derived by combining
+the covariates distribution of group 0 with the conditional outcome
+distribution of group 1, the composition effect becomes
+\eqn{\DeltaC = \nu1 - \nuC} and the structure effect
+\eqn{\DeltaS = \nuC - \nu0}, respectively.
 
-The quantiles can be specified by `probs` that sets the corresponding
+The counterfactual distribution is derived by reweighting the reference
+group. With \code{reference_0=TRUE}, we have
+
+\deqn{F_C(y) = \int F_0(y|x)\Psi(x)dF_0(x),}
+
+where \eqn{\Psi(x)} is the reweighting factor, i.e. the inverse probabilities
+of belonging to the comparison group.
+
+The covariates are defined in \code{formula}. The reweighting factors is
+estimated on the pooled sample with observations from both groups. \code{method = "logit"}
+uses a logit model to fit the conditional probabilities. \code{method = "random forests"}
+uses the \strong{Ranger} implementation of the random forests classifier.
+
+The counterfactual statistics are then estimated with the observed data of
+the reference group and the fitted reweighting factors.
+
+\code{formula} allows to specify interaction terms in the conditional
+probability models. If you are interested in an aggregate decomposition,
+then all covariates have to be entered at once, e.g. \code{Y ~ X + Z}.
+
+The procedure allows for sequential decomposition of the composition effect.
+In this case more than one reweighting factor based on different sets of
+covariates are estimated.
+
+If you are interested in a sequential decomposition, the decomposition
+sequence has to be distinguished by the \code{|} operator in the \code{formula}
+object. For instance, \code{Y ~ X | Z} would decompose the aggregate composition
+effect into the contribution of covariate(s) X and the one of covariate(s) Z,
+respectively.
+
+In this two-fold sequential decomposition, we have the detailed composition
+effects
+
+\deqn{\DeltaC_X = \nu1 - \nuCX}
+and
+\deqn{\DeltaC_Z = \nuCX - \nu_C}
+
+which sum up to the aggregate composition effect \eqn{\DeltaC}.
+ \eqn{\nuC} is definied as above. It captures the contribution of all
+covariates (i.e., X and Z). In contrast, \eqn{\nuCX} corresponds
+to the statistic of the counterfactual distribution isolating the contribution
+of covariate(s) X in contrast to the one of covariate(s) Z.
+
+If \code{right_to_left=TRUE}, then the counterfactual is defined as
+\deqn{F_CX(y) = \iint F_0(y|x,z)dF_0(x|z)dF_1(z),}
+
+where \eqn{F_1(x|z)} is the conditional distribution of X given Z of
+group 1 and \eqn{F_0(z)} the distribution of Z. Otherwise, we have
+\deqn{F_CX(y) = \iint F_{0}(y|x,z)dF_1(x|z)dF_0(z).}
+
+Note can also specify the detailed models in every part of \code{formula}.
+This is useful if you want to estimate in every step a fully saturated model,
+e.g. \code{Y ~ X * Z | Z}. If not further specified, the variables are
+additively included in the model used to derived the aggregate reweighting
+factor.
+
+The detailed decomposition terms are path-dependent. The results depend on the sequence
+the covariates enter the decomposition (e.g, \code{Y ~ X | Z} yields different
+detailed decomposition terms than \code{Y ~ Z | X}) . Even for the same sequence,
+the results differ depending on the 'direction' of the decomposition. In
+the example above using \code{right_to_left=TRUE}, the contribution of Z is evaluated
+using the conditional distribution of X given Z from group 0. If we use
+\code{right_to_left=FALSE} instead, the same contribution is evaluated using
+the conditional distribution from group 1.
+
+Per default, the distributinal statistics, for which the between group ifferences
+are decomposed, are quantiles, the mean, the variance, the Gini coefficient
+and the interquantile range between the 9th and the 1st decile, the 9th decile
+and the median, and the median and the first decile, respectively. The interquantile
+ratios between the same quantiles are implemented, as well.
+
+The quantiles can be specified by \code{probs} that sets the corresponding
 probabilities of the quantiles of interest. For other distributional statistics,
-please use `custom_statistic_function`.
+please use \code{custom_statistic_function}
 }
 \examples{
 ## Replicate example from handbook chapter of Fortin, Lemieux, and Firpo (FLF, 2011)
@@ -207,7 +256,7 @@ flf_male_inequality  <- dfl_deco(flf_model,
 # Summarize results
 summary(flf_male_inequality)
 
-# Plot decomposition of qunatile differences
+# Plot decomposition of quantile differences
 plot(flf_male_inequality)
 
 # Use alternative reference group (i.e. reweight sample from 2003-05)
@@ -245,11 +294,15 @@ plot(flf_male_inequality_boot, uniform_bands=TRUE)
 
 
 ## Sequential decomposition
-# Distinguishing the contribution of the marginal distribution of education
-# and experience from the contribution of unionization conditional on
-# education and experience
+
+# Here we distinguish the contribution of education and experience
+# from the contribution of unionization conditional on education and experience.
 
 model_sequential <- log(wage) ~ union*(education + experience) + education*experience | education*experience
+
+# First variant:
+# Contribution of union is evaluated using composition of
+# education and experience from 2003-2005 (group 1)
 
 male_inequality_sequential  <- dfl_deco(model_sequential,
                                         data = men8305,
@@ -259,6 +312,23 @@ male_inequality_sequential  <- dfl_deco(model_sequential,
 # Summarize results
 summary(male_inequality_sequential)
 
+# Second variant:
+# Contribution of union is evaluated using composition of
+# education and experience from 1983-1985 (group 0)
+
+male_inequality_sequential_2  <- dfl_deco(model_sequential,
+                                        data = men8305,
+                                        weights = weights,
+                                        group = year,
+                                        right_to_left = FALSE)
+
+# Summarize results
+summary(male_inequality_sequential_2)
+
+# The domposition effects associated with (conditional) unionization for deciles
+cbind(male_inequality_sequential$decomposition_quantiles$prob,
+      male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
+      male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`)
 
 # Trim observations with weak common support
 # (i.e. observations with relative factor weights > \sqrt(N)/N)
@@ -286,14 +356,18 @@ DiNardo, John, Nicole M. Fortin, and Thomas Lemieux. 1996. "Labor Market
 Institutions and the Distribution of Wages, 1973-1992: A Semiparametric Approach."
 \emph{Econometrica}, 64(5), 1001-1044.
 
-Firpo, Sergio P., Nicole M. Fortin, and Thomas Lemieux. 2018. “Decomposing Wage
-Distributions Using Recentered Influence Function Regressions.”
+Firpo, Sergio P., Nicole M. Fortin, and Thomas Lemieux. 2018. "Decomposing Wage
+Distributions Using Recentered Influence Function Regressions."
 \emph{Econometrics} 6(2), 28.
 
 Fortin, Nicole M., Thomas Lemieux, and Sergio Firpo. 2011. "Decomposition methods in economics."
-In Orley Ashenfelter and David Card, eds., \emph{Handbook of labor economics}. Vol. 4. Elsevier, 1-102.
+In Orley Ashenfelter and David Card, eds., \emph{Handbook of Labor Economics}. Vol. 4. Elsevier, 1-102.
 
 Firpo, Sergio P., and Cristine Pinto. 2016. "Identification and Estimation of
 Distributional Impacts of Interventions Using Changes in Inequality Measures."
-\emph{Journal of Applied Econometrics}, 31(3), 457– 486.
+\emph{Journal of Applied Econometrics}, 31(3), 457-486.
+
+Huber, Martin, Michael Lechner, and Conny Wunsch. 2013. "The performance of
+estimators based on the propensity score." \emph{Journal of Econometrics},
+175(1), 1-21.
 }

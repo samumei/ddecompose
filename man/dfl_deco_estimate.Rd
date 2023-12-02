@@ -15,7 +15,7 @@ dfl_deco_estimate(
   estimate_statistics,
   statistics,
   probs,
-  reweight_marginals,
+  right_to_left,
   trimming,
   trimming_threshold,
   return_model,

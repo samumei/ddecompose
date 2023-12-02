@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
+
 # `ddeco`: Detailed Decomposition Methods
 
 
@@ -26,14 +27,28 @@ Decomposition methods have long been utilized in labor economics, sociology, and
 
 The package `ddeco` provides a set of popular decomposition methods dissecting differences at the mean and beyond. The function `ob_deco()` allows classic Oaxaca-Blinder decomposition at the mean, but also enables reweighted RIF regression decomposition for various distributional statistics beyond the mean (e.g. quantiles or Gini coefficient). The function `dfl_deco()` decomposes between-group differences in distributional statistics of an outcome variable using inverse propensity reweighting as proposed by DiNardo, Fortin, and Lemieux (1996). The package also entails summary, print and plot functions for the results and computes bootstrapped standard errors.  
 
+
+**ddeco** implements the [Oaxaca (1973)](https://www.jstor.org/stable/2525981)-[Blinder (1973)](https://www.jstor.org/stable/144855) decomposition method and 
+generalizations of it that allow to decompose differences between two groups
+in a distributional statistics beyond the mean. `ob_deco()` divides an observed
+difference in the mean into (wage) structure effects and composition effects
+that can be attributed to single covariates. For other distributional statistics, 
+the function peforms the RIF decomposition proposed by [Firpo, Fortin, 
+and Lemieux (2018)]( https://doi.org/10.3390/econometrics6020028). `dfl_deco()` divides differences in an aggregate wage
+structure effect and composition effect using the reweighting estimator of [DiNardo, 
+Fortin, and Lemieux (1996)](https://www.jstor.org/stable/2171954). The function also allows to sequentially decompose
+the composition effect into the contribtuion of single covariates.
+
+
 This documentation provides a brief overview over the functions implemented in the package. For a more detailed discussion of decomposition methods including their respective assumptions and limitations, refer to Fortin et al. (2011) and Firpo et al. (2018). 
+
 
 
 ## Installation 
 
 You can either install the CRAN version of `ddeco`
 ```{r, eval=FALSE}
-install.packages("rifreg")
+install.packages("ddeco")
 ```
 
 or the latest development version from GitHub:
@@ -196,9 +211,100 @@ The same function is used to decompose RIF regressions. Setting `rifreg = TRUE` 
                               rifreg = TRUE,
                               bootstrap = TRUE,
                               bootstrap_iteration = 10)
+``````
 
 
+## Background
+
+The **ddeco** package allows to decompose observed differences in a distributional
+statistics $\nu_t=\nu(F_{Y_t})$ of an outcome variable $Y_t$ (e.g., hourly wages) between 
+two groups $t = 0,1$.
+$$\Delta_O^{\nu} = \nu_1 - \nu_0.$$
+We are interested to what extent the difference can explained by a different composition
+of observable covariates and by differences in structure linking covariates to the 
+outcome variables. For this purpose, we define a conterfactual outcome statistic that
+would be observed if group 0 had the same composition like group 1 but otherwise
+the same structure linking covariates to the outcome variable. By contrasting 
+the observed statistics to the counterfactual, we can indentify the composition 
+effect $\Delta_S^\nu$ and the (wage) structure effect $\Delta_X^\nu$  that capture 
+differencs in the structure linking covariates to the outcome and in the difference
+in the composition of covariates, respectively: 
+$$\Delta_O^{\nu} = (\nu_1 - \nu_C) + (\nu_C - \nu_0) = \Delta_S^\nu + \Delta_X^\nu.$$
+Note, we could specifiy the counterfactual the other way round.
+
+Under certain assumptions (see Firpo, Fortin, and Lemieux, 2011)
+(ignorability/CIA, overlapping support), we can derive...
+
+Standard OB case.
+...
+
+
+## Reweighting decompositions with `dfl_deco()`
+
+### Aggregate decomposition
+
+`dfl_deco()` uses inverse probability weighting to estimate counterfactual 
+distributional statistics. The counterfactual combines the conditional outcome
+distribution of the reference group, here defined as group 0, with the covariates 
+distribution of the comparison group, and can expressed as reweighted version of the
+reference distribution
+$$F_{Y_C}(y) = \int F_{Y_0}(y|x)dF_{X_1} (x)= \int F_{Y_0}(y|x)\Psi(x)dF_{X_0}(x),$$
+
+where the reweighting factor $\Psi(x) = \frac{P(t=0)P(t=1|X)}{P(t=1)P(t=0|X)}$ 
+captures the inverse probability of belonging to group 1. The reweighting factor
+can be written as function of the probabilities of the binary group 
+variable $t$ and can, thus, readily estimated in the pooled sample of the two
+group unsing conditional probability models. The counterfactual statistics are
+then estimated with weighted estimator using the observed data of group 0 and 
+the fitted reweighting factors.
+
+### Sequential decomposition
+
+We can extend the the reweighting approach to sequentially decompose the composition
+effect into the contribution of single covariates $X$ and $Z$, respectively 
+$$\Delta_X^{\nu} =  (\nu_C - \nu_{C,X}) + (\nu_{C,X} - \nu_0) = \Delta_{X,X}^\nu + \Delta_{X,Z}^\nu,$$
+
+where we define $\nu_C$ as the statistic of the counterfactual where we combine the 
+conditional outcome of group 0 with the covariates distribution of group 1, i.e.
+$$F_{Y_{C}}(y) = \iint F_{Y_0}(y|x,z)dF_{X_1}(x|z)dF_{Z_1}(x).$$
+
+For the decomposition work, we require an additional counterfactual $\nu_{C,X}$ that 
+combines the conditional outcome distribution of group 0 and the distribution of covariate $X$ given $Z$ of the same group with the marginal distribution of $Z$ of group 1, i.e.
+$$F_{Y_{C,X}}(y) = \iint F_{Y_0}(y|x,z)dF_{X_0}(x|z)dF_{Z_1}(x).$$
+Note, sequential decompositions are path-dependent, i.e. the detailed composition
+effects attributed to single covariates depend on the order we include the 
+variables into the sequence (i.e. if we integrate over the conditional distribution
+of $X$ or that of $Z$, respecitvely). Moreover, we get different results if we 
+derive $\nu_{C,X}$ using the conditional covariate distribution from the other group, e.g.
+$$F_{Y_{C,X}}(y) = \iint F_{Y_0}(y|x,z)dF_{X_1}(x|z)dF_{Z_0}(x).$$
+
+
+### Example
+
+Fortin, Lemieux, and Firpo (FLF, 2011, p. 79-88) decompose the increase in US 
+male wage inequality between the early 1980s and the early 2000s using the CPS
+data. In this example, we replicate their results and treat the observations from
+1983 to 1985 as reference group that is reweighted.
+
+```{r}
+library(ddeco)
+data("men8305")
+flf_model <- log(wage) ~ union*(education + experience) + education*experience
+flf_male_inequality  <- dfl_deco(flf_model,
+                                  data = men8305,
+                                  weights = weights,
+                                  group = year)
 ```
+We can summarize the results:
+```{r}
+summary(flf_male_inequality)
+```
+
+Using `plot()`, we can illustrate the decomposition accross different quantiles.
+```{r}
+plot(flf_male_inequality)
+```
+
 
 
 
@@ -455,6 +561,7 @@ rifreg_plot +
 Looking at the plots, we see that our plots correspond to those presented by Firpo, Fortin, and Lemieux (2009a: 965). The plot example illustrates, how the plot from the generic `rifreg::plot()` function can be further enhanced, for instance with a horizontal line indicating the OLS coefficient for comparison. 
 
 This validation example illustrates that the `rifreg` package works as intended in computing RIF regressions and reliably yields the expected results. 
+
 
 ## Credits
 

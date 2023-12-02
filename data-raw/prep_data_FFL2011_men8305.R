@@ -101,6 +101,9 @@ set.seed(123)
 sel_obs <- sample(1:nrow(men8305), floor(nrow(men8305) / 10))
 men8305 <- men8305[sel_obs, ]
 
+#Gewichte normieren
+men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
+
 # Save data
 #save(men8305,file="data/men8305.rda")
 usethis::use_data(men8305, overwrite = TRUE)
