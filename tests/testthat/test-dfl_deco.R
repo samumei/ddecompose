@@ -1,4 +1,35 @@
 
+
+test_that("Replicate FFL 2011, table 5, p. 69", {
+
+  # Full data set
+  load("data-raw/men8305_full.rda")
+  men8305_full$weights <- men8305_full$weights/sum(men8305_full$weights) * length(men8305_full$weights)
+
+  flf_model <- log(wage) ~ union*(education + experience) + education*experience
+
+  # Reweighting sample from 1983-85
+  flf_male_inequality  <- dfl_deco(flf_model,
+                                   data = men8305_full,
+                                   weights = weights,
+                                   group = year)
+
+  FFL_results <- data.frame(effect=c("Observed difference", "Composition effect", "Structure effect"),
+                            p90p10=c(0.1091, 0.0756, 0.0336),
+                            p90p50=c(0.1827, 0.0191, 0.1637),
+                            p50p10=c(-0.0736, 0.0565, -0.1301),
+                            variance = c(0.0617, 0.0208, 0.0408))[,-1]
+  FFL_results <- t(as.matrix(FFL_results))
+  colnames(FFL_results) <- c("Observed difference", "Composition effect", "Structure effect")
+  estimated_statistics <- flf_male_inequality$decomposition_other_statistics[c(4,5,6,2), c(2, 4, 3)]
+  estimated_statistics <- as.matrix(estimated_statistics)
+  rownames(estimated_statistics) <- rownames(FFL_results)
+
+  expect_equal(FFL_results, estimated_statistics, tolerance = 0.01)
+})
+
+
+
 test_that("dfl_deco() does not throw an error", {
   set.seed(89342395)
 
@@ -11,7 +42,6 @@ test_that("dfl_deco() does not throw an error", {
 
   testthat::expect_error(deco_results, NA)
 })
-
 
 
 test_that("dfl_deco() does not return fitted models if required", {
