@@ -221,13 +221,18 @@ ob_deco <- function(formula,
   # data_model_na <- na.action(data_model)
   # data_model_without_na <- lapply(list(data_model_na), na.action)[[1]]
   weights <- model.weights(eval.parent(data_arguments))
-  if (!is.null(weights) && !is.numeric(weights)) {
-    stop("'weights' must be a numeric vector")
-  }
-  if (is.null(weights)) {
-    data_used$weights <- rep(1, nrow(data_used))
+
+  if (is.null(weights)) weights <- rep(1, nrow(data_used))
+  else {
+    if(!is.numeric(weights)) {
+      stop("\"Weights\" must be a numeric vector!")
+    }
   }
 
+  if (!all(weights >= 0)) stop(msg = "Weights cannot contain negative values!")
+  if (all(weights == 0)) stop(msg = "Not all weights can be set to zero!")
+
+  #data_used$weights <- weights
 
 
   if(!bootstrap & !rifreg & !reweighting) compute_analytical_se <- TRUE
