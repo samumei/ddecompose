@@ -165,10 +165,13 @@ ob_deco <- function(formula,
                     bootstrap_robust = FALSE,
                     cluster = NULL,
                     cores = 1,
-                    vcov=stats::vcov){
+                    vcov=stats::vcov,
+                    ...){
 
   if(rifreg & !reweighting) warning("If you want to decompose rifregression it is highly recommended to apply reweighting!
                                     See references for further information.")
+  if(!typeof(data) == "list") stop("The provided \"data\" is not a data frame.")
+
 
   ## Get model.frame
   function_call <- match.call()
@@ -176,7 +179,7 @@ ob_deco <- function(formula,
   data_arguments <- function_call[c(1, data_arguments_index)]
   #data_arguments$drop.unused.levels <- TRUE
 
-  data_arguments[[1]] <- as.name("get_all_vars") #as.name("model.frame")
+    data_arguments[[1]] <- as.name("get_all_vars") #as.name("model.frame")
   data_used <- eval.parent(data_arguments)
   data_used <- na.action(data_used)
   #data_used <- lapply(list(data_used), na.action)[[1]]
@@ -216,23 +219,13 @@ ob_deco <- function(formula,
 
 
   ## Get weights
-  data_arguments[[1]] <- as.name("model.frame")
-  # data_model <- eval.parent(data_arguments)
-  # data_model_na <- na.action(data_model)
-  # data_model_without_na <- lapply(list(data_model_na), na.action)[[1]]
-  weights <- model.weights(eval.parent(data_arguments))
-
-  if (is.null(weights)) weights <- rep(1, nrow(data_used))
-  else {
-    if(!is.numeric(weights)) {
-      stop("\"Weights\" must be a numeric vector!")
-    }
+  if (!is.null(weights) && !is.numeric(weights)) {
+    stop("'weights' must be a numeric vector")
+  }
+  if (is.null(weights)) {
+    data_used$weights <- rep(1, nrow(data_used))
   }
 
-  if (!all(weights >= 0)) stop(msg = "Weights cannot contain negative values!")
-  if (all(weights == 0)) stop(msg = "Not all weights can be set to zero!")
-
-  #data_used$weights <- weights
 
 
   if(!bootstrap & !rifreg & !reweighting) compute_analytical_se <- TRUE
@@ -263,7 +256,8 @@ ob_deco <- function(formula,
                                         rifreg_statistic = rifreg_statistic,
                                         custom_rif_function = custom_rif_function,
                                         na.action = na.action,
-                                        vcov = vcov)
+                                        vcov = vcov,
+                                        ... = ...)
 
       names(estimated_decomposition) <- paste0("quantile_", as.character(rifreg_probs))
   }
@@ -281,7 +275,8 @@ ob_deco <- function(formula,
                                                 rifreg_probs = rifreg_probs,
                                                 custom_rif_function = custom_rif_function,
                                                 na.action = na.action,
-                                                vcov = vcov)
+                                                vcov = vcov,
+                                                ... = ...)
 
     estimated_decomposition <- list(estimated_decomposition)
 
@@ -331,7 +326,8 @@ ob_deco <- function(formula,
                                                                                       rifreg_probs = rifreg_probs,
                                                                                       custom_rif_function = custom_rif_function,
                                                                                       na.action = na.action,
-                                                                                      cluster = cluster))
+                                                                                      cluster = cluster,
+                                                                                      ... = ...))
     } else {
       cores <- min(cores, parallel::detectCores() - 1)
       core_cluster <- parallel::makeCluster(cores)
@@ -351,7 +347,8 @@ ob_deco <- function(formula,
                                                                                       rifreg_probs = rifreg_probs,
                                                                                       custom_rif_function = custom_rif_function,
                                                                                       na.action = na.action,
-                                                                                      cluster = cluster),
+                                                                                      cluster = cluster,
+                                                                                      ... = ...),
                                                cl = core_cluster)
       parallel::stopCluster(core_cluster)
     }
@@ -410,7 +407,8 @@ estimate_ob_deco <- function(formula,
                              rifreg_probs,
                              custom_rif_function,
                              na.action,
-                             vcov){
+                             vcov,
+                             ...){
 
   group0 <- levels(data_used[, "group"])[1]
 
@@ -458,7 +456,8 @@ estimate_ob_deco <- function(formula,
                                   probs = rifreg_probs,
                                   custom_rif_function = custom_rif_function,
                                   na.action = na.action,
-                           bootstrap = FALSE)
+                           bootstrap = FALSE,
+                           ... = ...)
 
     fit1 <- rifreg::rifreg(formula = formula,
                                   data = subset(data_used, group != group0),
@@ -467,14 +466,15 @@ estimate_ob_deco <- function(formula,
                                   probs = rifreg_probs,
                                   custom_rif_function = custom_rif_function,
                                   na.action = na.action,
-                           bootstrap = FALSE)
+                           bootstrap = FALSE,
+                           ... = ...)
 
     beta0 <- fit0$estimates[,1]
     beta1 <- fit1$estimates[,1]
   }
   else {
     fit0 <- lm(formula, data = subset(data_used, group == group0), weights = weights)
-    fit1 <- lm(formula, data = subset(data_used, group != group0), weights = weights)
+    fit1 <- lm(formula, data = subset(data_used, group!= group0), weights = weights)
 
     beta0 <- coef(fit0)
     beta1 <- coef(fit1)
@@ -659,7 +659,8 @@ bootstrap_estimate_ob_deco <- function(formula,
                                        rifreg_probs,
                                        custom_rif_function,
                                        na.action,
-                                       cluster = NULL){
+                                       cluster = NULL,
+                                       ...){
   if(is.null(cluster)){
     sampled_observations <- sample(1:nrow(data_used),
                                    size = nrow(data_used),
@@ -691,7 +692,8 @@ bootstrap_estimate_ob_deco <- function(formula,
                                         rifreg_statistic = rifreg_statistic,
                                         custom_rif_function = custom_rif_function,
                                         na.action = na.action,
-                                        vcov = NULL)
+                                        vcov = NULL,
+                               ... = ...)
 
       deco_estimates <- lapply(deco_estimates, function(x) x$decomposition_terms)
 
@@ -710,7 +712,8 @@ bootstrap_estimate_ob_deco <- function(formula,
                                        na.action = na.action,
                                        compute_analytical_se = FALSE,
                                        vcov = NULL,
-                                       return_model_fit = FALSE)
+                                       return_model_fit = FALSE,
+                                       ... = ...)
 
     deco_estimates <- list(deco_estimates[["decomposition_terms"]])
   }

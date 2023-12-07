@@ -820,8 +820,6 @@
 # browser()
 #
 #   # men_88_90 <- readstata13::read.dta13("data-raw/ddeco literature/FFL_2018/usmen8890_t2.dta")
-#   # men_14_16 <- readstata13::read.dta13("data-raw/ddeco literature/FFL_2018/usmen1416tc_t2.dta")
-#
 #   # men_14_16 <- readstata13::read.dta13("data-raw/ddeco literature/FFL_2018/usmen1416_t2.dta")
 #
 #   men_88_90 <- men_88_90[complete.cases(men_88_90$wage_var), ]
@@ -979,36 +977,43 @@ test_that("ob_deco() replicates Table 3, p. 29, in FFL (2018)", {
     paste(grep(paste0("^occd(", paste(c(11:60, 80:91), collapse = "|"), ")$"), names(men8816), value = T), collapse = " + "), " + ",
     paste(grep(paste0("^indd(", paste(c(1, 3:14), collapse = "|"), ")$"), names(men8816), value = T), collapse = " + "), " + pub"))
 
+
+  # men8816_t3 <- readstata13::read.dta13("data-raw/ddeco literature/FFL_2018/usmen8816_t3.dta")
+  # men8816_t3 <- men8816_t3[men8816_t3$time <= 1,]
+
+#
+#   men8816$lwage2 <- ifelse(men8816$lwage2 <= 7.4, men8816$lwage2, NA)
+#   men_88_90 <- men8816[complete.cases(men8816$lwage2), ]
+#
+#
+#   men8816$time <- ifelse(men8816$year %in% c(88, 89, 90), 0, 1)
+
 browser()
-  men8816 <- rbind(men_88_90, men_14_16[-81])
-
-  men8816$lwage2 <- ifelse(men8816$lwage2 <= 7.4, men8816$lwage2, NA)
-  men_88_90 <- men8816[complete.cases(men8816$lwage2), ]
-
-
-  men8816$time <- ifelse(men8816$year %in% c(88, 89, 90), 0, 1)
-
-
 
   deco_90_10  <- ddeco::ob_deco(formula = var_model,
-                                data = men8816,
+                                data = men8816_t3,
                                 weights = eweight,
                                 group = time,
                                 reference_0 = FALSE,
                                 rifreg = TRUE,
                                 rifreg_statistic = "interquantile_range",
-                                rifreg_probs = c(0.9, 0.1))
+                                rifreg_probs = c(0.9, 0.1),
+                                bw = 0.065,
+                                kernel = "epanechnikov")
 
   browser()
   # Overall
   testthat::expect_equal(round(as.numeric(deco_90_10$interquantile_range$decomposition_term$Observed_difference[1]), 3), 0.125, tolerance = 0.01)
-  testthat::expect_equal(round(as.numeric(deco_90_10$interquantile_range$decomposition_term$Composition_effect[1]), 3), 0.088, tolerance = 0.05)
+  testthat::expect_equal(round(as.numeric(deco_90_10$interquantile_range$decomposition_term$Composition_effect[1]), 3), 0.088, tolerance = 0.01)
   testthat::expect_equal(round(as.numeric(deco_90_10$interquantile_range$decomposition_term$Structure_effect[1]), 3), 0.037, tolerance = 0.01)
+  # (1)0.1256141; (2.bw und kernel) 0.1256292
+  # (1)0.0810027; (2.bw und kernel) 0.07632009
+  # (1)0.04461135; (2.bw und kernel) 0.04930909
 
   # Composition Effects
   testthat::expect_equal(round(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Composition_effect[3]), 3), 100*0.016, tolerance = 0.7)
   testthat::expect_equal(round(as.numeric(100*(sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-                                            sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 3), 100*0.019, tolerance = 0.3)
+                                            sum(deco_90_10$interquantile_range$decomposition_term$Compositdfiason_effect[11:18]))), 3), 100*0.019, tolerance = 0.3)
   testthat::expect_equal(round(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 3), 100*0.009, tolerance = 0.7)
   testthat::expect_equal(round(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[19:33])), 3), 100*0.019, tolerance = 0.02)
   testthat::expect_equal(round(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[34:48])), 3), 100*0.026, tolerance = 0.3)
