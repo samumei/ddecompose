@@ -23,6 +23,13 @@
 #' the group identified by the lower ranked value in `group` -- will be defined
 #' as reference group. The reference group will be reweighted to match the
 #' covariates distribution of the counterfactual sample.
+#' By default, the composition effect is computed as \code{(X1 - X0) * b0} and
+#' the structure effect as \code{X1 * (b1 - b0)}. Putting \code{reference_0 == FALSE} changes
+#' the reference structure. Hence the composition effect is computed as \code{(X1 - X0) * b1} and
+#' the structure effect as \code{X0 * (b1 - b0)}.
+#' @param swap boolean: `FALSE` is default. Setting it to `TRUE` merely changes the sign of the decomposition results.
+#' This means the composition effect is computed as \code{(X0 - X1) * b1} and
+#' the structure effect as \code{X0 * (b0 - b1)}.
 #' @param rifreg boolean: if `TRUE`, then a RIF regression for the statistic
 #' indicated in `rifreg_statistic` is computed and decomposed.
 #' @param rifreg_statistic string containing the distributional statistic for which to compute the RIF. Can be one of
@@ -61,6 +68,10 @@
 #' @param vcov function estimating covariance matrix of regression coefficients if
 #' standard errors are not bootstrapped (i.e., \code{bootstrap = FALSE}). By default,
 #' \link[stats]{vcov} is used assuming homoskedastic errors.
+#' @param ... additional parameters passed to the custom_rif_function.
+#' Apart from dep_var, weights and probs they must have a different name than the the ones in rifreg.
+#' For instance, if you want to pass a parameter statistic to the custom_rif_function, name it custom_statistic.
+#' Additional parameters can also be passed to the \link[stats]{density} function.
 #'
 #' @references
 #' Fortin, Nicole, Thomas Lemieux, and Sergio Firpo. 2011. "Decomposition methods in economics."
@@ -150,6 +161,7 @@
 ob_deco <- function(formula,
                     data,
                     group,
+                    swap = FALSE,
                     weights = NULL,
                     rifreg = FALSE,
                     rifreg_statistic = "quantiles",
@@ -219,10 +231,10 @@ ob_deco <- function(formula,
 
 
   ## Get weights
-  if (!is.null(weights) && !is.numeric(weights)) {
+  if (!is.null(data_used$weights) && !is.numeric(data_used$weights)) {
     stop("'weights' must be a numeric vector")
   }
-  if (is.null(weights)) {
+  if (is.null(data_used$weights)) {
     data_used$weights <- rep(1, nrow(data_used))
   }
 
@@ -259,7 +271,12 @@ ob_deco <- function(formula,
                                         vcov = vcov,
                                         ... = ...)
 
+      for (i in seq_along(estimated_decomposition)) {
+        estimated_decomposition[[i]][["decomposition_terms"]][, 2:6] <- estimated_decomposition[[i]][["decomposition_terms"]][, 2:6] * -1
+      }
+
       names(estimated_decomposition) <- paste0("quantile_", as.character(rifreg_probs))
+
   }
   else {
     estimated_decomposition <- estimate_ob_deco(formula = formula_decomposition,
@@ -277,6 +294,8 @@ ob_deco <- function(formula,
                                                 na.action = na.action,
                                                 vcov = vcov,
                                                 ... = ...)
+
+    if(swap) estimated_decomposition$decomposition_terms[2:6] <- estimated_decomposition$decomposition_terms[2:6] *-1
 
     estimated_decomposition <- list(estimated_decomposition)
 
@@ -775,10 +794,10 @@ ob_deco_calculate_terms <- function(beta0,
   Xb1 <- X1 * beta1
 
   if(reference_0){
-    observed_diff <- Xb0 - Xb1
+    observed_diff <- Xb1 - Xb0
     XbC <- X1*beta0
-    composition_effect <- Xb0 - XbC
-    structure_effect <- XbC - Xb1
+    composition_effect <- XbC - Xb0
+    structure_effect <- Xb1 - XbC
   }else{
     observed_diff <- Xb1 - Xb0
     XbC <- X0*beta1
