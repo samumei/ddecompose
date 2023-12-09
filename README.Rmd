@@ -60,38 +60,54 @@ devtools::install_github("samumei/ddeco")
 
 ### Oaxaca-Blinder Decomposition (and Reweighted Variant)
 
-The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) decomposes group differences in the mean of an outcome variable (e.g. wage)  <span style="color:red">between two groups $g = A, B$.</span> The group differences in the mean $\widehat\Delta^\mu_O$ are decomposed into two parts.One part, the "composition effect" $\widehat\Delta^\mu_X$, is explained by differences in the observable covariates (e.g. educational level or experience). The other part, the "structure effect" $\widehat\Delta^\mu_S$, is due to different returns to these covariates. 
+<span style="color:red">
+The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) 
+decomposes the difference in the mean of an outcome variable (e.g. wage) between
+two groups $g = A, B$ into a part explained by differences in covariate means (e.g. 
+educational level or experience) and another part due different linear
+regression coefficients (e.g. returns to education) linking covariates to the
+outcome. 
+</span>
 
-<span style="color:red"> The method linearly models the relationship between outcome $Y$ and covariates $X$, i.e.
-$$Y_{g,i} = X_{g,i}\beta_g + \varepsilon_{g,i}.$$
-Moreover, it assumes  error term $\varepsilon$ is conditionally independent of
-$X$ ($E( \varepsilon_{g,i} | X, g) = 0$). The coefficients are then estimated
-with OLS. 
-</span> 
 
-<span style="color:red">~~Given a group $A$ and $B$, the group difference in the outcome variable $Y$ can be written as~~ 
-Since coefficients of linear regressions relate the mean of a covariate directly
-to the mean of the outcome, the difference in the mean 
-</span>  
+<span style="color:red">
+The method linearly models the relationship between the outcome $Y$ and covariates
+$X$, i.e. 
+$$Y_{g,i} = \beta_{g,0} + \sum^K_{k=1}X_{k,i}\beta_{g,k} + \varepsilon_{g,i},$$
+where $\beta_{g,0}$ and $\beta_{g,k}$ and the intercept and slope coefficents of
+covariates $k = 1,..., K$, respectively. Moreover, it is assumed that the error
+term $\varepsilon$ is conditionally independent of $X$, i.e. 
+$E( \varepsilon_{g,i} | X_{1,i} \ldots X_{k,i}) = 0$, and that there is
+an overlap in observable characteristics across groups ('common support'). 
+</span>
 
+
+<span style="color:red">
+Estimating the coefficients with OLS, one can fit a counterfactual mean  
+$$\overline Y_C = \beta_{A,0} + \sum^K_{k=1}\overline X_{B,k} \widehat \beta_{A,k}$$
+that would be observed if group $B$ had the same coefficients as group $A$. By 
+adding and substracting the counterfactual, the observed difference is divided 
+$$\widehat\Delta^\mu_O = (\overline Y_B - \overline Y_C) + (\overline Y_C - \overline Y_A) = \widehat\Delta^\mu_S + \widehat\Delta^\mu_C, $$
+into the aggregate wage structure effect 
+$$\widehat\Delta^\mu_S  = (\widehat \beta_{B0} - \widehat \beta_{A0}) + \sum^K_{k=1}\overline X_{Bk}(\widehat \beta_{Bk} - \widehat \beta_{Ak}),$$
+that captures outcome differences due to differences in coefficients, and the composition effect 
+$$\widehat\Delta^\mu_X = \sum^K_{k=1} (\overline X_{Bk} - \overline X_{Ak})\widehat \beta_{Ak}. $$
+which identifies mean differencs attributed to different covariate means. Note
+we could also combine coefficients from group B with covariates of group A to 
+perform the decomposition, instead. Such a change in the 'reference' group generally
+leads to different results.
+</span>
+
+
+The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) decomposes group differences in the mean of an outcome variable (e.g. wage). The group differences in the mean $\widehat\Delta^\mu_O$ are decomposed into two parts. One part, the "composition effect" $\widehat\Delta^\mu_X$, is explained by differences in the observable covariates (e.g. educational level or experience). The other part, the "structure effect" $\widehat\Delta^\mu_S$, is due to different returns to these covariates. 
+
+The observed difference can be written as
 $$\widehat\Delta^\mu_O = \overline Y_B - \overline Y_A,$$
 
-<span style="color:red"> can be expressed as  
-$$\widehat\Delta^\mu_O = \widehat \beta_{B0} + \sum^K_{k=1}\overline X_{Bk} \widehat \beta_{Bk} - \beta_{A,0} + \sum^K_{k=1}\overline X_{A,k} \widehat \beta_{A,k}$$
-where $\beta_{g}$ are the intercept and slope coefficents of covariates $k = 1,..., K$.
-Adding and substracting the counterfactual mean 
-$$\overline Y_C = \beta_{A,0} + \sum^K_{k=1}\overline X_{B,k} \widehat \beta_{A,k}$$
-the observed difference is diveded into the aggregate wage structure effect $\widehat\Delta^\mu_S $ and and the aggregate composition effect $\widehat\Delta^\mu_X$   
-$$\widehat\Delta^\mu_O = \widehat\Delta^\mu_S + \widehat\Delta^\mu_C, $$
-that can be again written as the product of estimated coefficients and covariates means 
-$$\widehat\Delta^\mu_S  = (\widehat \beta_{B0} - \widehat \beta_{A0}) + \sum^K_{k=1}\overline X_{Bk}(\widehat \beta_{Bk} - \widehat \beta_{Ak})$$
-$$\widehat\Delta^\mu_X = \sum^K_{k=1} (\overline X_{Bk} - \overline X_{Ak})\widehat \beta_{Ak}. $$
-</span>  
-
-<span style="color:red">~~with the composition and structure effect as:
+with the composition and structure effect as:
 
 $$\widehat\Delta^\mu_O = \underbrace{(\widehat \beta_{B0} - \widehat \beta_{A0}) + \sum^K_{k=1}\overline X_{Bk}(\widehat \beta_{Bk} - \widehat \beta_{Ak})}_{\widehat\Delta^\mu_S \text{ (Unexplained)}} + \underbrace{\sum^K_{k=1} (\overline X_{Bk} - \overline X_{Ak})\widehat \beta_{Ak}}_{\widehat\Delta^\mu_X \text{ (Explained)}} $$
-where $\beta_{g}$ are the intercept and slope coefficents of covariates $k = 1,..., K$ <span style="color:red">~~, in the OLS regression models of group $g = A, B$. In this notation~~. <\span> The counterfactual reference scenario is $\overline X_{Bk}\beta_{Ak}$, the covariates' mean of group $B$, mutliplied by the covariates' coefficients of group $A$. However, the reference group could also be the set as $\overline X_{Ak}\beta_{Bk}$. ~~</span>  
+where $\beta_{g}$ are the intercept and slope coefficents of covariates $k = 1,..., K$, in the OLS regression models of group $g = A, B$. In this notation. The counterfactual reference scenario is $\overline X_{Bk}\beta_{Ak}$, the covariates' mean of group $B$, mutliplied by the covariates' coefficients of group $A$. However, the reference group could also be the set as $\overline X_{Ak}\beta_{Bk}$.
 
 The terms $\widehat\Delta^\mu_S $ and $\widehat\Delta^\mu_X$ denote the \emph{aggregate decomposition}, i.e. the overall structure and composition effect. In the \emph{detailed decomposition}, the contribution of each covariate $k$ to the structure and composition effect is estimated. For instance, the contribution of covariate $k = 1$ to the structure effect is $\overline X_{B1}(\widehat \beta_{B1} - \widehat \beta_{A1})$ and $(\overline X_{B1} - \overline X_{A1})\widehat \beta_{A1}$ to the composition effect.
 
