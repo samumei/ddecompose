@@ -58,45 +58,81 @@ devtools::install_github("samumei/ddeco")
 
 ## Background
 
+### Oacaxa-Blinde decomposition
+
+The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) 
+decomposes the difference in the mean of an outcome variable (e.g. hourly wages)
+between two groups $g = 0, 1$ into a part explained by differences in the 
+mean of the covariates (e.g. educational level or experience) and another part
+due to different linear regression coefficients (e.g. returns to education) 
+linking covariates to the outcome. 
+
+The method linearly models the relationship between the outcome $Y$ and covariates
+$X$
+$$Y_{g,i} = \beta_{g,0} + \sum^K_{k=1}X_{k,i}\beta_{g,k} + \varepsilon_{g,i},$$
+where $\beta_{g,0}$ is the intercept and $\beta_{g,k}$ are the slope coefficents of
+covariates $k = 1,\ldots, K$. Moreover, it is assumed that the error
+term $\varepsilon$ is conditionally independent of $X$, i.e. 
+$E( \varepsilon_{g,i} | X_{1,i}, \ldots ,X_{k,i}) = 0$, and that there is
+an overlap in observable characteristics across groups ('common support'). 
+
+Estimating the coefficients with OLS, one can fit a counterfactual mean  
+$$\overline Y_C = \beta_{0,0} + \sum^K_{k=1}\overline X_{1,k} \widehat \beta_{0,k}$$
+that would be observed if group $1$ had the same coefficients like group $0$. By 
+adding and substracting the counterfactual, the observed difference is divided 
+$$\widehat\Delta^\mu_O = (\overline Y_1 - \overline Y_C) + (\overline Y_C - \overline Y_0) = \widehat\Delta^\mu_S + \widehat\Delta^\mu_C, $$
+into the aggregate wage structure effect 
+$$\widehat\Delta^\mu_S  = (\widehat \beta_{1,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{0,k}),$$
+that captures outcome differences due to different coefficients, and the composition effect 
+$$\widehat\Delta^\mu_X = \sum^K_{k=1} (\overline X_{1,k} - \overline X_{1,k})\widehat \beta_{0,k}. $$
+which accounts for mean differencs attributed to different covariate means. Note
+we could also combine coefficients from group 1 with covariates of group 0 to 
+perform the decomposition, instead. Such a change in the "reference" group generally
+leads to different results.
+
+$\widehat\Delta^\mu_S $ and $\widehat\Delta^\mu_X$ denote the aggregate composition
+terms. Since the method hinges on a additive linear model, the terms can be further
+decomposed into the contribution of each covariate $k$ in a \emph{detailed
+decomposition}. For instance, the contribution of covariate $k = 1$ to the 
+structure effect is $\overline X_{1,1}(\widehat \beta_{1,1} - \widehat \beta_{0,1})$
+and $(\overline X_{1,1} - \overline X_{0,1})\widehat \beta_{0,1}$ to the composition
+effect.
+
+### Reweighting decomposition
+
+The Oaxaca-Blinder decomposition is limited to the mean. Moreover, it estimates 
+biased decomposition terms if the conditional expectation of outcome given 
+covariates is not linear. An alternative is the approach of DiNardo, Fortin, 
+and Lemieux (1996) that uses inverse probability to derive an entire 
+counterfactual wage distribution of group 0 if it had the same covariates
+distribution like group 1. 
+
+Definition of counterfactual
+
+Definition of reweighting factor
+
+Assumption: common support, conditional idependence (CIA)
+
+Limits: Only aggregate decomposition
+
+### Sequential decomposition (DFL)
+
+Limits: path-dependence
+
+### RIF decomposition 
+
+[Part by Samuel]
+
+### 'Doubly robust' Oaxca-Blinder
+
+Barsky et al. 2023
+
+
+
+
+
 ### Oaxaca-Blinder Decomposition (and Reweighted Variant)
 
-<span style="color:red">
-The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) 
-decomposes the difference in the mean of an outcome variable (e.g. wage) between
-two groups $g = A, B$ into a part explained by differences in covariate means (e.g. 
-educational level or experience) and another part due different linear
-regression coefficients (e.g. returns to education) linking covariates to the
-outcome. 
-</span>
-
-
-<span style="color:red">
-The method linearly models the relationship between the outcome $Y$ and covariates
-$X$, i.e. 
-$$Y_{g,i} = \beta_{g,0} + \sum^K_{k=1}X_{k,i}\beta_{g,k} + \varepsilon_{g,i},$$
-where $\beta_{g,0}$ and $\beta_{g,k}$ and the intercept and slope coefficents of
-covariates $k = 1,..., K$, respectively. Moreover, it is assumed that the error
-term $\varepsilon$ is conditionally independent of $X$, i.e. 
-$E( \varepsilon_{g,i} | X_{1,i} \ldots X_{k,i}) = 0$, and that there is
-an overlap in observable characteristics across groups ('common support'). 
-</span>
-
-
-<span style="color:red">
-Estimating the coefficients with OLS, one can fit a counterfactual mean  
-$$\overline Y_C = \beta_{A,0} + \sum^K_{k=1}\overline X_{B,k} \widehat \beta_{A,k}$$
-that would be observed if group $B$ had the same coefficients as group $A$. By 
-adding and substracting the counterfactual, the observed difference is divided 
-$$\widehat\Delta^\mu_O = (\overline Y_B - \overline Y_C) + (\overline Y_C - \overline Y_A) = \widehat\Delta^\mu_S + \widehat\Delta^\mu_C, $$
-into the aggregate wage structure effect 
-$$\widehat\Delta^\mu_S  = (\widehat \beta_{B0} - \widehat \beta_{A0}) + \sum^K_{k=1}\overline X_{Bk}(\widehat \beta_{Bk} - \widehat \beta_{Ak}),$$
-that captures outcome differences due to differences in coefficients, and the composition effect 
-$$\widehat\Delta^\mu_X = \sum^K_{k=1} (\overline X_{Bk} - \overline X_{Ak})\widehat \beta_{Ak}. $$
-which identifies mean differencs attributed to different covariate means. Note
-we could also combine coefficients from group B with covariates of group A to 
-perform the decomposition, instead. Such a change in the 'reference' group generally
-leads to different results.
-</span>
 
 
 The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) decomposes group differences in the mean of an outcome variable (e.g. wage). The group differences in the mean $\widehat\Delta^\mu_O$ are decomposed into two parts. One part, the "composition effect" $\widehat\Delta^\mu_X$, is explained by differences in the observable covariates (e.g. educational level or experience). The other part, the "structure effect" $\widehat\Delta^\mu_S$, is due to different returns to these covariates. 
