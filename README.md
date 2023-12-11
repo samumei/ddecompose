@@ -148,7 +148,7 @@ covariates distribution matches the one of group 1.
 $$F_{Y_C}(y) = \int F_{Y_0}(y|x)dF_{X_1} (x)= \int F_{Y_0}(y|x)\Psi_X(x)dF_{X_0}(x).$$
 By applying Bayes’ rule, the reweighting factor can be rewritten
 $$\Psi_X(x) = \frac{dF_{X_1}(x)}{dF_{X_0}(x)} = \frac{P(g=0)P(g=1|x)}{P(g=1)P(g=0|x)},$$
-where $P(g)$ and $P(g|X)$ correspond to the (conditional) probabilities
+where $P(g)$ and $P(g|x)$ correspond to the (conditional) probabilities
 of belonging to group $g$. We can estimate the reweighting factor with
 sample probabilities of each group in the joint sample and conditional
 probability models (e.g. logit). The fitted factors are then used to
@@ -201,9 +201,10 @@ However, sequential decompositions are path-dependent because the
 detailed composition effects attributed to single covariates depend on
 the order of which we include the variables into the sequence. For
 instance, it matters if we reweight union coverage by industry
-($F(x_1|x_2)$) or the industry given union coverage ($F(x_2|x_1)$).
-Moreover, we get different results if we derive $\widehat\nu_{C,X_1}$
-using the conditional covariate distribution from the other group, e.g.
+($F_{X_{0,1}} ( x_1 | x_2)$) or the industry given union coverage
+($F_{X_{0,2}}( x_2 | x_1)$). Moreover, we get different results if we
+derive $\widehat\nu_{C,X_1}$ using the conditional covariate
+distribution from the other group, e.g.
 $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2).$$
 
 ### ‘Doubly robust’ Oaxca-Blinder
