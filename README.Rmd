@@ -56,9 +56,12 @@ or the latest development version from GitHub:
 devtools::install_github("samumei/ddeco")
 ```
 
+
+# New
+
 ## Background
 
-### Oacaxa-Blinde decomposition
+### Oacaxa-Blinder decomposition
 
 The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) 
 decomposes the difference in the mean of an outcome variable (e.g. hourly wages)
@@ -85,9 +88,9 @@ into the aggregate wage structure effect
 $$\widehat\Delta^\mu_S  = (\widehat \beta_{1,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{0,k}),$$
 that captures outcome differences due to different coefficients, and the composition effect 
 $$\widehat\Delta^\mu_X = \sum^K_{k=1} (\overline X_{1,k} - \overline X_{1,k})\widehat \beta_{0,k}. $$
-which accounts for mean differencs attributed to different covariate means. Note
+which accounts for mean differencs of the covariates. Note
 we could also combine coefficients from group 1 with covariates of group 0 to 
-perform the decomposition, instead. Such a change in the "reference" group generally
+define the counterfactual. Such a change in the "reference" group generally
 leads to different results.
 
 $\widehat\Delta^\mu_S $ and $\widehat\Delta^\mu_X$ denote the aggregate composition
@@ -100,40 +103,84 @@ effect.
 
 ### Reweighting decomposition
 
-The Oaxaca-Blinder decomposition is limited to the mean. Moreover, it estimates 
-biased decomposition terms if the conditional expectation of outcome given 
-covariates is not linear. An alternative is the approach of DiNardo, Fortin, 
-and Lemieux (1996) that uses inverse probability to derive an entire 
-counterfactual wage distribution of group 0 if it had the same covariates
-distribution like group 1. 
+The Oaxaca-Blinder decomposition is limited to the mean. Moreover, the 
+decomposition terms are biased if the expectation of the outcome conditional
+on the covariates is not linear. DiNardo, Fortin, and Lemieux (1996), DFL hereafter,
+propose an alternative approach that overcomes both shortcomings. Instead of modeling
+the conditional mean, the method uses inverse probability weighting to derive
+a counterfactual outcome distributions based on the conditional outcome distribution
+of group and the covariates distribution of the other group. For instance, we 
+would reweight the outcome distribution of group 0 such that its covariates
+distribution matches the one of group 1.
+$$F_{Y_C}(y) = \int F_{Y_0}(y|x)dF_{X_1} (x)= \int F_{Y_0}(y|x)\Psi_X(x)dF_{X_0}(x).$$
+By applying Bayes' rule, the reweighting factor can be rewritten
+$$\Psi_X(x) = \frac{dF_{X_1}(x)}{dF_{X_0}(x)} = \frac{P(g=0)P(g=1|x)}{P(g=1)P(g=0|x)},$$
+where $P(g)$ and $P(g|X)$ correspond to the (conditional) probabilities of
+belonging to group $g$. We can estimate the reweighting factor with sample 
+probabilities of each group in the joint sample and conditional probability models (e.g.
+logit). The fitted factors are then used to estimate weighted distributional
+statistics of interest (e.g., mean, quantiles or Gini coefficient) in 
+the reference sample -- group 0 in the present example. The resulting counterfactual
+distributional statistic, $\widehat\nu_C=\widehat\nu(F_{Y_C})$, is then again 
+contrasted with the observed difference
+$$\widehat\Delta_O^{\nu} = (\widehat\nu_1 - \widehat\nu_C) + (\widehat\nu_C - \widehat\nu_0) = \widehat\Delta_S^\nu + \widehat\Delta_X^\nu,$$
 
-Definition of counterfactual
+which yields again an aggregate wage structure effect and aggregate composition effect.
 
-Definition of reweighting factor
+The two decomposition terms account for the contribution of the covariates and the
+conditional outcome distribution as long as we can assum common support and ignorability.
+The latter states that the distribution of unobserved covariates conditional 
+on observed covariates is independent on the group.
 
-Assumption: common support, conditional idependence (CIA)
+### Sequential decompositions
 
-Limits: Only aggregate decomposition
+In contrast to the Oaxaca-Blinder decomposition, where the contributions of each
+covariate simply add up, detailed decompositions are not straightforward in the
+reweighting framework. However, DFL show that we can sequentially alter the covariates
+distributions to decompose the composition effect into the contribution of single
+covariates. For instance, assume we want to distinguish the effect of covariate $X_1$ 
+(e.g. union status) from the one of covariate $X_2$ (e.g. industry).
+We begin again with the counterfactual distribution of group 0 with the 
+covariates distribution of group 1 
+$$F_{Y_{C}}(y) = \iint F_{Y_0}(y|x,z)dF_{X_{1,1}}(x_1|x_2)dF_{X_{1,2}}(x_2)$$
 
-### Sequential decomposition (DFL)
+and introduce a second counterfactual where we combine the 
+conditional outcome distribution of group 0 as well as the conditional covariate 
+distribution of $X_1$ given $X_2$ (e.g. union coverage by industry) of
+group 0 with the covariates distribution $X_2$ of group 1
+$$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x,z)dF_{X_{0,1}}(x_1|x_2)dF_{X_{1,2}}(x_2) $$
 
-Limits: path-dependence
+which can be expressed as the outcome distribution 0
+$$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)\Psi_{X_1}(x_1|x_2)dF_{X_{0,1}}(x_1|x_2)dF_{X_{0,2}}(x_2),$$
+reweighted by the factor
+$$\Psi_{X_1}(x_1|x_2) = \frac{dF_{X_{1,1}}(x_1|x_2)}{dF_{X_{0,1}}(x_1|x_2)} =  \frac{P(g=0|x_1)P(g=1|x_1,x_2)}{P(g=1|x_1)P(g=0|x_1,x_2)}.$$
 
-### RIF decomposition 
+With the distributional statistics of the additional counterfactual, we can 
+divide the aggregate decomposition effect into the contribution of each covariate
+$$\widehat \Delta_X^{\nu} =  (\widehat \nu_C - \widehat \nu_{C,X_1}) + (\widehat \nu_{C,X_1} - \widehat \nu_0) = \widehat \Delta_{X_1}^\nu + \widehat \Delta_{X_2}^\nu,$$
 
-[Part by Samuel]
+However, sequential decompositions are path-dependent because the detailed composition
+effects attributed to single covariates depend on the order of which we include the 
+variables into the sequence. For instance, it matters if we reweight union coverage
+by industry ($F_{X_{1,1}}(x_1|x_2)$) or the industry given union coverage ($F_{X_{1,2}}(x_2|x_1)$).
+Moreover, we get different results if we derive $\widehat\nu_{C,X_1}$ using the 
+conditional covariate distribution from the other group, e.g.
+$$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2).$$
 
 ### 'Doubly robust' Oaxca-Blinder
 
-Barsky et al. 2023
+A robust and path-independent alternative...  Barsky et al. 2023
+
+It has also the nice sideeffect to account for potential reweighting errors.
+
+### RIF decomposition 
+
+Path independent and going beyond the mean
 
 
 
-
-
+# Old
 ### Oaxaca-Blinder Decomposition (and Reweighted Variant)
-
-
 
 The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) decomposes group differences in the mean of an outcome variable (e.g. wage). The group differences in the mean $\widehat\Delta^\mu_O$ are decomposed into two parts. One part, the "composition effect" $\widehat\Delta^\mu_X$, is explained by differences in the observable covariates (e.g. educational level or experience). The other part, the "structure effect" $\widehat\Delta^\mu_S$, is due to different returns to these covariates. 
 
