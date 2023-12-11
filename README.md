@@ -201,10 +201,9 @@ However, sequential decompositions are path-dependent because the
 detailed composition effects attributed to single covariates depend on
 the order of which we include the variables into the sequence. For
 instance, it matters if we reweight union coverage by industry
-($F_{X_{1,1}}(x_1|x_2)$) or the industry given union coverage
-($F_{X_{1,2}}(x_2|x_1)$). Moreover, we get different results if we
-derive $\widehat\nu_{C,X_1}$ using the conditional covariate
-distribution from the other group, e.g.
+($F(x_1|x_2)$) or the industry given union coverage ($F(x_2|x_1)$).
+Moreover, we get different results if we derive $\widehat\nu_{C,X_1}$
+using the conditional covariate distribution from the other group, e.g.
 $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2).$$
 
 ### ‘Doubly robust’ Oaxca-Blinder
