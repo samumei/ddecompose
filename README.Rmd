@@ -172,57 +172,8 @@ A robust and path-independent alternative...  Barsky et al. 2023
 
 It has also the nice sideeffect to account for potential reweighting errors.
 
-### RIF decomposition 
-
-Path independent and going beyond the mean
 
 
-
-# Old
-### Oaxaca-Blinder Decomposition (and Reweighted Variant)
-
-The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) decomposes group differences in the mean of an outcome variable (e.g., wage). The group differences in the mean $\widehat\Delta^\mu_O$ are decomposed into two parts. One part, the "composition effect" $\widehat\Delta^\mu_X$, is explained by differences in the observable covariates (e.g., educational level or experience). The other part, the "structure effect" $\widehat\Delta^\mu_S$, is due to different returns to these covariates. 
-
-The observed difference can be written as
-$$\widehat\Delta^\mu_O = \overline Y_B - \overline Y_A,$$
-
-with the composition and structure effect as:
-
-$$\widehat\Delta^\mu_O = \underbrace{(\widehat \beta_{B0} - \widehat \beta_{A0}) + \sum^K_{k=1}\overline X_{Bk}(\widehat \beta_{Bk} - \widehat \beta_{Ak})}_{\widehat\Delta^\mu_S \text{ (Unexplained)}} + \underbrace{\sum^K_{k=1} (\overline X_{Bk} - \overline X_{Ak})\widehat \beta_{Ak}}_{\widehat\Delta^\mu_X \text{ (Explained)}} $$
-where $\beta_{g}$ are the intercept and slope coefficents of covariates $k = 1,..., K$, in the OLS regression models of group $g = A, B$. In this notation. The counterfactual reference scenario is $\overline X_{Bk}\beta_{Ak}$, the covariates' mean of group $B$, mutliplied by the covariates' coefficients of group $A$. However, the reference group could also be the set as $\overline X_{Ak}\beta_{Bk}$.
-
-The terms $\widehat\Delta^\mu_S $ and $\widehat\Delta^\mu_X$ denote the \emph{aggregate decomposition}, i.e. the overall structure and composition effect. In the \emph{detailed decomposition}, the contribution of each covariate $k$ to the structure and composition effect is estimated. For instance, the contribution of covariate $k = 1$ to the structure effect is $\overline X_{B1}(\widehat \beta_{B1} - \widehat \beta_{A1})$ and $(\overline X_{B1} - \overline X_{A1})\widehat \beta_{A1}$ to the composition effect.
-
-
-
-
-## Background (By DG)
-
-The **ddeco** package allows to decompose observed differences in a distributional
-statistics $\nu_t=\nu(F_{Y_t})$ of an outcome variable $Y_t$ (e.g., hourly wages) between 
-two groups $t = 0,1$.
-$$\Delta_O^{\nu} = \nu_1 - \nu_0.$$
-We are interested to what extent the difference can explained by a different composition
-of observable covariates and by differences in structure linking covariates to the 
-outcome variables. For this purpose, we define a conterfactual outcome statistic that
-would be observed if group 0 had the same composition like group 1 but otherwise
-the same structure linking covariates to the outcome variable. By contrasting 
-the observed statistics to the counterfactual, we can indentify the composition 
-effect $\Delta_S^\nu$ and the (wage) structure effect $\Delta_X^\nu$  that capture 
-differencs in the structure linking covariates to the outcome and in the difference
-in the composition of covariates, respectively: 
-$$\Delta_O^{\nu} = (\nu_1 - \nu_C) + (\nu_C - \nu_0) = \Delta_S^\nu + \Delta_X^\nu.$$
-Note, we could specifiy the counterfactual the other way round.
-
-Under certain assumptions (see Fortin, Lemieux, and Firpo 2011)
-(ignorability/CIA, overlapping support), we can derive...
-
-Standard OB case.
-...
-
-
-
-#### Reweighted Regression Decompostion
 
 [Barsky et al. (2002)](https://www.jstor.org/stable/3085702) pointed out that OB decompositions do not provide consistent estimates of the wage structure and composition effect if the conditional mean function is non linear. They propose using a reweighting approach as in DiNardo et al. (1996) in the decomposition. In this reweighting approach, the reweighting function $\widehat\Psi(X_i)$ makes the characteristics of group $A$ similar to those of group $B$, defined as $X^C_A$. In addition, the OLS regression coefficients are estimated for the reweighted group $\overline X^C_A$, yielding $\widehat \beta^C_A$. Analogous, group A can be used as reference group, thereby reweighting the characteristics of group $B$ would be reweighted to reflect the characteristics of group $A$. 
 
@@ -247,7 +198,10 @@ Second, the pure composition effect displays the differences between the composi
 
 
 
-### Reweighted RIF Regression Decomposition 
+### RIF decomposition 
+
+Path independent and going beyond the mean
+
 
 To estimate decompositions beyond the mean, we implemented a reweighted RIF regression decomposition as proposed by Firpo et al. (2018). Firpo et al. propose to approximate the conditional expectation of the RIF given the explanatory variables with a linear regression. The regression coefficients can be consistent estimates of the average derivatives $\widehat{\alpha}(\nu)$ if the conditional expectations of the RIF are linear in $X$ (see [Firpo et al., 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions), [Rothe 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
 
@@ -262,69 +216,17 @@ By default, the RIF of quantiles, the mean, the variance, the Gini coefficient, 
 It is possible to compute the RIF regression decomposition without reweighting. However, it is strongly advisable to use reweighting and assess the reweighting and specification error, as large errors highlight inconsistent estimations.
 
 
+### Inference
 
-### Decomposition Through Reweighting (DiNardo, Fortin, and Lemieux 1996)
-
-Another method to decompose group differences in an outcome variable beyond the mean is using inverse propensity reweighting as proposed by DiNardo, Fortin, and Lemieux (1996). We implement this decompostion method in the function `dfl_deco()`. The procedure reweights the sample distribution of a reference group such that the group's covariates distribution matches the covariates distribution of a counterfactual group. Reweighting factors are derived by modelling the probability of belonging to the one group instead of the other conditional on covariates. The function allows detailed decompositions of the composition effect by sequentially reweighting (conditional) covariate distributions. 
-
-If group $A$ is set as reference, it is reweighted to match the distribution of characteristics of group $B$. First, a logit model is run to estimate the probability of belonging to group $B$ conditional on covariates: 
-
-$$ Pr(D_B = 1 | X) = 1 - Pr(D_A = 1 | X ). $$
-
-Next, the reweighting factor $\widehat\Psi(X)$ for observations in group $A$ is estimated:
-
-$$ \widehat\Psi(X_i) = \frac{\widehat Pr(D_B = 1 | X) / \widehat Pr(D_B = 1) }{\widehat Pr(D_B = 0 | X) / \widehat Pr(D_B = 0)}.$$
-Note that the same estimation method for $\widehat\Psi(X)$ is applied when computing the reweighting factor for the reweighted OB and RIF regression decomposition discussed above. Using $\widehat\Psi(X)$ to reweight the sample obersavtions in group $A$, the counterfactual statistic of interest then be computed. For instance, to estimate the overall wage gap at a specific quantile $Q_X$ and decompose it into aggregate structure and composition effect following approach is applied: 
-
-$$
-\begin{aligned}
-\widehat\Delta^{Q_X}_O &= Q_{B,X} - Q_{A,X} \\
-&= \underbrace{Q^C_{A,X}- Q_{A,X} }_{\widehat\Delta^{Q_X}_S \text{ (Unexplained)}} + \underbrace{Q_{B,X} - Q^C_{A,X}}_{\widehat\Delta^{Q_X}_X \text{ (Explained)}}
-\end{aligned}
-$$
-
-with $Q_{gX}$ being the estimated Quantile in groups $g = A, B$ and $Q^C_AX$ being the quantile estimate in the reweighted group $A$. For further details on this method, including the detailed decomposition, refer to DiNardo et al. (1996) and Fortin et al. (2011, p. 63-69). 
+`ddeco` allows to bootstrap standard errors in both the `ob_deco()` and `dfl_deco()` function. Analytical standard errors can be nontrivial when the RIF introduces an additional estimation step. In particular, this is the case for quantiles where the density has to be estimated (see [Firpo, Fortin, and Lemieux, 2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)). 
 
 
 
-## Reweighting decompositions with `dfl_deco()`
 
-### Aggregate decomposition
 
-`dfl_deco()` uses inverse probability weighting to estimate counterfactual 
-distributional statistics. The counterfactual combines the conditional outcome
-distribution of the reference group, here defined as group 0, with the covariates 
-distribution of the comparison group, and can expressed as reweighted version of the
-reference distribution
-$$F_{Y_C}(y) = \int F_{Y_0}(y|x)dF_{X_1} (x)= \int F_{Y_0}(y|x)\Psi(x)dF_{X_0}(x),$$
+# Old
 
-where the reweighting factor $\Psi(x) = \frac{P(t=0)P(t=1|X)}{P(t=1)P(t=0|X)}$ 
-captures the inverse probability of belonging to group 1. The reweighting factor
-can be written as function of the probabilities of the binary group 
-variable $t$ and can, thus, readily estimated in the pooled sample of the two
-group unsing conditional probability models. The counterfactual statistics are
-then estimated with weighted estimator using the observed data of group 0 and 
-the fitted reweighting factors.
 
-### Sequential decomposition
-
-We can extend the the reweighting approach to sequentially decompose the composition
-effect into the contribution of single covariates $X$ and $Z$, respectively 
-$$\Delta_X^{\nu} =  (\nu_C - \nu_{C,X}) + (\nu_{C,X} - \nu_0) = \Delta_{X,X}^\nu + \Delta_{X,Z}^\nu,$$
-
-where we define $\nu_C$ as the statistic of the counterfactual where we combine the 
-conditional outcome of group 0 with the covariates distribution of group 1, i.e.
-$$F_{Y_{C}}(y) = \iint F_{Y_0}(y|x,z)dF_{X_1}(x|z)dF_{Z_1}(x).$$
-
-For the decomposition work, we require an additional counterfactual $\nu_{C,X}$ that 
-combines the conditional outcome distribution of group 0 and the distribution of covariate $X$ given $Z$ of the same group with the marginal distribution of $Z$ of group 1, i.e.
-$$F_{Y_{C,X}}(y) = \iint F_{Y_0}(y|x,z)dF_{X_0}(x|z)dF_{Z_1}(x).$$
-Note, sequential decompositions are path-dependent, i.e. the detailed composition
-effects attributed to single covariates depend on the order we include the 
-variables into the sequence (i.e. if we integrate over the conditional distribution
-of $X$ or that of $Z$, respecitvely). Moreover, we get different results if we 
-derive $\nu_{C,X}$ using the conditional covariate distribution from the other group, e.g.
-$$F_{Y_{C,X}}(y) = \iint F_{Y_0}(y|x,z)dF_{X_1}(x|z)dF_{Z_0}(x).$$
 
 
 ### Example
@@ -353,10 +255,6 @@ Using `plot()`, we can illustrate the decomposition accross different quantiles.
 plot(flf_male_inequality)
 ```
 
-
-### Inference
-
-`ddeco` allows to bootstrap standard errors in both the `ob_deco()` and `dfl_deco()` function. Analytical standard errors can be nontrivial when the RIF introduces an additional estimation step. In particular, this is the case for quantiles where the density has to be estimated (see [Firpo, Fortin, and Lemieux, 2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)). 
 
 
 ## Examples
