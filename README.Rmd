@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 
-# `ddeco`: Detailed decompositions of between-group differences in R
+# `ddeco`: Detailed Decompositions of Between-group Differences in R
 
 ## Overview
 
@@ -56,11 +56,9 @@ devtools::install_github("samumei/ddeco")
 ```
 
 
-# New
-
 ## Background
 
-### Oacaxa-Blinder decomposition
+### Oacaxa-Blinder Decomposition
 
 The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) 
 decomposes the difference in the mean of an outcome variable (e.g., hourly wages)
@@ -112,8 +110,9 @@ of one group and the covariates distribution of the other group. For instance, w
 would reweight the outcome distribution of group 0 such that its covariates
 distribution matches that of group 1.
 $$F_{Y_C}(y) = \int F_{Y_0}(y|x)dF_{X_1} (x)= \int F_{Y_0}(y|x)\Psi_X(x)dF_{X_0}(x).$$
-By applying Bayes' rule, the reweighting factor, 
-$$\Psi_X(x) = \frac{dF_{X_1}(x)}{dF_{X_0}(x)} = \frac{P(g=0)P(g=1|x)}{P(g=1)P(g=0|x)},$$
+By applying Bayes' rule, the reweighting factor,  (*CHECK FORMULA AGAIN -> also below* )
+$$\Psi_X(x) = \frac{dF_{X_1}(x)}{dF_{X_0}(x)} = \frac{P(g=0)P(g=0|x)}{P(g=1)P(g=1|x)},$$ 
+
 can be rewritten where $P(g)$ and $P(g|x)$ correspond to the (conditional) probabilities of
 belonging to group $g$. We can estimate the reweighting factor using sample 
 probabilities of each group in the joint sample and conditional probability models (e.g.
@@ -152,13 +151,13 @@ $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x,z)dF_{X_{0,1}}(x_1|x_2)dF_{X_{1,2}}(x_2) 
 which can be expressed as the outcome distribution 0
 $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)\Psi_{X_1}(x_1|x_2)dF_{X_{0,1}}(x_1|x_2)dF_{X_{0,2}}(x_2),$$
 reweighted by the factor
-$$\Psi_{X_1}(x_1|x_2) = \frac{dF_{X_{1,1}}(x_1|x_2)}{dF_{X_{0,1}}(x_1|x_2)} =  \frac{P(g=0|x_1)P(g=1|x_1,x_2)}{P(g=1|x_1)P(g=0|x_1,x_2)}.$$
+$$\Psi_{X_1}(x_1|x_2) = \frac{dF_{X_{1,1}}(x_1|x_2)}{dF_{X_{0,1}}(x_1|x_2)} =  \frac{P(g=0|x_1)P(g=0|x_1,x_2)}{P(g=1|x_1)P(g=1|x_1,x_2)}.$$
 
 With the distributional statistics of the additional counterfactual, we can 
 divide the aggregate decomposition effect into the contribution of each covariate
 $$\widehat \Delta_X^{\nu} =  (\widehat \nu_C - \widehat \nu_{C,X_1}) + (\widehat \nu_{C,X_1} - \widehat \nu_0) = \widehat \Delta_{X_1}^\nu + \widehat \Delta_{X_2}^\nu,$$
 
-However, sequential decompositions are path-dependent because the detailed composition
+However, sequential decompositions are path dependent because the detailed composition
 effects attributed to single covariates depend on the order of which we include the 
 variables into the sequence. For instance, it matters if we reweight union coverage
 by industry ($F_{X_{0,1}} ( x_1 | x_2)$) or the industry given union coverage ($F_{X_{0,2}}( x_2  | x_1)$).
@@ -166,98 +165,54 @@ Moreover, we get different results if we derive $\widehat\nu_{C,X_1}$ using the
 conditional covariate distribution from the other group, e.g.
 $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2).$$
 
-### 'Doubly robust' Oaxca-Blinder
-
-A robust and path-independent alternative...  Barsky et al. 2023
-
-It has also the nice sideeffect to account for potential reweighting errors.
 
 
+### 'Doubly Robust' Oaxca-Blinder
 
+A robust and path independent alternative for decompositions at the mean has been introduced by [Barsky et al. (2002)](https://www.jstor.org/stable/3085702). To produce a robust estimate for the case that conditional mean function is non linear, they propose using a reweighting approach as in DiNardo et al. (1996) in the original OB decomposition. Additionally, this approach has the valuable side effect of accounting for potential reweighting and specification errors. Analogous to DFL, the reweighting function $\widehat\Psi_X(x)$ matches the characteristics of group $0$ to those of group $1$. Likewise, the OLS regression coefficients are estimated for the reweighted group $\overline X_{C,k}$, yielding $\widehat \beta_{C,0}$ and $\widehat \beta_{C,k}$. Analogously, group $0$ can be used as reference group, thereby reweighting the characteristics of group $1$ to reflect the characteristics of group $0$. 
 
-[Barsky et al. (2002)](https://www.jstor.org/stable/3085702) pointed out that OB decompositions do not provide consistent estimates of the wage structure and composition effect if the conditional mean function is non linear. They propose using a reweighting approach as in DiNardo et al. (1996) in the decomposition. In this reweighting approach, the reweighting function $\widehat\Psi(X_i)$ makes the characteristics of group $A$ similar to those of group $B$, defined as $X^C_A$. In addition, the OLS regression coefficients are estimated for the reweighted group $\overline X^C_A$, yielding $\widehat \beta^C_A$. Analogous, group A can be used as reference group, thereby reweighting the characteristics of group $B$ would be reweighted to reflect the characteristics of group $A$. 
-
-To decompose the overall group difference in the reweighted regression decomposition, $\overline X^C_A\widehat \beta^C_A$ is used as counterfactual scenario. The overall gap is then decomposed as: 
+To decompose the overall group difference in the doubly robust regression decomposition, $\overline X_{C,k} \widehat \beta_{C,k}$ is used as counterfactual scenario. The overall gap is then decomposed as: 
 
 $$
-\begin{aligned} \widehat\Delta^\mu_{O,R} &= (\widehat \beta_{B0} - \widehat \beta^C_{A0}) + \sum^K_{k=1} (\overline X_{Bk}\widehat \beta_{Bk} - \overline X^C_{Ak}\widehat \beta^C_{Ak})) + \sum^K_{k=1} (\overline X^C_{Ak}\beta^C_{Ak} - \overline X_{Ak}\widehat \beta_{Ak}) \\
+\begin{aligned} \widehat\Delta^\mu_{O,R} &= (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1} (\overline X_{1,k}\widehat \beta_{1,k} - \overline X_{C,k}\widehat \beta_{C,k})) + \sum^K_{k=1} (\overline X_{C,k}\beta_{C,k} - \overline X_{0,k}\widehat \beta_{0,k}) \\
  &= \widehat\Delta^\mu_{S,R}  + \widehat\Delta^\mu_{X,R}. 
 \end{aligned}
 $$
-These decompostion parts are further divided into pure structure and composition effects, $\widehat\Delta^\mu_{S,p}$ and $\widehat\Delta^\mu_{X,p}$ respectively, and into reweighting error $\widehat\Delta^\mu_{S,e}$ and specification error $\widehat\Delta^\mu_{X,e}$. The structure effect $\widehat\Delta^\mu_{S,R}$ can be written as 
+These decomposition parts can be further divided into pure structure and composition effects, $\widehat\Delta^\mu_{S,p}$ and $\widehat\Delta^\mu_{X,p}$ respectively, and into reweighting error $\widehat\Delta^\mu_{S,e}$ and specification error $\widehat\Delta^\mu_{X,e}$. The structure effect $\widehat\Delta^\mu_{S,R}$ can be written as 
 
-$$\widehat\Delta^\mu_{S,R} = \underbrace{(\widehat \beta_{B0} - \widehat \beta^C_{A0}) + \sum^K_{k=1}\overline X_{Bk}(\widehat \beta_{Bk} - \widehat \beta^C_{Ak})}_{\widehat\Delta^\mu_{S,p} \text{ (Pure structure effect)}} + \underbrace{\sum^K_{k=1} (\overline X_{Bk} - \overline X^C_{Ak})\widehat \beta^C_{Ak}.}_{\widehat\Delta^\mu_{S,e} \text{ (Reweighting error)}}$$
+$$\widehat\Delta^\mu_{S,R} = \underbrace{(\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k})}_{\widehat\Delta^\mu_{S,p} \text{ (Pure structure effect)}} + \underbrace{\sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k}.}_{\widehat\Delta^\mu_{S,e} \text{ (Reweighting error)}}$$
 
 Similarly, the composition effect can be written as
 
-$$\widehat\Delta^\mu_{X,R} = \underbrace{\sum^K_{k=1} (\overline X^C_{Ak} - \overline X_{Ak})\widehat \beta_{Ak}}_{\widehat\Delta^\mu_{X,p} \text{ (Pure composition effect)}} + \underbrace{(\widehat \beta^C_{A0} - \widehat \beta_{A0}) + \sum^K_{k=1}\overline X^C_{Ak}(\widehat \beta^C_{Ak} - \widehat \beta_{Ak}).}_{\widehat\Delta^\mu_{X,e} \text{ (Specification error)}}$$
+$$\widehat\Delta^\mu_{X,R} = \underbrace{\sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k}}_{\widehat\Delta^\mu_{X,p} \text{ (Pure composition effect)}} + \underbrace{(\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k}).}_{\widehat\Delta^\mu_{X,e} \text{ (Specification error)}}$$
 
-The reweighted regression decomposition enhances the original OB decomposition method in two aspects. First, the structure effect is estimated by comparing $\widehat \beta_{B0}$ with the reweighted estimates of group $A$, $\widehat \beta^C_{A0}$ instead of $\widehat \beta_{A0}$. Therefore, the pure wage structure effect entails the true underlying structural differences in group $A$ and $B$ (Fortin et al. 2011). The reweighting error indicates how accurate the reweighting function $\widehat\Psi(X_i)$ and will be zero if the composition of group $B$ is equal to the reweighted group $A$.  
+The reweighted regression decomposition improves the original OB method in two aspects. Firstly, the estimation of the structure effect involves comparing $\widehat \beta_{1,k}$ with the reweighted group $0$ estimates, $\widehat \beta_{C,k}$, instead of $\widehat \beta_{0,k}$. This allows for a more accurate representation of the true underlying structural differences between groups $0$ and $1$ regarding wage structure effects (Fortin et al. 2011). The reweighting error indicates how accurate the reweighting function $\widehat\Psi(X_i)$ is and will be zero if the composition of group $1$ is equal to the reweighted group $0$.  
 
-Second, the pure composition effect displays the differences between the composition of group $A$ and the reweighted group $A$. If the model is truly linear and correctly specified, the specification error is zero and $\widehat\Delta^\mu_{X,p} = \widehat\Delta^\mu_{X,R}$. If the specification error is not close to zero, it is advisable to revise the model specification. While the original OB decomposition only allows for decomposition at the mean, the following methods provide means to decompose other distributional metrics. 
+Second, the pure composition effect displays the differences between the composition of group $0$ and the reweighted group $0$. If the model is truly linear and correctly specified, the specification error is zero and $\widehat\Delta^\mu_{X,p} = \widehat\Delta^\mu_{X,R}$. If the specification error is not close to zero, it is advisable to revise the model specification. While this decomposition method is doubly robust and path independent, its main limitation is that it only allows for decomposition at the mean. 
 
 
 
 ### RIF decomposition 
 
-Path independent and going beyond the mean
+A path independent decomposition method that goes beyond the mean is the reweighted RIF regression decomposition as proposed by Firpo et al. (2018). Firpo et al. propose to approximate the conditional expectation of the RIF given the explanatory variables with a linear regression. The regression coefficients can be consistent estimates of the average derivatives $\widehat{\alpha}(\nu)$ if the conditional expectations of the RIF are linear in $X$ (see [Firpo et al., 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions), [Rothe 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
+
+In the reweighted RIF regression decompositions, first the RIF of the outcome variable $Y$ and a distributional statistic of interest $\nu$ are computed. Then, an OLS regression of the transformed outcome variable $Y$ is run on the explanatory variables $X$. Thereafter, the decomposition method is analogous to the original OB method:
+
+$$\widehat\Delta^\nu_{O,R} = \underbrace{(\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k})}_{\widehat\Delta^\nu_{S,p} \text{ (Pure structure effect)}} + \underbrace{\sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k}}_{\widehat\Delta^\nu_{S,e} \text{ (Reweighting error)}} + \underbrace{\sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k}}_{\widehat\Delta^\nu_{X,p} \text{ (Pure composition effect)}} + \underbrace{(\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k}).}_{\widehat\Delta^\nu_{X,e} \text{ (Specification error)}}$$
+with $\widehat \beta$ being the coefficients of the OLS regression of the transformed outcome variable $Y$, the RIF variable, run on the explanatory variables $X$ of group $0$ and $1$. 
 
 
-To estimate decompositions beyond the mean, we implemented a reweighted RIF regression decomposition as proposed by Firpo et al. (2018). Firpo et al. propose to approximate the conditional expectation of the RIF given the explanatory variables with a linear regression. The regression coefficients can be consistent estimates of the average derivatives $\widehat{\alpha}(\nu)$ if the conditional expectations of the RIF are linear in $X$ (see [Firpo et al., 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions), [Rothe 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
-
-In the reweighted RIF regression decompositions, first the RIF of the outcome variable $Y$ and a distributional statistic of interest $\nu$ is computed. Then, an OLS regression of the transformed outcome variable $Y$ is run on the explanatory variables $X$. Thereafter, the decompostion method is analogous to the original OB method:
-
-$$\widehat\Delta^\nu_{O,R} = \underbrace{(\widehat \beta_{B0} - \widehat \beta^C_{A0}) + \sum^K_{k=1}\overline X_{Bk}(\widehat \beta_{Bk} - \widehat \beta^C_{Ak})}_{\widehat\Delta^\nu_{S,p} \text{ (Pure structure effect)}} + \underbrace{\sum^K_{k=1} (\overline X_{Bk} - \overline X^C_{Ak})\widehat \beta^C_{Ak}}_{\widehat\Delta^\nu_{S,e} \text{ (Reweighting error)}} + \underbrace{\sum^K_{k=1} (\overline X^C_{Ak} - \overline X_{Ak})\widehat \beta_{Ak}}_{\widehat\Delta^\nu_{X,p} \text{ (Pure composition effect)}} + \underbrace{(\widehat \beta^C_{A0} - \widehat \beta_{A0}) + \sum^K_{k=1}\overline X^C_{Ak}(\widehat \beta^C_{Ak} - \widehat \beta_{Ak}).}_{\widehat\Delta^\nu_{X,e} \text{ (Specification error)}}$$
-with $\widehat \beta$ being the coefficients of the OLS regression of the transformed outcome variable $Y$ run on the explanatory variables $X$ of group $A$ and $B$. 
-
-
-By default, the RIF of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddeco`. Moreover, the package allows to calculate the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More further information on RIF regressions can be found in the documentation of the [`rifreg`](https://github.com/samumei/rifreg) package written by the same authors as `ddeco`.
+The RIF of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddeco`. Additionally, the package enables calculating the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the [`rifreg`](https://github.com/samumei/rifreg) package written by the same authors as `ddeco`.
 
 It is possible to compute the RIF regression decomposition without reweighting. However, it is strongly advisable to use reweighting and assess the reweighting and specification error, as large errors highlight inconsistent estimations.
 
 
-### Inference
+## Inference
 
-`ddeco` allows to bootstrap standard errors in both the `ob_deco()` and `dfl_deco()` function. Analytical standard errors can be nontrivial when the RIF introduces an additional estimation step. In particular, this is the case for quantiles where the density has to be estimated (see [Firpo, Fortin, and Lemieux, 2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)). 
-
-
+`ddeco` allows to bootstrap standard errors in both the `ob_deco()` and `dfl_deco()` functions. Analytical standard errors can be nontrivial when the RIF introduces an additional estimation step. In particular, this is the case for quantiles where the density has to be estimated (see [Firpo, Fortin, and Lemieux, 2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)). 
 
 
-
-# Old
-
-
-
-
-### Example
-
-Fortin, Lemieux, and Firpo (FLF, 2011, p. 79-88) decompose the increase in US 
-male wage inequality between the early 1980s and the early 2000s using the CPS
-data. In this example, we replicate their results and treat the observations from
-1983 to 1985 as reference group that is reweighted.
-
-```{r, eval = FALSE}
-library(ddeco)
-data("men8305")
-flf_model <- log(wage) ~ union*(education + experience) + education*experience
-flf_male_inequality  <- dfl_deco(flf_model,
-                                  data = men8305,
-                                  weights = weights,
-                                  group = year)
-```
-We can summarize the results:
-```{r, eval = FALSE}
-summary(flf_male_inequality)
-```
-
-Using `plot()`, we can illustrate the decomposition accross different quantiles.
-```{r, eval = FALSE}
-plot(flf_male_inequality)
-```
-
-
-
-## Examples
+## Examples (unfinished)
 
 The following examples illustrate the workings of the main decomposition functions in `ddeco`. We use a sample of the National Longitudinal Survey (NLSY) 79 containig wage data from 2000 of workers who were aged 35 to 43 in that year. The data is from O'Neill and O'Neill (2006) and is used as an illustration of the Oxaca-Blinder mean decomposition in Fortin, Lemieux, and Firpo (2011). The data contains 2655 male and 2654 female observations, respectively.
 
@@ -296,21 +251,33 @@ plot(ob_deco_estimate, varselect = c("education"))
 ```
 
 
-#### Maybe add Reweighting, Weights, and Changing the Reference Group examples
 
-To add reweighting in 
-Setting `bootstrap=TRUE` bootstraps standard errors by resampling from all observations and reestimating both the RIF and the regression in every iteration. We can set number of `bootstrap_iterations` and the number of `cores`.  
+### Reweighting Decomposition
 
-```{r, eval=FALSE}
-  model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
+Fortin, Lemieux, and Firpo (FLF, 2011, p. 79-88) decompose the increase in US 
+male wage inequality between the early 1980s and the early 2000s using the CPS
+data. In this example, we replicate their results and treat the observations from
+1983 to 1985 as reference group that is reweighted.
 
-  ob_deco_estimate <- ob_deco(formula = model,
-                              data = nlys00,
-                              group = female, 
-                              reweighting = TRUE)
-
-
+```{r, eval = FALSE}
+library(ddeco)
+data("men8305")
+flf_model <- log(wage) ~ union*(education + experience) + education*experience
+flf_male_inequality  <- dfl_deco(flf_model,
+                                  data = men8305,
+                                  weights = weights,
+                                  group = year)
 ```
+We can summarize the results:
+```{r, eval = FALSE}
+summary(flf_male_inequality)
+```
+
+Using `plot()`, we can illustrate the decomposition accross different quantiles.
+```{r, eval = FALSE}
+plot(flf_male_inequality)
+```
+
 
 
 
@@ -335,6 +302,32 @@ The same function is used to decompose RIF regressions. Setting `rifreg = TRUE` 
 
 
 To decompose the the difference in the Gini coefficient of two groups, `rifreg_statistic = "gini"` needs to be indicated accordingly. The RIF functions for the following functions are currently implemented: `"quantiles"`, `"mean"`, `"variance"`, `"gini"`, `"interquantile_range"`, and `"interquantile_ratio"`. However, `ob_deco` also allows to pass a custom RIF function for the decomposition, by setting `rifreg_statistic = "custom"` and passing the custom function to `custom_rif_function`. 
+
+
+
+
+#### Maybe add Reweighting, Weights, and Changing the Reference Group examples
+
+To add reweighting in 
+Setting `bootstrap=TRUE` bootstraps standard errors by resampling from all observations and reestimating both the RIF and the regression in every iteration. We can set number of `bootstrap_iterations` and the number of `cores`.  
+
+```{r, eval=FALSE}
+  model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
+
+  ob_deco_estimate <- ob_deco(formula = model,
+                              data = nlys00,
+                              group = female, 
+                              reweighting = TRUE)
+
+
+```
+
+
+
+
+### Validation
+
+
 
 
 ## Credits
