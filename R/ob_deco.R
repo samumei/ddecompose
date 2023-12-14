@@ -172,6 +172,8 @@ ob_deco <- function(formula,
                     reference_0 = TRUE,
                     na.action = na.omit,
                     normalize_factors = FALSE,
+                    trimming = FALSE,
+                    trimming_threshold = NULL,
                     bootstrap = FALSE,
                     bootstrap_iterations = 100,
                     bootstrap_robust = FALSE,
@@ -250,7 +252,9 @@ ob_deco <- function(formula,
                                  group = group,
                                  reference_0 = reference_0,
                                  method = reweighting_method,
-                                 estimate_statistics = FALSE)
+                                 estimate_statistics = FALSE,
+                                 trimming = trimming,
+                                 trimming_threshold = trimming_threshold)
 
     reweighting_factor <- dlf_deco_results$reweighting_factor$Psi_X1
     data_used$weights_and_reweighting_factors <- data_used[, "weights"] * reweighting_factor
