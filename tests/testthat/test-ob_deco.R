@@ -1158,23 +1158,37 @@ test_that("ob_deco() replicates Table 4, p. 30, in FFL (2018)", {
                                 paste(grep(paste0("^ex(", paste(c(1:4, 6:9), collapse = "|"), ")$"), names(men8816_t4), value = T), collapse = " + "), " + ",
                                 paste(grep(paste0("^occd(", paste(c(11:60, 80:91), collapse = "|"), ")$"), names(men8816_t4), value = T), collapse = " + "), " + ",
                                 paste(grep(paste0("^indd(", paste(c(1, 3:14), collapse = "|"), ")$"), names(men8816_t4), value = T), collapse = " + "), " + pub | ",
-                          paste("covered + nonwhite +",
-                            paste(grep("^marr", names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                            paste(c("ed0", "ed1", "ed3", "ed4", "ed5"), collapse = " + "), "+",
-                            paste(grep("^ex[1-4]|^ex[6-9]", names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                            paste(grep("^uned", names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                            paste(grep("^unex", names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                            paste(grep("^ex[1-9]ed", names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                            paste(grep("^pub", names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                            paste(grep("^indd(1|1e|[3-9]|10|11|13|14)", names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                            paste(grep("^occd", names(men8816_t4), value = TRUE), collapse = " + "))))
+                                paste("covered + nonwhite +",
+                                      paste(grep("^marr", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                                      paste(c("ed0", "ed1", "ed3", "ed4", "ed5"), collapse = " + "), "+",
+                                      paste(grep("^ex[1-4]|^ex[6-9]", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                                      paste(grep("^uned", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                                      paste(grep("^unex", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                                      paste(grep("^ex[1-9]ed", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                                      paste(grep("^pub", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                                      paste(grep("^indd(1|1e|[3-9]|10|11|13|14)(?!2)", names(men8816_t4), perl = TRUE, value = TRUE), collapse = " + "), "+",
+                                      paste(grep("^occd", names(men8816_t4), value = TRUE), collapse = " + "))))
+
+
+
+  # var_model <- as.formula(paste("lwage2 ~ covered + nonwhite + nmarr +
+  #                               ed0 + ed1 + ed3 + ed4 + ed5 + ",
+  #                               paste(grep(paste0("^ex(", paste(c(1:4, 6:9), collapse = "|"), ")$"), names(men8816_t4), value = T), collapse = " + "), " + ",
+  #                               paste(grep(paste0("^occd(", paste(c(11:60, 80:91), collapse = "|"), ")$"), names(men8816_t4), value = T), collapse = " + "), " + ",
+  #                               paste(grep(paste0("^indd(", paste(c(1, 3:14), collapse = "|"), ")$"), names(men8816_t4), value = T), collapse = " + "),
+  #                               " + pub | covered + nonwhite "))
 
 
 
     # # get cleaned Stata data
     # men8816_t4 <- readstata13::read.dta13("data-raw/ddeco literature/FFL_2018/usmen8816_t4.dta")
     # men8816_t4 <- men8816_t4[men8816_t4$time <= 1,]
+    #
+    #
+    # men8816_sample <- readstata13::read.dta13("data-raw/ddeco literature/FFL_2018/usmen8816_sample.dta")
+    # men8816_sample <- men8816_sample[men8816_sample$time <= 1,]
 
+    #
   #
   # deco_90_10  <- ddeco::ob_deco(formula = var_model,
   #                               data = men8816_t3,
@@ -1286,12 +1300,15 @@ test_that("ob_deco() replicates Table 4, p. 30, in FFL (2018)", {
   ### Variance
   browser()
   deco_variance  <- ddeco::ob_deco(formula = var_model,
-                                   data = men8816_t4[sample(nrow(men8816_t4), 10000), ],
+                                   data = men8816_t4,
                                    weights = eweight,
                                    group = time,
+                                   reference_0 = TRUE,
                                    rifreg = TRUE,
                                    rifreg_statistic = "variance",
-                                   reweighting = TRUE)
+                                   reweighting = TRUE,
+                                   trimming = TRUE,
+                                   trimming_threshold = 100)
 
 
   # Overall
