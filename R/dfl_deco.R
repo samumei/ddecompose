@@ -406,7 +406,6 @@ dfl_deco <-  function(formula,
     stop("Only 'logit' and 'random forests' are available methods to estimate reweighting factors")
   }
 
-
   results <- dfl_deco_estimate(formula = formula,
                                dep_var = dep_var,
                                data_used = data_used ,
@@ -642,7 +641,6 @@ dfl_deco_estimate <- function(formula,
                               ...){
 
   # Estimate probabilities -------------------------------------------------------
-
   mod <- group_variable ~ 1
   p1 <- mean(fit_and_predict_probabilities(mod, data_used, weights, method = "logit", return_model = FALSE)[[1]])
   p0 <- 1-p1
@@ -769,7 +767,7 @@ dfl_deco_estimate <- function(formula,
     observations_to_be_trimmed <- list()
 
     for(j in 1:ncol(psi)){
-      observations_to_be_trimmed[[j]] <- select_observations_to_be_trimmed(psi[, j],
+      observations_to_be_trimmed[[j]] <- select_observations_to_be_trimmed(reweighting_factor = psi[, j],
                                                                            group_variable = group_variable,
                                                                            group = reference_group,
                                                                            trimming_threshold = trimming_threshold)

@@ -1,4 +1,3 @@
-
 #' Oaxaca-Blinder decomposition
 #'
 #' Following Oaxaca (1973) and Blinder (1973), this function decomposes between-
@@ -246,7 +245,7 @@ ob_deco <- function(formula,
   else compute_analytical_se <- FALSE
 
   if(reweighting) {
-    dlf_deco_results <- dfl_deco(formula = formula_reweighting,
+    dfl_deco_results <- dfl_deco(formula = formula_reweighting,
                                  data = data_used,
                                  weights = weights,
                                  group = group,
@@ -256,7 +255,7 @@ ob_deco <- function(formula,
                                  trimming = trimming,
                                  trimming_threshold = trimming_threshold)
 
-    reweighting_factor <- dlf_deco_results$reweighting_factor$Psi_X1
+    reweighting_factor <- dfl_deco_results$reweighting_factor$Psi_X1
     data_used$weights_and_reweighting_factors <- data_used[, "weights"] * reweighting_factor
   }
 
@@ -401,11 +400,20 @@ ob_deco <- function(formula,
 
   }
 
+
+  if(reweighting) {
+    reweighting_estimates <- dfl_deco_results[c(3, 5:12)]
+  }
+  else {
+    reweighting_estimates <- NA
+  }
+
   add_to_results <- list(group_variable_name=group_variable_name,
                          group_variable_levels=levels(group_variable),
                          reference_group=reference_group_print,
                          normalize_factors=normalize_factors,
-                         bootstrap=bootstrap)
+                         bootstrap=bootstrap,
+                         reweighting_estimates=reweighting_estimates)
 
   estimated_decomposition <- c(estimated_decomposition,
                                add_to_results)
@@ -954,4 +962,3 @@ ob_deco_calculate_vcov  <- function(beta0,
                   decomposition_terms_vcov = vcov_list)
   return(results)
 }
-
