@@ -243,7 +243,6 @@ please use \code{custom_statistic_function}
 \examples{
 ## Replicate example from handbook chapter of Fortin, Lemieux, and Firpo (FLF, 2011)
 data("men8305")
-men8305$weights <- men8305$weights/sum(men8305$weights) * length(men8305$weights)
 
 flf_model <- log(wage) ~ union*(education + experience) + education*experience
 

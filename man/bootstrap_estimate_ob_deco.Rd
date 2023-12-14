@@ -16,7 +16,8 @@ bootstrap_estimate_ob_deco(
   rifreg_probs,
   custom_rif_function,
   na.action,
-  cluster = NULL
+  cluster = NULL,
+  ...
 )
 }
 \description{

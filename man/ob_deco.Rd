@@ -8,6 +8,7 @@ ob_deco(
   formula,
   data,
   group,
+  swap = FALSE,
   weights = NULL,
   rifreg = FALSE,
   rifreg_statistic = "quantiles",
@@ -23,7 +24,8 @@ ob_deco(
   bootstrap_robust = FALSE,
   cluster = NULL,
   cores = 1,
-  vcov = stats::vcov
+  vcov = stats::vcov,
+  ...
 )
 }
 \arguments{
@@ -35,6 +37,10 @@ ob_deco(
 identifying the two groups that will be compared. The group identified by the
 lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
 first level of factor variable) is defined as group 0.}
+
+\item{swap}{boolean: `FALSE` is default. Setting it to `TRUE` merely changes the sign of the decomposition results.
+This means the composition effect is computed as \code{(X0 - X1) * b1} and
+the structure effect as \code{X0 * (b0 - b1)}.}
 
 \item{weights}{numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
 The default (\code{NULL}) is equivalent to \code{weights = rep(1, length(dep_var))}.}
@@ -63,7 +69,11 @@ See \code{examples} for further details.}
 \item{reference_0}{boolean: if `TRUE` (default), then the group 0 -- i.e.,
 the group identified by the lower ranked value in `group` -- will be defined
 as reference group. The reference group will be reweighted to match the
-covariates distribution of the counterfactual sample.}
+covariates distribution of the counterfactual sample.
+By default, the composition effect is computed as \code{(X1 - X0) * b0} and
+the structure effect as \code{X1 * (b1 - b0)}. Putting \code{reference_0 == FALSE} changes
+the reference structure. Hence the composition effect is computed as \code{(X1 - X0) * b1} and
+the structure effect as \code{X0 * (b1 - b0)}.}
 
 \item{na.action}{generic function that defines how NAs in the data should be handled.
 Default is \code{na.omit}, leading to exclusion of observations that contain one or more missings.
@@ -96,6 +106,11 @@ computing bootstrap standard errors. Only required if \code{bootstrap = TRUE}.}
 \item{vcov}{function estimating covariance matrix of regression coefficients if
 standard errors are not bootstrapped (i.e., \code{bootstrap = FALSE}). By default,
 \link[stats]{vcov} is used assuming homoskedastic errors.}
+
+\item{...}{additional parameters passed to the custom_rif_function.
+Apart from dep_var, weights and probs they must have a different name than the the ones in rifreg.
+For instance, if you want to pass a parameter statistic to the custom_rif_function, name it custom_statistic.
+Additional parameters can also be passed to the \link[stats]{density} function.}
 }
 \description{
 Following Oaxaca (1973) and Blinder (1973), this function decomposes between-

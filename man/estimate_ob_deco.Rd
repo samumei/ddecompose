@@ -18,7 +18,8 @@ estimate_ob_deco(
   rifreg_probs,
   custom_rif_function,
   na.action,
-  vcov
+  vcov,
+  ...
 )
 }
 \description{
