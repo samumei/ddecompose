@@ -222,13 +222,13 @@ composition effects, $\widehat\Delta^\mu_{S,p}$ and
 $\widehat\Delta^\mu_{X,p}$ respectively, and into reweighting error
 $\widehat\Delta^\mu_{S,e}$ and specification error
 $\widehat\Delta^\mu_{X,e}$. The structure effect
-$\widehat\Delta^\mu_{S,R}$ can be written as
+$\widehat\Delta^\mu_{S,R}$ can be written as:
 
-$$\widehat\Delta^\mu_{S,R} = \underbrace{(\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k})}_{\widehat\Delta^\mu_{S,p} \text{ (Pure structure effect)}} + \underbrace{\sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k}.}_{\widehat\Delta^\mu_{S,e} \text{ (Reweighting error)}}$$
+$$\widehat\Delta^\mu_{S,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k}= \widehat\Delta^\mu_{S,p} + \widehat\Delta^\mu_{S,e}.$$
 
-Similarly, the composition effect can be written as
+Similarly, the composition effect can be written as:
 
-$$\widehat\Delta^\mu_{X,R} = \underbrace{\sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k}}_{\widehat\Delta^\mu_{X,p} \text{ (Pure composition effect)}} + \underbrace{(\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k}).}_{\widehat\Delta^\mu_{X,e} \text{ (Specification error)}}$$
+$$\widehat\Delta^\mu_{X,R} = \sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k} + (\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k}) = \widehat\Delta^\mu_{X,p} + \widehat\Delta^\mu_{X,e}.$$
 
 The reweighted regression decomposition improves the original OB method
 in two aspects. Firstly, the estimation of the structure effect involves
@@ -268,7 +268,7 @@ are computed. Then, an OLS regression of the transformed outcome
 variable $Y$ is run on the explanatory variables $X$. Thereafter, the
 decomposition method is analogous to the original OB method:
 
-$$\widehat\Delta^\nu_{O,R} = \underbrace{(\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k})}_{\widehat\Delta^\nu_{S,p} \text{ (Pure structure effect)}} + \underbrace{\sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k}}_{\widehat\Delta^\nu_{S,e} \text{ (Reweighting error)}} + \underbrace{\sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k}}_{\widehat\Delta^\nu_{X,p} \text{ (Pure composition effect)}} + \underbrace{(\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k}).}_{\widehat\Delta^\nu_{X,e} \text{ (Specification error)}}$$
+$$\widehat\Delta^\nu_{O,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k} + \sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k} + (\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k}) = \widehat\Delta^\nu_{S,p} + \widehat\Delta^\nu_{S,e} + \widehat\Delta^\nu_{X,p} +  \widehat\Delta^\nu_{X,e}.  $$
 with $\widehat \beta$ being the coefficients of the OLS regression of
 the transformed outcome variable $Y$, the RIF variable, run on the
 explanatory variables $X$ of group $0$ and $1$.
