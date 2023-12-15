@@ -216,10 +216,9 @@ To decompose the overall group difference in the doubly robust
 regression decomposition, $\overline X_{C,k} \widehat \beta_{C,k}$ is
 used as counterfactual scenario. The overall gap is then decomposed as:
 
-$$
-\widehat\Delta^\mu_{O,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1} (\overline X_{1,k}\widehat \beta_{1,k} - \overline X_{C,k}\widehat \beta_{C,k})) + \sum^K_{k=1} (\overline X_{C,k}\beta_{C,k} - \overline X_{0,k}\widehat \beta_{0,k}) = \widehat\Delta^\mu_{S,R}  + \widehat\Delta^\mu_{X,R}. 
-$$ These decomposition parts can be further divided into pure structure
-and composition effects, $\widehat\Delta^\mu_{S,p}$ and
+$$\widehat\Delta^\mu_{O,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1} (\overline X_{1,k}\widehat \beta_{1,k} - \overline X_{C,k}\widehat \beta_{C,k})) + \sum^K_{k=1} (\overline X_{C,k}\beta_{C,k} - \overline X_{0,k}\widehat \beta_{0,k}) = \widehat\Delta^\mu_{S,R}  + \widehat\Delta^\mu_{X,R}.$$
+These decomposition parts can be further divided into pure structure and
+composition effects, $\widehat\Delta^\mu_{S,p}$ and
 $\widehat\Delta^\mu_{X,p}$ respectively, and into reweighting error
 $\widehat\Delta^\mu_{S,e}$ and specification error
 $\widehat\Delta^\mu_{X,e}$. The structure effect
