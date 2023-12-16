@@ -61,11 +61,11 @@ devtools::install_github("samumei/ddeco")
 ### Oacaxa-Blinder Decomposition
 
 The original decomposition method introduced by Oaxaca (1973) and Blinder (1973) 
-decomposes the difference in the mean of an outcome variable (e.g., hourly wages)
+divides the difference in the mean of an outcome variable (e.g., hourly wages)
 between two groups $g = 0, 1$ into a part explained by differences in the 
-mean of the covariates (e.g., educational level or experience) and another part
-due to different linear regression coefficients (e.g., returns to education) 
-linking covariates to the outcome. 
+mean of the covariates (e.g., educational level or experience) and into 
+another part due to different linear regression coefficients (e.g., returns to education)
+that link the covariates to the outcome variable. 
 
 The method linearly models the relationship between the outcome $Y$ and covariates
 $X$
@@ -76,18 +76,21 @@ term $\varepsilon$ is conditionally independent of $X$, i.e.
 $E( \varepsilon_{g,i} | X_{1,i}, \ldots ,X_{k,i}) = 0$, and that there is
 an overlap in observable characteristics across groups ('common support'). 
 
-Estimating the coefficients using OLS, one can fit a counterfactual mean  
-$$\overline Y_C = \beta_{0,0} + \sum^K_{k=1}\overline X_{1,k} \widehat \beta_{0,k}$$
+The coefficients are estimated with OLS. Together with the sample means
+of the covariates, one can derive a counterfactual mean  
+$$\overline Y_C = \widehat \beta_{0,0} + \sum^K_{k=1}\overline X_{1,k} \widehat \beta_{0,k}$$
 that would be observed if group $1$ had the same coefficients like group $0$. By 
 adding and subtracting the counterfactual, the observed difference
 $$\widehat\Delta^\mu_O = (\overline Y_1 - \overline Y_C) + (\overline Y_C - \overline Y_0) = \widehat\Delta^\mu_S + \widehat\Delta^\mu_C, $$
 is divided into the aggregate wage structure effect 
 $$\widehat\Delta^\mu_S  = (\widehat \beta_{1,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{0,k}),$$
+
 that captures outcome differences due to different coefficients, and the composition effect 
 $$\widehat\Delta^\mu_X = \sum^K_{k=1} (\overline X_{1,k} - \overline X_{0,k})\widehat \beta_{0,k}, $$
-which accounts for mean differences of the covariates. Note
+
+which accounts for mean differences of the covariates. Note that
 we could also combine coefficients from group 1 with covariates of group 0 to 
-define the counterfactual. Such a change in the "reference" group generally
+define a counterfactual. Such a change in the "reference" group generally
 leads to different results.
 
 $\widehat\Delta^\mu_S$ and $\widehat\Delta^\mu_X$ denote the aggregate composition
@@ -104,14 +107,16 @@ The Oaxaca-Blinder decomposition is limited to the mean. Moreover, the
 decomposition terms are biased if the expectation of the outcome conditional
 on the covariates is not linear. DiNardo, Fortin, and Lemieux (1996), DFL hereafter,
 propose an alternative approach that overcomes both shortcomings. Instead of modeling
-the conditional mean, the method uses inverse probability weighting to derive
-a counterfactual outcome distribution based on the conditional outcome distribution
-of one group and the covariates distribution of the other group. For instance, we 
-would reweight the outcome distribution of group 0 such that its covariates
-distribution matches that of group 1.
+the conditional mean, the method uses inverse probability weighting to define
+a counterfactual outcome distribution that combines the conditional outcome 
+distribution of one group and the covariates distribution of the other group. 
+For instance, if we are intereseted in the outcomes of group 0 with 
+covariates of group 1, we would reweight the outcome distribution of group 0 
+such that its covariates distribution matches that of group 1
 $$F_{Y_C}(y) = \int F_{Y_0}(y|x)dF_{X_1} (x)= \int F_{Y_0}(y|x)\Psi_X(x)dF_{X_0}(x).$$
-By applying Bayes' rule, the reweighting factor,  (*CHECK FORMULA AGAIN -> also below* )
-$$\Psi_X(x) = \frac{dF_{X_1}(x)}{dF_{X_0}(x)} = \frac{P(g=0)P(g=0|x)}{P(g=1)P(g=1|x)},$$ 
+
+By applying Bayes' rule, the reweighting factor,
+$$\Psi_X(x) = \frac{dF_{X_1}(x)}{dF_{X_0}(x)} = \frac{P(g=0)P(g=1|x)}{P(g=1)P(g=0|x)},$$ 
 
 can be rewritten where $P(g)$ and $P(g|x)$ correspond to the (conditional) probabilities of
 belonging to group $g$. We can estimate the reweighting factor using sample 
@@ -119,7 +124,7 @@ probabilities of each group in the joint sample and conditional probability mode
 logit). The fitted factors are then used to estimate weighted distributional
 statistics of interest (e.g., mean, quantiles or Gini coefficient) in 
 the reference sample -- group 0 in the present example. The resulting counterfactual
-distributional statistic, $\widehat\nu_C=\widehat\nu(F_{Y_C})$, is then again 
+distributional statistic, $\widehat\nu_C=\widehat\nu(F_{Y_C})$, is then  
 contrasted with the observed difference
 $$\widehat\Delta_O^{\nu} = (\widehat\nu_1 - \widehat\nu_C) + (\widehat\nu_C - \widehat\nu_0) = \widehat\Delta_S^\nu + \widehat\Delta_X^\nu,$$
 
@@ -130,7 +135,7 @@ conditional outcome distribution, assuming common support and ignorability.
 The latter condition asserts that the distribution of unobserved covariates, conditional 
 on observed covariates, is independent of the group.
 
-### Sequential decompositions
+### Sequential decomposition
 
 In contrast to the Oaxaca-Blinder decomposition, where the contributions of each
 covariate simply add up, detailed decompositions are not straightforward in the
