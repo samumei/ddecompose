@@ -28,7 +28,7 @@
 **ddeco** implements the [Oaxaca
 (1973)](https://www.jstor.org/stable/2525981)-[Blinder
 (1973)](https://www.jstor.org/stable/144855) decomposition method and
-its generalizations that decompose differences in distributional
+generalizations of it that decompose differences in distributional
 statistics beyond the mean.
 
 `ob_deco()` decomposes differences in the mean outcome between two
