@@ -167,26 +167,27 @@ straightforward in the reweighting framework. However, DFL show that we
 can sequentially alter the covariates distributions to decompose the
 composition effect into the contribution of single covariates. For
 instance, assume we want to distinguish the effect of covariate $X_1$
-(e.g., union status) from that of covariate $X_2$ (e.g., industry). We
+(e.g. union status) from that of covariate $X_2$ (e.g. industry). We
 begin again with the counterfactual distribution of group 0 with the
 covariates distribution of group 1
 $$F_{Y_{C}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_{1,2}}(x_2)$$
 
 and introduce a second counterfactual where we combine the conditional
 outcome distribution of group 0 as well as the conditional covariate
-distribution of $X_1$ given $X_2$ (e.g., union coverage by industry) of
-group 0 with the covariates distribution $X_2$ of group 1
-$$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{0,1}}(x_1|x_2)dF_{X_{1,2}}(x_2) $$
+distribution of $X_1$ given $X_2$ (e.g. union coverage by industry) of
+group 0 with the covariates distribution $X_2$ (e.g. industry
+distribution) of group 1
+$$F_{Y_{C,X_2}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{0,1}}(x_1|x_2)dF_{X_{1,2}}(x_2) $$
 
 which can be expressed as the outcome distribution 0
-$$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)\Psi_{X_1}(x_1|x_2)dF_{X_{0,1}}(x_1|x_2)dF_{X_{0,2}}(x_2),$$
+$$F_{Y_{C,X_2}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{0,1}}(x_1|x_2)\Psi_{X_2}(x_2)dF_{X_{0,2}}(x_2),$$
 reweighted by the factor
-$$\Psi_{X_1}(x_1|x_2) = \frac{dF_{X_{1,1}}(x_1|x_2)}{dF_{X_{0,1}}(x_1|x_2)} =  \frac{P(g=0|x_1)P(g=1|x_1,x_2)}{P(g=1|x_1)P(g=0|x_1,x_2)}.$$
+$$\Psi_{X_2}(x_2) = \frac{dF_{X_{1,2}}(x_2)}{dF_{X_{0,2}}(x_2)} =  \frac{P(g=0)P(g=1|x_2)}{P(g=1)P(g=0|x_2)}.$$
 
 With the distributional statistics of the additional counterfactual, we
 can divide the aggregate decomposition effect into the contribution of
 each covariate
-$$\widehat \Delta_X^{\nu} =  (\widehat \nu_C - \widehat \nu_{C,X_1}) + (\widehat \nu_{C,X_1} - \widehat \nu_0) = \widehat \Delta_{X_1}^\nu + \widehat \Delta_{X_2}^\nu,$$
+$$\widehat \Delta_X^{\nu} =  (\widehat \nu_C - \widehat \nu_{C,X_2}) + (\widehat \nu_{C,X_2} - \widehat \nu_0) = \widehat \Delta_{X_1}^\nu + \widehat \Delta_{X_2}^\nu,$$
 
 However, sequential decompositions are path dependent because the
 detailed composition effects attributed to single covariates depend on
@@ -195,9 +196,13 @@ instance, it matters if we reweight union coverage by industry
 ($F_{X_{0,1}}(x_1|x_2)$) or the industry given union coverage
 ($F_{X_{0,2}}(x_2 | x_1)$).
 
-Moreover, we get different results if we derive $\widehat\nu_{C,X_1}$
-using the conditional covariate distribution from the other group, e.g.
+Moreover, we get different results if do not manipulate the marginal
+covariate distribution $X_2$ (e.g., industry disribution) but the
+conditional distribution function of $X_1$ given $X_2$ (e.g., union
+density by industry) to derive the counterfactual, e.g.
 $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2).$$
+where we would reweight with a slightly different factor
+$$\Psi_{X_1}(x_1,x_2) = \frac{dF_{X_{1,1}}(x_1|x_2)}{dF_{X_{0,1}}(x_1|x_2)} =  \frac{P(g=0|x_2)P(g=1|x_1,x_2)}{P(g=1|x_2)P(g=0|x_1,x_2)}.$$
 
 ### ‘Doubly Robust’ Oaxca-Blinder
 
