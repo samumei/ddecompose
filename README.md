@@ -146,8 +146,7 @@ joint sample and conditional probability models (e.g. logit). The fitted
 factors are then used to estimate weighted distributional statistics of
 interest (e.g., mean, quantiles or Gini coefficient) in the reference
 sample – group 0 in the present example. The resulting counterfactual
-distributional statistic, $\widehat\nu_C=\widehat\nu(F_{Y_C})$, is
-then  
+distributional statistic, $\widehat\nu_C=\widehat\nu(F_{Y_C})$, is then
 contrasted with the observed difference
 $$\widehat\Delta_O^{\nu} = (\widehat\nu_1 - \widehat\nu_C) + (\widehat\nu_C - \widehat\nu_0) = \widehat\Delta_S^\nu + \widehat\Delta_X^\nu,$$
 
@@ -171,18 +170,18 @@ instance, assume we want to distinguish the effect of covariate $X_1$
 (e.g., union status) from that of covariate $X_2$ (e.g., industry). We
 begin again with the counterfactual distribution of group 0 with the
 covariates distribution of group 1
-$$F_{Y_{C}}(y) = \iint F_{Y_0}(y|x,z)dF_{X_{1,1}}(x_1|x_2)dF_{X_{1,2}}(x_2)$$
+$$F_{Y_{C}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_{1,2}}(x_2)$$
 
 and introduce a second counterfactual where we combine the conditional
 outcome distribution of group 0 as well as the conditional covariate
 distribution of $X_1$ given $X_2$ (e.g., union coverage by industry) of
 group 0 with the covariates distribution $X_2$ of group 1
-$$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x,z)dF_{X_{0,1}}(x_1|x_2)dF_{X_{1,2}}(x_2) $$
+$$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{0,1}}(x_1|x_2)dF_{X_{1,2}}(x_2) $$
 
 which can be expressed as the outcome distribution 0
 $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)\Psi_{X_1}(x_1|x_2)dF_{X_{0,1}}(x_1|x_2)dF_{X_{0,2}}(x_2),$$
 reweighted by the factor
-$$\Psi_{X_1}(x_1|x_2) = \frac{dF_{X_{1,1}}(x_1|x_2)}{dF_{X_{0,1}}(x_1|x_2)} =  \frac{P(g=0|x_1)P(g=0|x_1,x_2)}{P(g=1|x_1)P(g=1|x_1,x_2)}.$$
+$$\Psi_{X_1}(x_1|x_2) = \frac{dF_{X_{1,1}}(x_1|x_2)}{dF_{X_{0,1}}(x_1|x_2)} =  \frac{P(g=0|x_1)P(g=1|x_1,x_2)}{P(g=1|x_1)P(g=0|x_1,x_2)}.$$
 
 With the distributional statistics of the additional counterfactual, we
 can divide the aggregate decomposition effect into the contribution of
@@ -193,10 +192,11 @@ However, sequential decompositions are path dependent because the
 detailed composition effects attributed to single covariates depend on
 the order of which we include the variables into the sequence. For
 instance, it matters if we reweight union coverage by industry
-($F_{X_{0,1}} ( x_1 | x_2)$) or the industry given union coverage
-($F_{X_{0,2}}( x_2 | x_1)$). Moreover, we get different results if we
-derive $\widehat\nu_{C,X_1}$ using the conditional covariate
-distribution from the other group, e.g.
+($F_{X_{0,1}}(x_1|x_2)$) or the industry given union coverage
+($F_{X_{0,2}}(x_2 | x_1)$).
+
+Moreover, we get different results if we derive $\widehat\nu_{C,X_1}$
+using the conditional covariate distribution from the other group, e.g.
 $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2).$$
 
 ### ‘Doubly Robust’ Oaxca-Blinder
