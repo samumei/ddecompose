@@ -111,7 +111,7 @@ propose an alternative approach that overcomes both shortcomings. Instead of mod
 the conditional mean, the method uses inverse probability weighting to define
 a counterfactual outcome distribution that combines the conditional outcome 
 distribution of one group and the covariates distribution of the other group. 
-For instance, if we are intereseted in the outcomes of group 0 with 
+For instance, if we are interested in the outcomes of group 0 with 
 covariates of group 1, we would reweight the outcome distribution of group 0 
 such that its covariates distribution matches that of group 1
 $$F_{Y_C}(y) = \int F_{Y_0}(y|x)dF_{X_1} (x)= \int F_{Y_0}(y|x)\Psi_X(x)dF_{X_0}(x).$$
