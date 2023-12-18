@@ -500,12 +500,12 @@ estimate_ob_deco <- function(formula,
                            ... = ...)
 
     fit1 <- rifreg::rifreg(formula = formula,
-                                  data = subset(data_used, group != group0),
-                                  statistic = rifreg_statistic,
-                                  weights = weights,
-                                  probs = rifreg_probs,
-                                  custom_rif_function = custom_rif_function,
-                                  na.action = na.action,
+                           data = subset(data_used, group != group0),
+                           statistic = rifreg_statistic,
+                           weights = weights,
+                           probs = rifreg_probs,
+                           custom_rif_function = custom_rif_function,
+                           na.action = na.action,
                            bootstrap = FALSE,
                            ... = ...)
 
@@ -537,6 +537,7 @@ estimate_ob_deco <- function(formula,
                                                 probs = rifreg_probs,
                                                 custom_rif_function = custom_rif_function,
                                                 na.action = na.action,
+                                         bootstrap = FALSE,
                                          ... = ...)
       }
       else {
@@ -547,6 +548,7 @@ estimate_ob_deco <- function(formula,
                                                 probs = rifreg_probs,
                                                 custom_rif_function = custom_rif_function,
                                                 na.action = na.action,
+                                         bootstrap = FALSE,
                                          ... = ...)
         }
 
@@ -621,11 +623,11 @@ estimate_ob_deco <- function(formula,
 
       deco_results <- deco_results_group0_group_reweighted
 
-      deco_results$Composition_effect <- deco_results_group0_group_reweighted$Composition_effect
-      deco_results$Specification_error <- deco_results_group0_group_reweighted$Structure_effect
+      deco_results$Composition_effect <- deco_results_group_reweighted_group_1$Composition_effect
+      deco_results$Specification_error <- deco_results_group_reweighted_group_1$Structure_effect
 
-      deco_results$Structure_effect <- deco_results_group_reweighted_group_1$Structure_effect
-      deco_results$Reweighting_error <- deco_results_group_reweighted_group_1$Composition_effect
+      deco_results$Structure_effect <- deco_results_group0_group_reweighted$Structure_effect
+      deco_results$Reweighting_error <- deco_results_group0_group_reweighted$Composition_effect
 
       deco_results$Observed_difference <- deco_results_group0_group_reweighted$Observed_difference +
         deco_results_group_reweighted_group_1$Observed_difference
