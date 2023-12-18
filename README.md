@@ -1,23 +1,34 @@
 
-- [`ddeco`: Detailed Decompositions of Between-group Differences in
-  R](#ddeco-detailed-decompositions-of-between-group-differences-in-r)
-  - [Overview](#overview)
-  - [Installation](#installation)
-  - [Background](#background)
-    - [Oacaxa-Blinder Decomposition](#oacaxa-blinder-decomposition)
-    - [Reweighting decomposition](#reweighting-decomposition)
-    - [Sequential decomposition](#sequential-decomposition)
-    - [‘Doubly Robust’ Oaxca-Blinder](#doubly-robust-oaxca-blinder)
-    - [RIF decomposition](#rif-decomposition)
-  - [Inference](#inference)
-  - [Examples (unfinished)](#examples-unfinished)
-    - [Oaxaca-Blinder Decomposition](#oaxaca-blinder-decomposition)
-    - [Reweighting Decomposition](#reweighting-decomposition-1)
-    - [Reweighted RIF Regression
-      Decomposition](#reweighted-rif-regression-decomposition)
-    - [Validation](#validation)
-  - [Credits](#credits)
-  - [References](#references)
+- <a
+  href="#ddeco-detailed-decompositions-of-between-group-differences-in-r"
+  id="toc-ddeco-detailed-decompositions-of-between-group-differences-in-r"><code>ddeco</code>:
+  Detailed Decompositions of Between-group Differences in R</a>
+  - <a href="#overview" id="toc-overview">Overview</a>
+  - <a href="#installation" id="toc-installation">Installation</a>
+  - <a href="#background" id="toc-background">Background</a>
+    - <a href="#oacaxa-blinder-decomposition"
+      id="toc-oacaxa-blinder-decomposition">Oacaxa-Blinder Decomposition</a>
+    - <a href="#reweighting-decomposition"
+      id="toc-reweighting-decomposition">Reweighting decomposition</a>
+    - <a href="#sequential-decomposition"
+      id="toc-sequential-decomposition">Sequential decomposition</a>
+    - <a href="#doubly-robust-oaxca-blinder"
+      id="toc-doubly-robust-oaxca-blinder">‘Doubly Robust’ Oaxca-Blinder</a>
+    - <a href="#rif-decomposition" id="toc-rif-decomposition">RIF
+      decomposition</a>
+  - <a href="#inference" id="toc-inference">Inference</a>
+  - <a href="#examples-unfinished" id="toc-examples-unfinished">Examples
+    (unfinished)</a>
+    - <a href="#oaxaca-blinder-decomposition"
+      id="toc-oaxaca-blinder-decomposition">Oaxaca-Blinder Decomposition</a>
+    - <a href="#reweighting-decomposition-1"
+      id="toc-reweighting-decomposition-1">Reweighting Decomposition</a>
+    - <a href="#reweighted-rif-regression-decomposition"
+      id="toc-reweighted-rif-regression-decomposition">Reweighted RIF
+      Regression Decomposition</a>
+    - <a href="#validation" id="toc-validation">Validation</a>
+  - <a href="#credits" id="toc-credits">Credits</a>
+  - <a href="#references" id="toc-references">References</a>
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -131,7 +142,7 @@ overcomes both shortcomings. Instead of modeling the conditional mean,
 the method uses inverse probability weighting to define a counterfactual
 outcome distribution that combines the conditional outcome distribution
 of one group and the covariates distribution of the other group. For
-instance, if we are intereseted in the outcomes of group 0 with
+instance, if we are interested in the outcomes of group 0 with
 covariates of group 1, we would reweight the outcome distribution of
 group 0 such that its covariates distribution matches that of group 1
 $$F_{Y_C}(y) = \int F_{Y_0}(y|x)dF_{X_1} (x)= \int F_{Y_0}(y|x)\Psi_X(x)dF_{X_0}(x).$$
@@ -196,8 +207,8 @@ instance, it matters if we reweight union coverage by industry
 ($F_{X_{0,1}}(x_1|x_2)$) or the industry given union coverage
 ($F_{X_{0,2}}(x_2 | x_1)$).
 
-Moreover, we get different results if do not manipulate the marginal
-covariate distribution $X_2$ (e.g., industry disribution) but the
+Moreover, we get different results if we do not manipulate the marginal
+covariate distribution $X_2$ (e.g., industry distribution) but the
 conditional distribution function of $X_1$ given $X_2$ (e.g., union
 density by industry) to derive the counterfactual, e.g.
 $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2).$$

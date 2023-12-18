@@ -167,8 +167,8 @@ effects attributed to single covariates depend on the order of which we include 
 variables into the sequence. For instance, it matters if we reweight union coverage
 by industry ($F_{X_{0,1}}(x_1|x_2)$) or the industry given union coverage ($F_{X_{0,2}}(x_2  | x_1)$).
 
-Moreover, we get different results if do not manipulate the marginal covariate 
-distribution $X_2$ (e.g., industry disribution) but the conditional distribution 
+Moreover, we get different results if we do not manipulate the marginal covariate 
+distribution $X_2$ (e.g., industry distribution) but the conditional distribution 
 function of $X_1$ given $X_2$ (e.g., union density by industry) to derive the 
 counterfactual, e.g.
 $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2).$$
