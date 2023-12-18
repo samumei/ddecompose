@@ -45,7 +45,16 @@
 #'                            A custom function must return a data frame containing at least a "rif" and "weights" column.
 #'                            See \code{examples} for further details.
 #' @param reweighting boolean: if `TRUE`, then reweighted RIF regressions are computed.
-#' @param reweighting_method
+#' @param reweighting_method  specifies the method fit and predict conditional probabilities
+#' used to derive the reweighting factor. Currently, \code{"logit"} and \code{"random forests"} are
+#' the only methods available.
+#' @param trimming boolean: If \code{TRUE}, observations with dominant reweighting factor
+#' values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
+#' default, trimming is set to \code{FALSE}.
+#' @param trimming_threshold numeric: threshold defining the maximal accepted
+#' relative weight of the reweighting factor value (i.e., inverse probability weight)
+#' of a single observation. If \code{NULL}, the threshold is set to \eqn{sqrt(N)/N},
+#' where \eqn{N} is the number of observations in the reference group.
 #' @param normalize_factors boolean: If `TRUE`, then factor variables are normalized as
 #' proposed by Gardeazabal/Ugidos (2004) and results are not dependent on the factor's
 #' reference group. Per default (\code{normalize_factors  = FALSE}), factors are
@@ -423,8 +432,8 @@ ob_deco <- function(formula,
 
 }
 
-#' Estimate OB decomposition
-#'
+# Estimate OB decomposition
+#
 estimate_ob_deco <- function(formula,
                              data_used,
                              reference_0,
@@ -527,7 +536,8 @@ estimate_ob_deco <- function(formula,
                                                 weights = weights_and_reweighting_factors,
                                                 probs = rifreg_probs,
                                                 custom_rif_function = custom_rif_function,
-                                                na.action = na.action)
+                                                na.action = na.action,
+                                         ... = ...)
       }
       else {
         fit_reweighted <- rifreg::rifreg(formula = formula,
@@ -536,7 +546,8 @@ estimate_ob_deco <- function(formula,
                                                 weights = weights_and_reweighting_factors,
                                                 probs = rifreg_probs,
                                                 custom_rif_function = custom_rif_function,
-                                                na.action = na.action)
+                                                na.action = na.action,
+                                         ... = ...)
         }
 
 
@@ -677,8 +688,8 @@ estimate_ob_deco <- function(formula,
   return(results)
 }
 
-#' Estimate OB decomposition in bootstrap replications
-#'
+# Estimate OB decomposition in bootstrap replications
+#
 bootstrap_estimate_ob_deco <- function(formula,
                                        data_used,
                                        reference_0,

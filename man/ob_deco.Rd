@@ -19,6 +19,8 @@ ob_deco(
   reference_0 = TRUE,
   na.action = na.omit,
   normalize_factors = FALSE,
+  trimming = FALSE,
+  trimming_threshold = NULL,
   bootstrap = FALSE,
   bootstrap_iterations = 100,
   bootstrap_robust = FALSE,
