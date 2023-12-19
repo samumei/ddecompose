@@ -1,38 +1,27 @@
 
-- <a
-  href="#ddeco-detailed-decompositions-of-between-group-differences-in-r"
-  id="toc-ddeco-detailed-decompositions-of-between-group-differences-in-r"><code>ddeco</code>:
-  Detailed Decompositions of Between-group Differences in R</a>
-  - <a href="#overview" id="toc-overview">Overview</a>
-  - <a href="#installation" id="toc-installation">Installation</a>
-  - <a href="#background" id="toc-background">Background</a>
-    - <a href="#oacaxa-blinder-decomposition"
-      id="toc-oacaxa-blinder-decomposition">Oacaxa-Blinder Decomposition</a>
-    - <a href="#reweighting-decomposition"
-      id="toc-reweighting-decomposition">Reweighting decomposition</a>
-    - <a href="#sequential-decomposition"
-      id="toc-sequential-decomposition">Sequential decomposition</a>
-    - <a href="#doubly-robust-oaxca-blinder"
-      id="toc-doubly-robust-oaxca-blinder">‘Doubly Robust’ Oaxca-Blinder</a>
-    - <a href="#rif-decomposition" id="toc-rif-decomposition">RIF
-      decomposition</a>
-  - <a href="#inference" id="toc-inference">Inference</a>
-  - <a href="#examples-unfinished" id="toc-examples-unfinished">Examples
-    (unfinished)</a>
-    - <a href="#oaxaca-blinder-decomposition"
-      id="toc-oaxaca-blinder-decomposition">Oaxaca-Blinder Decomposition</a>
-    - <a href="#reweighting-decomposition-1"
-      id="toc-reweighting-decomposition-1">Reweighting Decomposition</a>
-    - <a href="#reweighted-rif-regression-decomposition"
-      id="toc-reweighted-rif-regression-decomposition">Reweighted RIF
-      Regression Decomposition</a>
-    - <a href="#validation" id="toc-validation">Validation</a>
-  - <a href="#credits" id="toc-credits">Credits</a>
-  - <a href="#references" id="toc-references">References</a>
+- [`ddeco`: Detailed decompositions of between-group differences in
+  R](#ddeco-detailed-decompositions-of-between-group-differences-in-r)
+  - [Overview](#overview)
+  - [Installation](#installation)
+  - [Background](#background)
+    - [Oacaxa-Blinder Decomposition](#oacaxa-blinder-decomposition)
+    - [Reweighting decomposition](#reweighting-decomposition)
+    - [Sequential decomposition](#sequential-decomposition)
+    - [‘Doubly Robust’ Oaxca-Blinder](#doubly-robust-oaxca-blinder)
+    - [RIF decomposition](#rif-decomposition)
+  - [Inference](#inference)
+  - [Examples (unfinished)](#examples-unfinished)
+    - [Oaxaca-Blinder Decomposition](#oaxaca-blinder-decomposition)
+    - [Reweighting Decomposition](#reweighting-decomposition-1)
+    - [Reweighted RIF Regression
+      Decomposition](#reweighted-rif-regression-decomposition)
+    - [Validation](#validation)
+  - [Credits](#credits)
+  - [References](#references)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `ddeco`: Detailed Decompositions of Between-group Differences in R
+# `ddeco`: Detailed decompositions of between-group differences in R
 
 ## Overview
 
@@ -60,11 +49,10 @@ to sequentially decompose the composition effect into the contribution
 of single covariates.
 
 The package contains generic summary, print and plot functions for the
-results and computes bootstrapped standard errors. This documentation
-provides a brief overview of the functions implemented in the package.
-For a more detailed discussion of decomposition methods including their
-respective assumptions and limitations, refer to [Fortin, Lemieux, and
-Firpo
+results and computes standard errors. This documentation provides a
+brief overview of the functions implemented in the package. For a more
+detailed discussion of decomposition methods including their respective
+assumptions and limitations, refer to [Fortin, Lemieux, and Firpo
 (2011)](https://economics.ubc.ca/wp-content/uploads/sites/38/2013/05/pdf_paper_nicole-fortin-decomposition-methods.pdf)
 and Firpo et al. (2018).
 
@@ -204,8 +192,8 @@ However, sequential decompositions are path dependent because the
 detailed composition effects attributed to single covariates depend on
 the order of which we include the variables into the sequence. For
 instance, it matters if we reweight union coverage by industry
-($F_{X_{0,1}}(x_1|x_2)$) or the industry given union coverage
-($F_{X_{0,2}}(x_2 | x_1)$).
+($F_{X_{0,1}}(x_1 \mid x_2)$) or the industry given union coverage
+($F_{X_{0,2}}(x_2 \mid x_1)$).
 
 Moreover, we get different results if we do not manipulate the marginal
 covariate distribution $X_2$ (e.g., industry distribution) but the
@@ -221,34 +209,76 @@ A robust and path independent alternative for decompositions at the mean
 has been introduced by [Barsky et
 al. (2002)](https://www.jstor.org/stable/3085702). To produce a robust
 estimate for the case that conditional mean function is non linear, they
-propose using a reweighting approach as in DiNardo et al. (1996) in the
-original OB decomposition. Additionally, this approach has the valuable
-side effect of accounting for potential reweighting and specification
-errors. Analogous to DFL, the reweighting function $\widehat\Psi_X(x)$
-matches the characteristics of group $0$ to those of group $1$.
-Likewise, the OLS regression coefficients are estimated for the
-reweighted group $\overline X_{C,k}$, yielding $\widehat \beta_{C,0}$
-and $\widehat \beta_{C,k}$. Analogously, group $0$ can be used as
-reference group, thereby reweighting the characteristics of group $1$ to
-reflect the characteristics of group $0$.
+propose combining the DFL reweighting with the Oaxaca-Blinder
+decomposition. Additionally, this approach has the valuable side effect
+of accounting for potential errors introduced by an incomplete inverse
+probability weighting and the linear model specification, respectively.
 
-To decompose the overall group difference in the doubly robust
-regression decomposition, $\overline X_{C,k} \widehat \beta_{C,k}$ is
-used as counterfactual scenario. The overall gap is then decomposed as:
+The estimation proceeds in two steps. First, the reweighting function
+$\widehat\Psi_X(x)$ that matches the characteristics of group $0$ ($1$)
+to those of group $1$ ($0$) is derived. Second, the linear model and the
+covariate means are estimated in the two observed samples as well as in
+the reweighted sample $0$ ($1$), yielding $\widehat \beta_{C,0}$,
+$\widehat \beta_{C,k}$, and $\overline X_{C,k}$.
 
-$$\widehat\Delta^\mu_{O,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1} (\overline X_{1,k}\widehat \beta_{1,k} - \overline X_{C,k}\widehat \beta_{C,k})) + \sum^K_{k=1} (\overline X_{C,k}\beta_{C,k} - \overline X_{0,k}\widehat \beta_{0,k}) = \widehat\Delta^\mu_{S,R}  + \widehat\Delta^\mu_{X,R}.$$
-These decomposition parts can be further divided into pure structure and
+**OLD paragraph**: *Analogous to DFL, the reweighting function
+$\widehat\Psi_X(x)$ matches the characteristics of group $0$ to those of
+group $1$. Likewise, the OLS regression coefficients are estimated for
+the reweighted group $\overline X_{C,k}$, yielding
+$\widehat \beta_{C,0}$ and $\widehat \beta_{C,k}$. Analogously, group
+$0$ can be used as reference group, thereby reweighting the
+characteristics of group $1$ to reflect the characteristics of group
+$0$.*
+
+The mean of the reweighted sample builds the main counterfactual to
+derive the aggregate structure effect and composition effect,
+respectively. The detailed decomposition terms are also evaluated with
+respect to the statistics of the reweigthed sample, i.e.  **OLD
+paragraph**: **To decompose the overall group difference in the doubly
+robust regression decomposition,
+$\overline X_{C,k} \widehat \beta_{C,k}$ is used as counterfactual
+scenario. The overall gap is then decomposed as:**
+
+$$\widehat\Delta^\mu_{O,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1} (\overline X_{1,k}\widehat \beta_{1,k} - \overline X_{C,k}\widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{C,k}\beta_{C,k} - \overline X_{0,k}\widehat \beta_{0,k}) = \widehat\Delta^\mu_{S,R}  + \widehat\Delta^\mu_{X,R}.$$
+These decomposition terms can be further decomposed into a structure and
+into a composition effect, respectively. This separates the errors from
+reweighting $\widehat\Delta^\mu_{S,e}$ and the linear specification
+$\widehat\Delta^\mu_{X,e}$, respectively, and yields a “pure”
+composition effect $\widehat\Delta^\mu_{X,p}$ and the “pure” structure
+effect $\widehat\Delta^\mu_{S,p}$. Concretely, the additional
+decomposition of the structure effect reads as **OLD paragraph**: *These
+decomposition parts can be further divided into pure structure and
 composition effects, $\widehat\Delta^\mu_{S,p}$ and
 $\widehat\Delta^\mu_{X,p}$ respectively, and into reweighting error
 $\widehat\Delta^\mu_{S,e}$ and specification error
 $\widehat\Delta^\mu_{X,e}$. The structure effect
-$\widehat\Delta^\mu_{S,R}$ can be written as:
+$\widehat\Delta^\mu_{S,R}$ can be written as:*
 
 $$\widehat\Delta^\mu_{S,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k}= \widehat\Delta^\mu_{S,p} + \widehat\Delta^\mu_{S,e}.$$
 
-Similarly, the composition effect can be written as:
+Similarly, the composition effect can be written as
 
 $$\widehat\Delta^\mu_{X,R} = \sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k} + (\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k}) = \widehat\Delta^\mu_{X,p} + \widehat\Delta^\mu_{X,e}.$$
+
+**Text müsste hier noch konkreter werden, man könnte ihn auch kürzen.
+Meine Intuition: Die “puren” Effekte sind ja v.a. relevant für die
+detailierte Dekomposition. Das müsste man erwähnen. Der
+Spezifikationsfehler misst inwiefern sich die geschätzen Koeffzienten
+bei gleichbleinder Lohnstruktur alleine aufgrund der
+Kovariatenverteilung verändern und lassen dadurch den “puren” Effekt für
+jede Variable isolieren. Der “reweighting” Fehler wiederum zeigt an,
+inwiefen die geschätzte Lohnstruktur anders auffällt, weil man die
+Kovariateverteilung ungenau umgewichtet. Dadurch kann man den “puren”
+Effekt der Struktur messen.**
+
+**Weiter könnte man Kline (2010,
+<https://eml.berkeley.edu/~pkline/papers/oaxaca6.pdf>) erwähnen, der
+argumentiert weshalb es nun ‘doubly robust’. Grundsätzlich heisst es so,
+weil a) man sich sowohl gegen die Misspezifikation des linearen Modelles
+absichert und b) des Propensity Scores Schätzers. Wenn das lineare
+Modell richtig ist, braucht es keine Umgewichtung bzw. die Umgewichtung
+kann falsch spezifiziert sein. Umgekehrt hält der Schätzer bei richtiger
+Umgewichtung, auch wenn das lineare Modell misspezifiziert ist. **
 
 The reweighted regression decomposition improves the original OB method
 in two aspects. Firstly, the estimation of the structure effect involves
