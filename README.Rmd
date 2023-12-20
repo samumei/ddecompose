@@ -223,7 +223,7 @@ It is possible to compute the RIF regression decomposition without reweighting. 
 
 ## Inference
 
-`ddeco` allows to bootstrap standard errors in both the `ob_deco()` and `dfl_deco()` functions. Analytical standard errors can be nontrivial when the RIF introduces an additional estimation step. In particular, this is the case for quantiles where the density has to be estimated (see [Firpo, Fortin, and Lemieux, 2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)). 
+`ddeco` allows to bootstrap standard errors in both the `ob_deco()` and `dfl_deco()` functions. Furthermore, we implemented analytical standard errors for the original OB decomposition as introduced by Jann ([2005](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf), [2008](https://journals.sagepub.com/doi/abs/10.1177/1536867X0800800401). Analytical standard errors can be nontrivial when the RIF introduces an additional estimation step. In particular, this is the case for quantiles where the density has to be estimated (see [Firpo, Fortin, and Lemieux, 2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)). 
 
 
 ## Examples (unfinished)
@@ -364,6 +364,10 @@ Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2009a. "Unconditional Quant
 Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2009b. "Supplement to 'Unconditional Quantile Regressions'." *Econometrica Supplemental Material*, 77.
 
 Fortin, Nicole M., Thomas Lemieux, and Sergio Firpo. 2011. "Decomposition Methods in Economics." *National Bureau of Economic Research - Working Paper Series*, 16045.
+
+Jann, Ben, 2005. "Standard errors for the Blinder-Oaxaca decomposition." *3rd German Stata Users’ Group Meeting 2005*. Available from [https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf).
+
+Jann, Ben, 2008. "The Blinder–Oaxaca Decomposition for Linear Regression Models". *Stata Journal* 8: 435–479.
 
 Rios-Avila, Fernando (2020): "Recentered influence functions (RIFs) in Stata: RIF regression and RIF decomposition." *The Stata Journal* 20(1): 51-94.
 
