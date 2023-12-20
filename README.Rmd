@@ -179,14 +179,13 @@ $$\Psi_{X_1}(x_1,x_2) = \frac{dF_{X_{1,1}}(x_1|x_2)}{dF_{X_{0,1}}(x_1|x_2)} =  \
 
 A robust and path independent alternative for decompositions at the mean has been introduced by [Barsky et al. (2002)](https://www.jstor.org/stable/3085702). To produce a robust estimate for the case that conditional mean function is non linear, they propose combining the DFL reweighting with the Oaxaca-Blinder decomposition. Additionally, this approach has the valuable side effect of accounting for potential errors introduced by an incomplete inverse probability weighting and the linear model specification, respectively.
 
-The estimation proceeds in two steps. First, the reweighting function $\widehat\Psi_X(x)$ that matches the characteristics of group $0$ ($1$) to those of group $1$ ($0$) is derived. Second, the linear model and the covariate means are estimated in the two observed samples as
-well as in the reweighted sample $0$ ($1$), yielding $\widehat \beta_{C,0}$, $\widehat \beta_{C,k}$,
+The estimation proceeds in two steps. First, the reweighting function $\widehat\Psi_X(x)$ that matches the characteristics of group $0$ ($1$) to those of group $1$ ($0$) is derived. Second, the linear model and the covariate means are estimated in the two observed samples as well as in the reweighted sample $0$ ($1$), yielding $\widehat \beta_{C,0}$, $\widehat \beta_{C,k}$,
 and $\overline X_{C,k}$.
 
 The mean of the reweighted sample builds the main counterfactual to derive the aggregate structure effect and composition effect, respectively. The detailed decomposition terms are also evaluated with respect to the statistics of the reweigthed sample, i.e. 
 
 $$\widehat\Delta^\mu_{O,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1} (\overline X_{1,k}\widehat \beta_{1,k} - \overline X_{C,k}\widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{C,k}\beta_{C,k} - \overline X_{0,k}\widehat \beta_{0,k}) = \widehat\Delta^\mu_{S,R}  + \widehat\Delta^\mu_{X,R}.$$
-These decomposition terms can be further decomposed into a structure and into a composition effect, respectively. This separates the errors from reweighting $\widehat\Delta^\mu_{S,e}$ and the linear specification $\widehat\Delta^\mu_{X,e}$, respectively, and yields a "pure" composition effect $\widehat\Delta^\mu_{X,p}$ and the "pure" structure effect $\widehat\Delta^\mu_{S,p}$. Concretely, the additional decomposition of the structure effect reads as
+These decomposition terms can be further decomposed into a structure and into a composition effect, respectively. This separates the errors from reweighting $\widehat\Delta^\mu_{S,e}$ and the linear specification $\widehat\Delta^\mu_{X,e}$, respectively, and yields a "pure" composition effect $\widehat\Delta^\mu_{X,p}$ and a "pure" structure effect $\widehat\Delta^\mu_{S,p}$. Concretely, the additional decomposition of the structure effect reads as
 
 $$\widehat\Delta^\mu_{S,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k}= \widehat\Delta^\mu_{S,p} + \widehat\Delta^\mu_{S,e}.$$
 
@@ -194,15 +193,56 @@ Similarly, the composition effect can be written as
 
 $$\widehat\Delta^\mu_{X,R} = \sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k} + (\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k}) = \widehat\Delta^\mu_{X,p} + \widehat\Delta^\mu_{X,e}.$$
 
+# COMPOSITION
+The specification error, $\widehat\Delta^\mu_{X,e}$, measures
+
+SEE FLF 2011
 
 
-**Text müsste hier noch konkreter werden, man könnte ihn auch kürzen. Meine Intuition: Die "puren" Effekte sind ja v.a. relevant für die detailierte Dekomposition. Das müsste man erwähnen. Der Spezifikationsfehler misst inwiefern sich die geschätzen Koeffzienten bei gleichbleinder Lohnstruktur alleine aufgrund der Kovariatenverteilung verändern und lassen dadurch den "puren" Effekt für jede Variable isolieren. Der "reweighting" Fehler wiederum zeigt an, inwiefen die geschätzte Lohnstruktur anders auffällt, weil man die Kovariateverteilung ungenau umgewichtet. Dadurch kann man den "puren" Effekt der Struktur messen.**
+Second, the pure composition effect displays the differences between the composition of group $0$ and the reweighted group $0$. If the model is truly linear and correctly specified, the specification error is zero and $\widehat\Delta^\mu_{X,p} = \widehat\Delta^\mu_{X,R}$. If the specification error is not close to zero, it is advisable to revise the model specification.
+
+
+*Der Spezifikationsfehler misst inwiefern sich die geschätzen Koeffzienten bei gleichbleinder Lohnstruktur alleine aufgrund der Kovariatenverteilung verändern und lassen dadurch den "puren" Effekt für jede Variable isolieren.*
+
+
+
+
+# STRUCTURE
+
+Firstly, the estimation of the structure effect involves comparing $\widehat \beta_{1,k}$ with the reweighted group $0$ estimates, $\widehat \beta_{C,k}$, instead of $\widehat \beta_{0,k}$. This allows for a more accurate representation of the true underlying structural differences between groups $0$ and $1$ regarding wage structure effects (Fortin et al. 2011).
+
+The reweighting error, , indicates how accurate the reweighting function $\widehat\Psi(X_i)$ is and will be zero if the composition of group $1$ is equal to the reweighted group $0$.  
+ 
+
+**Der "reweighting" Fehler wiederum zeigt an, inwiefen die geschätzte Lohnstruktur anders auffällt, weil man die Kovariateverteilung ungenau umgewichtet. Dadurch kann man den "puren" Effekt der Struktur messen.**
+
+
+
+
+
+# DOUBLY ROBUST
+The reweighted regression decomposition improves the original OB method in two aspects.
 
 **Weiter könnte man Kline (2010, https://eml.berkeley.edu/~pkline/papers/oaxaca6.pdf) erwähnen, der argumentiert weshalb es nun 'doubly robust'. Grundsätzlich heisst es so, weil a) man sich sowohl gegen die Misspezifikation des linearen Modelles absichert und b) des Propensity Scores Schätzers. Wenn das lineare Modell richtig ist, braucht es keine Umgewichtung bzw. die Umgewichtung kann falsch spezifiziert sein. Umgekehrt hält der Schätzer bei richtiger Umgewichtung, auch wenn das lineare Modell misspezifiziert ist. **
 
-The reweighted regression decomposition improves the original OB method in two aspects. Firstly, the estimation of the structure effect involves comparing $\widehat \beta_{1,k}$ with the reweighted group $0$ estimates, $\widehat \beta_{C,k}$, instead of $\widehat \beta_{0,k}$. This allows for a more accurate representation of the true underlying structural differences between groups $0$ and $1$ regarding wage structure effects (Fortin et al. 2011). The reweighting error indicates how accurate the reweighting function $\widehat\Psi(X_i)$ is and will be zero if the composition of group $1$ is equal to the reweighted group $0$.  
 
-Second, the pure composition effect displays the differences between the composition of group $0$ and the reweighted group $0$. If the model is truly linear and correctly specified, the specification error is zero and $\widehat\Delta^\mu_{X,p} = \widehat\Delta^\mu_{X,R}$. If the specification error is not close to zero, it is advisable to revise the model specification. While this decomposition method is doubly robust and path independent, its main limitation is that it only allows for decomposition at the mean. 
+
+# CONCLUSION
+While this decomposition method is doubly robust and path independent, its main limitation is that it only allows for decomposition at the mean. 
+
+
+
+
+
+
+
+Die "puren" Effekte sind ja v.a. relevant für die detailierte Dekomposition. Das müsste man erwähnen. -> wieso?
+
+**Text müsste hier noch konkreter werden, man könnte ihn auch kürzen. Meine Intuition: Die "puren" Effekte sind ja v.a. relevant für die detailierte Dekomposition. Das müsste man erwähnen. Der Spezifikationsfehler misst inwiefern sich die geschätzen Koeffzienten bei gleichbleinder Lohnstruktur alleine aufgrund der Kovariatenverteilung verändern und lassen dadurch den "puren" Effekt für jede Variable isolieren. Der "reweighting" Fehler wiederum zeigt an, inwiefen die geschätzte Lohnstruktur anders auffällt, weil man die Kovariateverteilung ungenau umgewichtet. Dadurch kann man den "puren" Effekt der Struktur messen.**
+
+
+
+
 
 
 
@@ -340,6 +380,8 @@ Setting `bootstrap=TRUE` bootstraps standard errors by resampling from all obser
 
 
 ### Validation
+
+
 
 
 
