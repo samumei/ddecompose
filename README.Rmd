@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 
-# `ddeco`: Detailed decompositions of between-group differences in R
+# `ddeco`: Detailed Distributional Decompositions of Between-Group Differences in R
 
 ## Overview
 
@@ -102,7 +102,7 @@ structure effect is $\overline X_{1,1}(\widehat \beta_{1,1} - \widehat \beta_{0,
 and $(\overline X_{1,1} - \overline X_{0,1})\widehat \beta_{0,1}$ to the composition
 effect.
 
-### Reweighting decomposition
+### Reweighting Decomposition
 
 The Oaxaca-Blinder decomposition is limited to the mean. Moreover, the 
 decomposition terms are biased if the expectation of the outcome conditional
@@ -135,7 +135,7 @@ conditional outcome distribution, assuming common support and ignorability.
 The latter condition asserts that the distribution of unobserved covariates, conditional 
 on observed covariates, is independent of the group.
 
-### Sequential decomposition
+### Sequential Decomposition
 
 In contrast to the Oaxaca-Blinder decomposition, where the contributions of each
 covariate simply add up, detailed decompositions are not straightforward in the
@@ -203,22 +203,26 @@ By comparing $\beta_{1,k}$ to coefficients of the reweighted group $0$, $\wideha
 
 
 
-### RIF decomposition 
+### RIF Decomposition 
 
-A path independent decomposition method that goes beyond the mean is the reweighted RIF regression decomposition as proposed by Firpo et al. (2018). Firpo et al. propose to approximate the conditional expectation of the RIF given the explanatory variables with a linear regression. The regression coefficients can be consistent estimates of the average derivatives $\widehat{\alpha}(\nu)$ if the conditional expectations of the RIF are linear in $X$ (see [Firpo et al., 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions), [Rothe 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
+A path independent decomposition method that goes beyond the mean is the reweighted RIF regression decomposition as proposed by Firpo, Fortin, and Lemieux (2018). Firpo et al. propose to approximate the conditional expectation of the RIF given the explanatory variables with a linear regression. The regression coefficients can be consistent estimates of the average derivatives $\widehat{\alpha}(\nu)$ if the conditional expectations of the RIF are linear in $X$ (see [Firpo et al., 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions), [Rothe 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
 
-In the reweighted RIF regression decompositions, first the RIF of the outcome variable $Y$ and a distributional statistic of interest $\nu$ are computed. Then, an OLS regression of the transformed outcome variable $Y$ is run on the explanatory variables $X$. Thereafter, the decomposition method is analogous to the original OB method:
+In the reweighted RIF regression decompositions, first the recentered influence function (RIF) of the outcome variable $Y$ and a distributional statistic of interest $\nu$ are computed. Then, an OLS regression of the transformed outcome variable $Y$ is run on the explanatory variables $X$. Thereafter, the decomposition method is analogous to the original OB method:
 
-$$\widehat\Delta^\nu_{O,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k} + \sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k} + (\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k}) = \widehat\Delta^\nu_{S,p} + \widehat\Delta^\nu_{S,e} + \widehat\Delta^\nu_{X,p} +  \widehat\Delta^\nu_{X,e}.$$
-with $\widehat \beta$ being the coefficients of the OLS regression of the transformed outcome variable $Y$, the RIF variable, run on the explanatory variables $X$ of group $0$ and $1$. 
+$$\widehat\Delta^\nu_{O,R} =  \widehat\Delta^\nu_{S,p} + \widehat\Delta^\nu_{S,e} + \widehat\Delta^\nu_{X,p} +  \widehat\Delta^\nu_{X,e}.$$ 
+With $\widehat\Delta^\nu_{S,p}$ and $\widehat\Delta^\nu_{S,e}$ estimating the pure structure effect and the reweighting error as
+
+$$\widehat\Delta^\nu_{S,R} =  \widehat\Delta^\nu_{S,p} + \widehat\Delta^\nu_{S,e} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k}$$
+and $\widehat\Delta^\nu_{X,p}$ and $\widehat\Delta^\nu_{X,e}$ estimating the pure coefficient effect and the specification error: 
+
+$$\widehat\Delta^\nu_{X,R} = \widehat\Delta^\nu_{X,p} + \widehat\Delta^\nu_{X,e} = \sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k} + (\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k})$$
+with coefficients $\widehat \beta$ representing the outcome of an OLS regression where the transformed outcome variable $Y$, the RIF variable, is regressed on the explanatory variables $X$ for groups $0$, $1$, and $X_C$, the reweighted group 0 (the reference group). Note that the specification error in RIF regression decompositions encompasses not only the error stemming from misspecifation of the linear model, but also the potential errors in the RIF estimate due to distributional changes. The influence function measures the impact of an infinitesimally small location shift on a distributional statistic $\nu$. However, larger changes may lead to inaccuracies in the RIF estimate. The specification error includes deviations arising from these inaccuracies CITE
 
 
-The RIF of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddeco`. Additionally, the package enables calculating the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the [`rifreg`](https://github.com/samumei/rifreg) package written by the same authors as `ddeco`.
+The influence function of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddeco`. Additionally, the package enables calculating the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the package [`rifreg`](https://github.com/samumei/rifreg) written by the same authors as `ddeco`.
 
 It is possible to compute the RIF regression decomposition without reweighting. However, it is strongly advisable to use reweighting and assess the reweighting and specification error, as large errors highlight inconsistent estimations.
 
-
-Spec err in rifreg -> nicht nur wegen linearen modell
 
 
 ## Inference
