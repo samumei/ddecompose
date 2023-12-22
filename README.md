@@ -141,12 +141,13 @@ $$\Psi_X(x) = \frac{dF_{X_1}(x)}{dF_{X_0}(x)} = \frac{P(g=0)P(g=1|x)}{P(g=1)P(g=
 can be rewritten where $P(g)$ and $P(g|x)$ correspond to the
 (conditional) probabilities of belonging to group $g$. We can estimate
 the reweighting factor using sample probabilities of each group in the
-joint sample and conditional probability models (e.g. logit). The fitted
-factors are then used to estimate weighted distributional statistics of
-interest (e.g., mean, quantiles or Gini coefficient) in the reference
-sample – group 0 in the present example. The resulting counterfactual
-distributional statistic, $\widehat\nu_C=\widehat\nu(F_{Y_C})$, is then
-contrasted with the observed difference
+joint sample and conditional probability models (e.g., logit). The
+fitted factors are then used to estimate weighted distributional
+statistics of interest (e.g., mean, quantiles or Gini coefficient) in
+the reference sample – group 0 in the present example. The resulting
+counterfactual distributional statistic,
+$\widehat\nu_C=\widehat\nu(F_{Y_C})$, is then contrasted with the
+observed difference
 $$\widehat\Delta_O^{\nu} = (\widehat\nu_1 - \widehat\nu_C) + (\widehat\nu_C - \widehat\nu_0) = \widehat\Delta_S^\nu + \widehat\Delta_X^\nu,$$
 
 which yields again an aggregate wage structure effect and aggregate
@@ -166,15 +167,15 @@ straightforward in the reweighting framework. However, DFL show that we
 can sequentially alter the covariates distributions to decompose the
 composition effect into the contribution of single covariates. For
 instance, assume we want to distinguish the effect of covariate $X_1$
-(e.g. union status) from that of covariate $X_2$ (e.g. industry). We
+(e.g., union status) from that of covariate $X_2$ (e.g., industry). We
 begin again with the counterfactual distribution of group 0 with the
 covariates distribution of group 1
 $$F_{Y_{C}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_{1,2}}(x_2)$$
 
 and introduce a second counterfactual where we combine the conditional
 outcome distribution of group 0 as well as the conditional covariate
-distribution of $X_1$ given $X_2$ (e.g. union coverage by industry) of
-group 0 with the covariates distribution $X_2$ (e.g. industry
+distribution of $X_1$ given $X_2$ (e.g., union coverage by industry) of
+group 0 with the covariates distribution $X_2$ (e.g., industry
 distribution) of group 1
 $$F_{Y_{C,X_2}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{0,1}}(x_1|x_2)dF_{X_{1,2}}(x_2) $$
 
@@ -198,7 +199,7 @@ instance, it matters if we reweight union coverage by industry
 Moreover, we get different results if we do not manipulate the marginal
 covariate distribution $X_2$ (e.g., industry distribution) but the
 conditional distribution function of $X_1$ given $X_2$ (e.g., union
-density by industry) to derive the counterfactual, e.g.
+density by industry) to derive the counterfactual, e.g.,
 $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2).$$
 where we would reweight with a slightly different factor
 $$\Psi_{X_1}(x_1,x_2) = \frac{dF_{X_{1,1}}(x_1|x_2)}{dF_{X_{0,1}}(x_1|x_2)} =  \frac{P(g=0|x_2)P(g=1|x_1,x_2)}{P(g=1|x_2)P(g=0|x_1,x_2)}.$$
@@ -221,23 +222,10 @@ covariate means are estimated in the two observed samples as well as in
 the reweighted sample $0$ ($1$), yielding $\widehat \beta_{C,0}$,
 $\widehat \beta_{C,k}$, and $\overline X_{C,k}$.
 
-**OLD paragraph**: *Analogous to DFL, the reweighting function
-$\widehat\Psi_X(x)$ matches the characteristics of group $0$ to those of
-group $1$. Likewise, the OLS regression coefficients are estimated for
-the reweighted group $\overline X_{C,k}$, yielding
-$\widehat \beta_{C,0}$ and $\widehat \beta_{C,k}$. Analogously, group
-$0$ can be used as reference group, thereby reweighting the
-characteristics of group $1$ to reflect the characteristics of group
-$0$.*
-
 The mean of the reweighted sample builds the main counterfactual to
 derive the aggregate structure effect and composition effect,
 respectively. The detailed decomposition terms are also evaluated with
-respect to the statistics of the reweigthed sample, i.e.  **OLD
-paragraph**: **To decompose the overall group difference in the doubly
-robust regression decomposition,
-$\overline X_{C,k} \widehat \beta_{C,k}$ is used as counterfactual
-scenario. The overall gap is then decomposed as:**
+respect to the statistics of the reweigthed sample, i.e. 
 
 $$\widehat\Delta^\mu_{O,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1} (\overline X_{1,k}\widehat \beta_{1,k} - \overline X_{C,k}\widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{C,k}\beta_{C,k} - \overline X_{0,k}\widehat \beta_{0,k}) = \widehat\Delta^\mu_{S,R}  + \widehat\Delta^\mu_{X,R}.$$
 These decomposition terms can be further decomposed into a structure and
@@ -246,13 +234,7 @@ reweighting $\widehat\Delta^\mu_{S,e}$ and the linear specification
 $\widehat\Delta^\mu_{X,e}$, respectively, and yields a “pure”
 composition effect $\widehat\Delta^\mu_{X,p}$ and the “pure” structure
 effect $\widehat\Delta^\mu_{S,p}$. Concretely, the additional
-decomposition of the structure effect reads as **OLD paragraph**: *These
-decomposition parts can be further divided into pure structure and
-composition effects, $\widehat\Delta^\mu_{S,p}$ and
-$\widehat\Delta^\mu_{X,p}$ respectively, and into reweighting error
-$\widehat\Delta^\mu_{S,e}$ and specification error
-$\widehat\Delta^\mu_{X,e}$. The structure effect
-$\widehat\Delta^\mu_{S,R}$ can be written as:*
+decomposition of the structure effect reads as
 
 $$\widehat\Delta^\mu_{S,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k}= \widehat\Delta^\mu_{S,p} + \widehat\Delta^\mu_{S,e}.$$
 
@@ -344,10 +326,14 @@ highlight inconsistent estimations.
 ## Inference
 
 `ddeco` allows to bootstrap standard errors in both the `ob_deco()` and
-`dfl_deco()` functions. Analytical standard errors can be nontrivial
-when the RIF introduces an additional estimation step. In particular,
-this is the case for quantiles where the density has to be estimated
-(see [Firpo, Fortin, and Lemieux,
+`dfl_deco()` functions. Furthermore, we implemented analytical standard
+errors for the original OB decomposition as introduced by Jann
+([2005](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf),
+[2008](https://journals.sagepub.com/doi/abs/10.1177/1536867X0800800401).
+Analytical standard errors can be nontrivial when the RIF introduces an
+additional estimation step. In particular, this is the case for
+quantiles where the density has to be estimated (see [Firpo, Fortin, and
+Lemieux,
 2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)).
 
 ## Examples (unfinished)
@@ -514,6 +500,13 @@ Material*, 77.
 Fortin, Nicole M., Thomas Lemieux, and Sergio Firpo. 2011.
 “Decomposition Methods in Economics.” *National Bureau of Economic
 Research - Working Paper Series*, 16045.
+
+Jann, Ben, 2005. “Standard errors for the Blinder-Oaxaca decomposition.”
+*3rd German Stata Users’ Group Meeting 2005*. Available from
+<https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf>.
+
+Jann, Ben, 2008. “The Blinder–Oaxaca Decomposition for Linear Regression
+Models”. *Stata Journal* 8: 435–479.
 
 Rios-Avila, Fernando (2020): “Recentered influence functions (RIFs) in
 Stata: RIF regression and RIF decomposition.” *The Stata Journal* 20(1):
