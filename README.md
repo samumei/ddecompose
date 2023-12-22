@@ -13,10 +13,11 @@
       id="toc-reweighting-decomposition">Reweighting Decomposition</a>
     - <a href="#sequential-decomposition"
       id="toc-sequential-decomposition">Sequential Decomposition</a>
-    - <a href="#doubly-robust-oaxca-blinder"
-      id="toc-doubly-robust-oaxca-blinder">‘Doubly Robust’ Oaxca-Blinder</a>
-    - <a href="#rif-decomposition" id="toc-rif-decomposition">RIF
-      Decomposition</a>
+    - <a href="#doubly-robust-oaxca-blinder-decomposition"
+      id="toc-doubly-robust-oaxca-blinder-decomposition">‘Doubly Robust’
+      Oaxca-Blinder Decomposition</a>
+    - <a href="#rif-regression-decomposition"
+      id="toc-rif-regression-decomposition">RIF Regression Decomposition</a>
   - <a href="#inference" id="toc-inference">Inference</a>
   - <a href="#examples-unfinished" id="toc-examples-unfinished">Examples
     (unfinished)</a>
@@ -216,7 +217,7 @@ $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2
 where we would reweight with a slightly different factor
 $$\Psi_{X_1}(x_1,x_2) = \frac{dF_{X_{1,1}}(x_1|x_2)}{dF_{X_{0,1}}(x_1|x_2)} =  \frac{P(g=0|x_2)P(g=1|x_1,x_2)}{P(g=1|x_2)P(g=0|x_1,x_2)}.$$
 
-### ‘Doubly Robust’ Oaxca-Blinder
+### ‘Doubly Robust’ Oaxca-Blinder Decomposition
 
 A robust and path independent alternative for decompositions at the mean
 has been introduced by [Barsky et
@@ -282,18 +283,19 @@ points out that the OB decomposition with reweighting is “doubly robust”
 because the estimates are robust to both model misspecification and
 inaccurate reweighting weights. If the linear model is correctly
 specified, $\beta_C$ is equivalent to $\beta_0$. Hence,
-$(\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k})$
+$(\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k})$
 is equivalent to
-$(\widehat \beta_{1,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{0,k})$,
-meaning that $\widehat\Delta^\mu_{S,p}$ estimates the true structure
-effect, and $\widehat\Delta^\mu_{X,p}$ the true composition effect, even
-if the reweighting is inaccurate. Similarly, if the the reweighting is
-accurate, i.e., $\overline X_{C,k} = X_{1,k}$, estimators are
-consistent, even if the model is misspecified. While the reweighted OB
-decomposition is doubly robust and path independent, its main limitation
-is that it only allows for decomposition at the mean.
+$(\widehat \beta_{1,0} - \widehat \beta_{0,0}) + \overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{0,k})$
+for each covariate $k$, meaning that $\widehat\Delta^\mu_{S,p}$
+estimates the true structure effect, and $\widehat\Delta^\mu_{X,p}$ the
+true composition effect, even if the reweighting is inaccurate.
+Similarly, if the the reweighting is accurate, i.e.,
+$\overline X_{C,k} = X_{1,k}$, estimators are consistent, even if the
+model is misspecified. While the reweighted OB decomposition is doubly
+robust and path independent, its main limitation is that it only allows
+for decomposition at the mean.
 
-### RIF Decomposition
+### RIF Regression Decomposition
 
 A path independent decomposition method that goes beyond the mean is the
 reweighted RIF regression decomposition as proposed by Firpo, Fortin,
@@ -332,7 +334,7 @@ changes. The influence function measures the impact of an
 infinitesimally small location shift on a distributional statistic
 $\nu$. However, larger changes may lead to inaccuracies in the RIF
 estimate. The specification error includes deviations arising from these
-inaccuracies CITE
+inaccuracies (CITE).
 
 The influence function of quantiles, the mean, the variance, the Gini
 coefficient, the interquantile range and the quantile ratio are
