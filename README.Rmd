@@ -204,7 +204,7 @@ The specification error, $\widehat\Delta^\mu_{X,e}$, measures the extent to whic
 
 
 
-### RIF Regression Decomposition 
+### Reweighted RIF Regression Decomposition 
 
 A path independent decomposition method that goes beyond the mean is the reweighted RIF regression decomposition as proposed by Firpo, Fortin, and Lemieux (2018). Firpo et al. propose to approximate the conditional expectation of the RIF given the explanatory variables with a linear regression. The regression coefficients can be consistent estimates of the average derivatives $\widehat{\alpha}(\nu)$ if the conditional expectations of the RIF are linear in $X$ (see [Firpo et al., 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions), [Rothe 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
 
@@ -344,10 +344,151 @@ Setting `bootstrap=TRUE` bootstraps standard errors by resampling from all obser
 
 
 
-### Validation
+## Replication of Firpo, Fortin, and Lemieux (2018)
+To validate the functions and provide users with an additional example, we replicate the reweighted RIF regression decomposition estimates in Firpo et al. (2018, p. 30). In their empirical example, Firpo et al. focus in changes in wage inequality in the US between 1988 and 2016. Using a large sample of male log wages in 1988-1990 (268'494 observations) and in 2014-2016 (236'296 observation) based on the Outgoing Rotation Group (ORG) supplement of the Current Population Survey (CPS), they attribute changes in variance, gini, and interquantile ranges between the two time periods to changes in composition (e.g., union coverage, education, and experience) and changes in wage structure. 
+
+This replication follows the Stata replication code, that the authors published alongside the paper and that is available on their website. (INSERT LINK). The highest wages in the public CPS data set are unavailable due to privacy concerns. The Firpo et al. impute these wages using a random uniform Pareto distribution (CHECK WORDING). Since random numbers are generated differently in R and Stata, even with an equivalent seed. Therefore, we perform the entire data preparation in Stata up until the estimation of the decomposition, i.e., the "oaxaca" commands in Stata. This ensures that changes in the estimation results between our function and the orignal paper do not stem from different input data. 
+
+To reproduce the code below, make sure you download the entire data set and Stata code from the journal’s website, execute the code up to the oaxaca command, save the data and load it into your R environment. 
+
+
+### Loading Data
 
 
 
+```{r, eval=TRUE}
+
+set.seed(987421)
+
+
+# Make sure you execute the Stata Code until the oaxaca commands 
+# and save the data in the appropriate folder.
+men8816_t4 <- readstata13::read.dta13("data-raw/FFL_2018/usmen8816_t4.dta")
+
+# Removing redundant observations - we replicate the reweighting within the function
+men8816_t4 <- men8816_t4[men8816_t4$time <= 1,] 
+```
+
+### Reweighted RIF Regression Decomposition (Table 4)
+
+The model is specified as in the Stata files, containing weights, computing bootstrapped standard errors with 100 iterations, and setting a fixed bandwidth of 0.06 for the epanechnikov kernel density estimation.
+
+```{r eval=TRUE}
+
+men8816_t4 <- men8816
+ffl_model_with_reweighting <- as.formula(
+    paste("lwage2 ~ covered + nonwhite + nmarr + 
+          ed0 + ed1 + ed3 + ed4 + ed5 + ",
+          paste(grep(paste0("^ex(", paste(c(1:4, 6:9), collapse = "|"), ")$"), 
+                     names(men8816_t4), value = T), collapse = " + "), " + ",
+          paste(grep(paste0("^occd(", paste(c(11:60, 80:91), collapse = "|"), ")$"),
+                     names(men8816_t4), value = T), collapse = " + "), " + ",                     
+          paste(grep(paste0("^indd(", paste(c(1, 3:14), collapse = "|"), ")$"), 
+                     names(men8816_t4), value = T), collapse = " + "), " + pub | ",
+          paste("covered + nonwhite +",
+                paste(grep("^marr", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(c("ed0", "ed1", "ed3", "ed4", "ed5"), collapse = " + "), "+",
+                paste(grep("^ex[1-4]|^ex[6-9]", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(grep("^uned", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(grep("^unex", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(grep("^ex[1-9]ed", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(grep("^pub", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(grep("^indd(1|1e|[3-9]|10|11|13|14)(?!2)", 
+                           names(men8816_t4), perl = TRUE, value = TRUE), collapse = " + "), "+",
+                paste(grep("^occd", names(men8816_t4), value = TRUE), collapse = " + "))))
+
+
+# Interquantile Ratio 90-10 
+deco_90_10  <- ddeco::ob_deco(formula = ffl_model_with_reweighting,
+                                data = men8816_t4,
+                                weights = eweight,
+                                group = time,
+                                reference_0 = TRUE,
+                                rifreg = TRUE,
+                                rifreg_statistic = "interquantile_range",
+                                rifreg_probs = c(0.9, 0.1),
+                                bw = 0.065,
+                                kernel = "epanechnikov",
+                                reweighting = TRUE,
+                              reweighting_method = "fast_glm",
+                                trimming = TRUE,
+                                trimming_threshold = 100,
+                                bootstrap = TRUE,
+                                bootstrap_iterations = 100, 
+                              cores = 4)
+
+## Variance
+deco_variance  <- ddeco::ob_deco(formula = var_model,
+                                 data = men8816_t4,
+                                 weights = eweight,
+                                 group = time,
+                                 reference_0 = TRUE,
+                                 rifreg = TRUE,
+                                 rifreg_statistic = "variance",
+                                 reweighting = TRUE,
+                              reweighting_method = "fast_glm",
+                                 trimming = TRUE,
+                                 trimming_threshold = 100,
+                                 bootstrap = TRUE,
+                                 bootstrap_iterations = 100, 
+                              cores = 4)
+
+# Gini 
+ffl_model_with_reweighting_gini <- update.formula(ffl_model_with_reweighting, exp(.) ~ .)
+
+deco_gini  <- ddeco::ob_deco(formula = ffl_model_with_reweighting_gini,
+                               data = men8816_t4,
+                               weights = eweight,
+                               group = time,
+                               rifreg = TRUE,
+                               rifreg_statistic = "gini",
+                               reweighting = TRUE,
+                              reweighting_method = "fast_glm",
+                               trimming = TRUE,
+                               trimming_threshold = 100,
+                               bootstrap = TRUE,
+                               bootstrap_iterations = 100, 
+                              cores = 4)
+
+
+
+
+```
+
+
+
+### Presentation of Results
+
+Describe the results and to what extent they are similar to those of ffl and where they differ and why. 
+
+Also note that the replication with the same imputed data and code to replicate table 1-4 is available upon request. 
+
+MAKE SURE THAT YOU write down where the differences are arising: 
+
+- Data (reweighting)
+- seed
+- rounding
+- density estimation 
+- SE (includes Reweighting)
+
+MAYBE ALSO NOTE HOW MUCH THE DIFFERENCE IS, IN THE OTHER TABLES ETC. AND THAT THESE FILES ARE AVAILABLE UPON REQUEST BZW: IN THE TEST_FILE XXX -> PUT IN A SEPARATE TEST FILE!
+
+
+
+```{r eval=TRUE}
+
+
+
+```
+
+
+
+
+
+
+Looking at the plots, we see that our plots correspond to those presented by Firpo, Fortin, and Lemieux (2009a: 965). The plot example illustrates, how the plot from the generic rifreg::plot() function can be further enhanced, for instance with a horizontal line indicating the OLS coefficient for comparison.
+
+This validation example illustrates that the rifreg package works as intended in computing RIF regressions and reliably yields the expected results.
 
 
 
@@ -369,6 +510,8 @@ Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2007a. “Unconditional Qua
 Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2009a. "Unconditional Quantile Regressions." *Econometrica* 77(3): 953-973.
 
 Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2009b. "Supplement to 'Unconditional Quantile Regressions'." *Econometrica Supplemental Material*, 77.
+
+Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2018. "Decomposing Wage Distributions Using Recentered Influence Function Regressions." *Econometrics* 6(2):28.
 
 Fortin, Nicole M., Thomas Lemieux, and Sergio Firpo. 2011. "Decomposition Methods in Economics." *National Bureau of Economic Research - Working Paper Series*, 16045.
 
