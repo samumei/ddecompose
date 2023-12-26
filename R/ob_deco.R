@@ -230,8 +230,8 @@ ob_deco <- function(formula,
     if(reweighting) {
       print("The same model specification is used for decomposition and to compute reweighting weights.")
     }
-    formula_reweighting <- formula
     formula_decomposition <- formula
+    formula_reweighting <- formula
   }
   else {
     if(!nvar == 2) stop("Cannot parse formula. See documentation and examples for further details.")
@@ -345,11 +345,16 @@ ob_deco <- function(formula,
 
     if(cores == 1) {
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
-                                               function(x) bootstrap_estimate_ob_deco(formula = formula_decomposition,
+                                               function(x) bootstrap_estimate_ob_deco(formula_decomposition = formula_decomposition,
+                                                                                      formula_reweighting = formula_reweighting,
                                                                                       data_used = data_used,
+                                                                                      group = group,
                                                                                       reference_0 = reference_0,
                                                                                       normalize_factors = normalize_factors,
                                                                                       reweighting = reweighting,
+                                                                                      reweighting_method = reweighting_method,
+                                                                                      trimming = trimming,
+                                                                                      trimming_threshold = trimming_threshold,
                                                                                       rifreg = rifreg,
                                                                                       rifreg_statistic = rifreg_statistic,
                                                                                       rifreg_probs = rifreg_probs,
@@ -365,11 +370,16 @@ ob_deco <- function(formula,
                               varlist = ls(),
                               envir = environment())
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
-                                               function(x) bootstrap_estimate_ob_deco(formula = formula_decomposition,
+                                               function(x) bootstrap_estimate_ob_deco(formula_decomposition = formula_decomposition,
+                                                                                      formula_reweighting = formula_reweighting,
                                                                                       data_used = data_used,
+                                                                                      group = group,
                                                                                       reference_0 = reference_0,
                                                                                       normalize_factors = normalize_factors,
                                                                                       reweighting = reweighting,
+                                                                                      reweighting_method = reweighting_method,
+                                                                                      trimming,
+                                                                                      trimming_threshold,
                                                                                       rifreg = rifreg,
                                                                                       rifreg_statistic = rifreg_statistic,
                                                                                       rifreg_probs = rifreg_probs,
@@ -688,11 +698,16 @@ estimate_ob_deco <- function(formula,
 
 # Estimate OB decomposition in bootstrap replications
 #
-bootstrap_estimate_ob_deco <- function(formula,
+bootstrap_estimate_ob_deco <- function(formula_decomposition,
+                                       formula_reweighting,
                                        data_used,
+                                       group,
                                        reference_0,
                                        normalize_factors,
                                        reweighting,
+                                       reweighting_method,
+                                       trimming,
+                                       trimming_threshold,
                                        rifreg,
                                        rifreg_statistic,
                                        rifreg_probs,
@@ -716,10 +731,27 @@ bootstrap_estimate_ob_deco <- function(formula,
     data_used$weights <- data_used$weights * sum(data_used[ ,"weights"], na.rm=TRUE) / sum(data_used[sampled_observations,"weights"], na.rm=TRUE)
   }
 
-  sink(nullfile()) # to supress output
+  tryCatch({
+    sink(nullfile())  # Start suppressing output
+
+    if(reweighting) {
+    dfl_deco_results <- dfl_deco(formula = formula_reweighting,
+                                 data = data_used[sampled_observations, ],
+                                 weights = weights,
+                                 group = group,
+                                 reference_0 = reference_0,
+                                 method = reweighting_method,
+                                 estimate_statistics = FALSE,
+                                 trimming = trimming,
+                                 trimming_threshold = trimming_threshold)
+
+    reweighting_factor <- dfl_deco_results$reweighting_factor$Psi_X1
+    data_used[sampled_observations, "weights_and_reweighting_factors"] <- data_used[sampled_observations, "weights"] * reweighting_factor
+  }
+
     if(rifreg & rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
       deco_estimates <- lapply(rifreg_probs, estimate_ob_deco,
-                                        formula = formula,
+                                        formula = formula_decomposition,
                                data_used = data_used[sampled_observations, ],
                                         reference_0 = reference_0,
                                normalize_factors = normalize_factors,
@@ -737,7 +769,7 @@ bootstrap_estimate_ob_deco <- function(formula,
 
   }
   else {
-    deco_estimates <- estimate_ob_deco(formula = formula,
+    deco_estimates <- estimate_ob_deco(formula = formula_decomposition,
                                        data_used = data_used[sampled_observations, ],
                                        reference_0 = reference_0,
                                        normalize_factors = normalize_factors,
@@ -754,7 +786,13 @@ bootstrap_estimate_ob_deco <- function(formula,
 
     deco_estimates <- list(deco_estimates[["decomposition_terms"]])
   }
-  sink()
+  }, error = function(e) {
+    print(e)
+    stop(e)
+  }, finally = {
+    sink()
+  })
+
 
 
 

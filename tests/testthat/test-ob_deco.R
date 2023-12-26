@@ -29,7 +29,7 @@ test_that("ob_deco() provides expected output", {
   deco_results <- ob_deco(formula = formula,
                           data = data_used,
                           group = group,
-                          swap = TRUE)
+                          subtract_1_from_0 = TRUE)
 
 
   ## manual calculation
