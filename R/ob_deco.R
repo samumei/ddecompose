@@ -26,7 +26,8 @@
 #' the structure effect as \code{X1 * (b1 - b0)}. Putting \code{reference_0 == FALSE} changes
 #' the reference structure. Hence the composition effect is computed as \code{(X1 - X0) * b1} and
 #' the structure effect as \code{X0 * (b1 - b0)}.
-#' @param swap boolean: `FALSE` is default. Setting it to `TRUE` merely changes the sign of the decomposition results.
+#' @param subtract_1_from_0 boolean: By default (`FALSE`), X0 is subtracted from X1 and beta0 from beta1 (X1b1 - X0b0)
+#' to compute the overall gap. Setting `subtract_1_from_0` to `TRUE` merely changes the sign of the decomposition results.
 #' This means the composition effect is computed as \code{(X0 - X1) * b1} and
 #' the structure effect as \code{X0 * (b0 - b1)}.
 #' @param rifreg boolean: if `TRUE`, then a RIF regression for the statistic
@@ -169,7 +170,7 @@
 ob_deco <- function(formula,
                     data,
                     group,
-                    swap = FALSE,
+                    subtract_1_from_0 = FALSE,
                     weights = NULL,
                     rifreg = FALSE,
                     rifreg_statistic = "quantiles",
@@ -305,7 +306,7 @@ ob_deco <- function(formula,
                                                 vcov = vcov,
                                                 ... = ...)
 
-    if(swap) estimated_decomposition$decomposition_terms[2:6] <- estimated_decomposition$decomposition_terms[2:6] *-1
+    if(subtract_1_from_0) estimated_decomposition$decomposition_terms[2:6] <- estimated_decomposition$decomposition_terms[2:6] *-1
 
     estimated_decomposition <- list(estimated_decomposition)
 
