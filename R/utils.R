@@ -8,4 +8,11 @@
 #' @import sandwich
 NULL
 
-# utils::globalVariables(c("variable", "probs", "value", "se", "gray"))
+utils::globalVariables(c("Variable",
+                         "effect",
+                         "group",
+                         "(weights)",
+                         "probs",
+                         "value",
+                         "t_value",
+                         "se"))

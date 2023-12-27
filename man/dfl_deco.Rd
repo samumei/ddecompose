@@ -297,7 +297,9 @@ plot(flf_male_inequality_boot, uniform_bands=TRUE)
 # Here we distinguish the contribution of education and experience
 # from the contribution of unionization conditional on education and experience.
 
-model_sequential <- log(wage) ~ union*(education + experience) + education*experience | education*experience
+model_sequential <- log(wage) ~ union*(education + experience) +
+                                  education*experience |
+                                  education*experience
 
 # First variant:
 # Contribution of union is evaluated using composition of

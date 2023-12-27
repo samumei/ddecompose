@@ -8,7 +8,7 @@ ob_deco(
   formula,
   data,
   group,
-  swap = FALSE,
+  subtract_1_from_0 = FALSE,
   weights = NULL,
   rifreg = FALSE,
   rifreg_statistic = "quantiles",
@@ -40,7 +40,8 @@ identifying the two groups that will be compared. The group identified by the
 lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
 first level of factor variable) is defined as group 0.}
 
-\item{swap}{boolean: `FALSE` is default. Setting it to `TRUE` merely changes the sign of the decomposition results.
+\item{subtract_1_from_0}{boolean: By default (`FALSE`), X0 is subtracted from X1 and beta0 from beta1 (X1b1 - X0b0)
+to compute the overall gap. Setting `subtract_1_from_0` to `TRUE` merely changes the sign of the decomposition results.
 This means the composition effect is computed as \code{(X0 - X1) * b1} and
 the structure effect as \code{X0 * (b0 - b1)}.}
 
@@ -68,6 +69,10 @@ See \code{examples} for further details.}
 
 \item{reweighting}{boolean: if `TRUE`, then reweighted RIF regressions are computed.}
 
+\item{reweighting_method}{specifies the method fit and predict conditional probabilities
+used to derive the reweighting factor. Currently, \code{"logit"} and \code{"random forests"} are
+the only methods available.}
+
 \item{reference_0}{boolean: if `TRUE` (default), then the group 0 -- i.e.,
 the group identified by the lower ranked value in `group` -- will be defined
 as reference group. The reference group will be reweighted to match the
@@ -85,6 +90,15 @@ See \link[stats]{na.action} for further details.}
 proposed by Gardeazabal/Ugidos (2004) and results are not dependent on the factor's
 reference group. Per default (\code{normalize_factors  = FALSE}), factors are
 normalized.}
+
+\item{trimming}{boolean: If \code{TRUE}, observations with dominant reweighting factor
+values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
+default, trimming is set to \code{FALSE}.}
+
+\item{trimming_threshold}{numeric: threshold defining the maximal accepted
+relative weight of the reweighting factor value (i.e., inverse probability weight)
+of a single observation. If \code{NULL}, the threshold is set to \eqn{sqrt(N)/N},
+where \eqn{N} is the number of observations in the reference group.}
 
 \item{bootstrap}{boolean: If `FALSE`, then the estimation is not boostrapped and no
 standard errors are calculated.}
