@@ -11,6 +11,7 @@
 #' @param data a data frame containing the variables in the model.
 #' @param weights numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
 #'                The default (\code{NULL}) is equivalent to \code{weights = rep(1, length(dep_var))}.
+#'                If no weights are used, make sure you do not define this parameter (e.g. with \code{weights = NULL}).
 #' @param na.action generic function that defines how NAs in the data should be handled.
 #'                  Default is \code{na.omit}, leading to exclusion of observations that contain one or more missings.
 #'                  See \link[stats]{na.action} for further details.
@@ -202,7 +203,7 @@ ob_deco <- function(formula,
   data_arguments <- function_call[c(1, data_arguments_index)]
   #data_arguments$drop.unused.levels <- TRUE
 
-    data_arguments[[1]] <- as.name("get_all_vars") #as.name("model.frame")
+  data_arguments[[1]] <- as.name("get_all_vars") #as.name("model.frame")
   data_used <- eval.parent(data_arguments)
   data_used <- na.action(data_used)
   #data_used <- lapply(list(data_used), na.action)[[1]]
