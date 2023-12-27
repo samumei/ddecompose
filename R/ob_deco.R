@@ -428,9 +428,17 @@ ob_deco <- function(formula,
   add_to_results <- list(group_variable_name=group_variable_name,
                          group_variable_levels=levels(group_variable),
                          reference_group=reference_group_print,
-                         normalize_factors=normalize_factors,
-                         bootstrap=bootstrap,
-                         reweighting_estimates=reweighting_estimates)
+                         reweighting_estimates=reweighting_estimates,
+                         input_parameters = list(rifreg = rifreg,
+                                                 rifreg_statistic = rifreg_statistic,
+                                                 rifreg_probs = rifreg_probs,
+                                                 reweighting = reweighting,
+                                                 reweighting_method = reweighting_method,
+                                                 reference_0 = reference_0,
+                                                 subtract_1_from_0 = subtract_1_from_0,
+                                                 normalize_factors=normalize_factors,
+                                                 bootstrap=bootstrap,
+                                                 bootstrap_iterations = bootstrap_iterations))
 
   estimated_decomposition <- c(estimated_decomposition,
                                add_to_results)
@@ -439,6 +447,7 @@ ob_deco <- function(formula,
   return(estimated_decomposition)
 
 }
+
 
 # Estimate OB decomposition
 #

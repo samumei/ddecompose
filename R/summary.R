@@ -174,13 +174,110 @@ summary.ob_deco <- function(x,
                             confidence_level = 0.95,
                             ...){
 
-  cat("Oaxaca-Blinder decomposition of mean difference\nbetween",
+  if(!x$input_parameters$rifreg) {
+    if(!x$input_parameters$reweighting) {
+      decomposition_type <- "Oaxaca-Blinder decomposition of mean difference\nbetween"
+    }
+    else{
+      decomposition_type <- "Dobuly robust Oaxaca-Blinder decomposition of mean difference\nbetween"
+    }
+  }
+  else {
+    if(!x$input_parameters$reweighting) {
+      decomposition_type <- paste0("RIF regression decomposition of difference in ",
+                                   x$input_parameters$rifreg_statistic  ,
+                                   "\nbetween")
+    }
+    else{
+      decomposition_type <- paste0("Reweighted RIF regression decomposition of difference in ",
+                                   x$input_parameters$rifreg_statistic  ,
+                                   "\nbetween")
+    }
+  }
+  cat(decomposition_type,
       paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
       "(group 1) and",
       paste0(x$group_variable_name, " == '", x$group_variable_levels[1], "'"),
-      "(group 0)\n\n")
+      "(group 0). \nThe reference group is", paste0("'",x$reference_group,"'."), "\n\n")
 
-  cat("Coefficients of", paste0("'",x$reference_group,"'"), "(reference group) were used to estimate\ncounterfactual mean outcome.\n\n")
+
+  if(!x$input_parameters$reweighting) {
+
+
+    cat("Group 0:", paste0(x$group_variable_name, " == '", x$group_variable_levels[1], "'"),
+        paste0("(",length(x$ob_deco$model_fits$fit_group_0$residuals)," observations)"),
+        "\nGroup 1:", paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
+        paste0("(",length(x$ob_deco$model_fits$fit_group_1$residuals)," observations)"),"\n\n")
+
+    if(x$input_parameters$reference_0) {
+      x_reference <- "X1"
+      b_reference <- "b0"
+    }
+    else {
+      x_reference <- "X0"
+      b_reference <- "b1"
+    }
+    if(!x$input_parameters$subtract_1_from_0) {
+      x_subtraction <- "(X1 - X0)"
+      b_subtraction <- "(b1 - b0)"
+    }
+    else {
+      x_subtraction <- "(X0 - X1)"
+      b_subtraction <- "(b0 - b1)"
+    }
+
+    composition_formula <- paste("Composition Effect:", x_subtraction, "*", b_reference)
+    structure_formula <- paste(" Structure Effect:", x_reference, "*", b_subtraction)
+
+    cat(composition_formula, "\n",
+        structure_formula, "\n\n")
+  }
+  else {
+    # With Reweighting
+
+    cat("Group 0:", paste0(x$group_variable_name, " == '", x$group_variable_levels[1], "'"),
+        "\nGroup 1:", paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
+        "\nGroup C: The reweighted group C is group", paste0("'",x$reference_group,"'"), "(reference group) reweighted
+         match the characteristics of the other group.\n\n")
+
+    if(x$input_parameters$reference_0) {
+      x_p_reference <- "b0"
+      x_e_reference <- "XC"
+      s_p_reference <- "X1"
+      s_e_reference <- "bC"
+    }
+    else {
+      x_p_reference <- "bC"
+      x_e_reference <- "X0"
+      s_p_reference <- "XC"
+      s_e_reference <- "b1"
+    }
+    if(!x$input_parameters$subtract_1_from_0) {
+      x_p_subtraction <- "(XC - X0)"
+      x_e_subtraction <- "(bC - b0)"
+      s_p_subtraction <- "(b1 - bC)"
+      s_e_subtraction <- "(X1 - XC)"
+    }
+    else {
+      x_p_subtraction <- "(X0 - XC)"
+      x_e_subtraction <- "(b0 - bC)"
+      s_p_subtraction <- "(bC - b1)"
+      s_e_subtraction <- "(XC - X1)"
+    }
+
+
+    composition_formula <- paste("Pure Composition Effect:", x_p_subtraction, "*", x_p_reference)
+    structure_formula <- paste(" Pure Structure Effect:", x_e_reference, "*", x_e_subtraction)
+    rw_err_formula <- paste("     Reweighting Error:", s_p_reference, "*", s_p_subtraction)
+    spec_err_formula <- paste("   Specification Error:", s_e_subtraction, "*", s_e_reference)
+
+    cat(composition_formula, "\n",
+        structure_formula, "\n",
+        rw_err_formula, "\n",
+        spec_err_formula, "\n\n")
+  }
+
+
 
   x <- aggregate_terms(x[[1]],
                        aggregate_factors = aggregate_factors,
@@ -262,116 +359,115 @@ aggregate_terms <- function(x,
                             custom_aggregation = NULL){
 
 
-  if(aggregate_factors == TRUE | is.null(custom_aggregation) == FALSE){
+  if(aggregate_factors | !is.null(custom_aggregation)){
 
-  decomposition_terms <- x$decomposition_terms
-  decomposition_vcov <- x$decomposition_vcov
+    decomposition_terms <- x$decomposition_terms
+    decomposition_vcov <- x$decomposition_vcov
 
 
-  if(is.null(custom_aggregation) == TRUE & aggregate_factors == TRUE){
+    if(aggregate_factors & is.null(custom_aggregation)){
 
-    if(is.null(x$GU_normalized_coefficient_names)){
+      if(is.null(x$GU_normalized_coefficient_names)){
 
-    model_variables <- all.vars(x$model_fits[[1]]$terms)[-1]
-    if(names(x$model_fits[[1]]$coefficients[1])=="(Intercept)"){
-      model_variables <- c("(Intercept)", model_variables)
-    }
+        model_variables <- all.vars(x$model_fits[[1]]$terms)[-1]
+        if(names(x$model_fits[[1]]$coefficients[1])=="(Intercept)") {
+          model_variables <- c("(Intercept)", model_variables)
+        }
 
-    factor_levels <- x$model_fits[[1]]$xlevels
-    number_of_factors <- length(factor_levels)
-    factor_variables <- names(factor_levels)
+        factor_levels <- x$model_fits[[1]]$xlevels
+        number_of_factors <- length(factor_levels)
+        factor_variables <- names(factor_levels)
 
-    custom_aggregation <- list()
-    for(i in 1:length(model_variables)){
-      sel_factor_variable <- match(model_variables[i], factor_variables)
-      if(is.na(sel_factor_variable) == FALSE){
-        custom_aggregation[[i]] <- paste0(model_variables[i], factor_levels[[sel_factor_variable]])[-1]
-      }else{
-        custom_aggregation[[i]] <-  model_variables[i]
+        custom_aggregation <- list()
+        for(i in 1:length(model_variables)){
+          sel_factor_variable <- match(model_variables[i], factor_variables)
+          if(is.na(sel_factor_variable) == FALSE){
+            custom_aggregation[[i]] <- paste0(model_variables[i], factor_levels[[sel_factor_variable]])[-1]
+          }else{
+            custom_aggregation[[i]] <-  model_variables[i]
+          }
+          names(custom_aggregation)[i] <-  model_variables[i]
+        }
       }
-      names(custom_aggregation)[i] <-  model_variables[i]
-    }
-    }else{
+      else{
+        custom_aggregation <- x$GU_normalized_coefficient_names
+      }
 
-     custom_aggregation <- x$GU_normalized_coefficient_names
+    }else if(!is.null(custom_aggregation)){
 
-    }
-
-  }else if(is.null(custom_aggregation) == FALSE){
-
-    missing_variables <- setdiff(do.call("c", custom_aggregation), decomposition_terms$Variable[-1])
-    if(length(missing_variables) == 1){
-      stop(paste0("Cannot aggregate terms. A variable (", missing_variables, ") is not defined."))
-    }else if(length(missing_variables) > 1){
-      stop(paste0("Cannot aggregate terms. Some variables (", paste0(missing_variables, collapse=", ") ,") are not defined."))
-    }
-    other_variables <- setdiff(decomposition_terms$Variable[-1], do.call("c", custom_aggregation))
-    if(length(other_variables)>0){
-      custom_aggregation <- c(custom_aggregation, list(other_variables))
-      names(custom_aggregation)[length(custom_aggregation)] <- "(Other variables)"
-    }
-
-  }
-
-  # Aggregate terms and vcov
-  aggregated_terms <- decomposition_terms[1, ]
-  aggregated_vcov_Observed_difference <- decomposition_vcov$decomposition_terms_vcov$Observed_difference
-  aggregated_vcov_Composition_effect <- decomposition_vcov$decomposition_terms_vcov$Composition_effect
-  aggregated_vcov_Structure_effect <- decomposition_vcov$decomposition_terms_vcov$Structure_effect
-
-  for(i in 1:length(custom_aggregation)){
-
-    # Decomposition terms
-    add <- subset(decomposition_terms, Variable %in% custom_aggregation[[i]])
-    add[1, -1] <- colSums(add[,-1])
-    add[1, "Variable"] <- names(custom_aggregation)[i]
-    add <- add[1, ]
-    rownames(add) <- names(custom_aggregation)[i]
-    aggregated_terms <- rbind(aggregated_terms, add)
-
-    # vcov
-    sel_terms <- which(colnames(aggregated_vcov_Observed_difference) %in% custom_aggregation[[i]])
-    if(length(sel_terms) > 1){
-      aggregated_vcov_Observed_difference[sel_terms[1], ] <- colSums(aggregated_vcov_Observed_difference[sel_terms, ])
-      aggregated_vcov_Observed_difference[, sel_terms[1]] <- rowSums(aggregated_vcov_Observed_difference[, sel_terms])
-      aggregated_vcov_Observed_difference <- aggregated_vcov_Observed_difference[-setdiff(sel_terms, sel_terms[1]),-setdiff(sel_terms, sel_terms[1])]
-
-      aggregated_vcov_Composition_effect[sel_terms[1], ] <- colSums(aggregated_vcov_Composition_effect[sel_terms, ])
-      aggregated_vcov_Composition_effect[, sel_terms[1]] <- rowSums(aggregated_vcov_Composition_effect[, sel_terms])
-      aggregated_vcov_Composition_effect <- aggregated_vcov_Composition_effect [-setdiff(sel_terms, sel_terms[1]),-setdiff(sel_terms, sel_terms[1])]
-
-      aggregated_vcov_Structure_effect[sel_terms[1], ] <- colSums(aggregated_vcov_Structure_effect[sel_terms, ])
-      aggregated_vcov_Structure_effect[, sel_terms[1]] <- rowSums(aggregated_vcov_Structure_effect[, sel_terms])
-      aggregated_vcov_Structure_effect <- aggregated_vcov_Structure_effect [-setdiff(sel_terms, sel_terms[1]),-setdiff(sel_terms, sel_terms[1])]
+      missing_variables <- setdiff(do.call("c", custom_aggregation), decomposition_terms$Variable[-1])
+      if(length(missing_variables) == 1){
+        stop(paste0("Cannot aggregate terms. A variable (", missing_variables, ") is not defined."))
+      }else if(length(missing_variables) > 1){
+        stop(paste0("Cannot aggregate terms. Some variables (", paste0(missing_variables, collapse=", ") ,") are not defined."))
+      }
+      other_variables <- setdiff(decomposition_terms$Variable[-1], do.call("c", custom_aggregation))
+      if(length(other_variables)>0){
+        custom_aggregation <- c(custom_aggregation, list(other_variables))
+        names(custom_aggregation)[length(custom_aggregation)] <- "(Other variables)"
+      }
 
     }
 
-    colnames(aggregated_vcov_Observed_difference)[sel_terms[1]] <- names(custom_aggregation)[i]
-    rownames(aggregated_vcov_Observed_difference)[sel_terms[1]] <- names(custom_aggregation)[i]
+    # Aggregate terms and vcov
+    aggregated_terms <- decomposition_terms[1, ]
+    aggregated_vcov_Observed_difference <- decomposition_vcov$decomposition_terms_vcov$Observed_difference
+    aggregated_vcov_Composition_effect <- decomposition_vcov$decomposition_terms_vcov$Composition_effect
+    aggregated_vcov_Structure_effect <- decomposition_vcov$decomposition_terms_vcov$Structure_effect
 
-    colnames(aggregated_vcov_Composition_effect)[sel_terms[1]] <- names(custom_aggregation)[i]
-    rownames(aggregated_vcov_Composition_effect)[sel_terms[1]] <- names(custom_aggregation)[i]
+    for(i in 1:length(custom_aggregation)){
 
-    colnames(aggregated_vcov_Structure_effect)[sel_terms[1]] <- names(custom_aggregation)[i]
-    rownames(aggregated_vcov_Structure_effect)[sel_terms[1]] <- names(custom_aggregation)[i]
+      # Decomposition terms
+      add <- subset(decomposition_terms, Variable %in% custom_aggregation[[i]])
+      add[1, -1] <- colSums(add[,-1])
+      add[1, "Variable"] <- names(custom_aggregation)[i]
+      add <- add[1, ]
+      rownames(add) <- names(custom_aggregation)[i]
+      aggregated_terms <- rbind(aggregated_terms, add)
 
-  }
+      # vcov
+      sel_terms <- which(colnames(aggregated_vcov_Observed_difference) %in% custom_aggregation[[i]])
+      if(length(sel_terms) > 1){
+        aggregated_vcov_Observed_difference[sel_terms[1], ] <- colSums(aggregated_vcov_Observed_difference[sel_terms, ])
+        aggregated_vcov_Observed_difference[, sel_terms[1]] <- rowSums(aggregated_vcov_Observed_difference[, sel_terms])
+        aggregated_vcov_Observed_difference <- aggregated_vcov_Observed_difference[-setdiff(sel_terms, sel_terms[1]),-setdiff(sel_terms, sel_terms[1])]
 
-  aggregated_vcov_Observed_difference <- aggregated_vcov_Observed_difference[names(custom_aggregation), names(custom_aggregation)]
-  aggregated_vcov_Composition_effect <- aggregated_vcov_Composition_effect[names(custom_aggregation), names(custom_aggregation)]
-  aggregated_vcov_Structure_effect <- aggregated_vcov_Structure_effect[names(custom_aggregation), names(custom_aggregation)]
+        aggregated_vcov_Composition_effect[sel_terms[1], ] <- colSums(aggregated_vcov_Composition_effect[sel_terms, ])
+        aggregated_vcov_Composition_effect[, sel_terms[1]] <- rowSums(aggregated_vcov_Composition_effect[, sel_terms])
+        aggregated_vcov_Composition_effect <- aggregated_vcov_Composition_effect [-setdiff(sel_terms, sel_terms[1]),-setdiff(sel_terms, sel_terms[1])]
 
-  aggregated_terms_se <- aggregated_terms
-  aggregated_terms_se[1, ] <- decomposition_vcov$decomposition_terms_se[1, ]
-  aggregated_terms_se[-1, "Observed_difference"] <- sqrt(diag(aggregated_vcov_Observed_difference))
-  aggregated_terms_se[-1, "Composition_effect"] <- sqrt(diag(aggregated_vcov_Composition_effect))
-  aggregated_terms_se[-1, "Structure_effect"] <- sqrt(diag(aggregated_vcov_Structure_effect))
+        aggregated_vcov_Structure_effect[sel_terms[1], ] <- colSums(aggregated_vcov_Structure_effect[sel_terms, ])
+        aggregated_vcov_Structure_effect[, sel_terms[1]] <- rowSums(aggregated_vcov_Structure_effect[, sel_terms])
+        aggregated_vcov_Structure_effect <- aggregated_vcov_Structure_effect [-setdiff(sel_terms, sel_terms[1]),-setdiff(sel_terms, sel_terms[1])]
 
-  x$decomposition_terms <- aggregated_terms
-  x$decomposition_vcov$decomposition_terms_se <- aggregated_terms_se
-  x$decomposition_vcov$decomposition_terms_vcov$Observed_difference <- aggregated_vcov_Observed_difference
-  x$decomposition_vcov$decomposition_terms_vcov$Composition_effect <- aggregated_vcov_Composition_effect
-  x$decomposition_vcov$decomposition_terms_vcov$Structure_effect <- aggregated_vcov_Structure_effect
+      }
+
+      colnames(aggregated_vcov_Observed_difference)[sel_terms[1]] <- names(custom_aggregation)[i]
+      rownames(aggregated_vcov_Observed_difference)[sel_terms[1]] <- names(custom_aggregation)[i]
+
+      colnames(aggregated_vcov_Composition_effect)[sel_terms[1]] <- names(custom_aggregation)[i]
+      rownames(aggregated_vcov_Composition_effect)[sel_terms[1]] <- names(custom_aggregation)[i]
+
+      colnames(aggregated_vcov_Structure_effect)[sel_terms[1]] <- names(custom_aggregation)[i]
+      rownames(aggregated_vcov_Structure_effect)[sel_terms[1]] <- names(custom_aggregation)[i]
+
+    }
+
+    aggregated_vcov_Observed_difference <- aggregated_vcov_Observed_difference[names(custom_aggregation), names(custom_aggregation)]
+    aggregated_vcov_Composition_effect <- aggregated_vcov_Composition_effect[names(custom_aggregation), names(custom_aggregation)]
+    aggregated_vcov_Structure_effect <- aggregated_vcov_Structure_effect[names(custom_aggregation), names(custom_aggregation)]
+
+    aggregated_terms_se <- aggregated_terms
+    aggregated_terms_se[1, ] <- decomposition_vcov$decomposition_terms_se[1, ]
+    aggregated_terms_se[-1, "Observed_difference"] <- sqrt(diag(aggregated_vcov_Observed_difference))
+    aggregated_terms_se[-1, "Composition_effect"] <- sqrt(diag(aggregated_vcov_Composition_effect))
+    aggregated_terms_se[-1, "Structure_effect"] <- sqrt(diag(aggregated_vcov_Structure_effect))
+
+    x$decomposition_terms <- aggregated_terms
+    x$decomposition_vcov$decomposition_terms_se <- aggregated_terms_se
+    x$decomposition_vcov$decomposition_terms_vcov$Observed_difference <- aggregated_vcov_Observed_difference
+    x$decomposition_vcov$decomposition_terms_vcov$Composition_effect <- aggregated_vcov_Composition_effect
+    x$decomposition_vcov$decomposition_terms_vcov$Structure_effect <- aggregated_vcov_Structure_effect
 
   }
 
