@@ -735,7 +735,7 @@ bootstrap_estimate_ob_deco <- function(formula_decomposition,
     sink(nullfile())  # Start suppressing output
 
     if(reweighting) {
-    dfl_deco_results <- dfl_deco(formula = formula_reweighting,
+    dfl_deco_results <- suppressWarnings(dfl_deco(formula = formula_reweighting,
                                  data = data_used[sampled_observations, ],
                                  weights = weights,
                                  group = group,
@@ -743,14 +743,14 @@ bootstrap_estimate_ob_deco <- function(formula_decomposition,
                                  method = reweighting_method,
                                  estimate_statistics = FALSE,
                                  trimming = trimming,
-                                 trimming_threshold = trimming_threshold)
+                                 trimming_threshold = trimming_threshold))
 
     reweighting_factor <- dfl_deco_results$reweighting_factor$Psi_X1
     data_used[sampled_observations, "weights_and_reweighting_factors"] <- data_used[sampled_observations, "weights"] * reweighting_factor
   }
 
     if(rifreg & rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
-      deco_estimates <- lapply(rifreg_probs, estimate_ob_deco,
+      deco_estimates <- suppressWarnings(lapply(rifreg_probs, estimate_ob_deco,
                                         formula = formula_decomposition,
                                data_used = data_used[sampled_observations, ],
                                         reference_0 = reference_0,
@@ -763,13 +763,13 @@ bootstrap_estimate_ob_deco <- function(formula_decomposition,
                                         custom_rif_function = custom_rif_function,
                                         na.action = na.action,
                                         vcov = NULL,
-                               ... = ...)
+                               ... = ...))
 
       deco_estimates <- lapply(deco_estimates, function(x) x$decomposition_terms)
 
   }
   else {
-    deco_estimates <- estimate_ob_deco(formula = formula_decomposition,
+    deco_estimates <- suppressWarnings(estimate_ob_deco(formula = formula_decomposition,
                                        data_used = data_used[sampled_observations, ],
                                        reference_0 = reference_0,
                                        normalize_factors = normalize_factors,
@@ -782,7 +782,7 @@ bootstrap_estimate_ob_deco <- function(formula_decomposition,
                                        compute_analytical_se = FALSE,
                                        vcov = NULL,
                                        return_model_fit = FALSE,
-                                       ... = ...)
+                                       ... = ...))
 
     deco_estimates <- list(deco_estimates[["decomposition_terms"]])
   }
