@@ -268,20 +268,26 @@ summary.ob_deco <- function(x,
 
     composition_formula <- paste("Pure Composition Effect:", x_p_subtraction, "*", x_p_reference)
     structure_formula <- paste(" Pure Structure Effect:", x_e_reference, "*", x_e_subtraction)
-    rw_err_formula <- paste("     Reweighting Error:", s_p_reference, "*", s_p_subtraction)
     spec_err_formula <- paste("   Specification Error:", s_e_subtraction, "*", s_e_reference)
+    rw_err_formula <- paste("     Reweighting Error:", s_p_reference, "*", s_p_subtraction)
 
     cat(composition_formula, "\n",
         structure_formula, "\n",
-        rw_err_formula, "\n",
-        spec_err_formula, "\n\n")
+        spec_err_formula, "\n",
+        rw_err_formula, "\n\n")
+  }
+
+browser()
+  if(aggregate_factors | !is.null(custom_aggregation)){
+    x <- aggregate_terms(x[[1]],
+                         aggregate_factors = aggregate_factors,
+                         custom_aggregation = custom_aggregation)
+  }
+  else {
+    x <- x$ob_deco[1:4]
   }
 
 
-
-  x <- aggregate_terms(x[[1]],
-                       aggregate_factors = aggregate_factors,
-                       custom_aggregation = custom_aggregation)
   decomposition_terms <- x$decomposition_terms[,-1]
   decomposition_terms_se <- x$decomposition_vcov$decomposition_terms_se[,-1]
   names(decomposition_terms) <- gsub("_", " ", names(decomposition_terms))
@@ -289,7 +295,7 @@ summary.ob_deco <- function(x,
   aggregate_decomposition_se <- decomposition_terms_se[1, ]
   detailed_decomposition <-  decomposition_terms[-1, ]
   detailed_decomposition_se <-  decomposition_terms_se[-1, ]
-
+browser()
   aggregate_decomposition <- data.frame(Effect = names(aggregate_decomposition),
                                         Estimate = as.numeric(aggregate_decomposition[1, ]),
                                         se = as.numeric(aggregate_decomposition_se[1, ]))
@@ -322,6 +328,7 @@ summary.ob_deco <- function(x,
   #rownames(aggregate_decomposition) <- paste0("Total difference ", paste0(rep(" ",  max(nchar(rownames(detailed_decomposition)))-nchar("Total difference ")), collapse=""))
   cat("Aggregate decomposition:\n\n")
   print(aggregate_decomposition, ...)
+  cat("\n")
   cat("\n")
   cat("Observed difference:\n\n")
   print(detailed_decomposition_observed, ...)
@@ -358,11 +365,15 @@ aggregate_terms <- function(x,
                             aggregate_factors = TRUE,
                             custom_aggregation = NULL){
 
-
-  if(aggregate_factors | !is.null(custom_aggregation)){
-
+browser()
     decomposition_terms <- x$decomposition_terms
-    decomposition_vcov <- x$decomposition_vcov
+    if(!is.null(x$decomposition_vcov)) {
+      decomposition_vcov <- x$decomposition_vcov
+    }
+    else {
+
+    }
+
 
 
     if(aggregate_factors & is.null(custom_aggregation)){
@@ -424,7 +435,7 @@ aggregate_terms <- function(x,
       add <- add[1, ]
       rownames(add) <- names(custom_aggregation)[i]
       aggregated_terms <- rbind(aggregated_terms, add)
-
+browser()
       # vcov
       sel_terms <- which(colnames(aggregated_vcov_Observed_difference) %in% custom_aggregation[[i]])
       if(length(sel_terms) > 1){
@@ -469,7 +480,6 @@ aggregate_terms <- function(x,
     x$decomposition_vcov$decomposition_terms_vcov$Composition_effect <- aggregated_vcov_Composition_effect
     x$decomposition_vcov$decomposition_terms_vcov$Structure_effect <- aggregated_vcov_Structure_effect
 
-  }
-
   return(x)
 }
+
