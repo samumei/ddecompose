@@ -44,13 +44,33 @@ print.dfl_deco <- function(x, ...){
 #' @export
 #'
 print.ob_deco <- function(x, ...){
-  cat("Oaxaca-Blinder decomposition of mean difference\nbetween",
+  reweighting <- ifelse(x$input_parameters$reweighting, TRUE, FALSE)
+
+  if(!x$input_parameters$rifreg) {
+    if(!reweighting) {
+      decomposition_type <- "\n\nOaxaca-Blinder decomposition of mean difference\nbetween"
+    }
+    else{
+      decomposition_type <- "\n\nDobuly robust Oaxaca-Blinder decomposition of mean difference\nbetween"
+    }
+  }
+  else {
+    if(!reweighting) {
+      decomposition_type <- paste0("\n\nRIF regression decomposition of difference in ",
+                                   x$input_parameters$rifreg_statistic  ,
+                                   "\nbetween")
+    }
+    else{
+      decomposition_type <- paste0("\n\nReweighted RIF regression decomposition of difference in ",
+                                   x$input_parameters$rifreg_statistic  ,
+                                   "\nbetween")
+    }
+  }
+  cat(decomposition_type,
       paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
       "(group 1) and",
       paste0(x$group_variable_name, " == '", x$group_variable_levels[1], "'"),
-      "(group 0)\n\n")
-
-  cat("Coefficients of", paste0("'",x$reference_group,"'"), "(reference group) were used to estimate\ncounterfactual mean outcome.\n\n")
+      "(group 0). \nThe reference group is", paste0("'",x$reference_group,"'."), "\n\n")
 
 
   decomposition_terms <- x[[1]]["decomposition_terms"][["decomposition_terms"]][, -1]
