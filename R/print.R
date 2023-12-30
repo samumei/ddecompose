@@ -73,16 +73,29 @@ print.ob_deco <- function(x, ...){
       "(group 0). \nThe reference group is", paste0("'",x$reference_group,"'."), "\n\n")
 
 
-  decomposition_terms <- x[[1]]["decomposition_terms"][["decomposition_terms"]][, -1]
+  n_decompositions <- length(x) - 5
 
-  names(decomposition_terms) <- gsub("_", " ", names(decomposition_terms))
-  aggregate_decomposition <- decomposition_terms[1, ]
-  detailed_decomposition <-  decomposition_terms[-1, ]
-  rownames(aggregate_decomposition) <- paste0("Total difference ", paste0(rep(" ",  max(nchar(rownames(detailed_decomposition)))-nchar("Total difference ")), collapse=""))
-  cat("Aggregate decomposition:\n\n")
+  for(i in 1:n_decompositions) {
+
+    if(x$input_parameters$rifreg_statistic == "quantiles") {
+      cat("\n*** Quantile:",  x$input_parameters$rifreg_probs[i], "***")
+      cat("\n\n")
+    }
+
+    decomposition_terms <- x[[i]]["decomposition_terms"][["decomposition_terms"]][, -1]
+
+    names(decomposition_terms) <- gsub("_", " ", names(decomposition_terms))
+    aggregate_decomposition <- decomposition_terms[1, ]
+    detailed_decomposition <-  decomposition_terms[-1, ]
+    rownames(aggregate_decomposition) <-
+      paste0("Total difference ",
+             paste0(rep(" ",  max(nchar(rownames(detailed_decomposition))) -
+                          nchar("Total difference ")), collapse=""))
+    cat("Aggregate decomposition:\n\n")
     print(aggregate_decomposition, ...)
-  cat("\n")
-  cat("Detailed decomposition:\n\n")
-   print(detailed_decomposition, ...)
-  cat("\n")
+    cat("\n")
+    cat("Detailed decomposition:\n\n")
+    print(detailed_decomposition, ...)
+    cat("\n")
+  }
 }

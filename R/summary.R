@@ -279,120 +279,129 @@ summary.ob_deco <- function(x,
         rw_err_formula, "\n\n")
   }
 
-  if(aggregate_factors | !is.null(custom_aggregation)){
-    x <- aggregate_terms(x[[1]],
-                         aggregate_factors = aggregate_factors,
-                         custom_aggregation = custom_aggregation,
-                         reweighting = reweighting)
-  }
-  else {
-    x <- x[[1]][1:4]
+  n_decompositions <- length(x) - 5
 
-    no_se <- ifelse(is.null(x$decomposition_vcov), TRUE, FALSE)
+  for(i in 1:n_decompositions) {
 
-    if(no_se) {
-      x$decomposition_vcov$decomposition_terms_se <- x$decomposition_terms
-      x$decomposition_vcov$decomposition_terms_vcov <- x$decomposition_terms[, -1]
-      x$decomposition_vcov$decomposition_terms_se[] <- NA
-      x$decomposition_vcov$decomposition_terms_vcov[] <- NA
+    if(x$input_parameters$rifreg_statistic == "quantiles") {
+      cat("\n*** Quantile:",  x$input_parameters$rifreg_probs[i], "***")
+      cat("\n\n")
     }
 
-    if(length(x[["decomposition_vcov"]][["decomposition_terms_vcov"]]) == 3){ # no reweighting
-      x$decomposition_terms <- x$decomposition_terms[, 1:4]
+    if(aggregate_factors | !is.null(custom_aggregation)){
+      results <- aggregate_terms(x[[i]],
+                           aggregate_factors = aggregate_factors,
+                           custom_aggregation = custom_aggregation,
+                           reweighting = reweighting)
     }
-  }
+    else {
+      results <- x[[i]][1:4]
 
-  decomposition_terms <- x$decomposition_terms[,-1]
-  decomposition_terms_se <- x$decomposition_vcov$decomposition_terms_se[,-1]
-  names(decomposition_terms) <- gsub("_", " ", names(decomposition_terms))
-  aggregate_decomposition <- decomposition_terms[1, ]
-  aggregate_decomposition_se <- decomposition_terms_se[1, ]
-  detailed_decomposition <-  decomposition_terms[-1, ]
-  detailed_decomposition_se <-  decomposition_terms_se[-1, ]
+      no_se <- ifelse(is.null(results$decomposition_vcov), TRUE, FALSE)
 
-  aggregate_decomposition <- data.frame(Effect = names(aggregate_decomposition),
-                                        Estimate = as.numeric(aggregate_decomposition[1, ]),
-                                        se = as.numeric(aggregate_decomposition_se[1, ]))
-  aggregate_decomposition$low <-  aggregate_decomposition$Estimate - aggregate_decomposition$se * qnorm(1 - (1 - confidence_level)/2)
-  aggregate_decomposition$high <-  aggregate_decomposition$Estimate + aggregate_decomposition$se * qnorm(1 - (1 - confidence_level)/2)
-  names(aggregate_decomposition) <- c("Effect", "Estimate", "Std. Error", "CI [Low", "High]")
-  rownames(aggregate_decomposition) <- aggregate_decomposition$Effect
-  aggregate_decomposition$Effect <- NULL
+      if(no_se) {
+        results$decomposition_vcov$decomposition_terms_se <- results$decomposition_terms
+        results$decomposition_vcov$decomposition_terms_vcov <- results$decomposition_terms[, -1]
+        results$decomposition_vcov$decomposition_terms_se[] <- NA
+        results$decomposition_vcov$decomposition_terms_vcov[] <- NA
+      }
 
-  detailed_decomposition_observed <-  data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Observed difference"))],
-                                                 se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Observed difference"))])
-  detailed_decomposition_composition <- data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Composition effect"))],
-                                                   se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Composition effect"))])
-  detailed_decomposition_structure <-  data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Structure effect"))],
-                                                  se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Structure effect"))])
+      if(length(results[["decomposition_vcov"]][["decomposition_terms_vcov"]]) == 3){ # no reweighting
+        results$decomposition_terms <- results$decomposition_terms[, 1:4]
+      }
+    }
 
-  detailed_decomposition_observed$low <-  detailed_decomposition_observed$Estimate - detailed_decomposition_observed$se * qnorm(1 - (1 - confidence_level)/2)
-  detailed_decomposition_observed$high <-  detailed_decomposition_observed$Estimate + detailed_decomposition_observed$se * qnorm(1 - (1 - confidence_level)/2)
+    decomposition_terms <- results$decomposition_terms[,-1]
+    decomposition_terms_se <- results$decomposition_vcov$decomposition_terms_se[,-1]
+    names(decomposition_terms) <- gsub("_", " ", names(decomposition_terms))
+    aggregate_decomposition <- decomposition_terms[1, ]
+    aggregate_decomposition_se <- decomposition_terms_se[1, ]
+    detailed_decomposition <-  decomposition_terms[-1, ]
+    detailed_decomposition_se <-  decomposition_terms_se[-1, ]
 
-  detailed_decomposition_composition$low <-  detailed_decomposition_composition$Estimate - detailed_decomposition_composition$se * qnorm(1 - (1 - confidence_level)/2)
-  detailed_decomposition_composition$high <-  detailed_decomposition_composition$Estimate + detailed_decomposition_composition$se * qnorm(1 - (1 - confidence_level)/2)
+    aggregate_decomposition <- data.frame(Effect = names(aggregate_decomposition),
+                                          Estimate = as.numeric(aggregate_decomposition[1, ]),
+                                          se = as.numeric(aggregate_decomposition_se[1, ]))
+    aggregate_decomposition$low <-  aggregate_decomposition$Estimate - aggregate_decomposition$se * qnorm(1 - (1 - confidence_level)/2)
+    aggregate_decomposition$high <-  aggregate_decomposition$Estimate + aggregate_decomposition$se * qnorm(1 - (1 - confidence_level)/2)
+    names(aggregate_decomposition) <- c("Effect", "Estimate", "Std. Error", "CI [Low", "High]")
+    rownames(aggregate_decomposition) <- aggregate_decomposition$Effect
+    aggregate_decomposition$Effect <- NULL
 
-  detailed_decomposition_structure$low <-  detailed_decomposition_structure$Estimate - detailed_decomposition_structure$se * qnorm(1 - (1 - confidence_level)/2)
-  detailed_decomposition_structure$high <-  detailed_decomposition_structure$Estimate + detailed_decomposition_structure$se * qnorm(1 - (1 - confidence_level)/2)
+    detailed_decomposition_observed <-  data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Observed difference"))],
+                                                   se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Observed difference"))])
+    detailed_decomposition_composition <- data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Composition effect"))],
+                                                     se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Composition effect"))])
+    detailed_decomposition_structure <-  data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Structure effect"))],
+                                                    se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Structure effect"))])
 
-  names(detailed_decomposition_observed) <- names(detailed_decomposition_structure) <- names(detailed_decomposition_composition) <- c("Estimate", "Std. Error", "CI [Low", "High]")
-  rownames(detailed_decomposition_observed) <-  rownames(detailed_decomposition_structure) <-  rownames(detailed_decomposition_composition) <- rownames(detailed_decomposition)
+    detailed_decomposition_observed$low <-  detailed_decomposition_observed$Estimate - detailed_decomposition_observed$se * qnorm(1 - (1 - confidence_level)/2)
+    detailed_decomposition_observed$high <-  detailed_decomposition_observed$Estimate + detailed_decomposition_observed$se * qnorm(1 - (1 - confidence_level)/2)
 
+    detailed_decomposition_composition$low <-  detailed_decomposition_composition$Estimate - detailed_decomposition_composition$se * qnorm(1 - (1 - confidence_level)/2)
+    detailed_decomposition_composition$high <-  detailed_decomposition_composition$Estimate + detailed_decomposition_composition$se * qnorm(1 - (1 - confidence_level)/2)
 
-  if(reweighting) {
-    detailed_decomposition_spec_error <- data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Specification error"))],
-                                                     se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Specification error"))])
-    detailed_decomposition_rw_error <-  data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Reweighting error"))],
-                                                    se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Reweighting error"))])
+    detailed_decomposition_structure$low <-  detailed_decomposition_structure$Estimate - detailed_decomposition_structure$se * qnorm(1 - (1 - confidence_level)/2)
+    detailed_decomposition_structure$high <-  detailed_decomposition_structure$Estimate + detailed_decomposition_structure$se * qnorm(1 - (1 - confidence_level)/2)
 
-    detailed_decomposition_spec_error$low <-  detailed_decomposition_spec_error$Estimate - detailed_decomposition_spec_error$se * qnorm(1 - (1 - confidence_level)/2)
-    detailed_decomposition_spec_error$high <-  detailed_decomposition_spec_error$Estimate + detailed_decomposition_spec_error$se * qnorm(1 - (1 - confidence_level)/2)
-
-    detailed_decomposition_rw_error$low <-  detailed_decomposition_rw_error$Estimate - detailed_decomposition_rw_error$se * qnorm(1 - (1 - confidence_level)/2)
-    detailed_decomposition_rw_error$high <-  detailed_decomposition_rw_error$Estimate + detailed_decomposition_rw_error$se * qnorm(1 - (1 - confidence_level)/2)
-
-    names(detailed_decomposition_spec_error) <- names(detailed_decomposition_rw_error) <- names(detailed_decomposition_observed)
-    rownames(detailed_decomposition_spec_error) <- rownames(detailed_decomposition_rw_error) <- rownames(detailed_decomposition)
-
-  }
+    names(detailed_decomposition_observed) <- names(detailed_decomposition_structure) <- names(detailed_decomposition_composition) <- c("Estimate", "Std. Error", "CI [Low", "High]")
+    rownames(detailed_decomposition_observed) <-  rownames(detailed_decomposition_structure) <-  rownames(detailed_decomposition_composition) <- rownames(detailed_decomposition)
 
 
-  #rownames(aggregate_decomposition) <- paste0("Total difference ", paste0(rep(" ",  max(nchar(rownames(detailed_decomposition)))-nchar("Total difference ")), collapse=""))
-  cat("Aggregate decomposition:\n\n")
-  print(aggregate_decomposition, ...)
-  cat("\n")
-  cat("\n")
-  cat("Observed difference:\n\n")
-  print(detailed_decomposition_observed, ...)
-  cat("\n")
-  cat("\n")
+    if(reweighting) {
+      detailed_decomposition_spec_error <- data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Specification error"))],
+                                                      se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Specification error"))])
+      detailed_decomposition_rw_error <-  data.frame(Estimate = detailed_decomposition[, c(which(names(detailed_decomposition) == "Reweighting error"))],
+                                                     se = detailed_decomposition_se[, c(which(names(detailed_decomposition) == "Reweighting error"))])
 
-  if(!reweighting) {
-    cat("Structure effect:\n\n")
-    print(detailed_decomposition_structure, ...)
+      detailed_decomposition_spec_error$low <-  detailed_decomposition_spec_error$Estimate - detailed_decomposition_spec_error$se * qnorm(1 - (1 - confidence_level)/2)
+      detailed_decomposition_spec_error$high <-  detailed_decomposition_spec_error$Estimate + detailed_decomposition_spec_error$se * qnorm(1 - (1 - confidence_level)/2)
+
+      detailed_decomposition_rw_error$low <-  detailed_decomposition_rw_error$Estimate - detailed_decomposition_rw_error$se * qnorm(1 - (1 - confidence_level)/2)
+      detailed_decomposition_rw_error$high <-  detailed_decomposition_rw_error$Estimate + detailed_decomposition_rw_error$se * qnorm(1 - (1 - confidence_level)/2)
+
+      names(detailed_decomposition_spec_error) <- names(detailed_decomposition_rw_error) <- names(detailed_decomposition_observed)
+      rownames(detailed_decomposition_spec_error) <- rownames(detailed_decomposition_rw_error) <- rownames(detailed_decomposition)
+
+    }
+
+
+    #rownames(aggregate_decomposition) <- paste0("Total difference ", paste0(rep(" ",  max(nchar(rownames(detailed_decomposition)))-nchar("Total difference ")), collapse=""))
+    cat("Aggregate decomposition:\n\n")
+    print(aggregate_decomposition, ...)
     cat("\n")
     cat("\n")
-    cat("Composition effect:\n\n")
-    print(detailed_decomposition_composition, ...)
-    cat("\n")
-  }
-  else {
-    cat("\n")
-    cat("Pure Structure effect:\n\n")
-    print(detailed_decomposition_structure, ...)
+    cat("Observed difference:\n\n")
+    print(detailed_decomposition_observed, ...)
     cat("\n")
     cat("\n")
-    cat("Pure Composition effect:\n\n")
-    print(detailed_decomposition_composition, ...)
-    cat("\n")
-    cat("\n")
-    cat("Specification Error:\n\n")
-    print(detailed_decomposition_spec_error, ...)
-    cat("\n")
-    cat("\n")
-    cat("Reweighting Error:\n\n")
-    print(detailed_decomposition_rw_error, ...)
-    cat("\n")
+
+    if(!reweighting) {
+      cat("Structure effect:\n\n")
+      print(detailed_decomposition_structure, ...)
+      cat("\n")
+      cat("\n")
+      cat("Composition effect:\n\n")
+      print(detailed_decomposition_composition, ...)
+      cat("\n")
+    }
+    else {
+      cat("Pure structure effect:\n\n")
+      print(detailed_decomposition_structure, ...)
+      cat("\n")
+      cat("\n")
+      cat("Pure composition effect:\n\n")
+      print(detailed_decomposition_composition, ...)
+      cat("\n")
+      cat("\n")
+      cat("Specification error:\n\n")
+      print(detailed_decomposition_spec_error, ...)
+      cat("\n")
+      cat("\n")
+      cat("Reweighting error:\n\n")
+      print(detailed_decomposition_rw_error, ...)
+      cat("\n")
+    }
   }
 }
 
