@@ -103,6 +103,95 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
 
 
 
+
+#' Plot decomposition terms for quantiles
+#'
+#' The function plots decomposition terms for quantiles estimtated
+#' with \code{ob_deco} over the  unit interval.
+#'
+#' @param x an object of class "ob_deco", usually, a result of a call to [ob_deco()] with code{statistics = "quantiles"}.
+#' @param confidence_bands If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.
+#' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the confidence interval
+#'              plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standard error.
+#' @param uniform_bands If `FALSE` (default), pointsise confidence bands are computed. Otherwise, uniform bands are constructed
+#'              based on the bootstrapped Kolmogrov-Smirnov statistic.
+#' @param ... other parameters to be passed through to plotting functions.
+#'
+#' @return a ggplot illustrating the decomposition terms for quantiles.
+#' @export
+#'
+#' @examples
+#' # NOT YET PROVIDED
+#'
+plot.ob_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uniform_bands=FALSE, ...){
+
+browser()
+  decomposition_quantiles <-  stats::reshape(x$input_parameters$rifreg_probs,
+                                             idvar = c("probs"),
+                                             times = setdiff(names(x$input_parameters$rifreg_probs),c("probs")),
+                                             timevar="effect",
+                                             varying = list(setdiff(names(x$input_parameters$rifreg_probs),c("probs"))),
+                                             direction = "long",
+                                             v.names = "value")
+  confidence_bands <- ifelse(confidence_bands == TRUE
+                             & is.null(x$bootstrapped_standard_errors) ==FALSE,
+                             TRUE,
+                             FALSE)
+  if(confidence_bands){
+    decomposition_quantiles_se <- x$bootstrapped_standard_errors$decomposition_quantiles
+    decomposition_quantiles_se <-  stats::reshape(decomposition_quantiles_se,
+                                                  idvar = c("probs"),
+                                                  times = setdiff(names(decomposition_quantiles_se),c("probs")),
+                                                  timevar="effect",
+                                                  varying = list(setdiff(names(decomposition_quantiles_se),c("probs"))),
+                                                  direction = "long",
+                                                  v.names = "se")
+
+    kolmogorov_smirnov_stat <- x$bootstrapped_standard_errors$decomposition_quantiles_kms_distribution
+    kolmogorov_smirnov_stat <- lapply(split(kolmogorov_smirnov_stat, kolmogorov_smirnov_stat$effect),
+                                      function(x) data.frame(effect = x$effect[1],
+                                                             t_value = quantile(x$kms_t_value, confidence_level)))
+    kolmogorov_smirnov_stat <- do.call("rbind", kolmogorov_smirnov_stat)
+    rn <- names(decomposition_quantiles_se)
+    decomposition_quantiles_se <- cbind(decomposition_quantiles_se,
+                                        kolmogorov_smirnov_stat[match(decomposition_quantiles_se$effect,  kolmogorov_smirnov_stat$effect), "t_value"])
+    names(decomposition_quantiles_se) <- c(rn, "t_value")
+    decomposition_quantiles_se$effect_probs <- paste0(decomposition_quantiles_se$effect,decomposition_quantiles_se$probs)
+    decomposition_quantiles$effect_probs <- paste0(decomposition_quantiles$effect,decomposition_quantiles$probs)
+    decomposition_quantiles <- cbind(decomposition_quantiles,
+                                     decomposition_quantiles_se[match(decomposition_quantiles$effect_probs,  decomposition_quantiles_se$effect_probs), c("se","t_value")])
+    decomposition_quantiles$effect_probs <- NULL
+
+    if(uniform_bands==FALSE){
+      decomposition_quantiles$t_value <- stats::qnorm(1-(1-confidence_level)/2)
+    }
+    decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed difference")
+    plot <-  ggplot(data=decomposition_quantiles, aes(x=probs,
+                                                      y=value,
+                                                      #col=effect,
+                                                      #fill=effect,
+                                                      ymin=value-t_value*se,
+                                                      ymax=value+t_value*se
+    )) +
+      geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
+      geom_ribbon(alpha=0.2, col=NA, fill="red") +
+      geom_line(col="red") +
+      geom_point(col="red") +
+      facet_wrap(~ effect) +
+      labs(y="Difference", x="Quantile rank")
+  }else{
+    decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed difference")
+    plot <- ggplot(decomposition_quantiles, aes(probs, value, col=effect, shape=effect)) +
+      geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
+      geom_line() +
+      geom_point() +
+      labs(y="Difference", x="Quantile rank")
+  }
+
+  return(plot)
+}
+
+
 #############################################################
 ### Plot function for composition effect results
 get_all_names <- function(formula, df){
