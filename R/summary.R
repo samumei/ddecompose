@@ -236,11 +236,12 @@ summary.ob_deco <- function(x,
   }
   else {
     # With Reweighting
-
     cat("Group 0:", paste0(x$group_variable_name, " == '", x$group_variable_levels[1], "'"),
+        paste0("(",length(x[[1]]$model_fits$fit_group_0$residuals)," observations)"),
         "\nGroup 1:", paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
+        paste0("(",length(x[[1]]$model_fits$fit_group_1$residuals)," observations)"),
         "\nGroup C: The reweighted group C is group", paste0("'",x$reference_group,"'"), "(reference group) reweighted
-         to match the characteristics of the other group.\n\n")
+         to match the characteristics of the other group", paste0("(",length(x[[1]]$model_fits$fit_group_reweighted$residuals)," observations).\n\n"))
 
     if(x$input_parameters$reference_0) {
       x_p_reference <- "b0"
