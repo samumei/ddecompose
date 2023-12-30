@@ -12,25 +12,26 @@ test_that("Plot function does not throw an error with dfl_deco", {
   testthat::expect_error(plot(deco_results), NA)
 })
 
-# test_that("Plot function does not throw an error with ob_deco", {
-#
-#   data("nlys00")
-#
-#   mod1 <- log(wage) ~ age + central_city + msa + region + black +
-#     hispanic + education + afqt + family_responsibility + years_worked_civilian +
-#     years_worked_military + part_time + industry
-#
-#   deco_male_as_reference <- ob_deco(formula = mod1,
-#                                     data = nlys00,
-#                                     group = female,
-#                                     reweighting = TRUE,
-#                                     rifreg = TRUE,
-#                                     bootstrap = TRUE,
-#                                     bootstrap_iterations = 20,
-#                                     reference_0 = FALSE)
-#
-#   browser()
-#   plot(deco_male_as_reference)
-#
-#   testthat::expect_error(plot(deco_male_as_reference), NA)
-# })
+test_that("Plot function does not throw an error with ob_deco", {
+
+  data("nlys00")
+
+  mod1 <- log(wage) ~ age + central_city + msa + region + black +
+    hispanic + education + afqt + family_responsibility + years_worked_civilian +
+    years_worked_military + part_time + industry
+
+  deco_male_as_reference <- ob_deco(formula = mod1,
+                                    data = nlys00,
+                                    group = female,
+                                    reweighting = TRUE,
+                                    rifreg = TRUE,
+                                    bootstrap = TRUE,
+                                    bootstrap_iterations = 10,
+                                    reference_0 = FALSE)
+
+
+  plot(deco_male_as_reference)
+  # plot(deco_male_as_reference, confidence_bands = TRUE)
+
+  testthat::expect_error(plot(deco_male_as_reference), NA)
+})

@@ -30,8 +30,8 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
                                                 varying = list(setdiff(names(x$decomposition_quantiles),c("probs"))),
                                                 direction = "long",
                                                 v.names = "value")
-  confidence_bands <- ifelse(confidence_bands == TRUE
-                             & is.null(x$bootstrapped_standard_errors) ==FALSE,
+  confidence_bands <- ifelse(confidence_bands
+                             & !is.null(x$bootstrapped_standard_errors),
                              TRUE,
                              FALSE)
   if(confidence_bands){
@@ -125,62 +125,88 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
 #'
 plot.ob_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uniform_bands=FALSE, ...){
 
-browser()
-  decomposition_quantiles <-  stats::reshape(x$input_parameters$rifreg_probs,
-                                             idvar = c("probs"),
-                                             times = setdiff(names(x$input_parameters$rifreg_probs),c("probs")),
-                                             timevar="effect",
-                                             varying = list(setdiff(names(x$input_parameters$rifreg_probs),c("probs"))),
-                                             direction = "long",
-                                             v.names = "value")
-  confidence_bands <- ifelse(confidence_bands == TRUE
-                             & is.null(x$bootstrapped_standard_errors) ==FALSE,
+
+  n_quantiles <- length(x) - 5
+  col_names <- c("probs", names(x[[1]][["decomposition_terms"]][-1]))
+
+  na_matrix <- matrix(NA, nrow = n_quantiles, ncol = length(col_names))
+  deco_results <- as.data.frame(na_matrix)
+  colnames(deco_results) <- col_names
+
+  deco_results$probs <- x$input_parameters$rifreg_probs
+
+  for(i in 1:n_quantiles) {
+    deco_results[i, 2:length(col_names)] <- x[[i]]$decomposition_terms[1, 2:length(col_names)]
+  }
+
+
+    decomposition_quantiles <-  stats::reshape(deco_results,
+                                               idvar = c("probs"),
+                                               times = setdiff(names(deco_results),c("probs")),
+                                               timevar="effect",
+                                               varying = list(setdiff(names(deco_results),c("probs"))),
+                                               direction = "long",
+                                               v.names = "value")
+
+  confidence_bands <- ifelse(confidence_bands
+                             & x$input_parameters$bootstrap,
                              TRUE,
                              FALSE)
   if(confidence_bands){
-    decomposition_quantiles_se <- x$bootstrapped_standard_errors$decomposition_quantiles
-    decomposition_quantiles_se <-  stats::reshape(decomposition_quantiles_se,
-                                                  idvar = c("probs"),
-                                                  times = setdiff(names(decomposition_quantiles_se),c("probs")),
-                                                  timevar="effect",
-                                                  varying = list(setdiff(names(decomposition_quantiles_se),c("probs"))),
-                                                  direction = "long",
-                                                  v.names = "se")
+#
+#     deco_se <- as.data.frame(na_matrix)
+#     colnames(deco_se) <- col_names
+#
+#     deco_se$probs <- x$input_parameters$rifreg_probs
+#
+#     for(i in 1:n_quantiles) {
+#       deco_se[i, 2:length(col_names)] <- x[[i]]$decomposition_vcov$decomposition_terms_se[2:length(col_names)]
+#     }
+#
+#     decomposition_quantiles_se <-  stats::reshape(deco_se,
+#                                                   idvar = c("probs"),
+#                                                   times = setdiff(names(deco_se),c("probs")),
+#                                                   timevar="effect",
+#                                                   varying = list(setdiff(names(deco_se),c("probs"))),
+#                                                   direction = "long",
+#                                                   v.names = "se")
+#
+#     kolmogorov_smirnov_stat <- x$bootstrapped_standard_errors$decomposition_quantiles_kms_distribution
+#     kolmogorov_smirnov_stat <- lapply(split(kolmogorov_smirnov_stat, kolmogorov_smirnov_stat$effect),
+#                                       function(x) data.frame(effect = x$effect[1],
+#                                                              t_value = quantile(x$kms_t_value, confidence_level)))
+#     kolmogorov_smirnov_stat <- do.call("rbind", kolmogorov_smirnov_stat)
+#     rn <- names(decomposition_quantiles_se)
+#     decomposition_quantiles_se <- cbind(decomposition_quantiles_se,
+#                                         kolmogorov_smirnov_stat[match(decomposition_quantiles_se$effect,  kolmogorov_smirnov_stat$effect), "t_value"])
+#     names(decomposition_quantiles_se) <- c(rn, "t_value")
+#     decomposition_quantiles_se$effect_probs <- paste0(decomposition_quantiles_se$effect,decomposition_quantiles_se$probs)
+#     decomposition_quantiles$effect_probs <- paste0(decomposition_quantiles$effect,decomposition_quantiles$probs)
+#     decomposition_quantiles <- cbind(decomposition_quantiles,
+#                                      decomposition_quantiles_se[match(decomposition_quantiles$effect_probs,  decomposition_quantiles_se$effect_probs), c("se","t_value")])
+#     decomposition_quantiles$effect_probs <- NULL
+#
+#     if(uniform_bands==FALSE){
+#       decomposition_quantiles$t_value <- stats::qnorm(1-(1-confidence_level)/2)
+#     }
+#     decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed difference")
+#     plot <-  ggplot(data=decomposition_quantiles, aes(x=probs,
+#                                                       y=value,
+#                                                       #col=effect,
+#                                                       #fill=effect,
+#                                                       ymin=value-t_value*se,
+#                                                       ymax=value+t_value*se
+#     )) +
+#       geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
+#       geom_ribbon(alpha=0.2, col=NA, fill="red") +
+#       geom_line(col="red") +
+#       geom_point(col="red") +
+#       facet_wrap(~ effect) +
+#       labs(y="Difference", x="Quantile rank")
+  }
+  else{
 
-    kolmogorov_smirnov_stat <- x$bootstrapped_standard_errors$decomposition_quantiles_kms_distribution
-    kolmogorov_smirnov_stat <- lapply(split(kolmogorov_smirnov_stat, kolmogorov_smirnov_stat$effect),
-                                      function(x) data.frame(effect = x$effect[1],
-                                                             t_value = quantile(x$kms_t_value, confidence_level)))
-    kolmogorov_smirnov_stat <- do.call("rbind", kolmogorov_smirnov_stat)
-    rn <- names(decomposition_quantiles_se)
-    decomposition_quantiles_se <- cbind(decomposition_quantiles_se,
-                                        kolmogorov_smirnov_stat[match(decomposition_quantiles_se$effect,  kolmogorov_smirnov_stat$effect), "t_value"])
-    names(decomposition_quantiles_se) <- c(rn, "t_value")
-    decomposition_quantiles_se$effect_probs <- paste0(decomposition_quantiles_se$effect,decomposition_quantiles_se$probs)
-    decomposition_quantiles$effect_probs <- paste0(decomposition_quantiles$effect,decomposition_quantiles$probs)
-    decomposition_quantiles <- cbind(decomposition_quantiles,
-                                     decomposition_quantiles_se[match(decomposition_quantiles$effect_probs,  decomposition_quantiles_se$effect_probs), c("se","t_value")])
-    decomposition_quantiles$effect_probs <- NULL
-
-    if(uniform_bands==FALSE){
-      decomposition_quantiles$t_value <- stats::qnorm(1-(1-confidence_level)/2)
-    }
-    decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed difference")
-    plot <-  ggplot(data=decomposition_quantiles, aes(x=probs,
-                                                      y=value,
-                                                      #col=effect,
-                                                      #fill=effect,
-                                                      ymin=value-t_value*se,
-                                                      ymax=value+t_value*se
-    )) +
-      geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
-      geom_ribbon(alpha=0.2, col=NA, fill="red") +
-      geom_line(col="red") +
-      geom_point(col="red") +
-      facet_wrap(~ effect) +
-      labs(y="Difference", x="Quantile rank")
-  }else{
-    decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed difference")
+    decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed_difference")
     plot <- ggplot(decomposition_quantiles, aes(probs, value, col=effect, shape=effect)) +
       geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
       geom_line() +
