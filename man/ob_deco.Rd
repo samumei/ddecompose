@@ -46,7 +46,8 @@ This means the composition effect is computed as \code{(X0 - X1) * b1} and
 the structure effect as \code{X0 * (b0 - b1)}.}
 
 \item{weights}{numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
-The default (\code{NULL}) is equivalent to \code{weights = rep(1, length(dep_var))}.}
+The default (\code{NULL}) is equivalent to \code{weights = rep(1, length(dep_var))}.
+If no weights are used, make sure you do not define this parameter (e.g. with \code{weights = NULL}).}
 
 \item{rifreg}{boolean: if `TRUE`, then a RIF regression for the statistic
 indicated in `rifreg_statistic` is computed and decomposed.}
@@ -209,8 +210,8 @@ deco_female_as_reference <- ob_deco(formula = mod1,
                                     reference_0 = TRUE)
 summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 
-# Return standard errors for all detailed terms -> not yet working
-# summary(deco_female_as_reference, aggregate_factors = FALSE)
+# Return standard errors for all detailed terms
+summary(deco_female_as_reference, aggregate_factors = FALSE)
 
 }
 \references{

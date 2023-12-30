@@ -4,7 +4,12 @@
 \alias{aggregate_terms}
 \title{Aggregate decomposition terms}
 \usage{
-aggregate_terms(x, aggregate_factors = TRUE, custom_aggregation = NULL)
+aggregate_terms(
+  x,
+  aggregate_factors = TRUE,
+  custom_aggregation = NULL,
+  reweighting
+)
 }
 \arguments{
 \item{x}{an object of class "ob_deco", usually , a result of a call to [ob_deco()].}
@@ -16,6 +21,9 @@ levels are aggregated to a single term for every factor variable.}
 terms. The parameter `custom_aggregation` overrides the parameter `aggregate_factors`.
 If `NULL` (default), then either all detailed terms or all terms associated with
 a single variable are returned.}
+
+\item{reweighting}{boolean, if `TRUE` the decompostion in `x` contains reweighting
+(i.e. specification and reweighting error)}
 }
 \value{
 The function returns an updated object of class "ob_deco" containing

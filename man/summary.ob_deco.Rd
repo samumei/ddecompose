@@ -37,9 +37,8 @@ detailed decomposition terms.
 }
 \examples{
 data("nlys00")
-mod1 <- log(wage) ~ age + central_city + msa + region + black +
-hispanic + education + afqt + family_responsibility + years_worked_civilian +
-years_worked_military + part_time + industry
+mod1 <- log(wage) ~ age + education + years_worked_civilian +
+  years_worked_military + part_time + industry
 
 deco_results <- ob_deco(formula = mod1,
                         data = nlys00,
@@ -52,9 +51,22 @@ summary(deco_results)
 # Aggregate decomposition terms associated with factor levels
 summary(deco_results, aggregate_factors = TRUE)
 
-# custom aggregation of decompisition terms
-# custom_aggregation <- list(human_capital = c("education", "experience"),
-#                            union = "unionyes")
-# summary(deco_results, custom_aggregation = custom_aggregation)
+# custom aggregation of decomposition terms
+custom_aggregation <-
+  list(`Age` = c("age"),
+       `Education` = c("education<10 yrs",
+                       "educationHS grad (diploma)",
+                       "educationHS grad (GED)",
+                       "educationSome college",
+                       "educationBA or equiv. degree",
+                       "educationMA or equiv. degree",
+                       "educationPh.D or prof. degree"),
+       `Life-time work experience` = c("years_worked_civilian",
+                                       "years_worked_military",
+                                       "part_time"),
+       `Industrial sectors` = c("industryManufacturing",
+                                "industryEducation, Health, Public Admin.",
+                                "industryOther services"))
+summary(deco_results, custom_aggregation = custom_aggregation)
 
 }
