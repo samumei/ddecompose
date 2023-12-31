@@ -15,14 +15,16 @@
 #' @export
 #'
 #' @examples
-#' # NOT YET PROVIDED
+#' data("men8305")
+#' flf_model <- log(wage) ~ union*(education + experience) + education*experience
+#' flf_male_inequality  <- dfl_deco(flf_model,
+#'                                  data = men8305,
+#'                                  weights = weights,
+#'                                  group = year)
+#' plot(flf_male_inequality)
 #'
 plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uniform_bands=FALSE, ...){
 
-  # decomposition_quantiles <- tidyr::pivot_longer(x$decomposition_quantiles,
-  #                                                cols=-c("probs"),
-  #                                                names_to="effect",
-  #                                                values_to="value")
   decomposition_quantiles <-  stats::reshape(x$decomposition_quantiles,
                                                 idvar = c("probs"),
                                                 times = setdiff(names(x$decomposition_quantiles),c("probs")),
@@ -34,6 +36,7 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
                              & !is.null(x$bootstrapped_standard_errors),
                              TRUE,
                              FALSE)
+
   if(confidence_bands){
     decomposition_quantiles_se <- x$bootstrapped_standard_errors$decomposition_quantiles
     decomposition_quantiles_se <-  stats::reshape(decomposition_quantiles_se,
@@ -43,10 +46,7 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
                                                   varying = list(setdiff(names(decomposition_quantiles_se),c("probs"))),
                                                   direction = "long",
                                                   v.names = "se")
-    # decomposition_quantiles_se <- tidyr::pivot_longer(x$bootstrapped_standard_errors$decomposition_quantiles,
-    #                                                   cols=-c("probs"),
-    #                                                   names_to="effect",
-    #                                                   values_to="se")
+
     kolmogorov_smirnov_stat <- x$bootstrapped_standard_errors$decomposition_quantiles_kms_distribution
     kolmogorov_smirnov_stat <- lapply(split(kolmogorov_smirnov_stat, kolmogorov_smirnov_stat$effect),
                                       function(x) data.frame(effect = x$effect[1],
@@ -62,15 +62,6 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
                                      decomposition_quantiles_se[match(decomposition_quantiles$effect_probs,  decomposition_quantiles_se$effect_probs), c("se","t_value")])
     decomposition_quantiles$effect_probs <- NULL
 
-    # kolmogorov_smirnov_stat <- dplyr::summarise(dplyr::group_by(x$bootstrapped_standard_errors$decomposition_quantiles_kms_distribution,
-    #                                                             effect),
-    #                                             t_value = quantile(kms_t_value, confidence_level))
-    # decomposition_quantiles_se <- dplyr::left_join(decomposition_quantiles_se,
-    #                                                kolmogorov_smirnov_stat,
-    #                                                by="effect")
-    # decomposition_quantiles <- dplyr::left_join(decomposition_quantiles,
-    #                                             decomposition_quantiles_se,
-    #                                             by=c("probs","effect"))
 
     if(uniform_bands==FALSE){
       decomposition_quantiles$t_value <- stats::qnorm(1-(1-confidence_level)/2)
