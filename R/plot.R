@@ -69,8 +69,6 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
     decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed difference")
     plot <-  ggplot(data=decomposition_quantiles, aes(x=probs,
                                                       y=value,
-                                                      #col=effect,
-                                                      #fill=effect,
                                                       ymin=value-t_value*se,
                                                       ymax=value+t_value*se
                                                       )) +
@@ -79,14 +77,17 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
       geom_line(col="red") +
       geom_point(col="red") +
       facet_wrap(~ effect) +
-      labs(y="Difference", x="Quantile rank")
+      labs(y="Difference", x="Quantile rank") +
+      theme(legend.position = "none")
   }else{
     decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed difference")
-    plot <- ggplot(decomposition_quantiles, aes(probs, value, col=effect, shape=effect)) +
+    plot <- ggplot(decomposition_quantiles, aes(probs, value)) +
       geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
-      geom_line() +
-      geom_point() +
-      labs(y="Difference", x="Quantile rank")
+      geom_line(col="red") +
+      geom_point(col="red") +
+      facet_wrap(~ effect) +
+      labs(y="Difference", x="Quantile rank") +
+      theme(legend.position = "none")
   }
 
   return(plot)
