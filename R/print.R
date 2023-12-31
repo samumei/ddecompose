@@ -24,13 +24,6 @@ print.dfl_deco <- function(x, ...){
     cat("\n")
   }
 
-  # cat("Summary statistics of reweighting factors\n\n")
-  # quantiles_reweighting_factor <- as.data.frame(x$quantiles_reweighting_factor[,-1])
-  # names(quantiles_reweighting_factor) <- names(x$quantiles_reweighting_factor)[-1]
-  # rownames(quantiles_reweighting_factor ) <- rownames(x$quantiles_reweighting_factor)
-  # print(quantiles_reweighting_factor )
-  # cat("\n")
-
 }
 
 
