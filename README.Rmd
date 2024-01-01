@@ -166,8 +166,8 @@ $$\widehat \Delta_X^{\nu} =  (\widehat \nu_C - \widehat \nu_{C,X_2}) + (\widehat
 Sequential decompositions are path dependent because the detailed composition
 effects attributed to single covariates depend on the order of which we include the 
 variables into the sequence. For instance, it matters if we reweight union coverage
-by industry ($F(x_1 \mid x_2)$) or the industry employment given union coverage
-($F(x_2 \mid x_1)$).
+by industry ($F(x_1|x_2)$) or the industry employment given union coverage
+($F(x_2|x_1)$).
 
 Moreover, we get different results if we do not combine the marginal covariate 
 distribution $X_2$ (e.g., industry employment) of group 1 with the conditional
@@ -197,24 +197,36 @@ Specifically, the structure effect can be written as
 
 $$\widehat\Delta^\mu_{S,R} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k} = \widehat\Delta^\mu_{S,p} + \widehat\Delta^\mu_{S,e}.$$
 
-By comparing $\beta_{1,k}$ to coefficients of the reweighted group $0$, $\widehat \beta_{C,k}$, the true underlying structure effect can be identified. Moreover, the reweighting error, $\widehat\Delta^\mu_{S,e}$, indicates how accurately the reweighting function $\widehat\Psi(X_i)$ reweights the covariates distribution of group $0$ to that of group $1$. Thus, identifying the reweighting error allows to measure the "pure" structure effect, $\widehat\Delta^\mu_{S,p}$. If the composition of group $1$ is equal to the reweighted group $0$, the reweighting error is zero.
+By comparing $\beta_{1,k}$ to the coefficients of the reweighted group $0$, $\widehat \beta_{C,k}$, the true underlying structure effect can be identified. Moreover, the reweighting error, $\widehat\Delta^\mu_{S,e}$, indicates how accurately the reweighting function $\widehat\Psi(X_i)$ reweights the covariates distribution of group $0$ to that of group $1$. Thus, identifying the reweighting error allows to measure the "pure" structure effect, $\widehat\Delta^\mu_{S,p}$. If the composition of group $1$ is equal to the reweighted group $0$, the reweighting error is zero.
 
 Similarly, the additional decomposition of the composition effect reads as
 
 $$\widehat\Delta^\mu_{X,R} = \sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k} + (\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k}) = \widehat\Delta^\mu_{X,p} + \widehat\Delta^\mu_{X,e}.$$
 
-The specification error, $\widehat\Delta^\mu_{X,e}$, measures the extent to which the estimated coefficients change  due to different distribution of covariates if the (wage) structure remains the same. Thereby, the "pure" effect, $\overline X_{C,k} - \overline X_{0,k}$, for each covariate can be estimated, summing to the aggregate pure structure effect, $\widehat\Delta^\mu_{X,p}$. If the model is truly linear, i.e., correctly specified, $\beta_C$ of the reweighted group $0$ will be identical to $\beta_0$ and the specification error will be zero (Fortin et al. 2011, p. 49-50). 
+The specification error, $\widehat\Delta^\mu_{X,e}$, measures the extent to which the estimated coefficients change due to a different distribution of covariates if the (wage) structure remains the same. Thereby, the "pure" effect, $\overline X_{C,k} - \overline X_{0,k}$, for each covariate can be estimated, summing to the aggregate pure structure effect, $\widehat\Delta^\mu_{X,p}$. If the model is truly linear, i.e., correctly specified, $\beta_C$ of the reweighted group $0$ will be identical to $\beta_0$ and the specification error will be zero (Fortin et al. 2011, p. 49-50). 
 
-[Kline (2010)](https://eml.berkeley.edu/~pkline/papers/oaxaca6.pdf) points out that the OB decomposition with reweighting is "doubly robust" because the estimates are robust to both model misspecification and inaccurate reweighting weights. If the linear model is correctly specified, $\beta_C$ is equivalent to $\beta_0$. Hence, $(\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k})$ is equivalent to $(\widehat \beta_{1,0} - \widehat \beta_{0,0}) + \overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{0,k})$ for each covariate $k$, meaning that $\widehat\Delta^\mu_{S,p}$ estimates the true structure effect, and $\widehat\Delta^\mu_{X,p}$ the true composition effect, even if the reweighting is inaccurate. Similarly, if the the reweighting is accurate, i.e., $\overline X_{C,k} = X_{1,k}$, estimators are consistent, even if the model is misspecified. While the reweighted OB decomposition is doubly robust and path independent, its main limitation is that it only allows for decomposition at the mean. 
-
-
+The reweighted OB decomposition is "doubly robust" as it yields consistent estimates
+even if either the linear model or the reweighting estimator is misspecified. In
+contrast to the simple reweighting or linear approach it does not hinge on a single 
+correctly specified model. While the reweighted OB decomposition is doubly robust 
+and path independent, it is limited to the mean.
 
 
 ### Reweighted RIF Regression Decomposition 
 
-A path independent decomposition method that goes beyond the mean is the reweighted RIF regression decomposition as proposed by Firpo, Fortin, and Lemieux (2018). Firpo et al. propose to approximate the conditional expectation of the RIF given the explanatory variables with a linear regression. The regression coefficients can be consistent estimates of the average derivatives $\widehat{\alpha}(\nu)$ if the conditional expectations of the RIF are linear in $X$ (see [Firpo et al., 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions), [Rothe 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
+A path independent method that goes beyond the mean is the RIF decomposition 
+of Firpo, Fortin, and Lemieux (2018). The approach approximates
+the expected value of the 'recentered influence function' (RIF) of 
+the distributional statistic (e.g., quantile, variance, or Gini coefficient) of  
+an outcome variable conditional on covariates with linear regressions. 
+RIF regression coefficients can be consistent estimates of the marginal effect 
+of small changes in the expected value of covariates to
+the distributional statistics of an outcome variable (see [Firpo et al., 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions) and the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg)).
+Thus, they can be used to decompose between-group difference in a distributional 
+statistics. Firpo et al. (2018) combine the RIF regressions again 
+with the reweighting estimator to avoid misspecification errors. 
 
-In the reweighted RIF regression decompositions, first the recentered influence function (RIF) of the outcome variable $Y$ and a distributional statistic of interest $\nu$ are computed. Then, an OLS regression of the transformed outcome variable $Y$ is run on the explanatory variables $X$. Thereafter, the decomposition method is analogous to the original OB method:
+First, the approach computes the recentered influence function (RIF) of the outcome variable $Y$ and a distributional statistic of interest $\nu$. Then, an OLS regression of the transformed outcome variable $Y$ is run on the explanatory variables $X$. Thereafter, the decomposition method is analogous to the original OB method:
 
 $$\widehat\Delta^\nu_{O,R} =  \widehat\Delta^\nu_{S,p} + \widehat\Delta^\nu_{S,e} + \widehat\Delta^\nu_{X,p} +  \widehat\Delta^\nu_{X,e}.$$ 
 With $\widehat\Delta^\nu_{S,p}$ and $\widehat\Delta^\nu_{S,e}$ estimating the pure structure effect and the reweighting error as
@@ -223,12 +235,21 @@ $$\widehat\Delta^\nu_{S,R} =  \widehat\Delta^\nu_{S,p} + \widehat\Delta^\nu_{S,e
 and $\widehat\Delta^\nu_{X,p}$ and $\widehat\Delta^\nu_{X,e}$ estimating the pure coefficient effect and the specification error: 
 
 $$\widehat\Delta^\nu_{X,R} = \widehat\Delta^\nu_{X,p} + \widehat\Delta^\nu_{X,e} = \sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k} + (\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k})$$
-with coefficients $\widehat \beta$ representing the outcome of an OLS regression where the transformed outcome variable $Y$, the RIF variable, is regressed on the explanatory variables $X$ for groups $0$, $1$, and $X_C$, the reweighted group 0 (the reference group). Note that the specification error in RIF regression decompositions encompasses not only the error stemming from misspecifation of the linear model, but also the potential errors in the RIF estimate due to distributional changes. The influence function measures the impact of an infinitesimally small location shift on a distributional statistic $\nu$. However, larger changes may lead to inaccuracies in the RIF estimate. The specification error includes deviations arising from these inaccuracies (CITE).
+with coefficients $\widehat \beta$ representing the outcome of an OLS regression where the transformed outcome variable $Y$, the RIF variable, is regressed on the explanatory variables $X$ for groups $0$, $1$, and $X_C$, the reweighted group 0 (the reference group). 
+
+Again, the specification error is small if the conditional expectation of the RIF 
+is well approximated with a linear model. Moreover, the RIF models the effects of 
+small location shifts in the covariates distribution on the distributional statistics of
+the outcome variable. Thus, substantial location shifts but other between-group
+differences to the covariates distribution other than the mean can lead to
+large specification errors (see also [Rothe 2012: p.16-9](https://docs.iza.org/dp6397.pdf) or[Rothe 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
 
 
-The influence function of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddeco`. Additionally, the package enables calculating the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the package [`rifreg`](https://github.com/samumei/rifreg) written by the same authors as `ddeco`.
+**This paragraph should be moved to section where we discuss the function:**
+*The influence function of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddeco`. Additionally, the package enables calculating the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg).*
 
-It is possible to compute the RIF regression decomposition without reweighting. However, it is strongly advisable to use reweighting and assess the reweighting and specification error, as large errors highlight inconsistent estimations.
+
+**Old: Note that the specification error in RIF regression decompositions encompasses not only the error stemming from misspecifation of the linear model, but also the potential errors in the RIF estimate due to distributional changes. The influence function measures the impact of an infinitesimally small location shift on a distributional statistic $\nu$. However, larger changes may lead to inaccuracies in the RIF estimate. The specification error includes deviations arising from these inaccuracies (CITE).**
 
 
 
