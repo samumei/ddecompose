@@ -287,11 +287,11 @@ A path independent method that goes beyond the mean is the RIF
 decomposition of Firpo, Fortin, and Lemieux (2018). The approach
 approximates the expected value of the ‘recentered influence function’
 (RIF) of the distributional statistic (e.g., quantile, variance, or Gini
-coefficient) of  
-an outcome variable conditional on covariates with linear regressions.
-RIF regression coefficients can be consistent estimates of the marginal
-effect of small changes in the expected value of covariates to the
-distributional statistics of an outcome variable (see [Firpo et al.,
+coefficient) of an outcome variable conditional on covariates with
+linear regressions. RIF regression coefficients can be consistent
+estimates of the marginal effect of small changes in the expected value
+of covariates to the distributional statistics of an outcome variable
+(see [Firpo et al.,
 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions)
 and the documentation of the companion package
 [`rifreg`](https://github.com/samumei/rifreg)). Thus, they can be used
@@ -326,7 +326,7 @@ distribution on the distributional statistics of the outcome variable.
 Thus, substantial location shifts but other between-group differences to
 the covariates distribution other than the mean can lead to large
 specification errors (see also [Rothe 2012:
-p.16-9](https://docs.iza.org/dp6397.pdf) or[Rothe 2015:
+p.16-9](https://docs.iza.org/dp6397.pdf) or [Rothe 2015:
 328](https://doi.org/10.1080/07350015.2014.948959)).
 
 **This paragraph should be moved to section where we discuss the

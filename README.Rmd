@@ -163,6 +163,7 @@ With the distributional statistics of the additional counterfactual, we can
 divide the aggregate decomposition effect into the contribution of each covariate
 $$\widehat \Delta_X^{\nu} =  (\widehat \nu_C - \widehat \nu_{C,X_2}) + (\widehat \nu_{C,X_2} - \widehat \nu_0) = \widehat \Delta_{X_1}^\nu + \widehat \Delta_{X_2}^\nu.$$
 
+
 Sequential decompositions are path dependent because the detailed composition
 effects attributed to single covariates depend on the order of which we include the 
 variables into the sequence. For instance, it matters if we reweight union coverage
@@ -215,15 +216,9 @@ and path independent, it is limited to the mean.
 ### Reweighted RIF Regression Decomposition 
 
 A path independent method that goes beyond the mean is the RIF decomposition 
-of Firpo, Fortin, and Lemieux (2018). The approach approximates
-the expected value of the 'recentered influence function' (RIF) of 
-the distributional statistic (e.g., quantile, variance, or Gini coefficient) of  
-an outcome variable conditional on covariates with linear regressions. 
-RIF regression coefficients can be consistent estimates of the marginal effect 
-of small changes in the expected value of covariates to
-the distributional statistics of an outcome variable (see [Firpo et al., 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions) and the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg)).
-Thus, they can be used to decompose between-group difference in a distributional 
-statistics. Firpo et al. (2018) combine the RIF regressions again 
+of Firpo, Fortin, and Lemieux (2018). The approach approximates the expected value
+of the 'recentered influence function' (RIF) of the distributional statistic (e.g., quantile, variance, or Gini coefficient) of an outcome variable conditional on covariates with linear regressions. RIF regression coefficients can be consistent estimates of the marginal effect 
+of small changes in the expected value of covariates to the distributional statistics of an outcome variable (see [Firpo et al., 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions) and the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg)). Thus, they can be used to decompose between-group difference in a distributional statistics. Firpo et al. (2018) combine the RIF regressions again 
 with the reweighting estimator to avoid misspecification errors. 
 
 First, the approach computes the recentered influence function (RIF) of the outcome variable $Y$ and a distributional statistic of interest $\nu$. Then, an OLS regression of the transformed outcome variable $Y$ is run on the explanatory variables $X$. Thereafter, the decomposition method is analogous to the original OB method:
@@ -242,7 +237,7 @@ is well approximated with a linear model. Moreover, the RIF models the effects o
 small location shifts in the covariates distribution on the distributional statistics of
 the outcome variable. Thus, substantial location shifts but other between-group
 differences to the covariates distribution other than the mean can lead to
-large specification errors (see also [Rothe 2012: p.16-9](https://docs.iza.org/dp6397.pdf) or[Rothe 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
+large specification errors (see also [Rothe 2012: p.16-9](https://docs.iza.org/dp6397.pdf) or [Rothe 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
 
 
 **This paragraph should be moved to section where we discuss the function:**
