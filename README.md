@@ -166,8 +166,8 @@ composition effect.
 The two decomposition terms account for the contribution of the
 covariates and of the conditional outcome distribution, respectively,
 assuming common support and ignorability. The latter condition asserts
-that the distribution of unobserved covariates, conditional on observed
-covariates, is independent of the group.
+that the distribution of unobserved covariates $\varepsilon$ conditional
+on observed covariates $X$ is independent of group $g$.
 
 ### Sequential Decomposition
 
