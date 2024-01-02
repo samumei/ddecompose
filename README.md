@@ -8,8 +8,8 @@
     - [Oacaxa-Blinder Decomposition](#oacaxa-blinder-decomposition)
     - [Reweighting Decomposition](#reweighting-decomposition)
     - [Sequential Decomposition](#sequential-decomposition)
-    - [‘Doubly Robust’ Oaxca-Blinder
-      Decomposition](#doubly-robust-oaxca-blinder-decomposition)
+    - [‘Doubly Robust’ Oaxaca-Blinder
+      Decomposition](#doubly-robust-oaxaca-blinder-decomposition)
     - [Reweighted RIF Regression
       Decomposition](#reweighted-rif-regression-decomposition)
     - [Inference](#inference)
@@ -133,8 +133,8 @@ covariate’s contribution to the composition effect.
 
 The Oaxaca-Blinder decomposition is limited to the mean. Moreover, the
 decomposition terms are biased if the expectation of the outcome
-conditional on the covariates is not linear (see [Barsky et
-al. (2002)](https://www.jstor.org/stable/3085702)). DiNardo, Fortin, and
+conditional on the covariates is not linear (see [Barsky et al.,
+2002](https://www.jstor.org/stable/3085702)). DiNardo, Fortin, and
 Lemieux (1996), DFL hereafter, propose an alternative approach that
 overcomes both shortcomings. Instead of modeling the conditional mean,
 the method uses inverse probability weighting to define a counterfactual
@@ -216,12 +216,12 @@ $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2
 where we would reweight group 0 with a slightly different factor
 $$\Psi_{X_1}(x_1,x_2) = \frac{dF_{X_{1,1}}(x_1|x_2)}{dF_{X_{0,1}}(x_1|x_2)} =  \frac{P(g=0|x_2)P(g=1|x_1,x_2)}{P(g=1|x_2)P(g=0|x_1,x_2)}.$$
 
-### ‘Doubly Robust’ Oaxca-Blinder Decomposition
+### ‘Doubly Robust’ Oaxaca-Blinder Decomposition
 
 A robust and path independent alternative for detailed decompositions at
 the mean is to combine DFL reweighting with the linear Oaxaca-Blinder
-method (see Fortin et al. 2011, p. 48-51). This approach has the
-valuable side effect of accounting for potential errors introduced by an
+method (see Fortin et al., 2011: 48-51). This approach has the valuable
+side effect of accounting for potential errors introduced by an
 incomplete inverse probability weighting and the linear model
 specification, respectively.
 
@@ -325,24 +325,24 @@ location shifts in the covariates distribution on the distributional
 statistic of the outcome variable, the specification error can be large
 if the location shifts are substantial or if the between-group
 differences in the covariates distribution relate to higher moments or
-the dependence structure (see also [Rothe 2012:
-16-9](https://docs.iza.org/dp6397.pdf) or [Rothe 2015:
+the dependence structure (see also [Rothe, 2012:
+16-9](https://docs.iza.org/dp6397.pdf) or [Rothe, 2015:
 328](https://doi.org/10.1080/07350015.2014.948959)).
 
 ### Inference
 
 Analytical standard errors are straightforward for the original OB
-decomposition (see Jann
+decomposition (see Jann,
 [2005](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf) and
 [2008](https://journals.sagepub.com/doi/abs/10.1177/1536867X0800800401)).
 [Firpo
-2007](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-0262.2007.00738.x)
-and [Firpo and Pinto 2016](https://www.jstor.org/stable/26609621)
+(2007)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-0262.2007.00738.x)
+and [Firpo and Pinto (2016)](https://www.jstor.org/stable/26609621)
 develop asymptotic theory for the reweighting estimator. [Firpo, Fortin,
-and Lemieux,
-2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf))
-and Firpo et al. 2018 do the same for the RIF estimator and for the RIF
-decomposition terms, respectively. The authors propose to bootstrap
+and Lemieux
+(2009b)](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)
+and Firpo et al. (2018) do the same for the RIF estimator and for the
+RIF decomposition terms, respectively. The authors propose to bootstrap
 standard errors. `ddeco` allows to bootstrap standard errors in both
 `ob_deco()` and `dfl_deco()`. For the classical OB decomposition,
 analytical standard errors are available, too.
