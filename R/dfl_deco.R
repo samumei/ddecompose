@@ -967,9 +967,10 @@ fit_and_predict_probabilities <- function(formula,
                                           newdata = NULL,
                                           ...){
 
+  data_used$`(weights)` <- weights
+
   if(method=="logit"){
 
-    data_used$`(weights)` <- weights
     model_fit <- glm(formula,
                      data = data_used,
                      weights = `(weights)`,
@@ -982,10 +983,37 @@ fit_and_predict_probabilities <- function(formula,
                                          na.action = na.exclude)
   }
 
-  ### Include here prediction with ranger::ranger!
+  if(method=="fastglm"){
+
+    x <- model.matrix(formula, data_used)
+    y <- model.response(model.frame(formula, data_used))
+    if(is.factor(y)){
+      y <- as.numeric(y == max(levels(y)))
+    }else if(is.numeric(y)){
+      y <- as.numeric(y == max(y))
+    }
+    model_fit <- fastglm::fastglm(x = x,
+                                  y = y,
+                                  quasibinomial(link = "logit"),
+                                  weights = weights,
+                                  ...
+    )
+
+    if(is.null(newdata)){
+      newdata <- data_used
+    }
+    newdata_matrix <- model.matrix(formula, newdata)
+
+    fitted_probabilities  <-  fastglm:::predict.fastglm(model_fit,
+                                                       newdata = newdata_matrix,
+                                                       type="response")
+    browser()
+  }
+
+
+  ### Random forestes predictions with ranger
   if(method=="random forests"){
 
-    data_used$`(weights)` <- weights
     model_fit <- ranger::ranger(formula,
                                 data = data_used,
                                 case.weights = data_used$`(weights)`,

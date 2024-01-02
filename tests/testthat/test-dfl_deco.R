@@ -152,6 +152,34 @@ test_that("fit_and_predict_probabilities works properly with ranger random fores
 
 })
 
+
+test_that("fit_and_predict_probabilities works properly with fastglm estimation", {
+  set.seed(89342395)
+
+  data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
+  formula <- Formula::as.Formula(log(wage) ~ union + education + experience)
+  data_used <- model.frame(formula, data_sample, weights = weights, group = year)
+  dep_var <- model.response(data_used, "numeric")
+
+  weights <- model.weights(data_used)
+  group_variable_name <- "year"
+  group_variable <- data_used[, ncol(data_used)]
+  names(data_used)[ncol(data_used)] <- "group_variable"
+
+  method = "fastglm"
+  formula_new <- group_variable ~ union + education + experience
+
+  fits <- fit_and_predict_probabilities(formula_new,
+                                        data_used,
+                                        weights,
+                                        method = method,
+                                        return_model = TRUE,
+                                        newdata = NULL)
+
+  testthat::expect_error(fits, NA)
+
+})
+
 test_that("dfl_deco_estimate() works properly with ranger random forests estimation", {
   set.seed(89342395)
 
