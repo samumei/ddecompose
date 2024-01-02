@@ -326,7 +326,7 @@ statistic of the outcome variable, the specification error can be large
 if the location shifts are substantial or if the between-group
 differences in the covariates distribution relate to higher moments or
 the dependence structure (see also [Rothe 2012:
-p.16-9](https://docs.iza.org/dp6397.pdf) or [Rothe 2015:
+16-9](https://docs.iza.org/dp6397.pdf) or [Rothe 2015:
 328](https://doi.org/10.1080/07350015.2014.948959)).
 
 ### Inference
