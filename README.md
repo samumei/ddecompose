@@ -12,7 +12,7 @@
       Decomposition](#doubly-robust-oaxca-blinder-decomposition)
     - [Reweighted RIF Regression
       Decomposition](#reweighted-rif-regression-decomposition)
-  - [Inference](#inference)
+    - [Inference](#inference)
   - [Examples (unfinished)](#examples-unfinished)
     - [Oaxaca-Blinder Decomposition](#oaxaca-blinder-decomposition)
     - [Reweighting Decomposition](#reweighting-decomposition-1)
@@ -203,8 +203,8 @@ $$\widehat \Delta_X^{\nu} =  (\widehat \nu_C - \widehat \nu_{C,X_2}) + (\widehat
 Sequential decompositions are path dependent because the detailed
 composition effects attributed to single covariates depend on the order
 of which we include the variables into the sequence. For instance, it
-matters if we reweight union coverage by industry ($F(x_1|x_2)$) or the
-industry employment given union coverage ($F(x_2|x_1)$).
+matters if we reweight union coverage by industry $F(x_1|x_2)$ or the
+industry employment given union coverage $F(x_2|x_1)$.
 
 Moreover, we get different results if we do not combine the marginal
 covariate distribution $X_2$ (e.g., industry employment) of group 1 with
@@ -289,15 +289,15 @@ approximates the expected value of the ‘recentered influence function’
 (RIF) of the distributional statistic (e.g., quantile, variance, or Gini
 coefficient) of an outcome variable conditional on covariates with
 linear regressions. RIF regression coefficients can be consistent
-estimates of the marginal effect of small changes in the expected value
-of covariates to the distributional statistics of an outcome variable
+estimates of the marginal effect of a small change in the expected value
+of a covariate to the distributional statistics of an outcome variable
 (see [Firpo et al.,
 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions)
 and the documentation of the companion package
 [`rifreg`](https://github.com/samumei/rifreg)). Thus, they can be used
-to decompose between-group difference in a distributional statistics.
+to decompose between-group difference in distributional statistics.
 Firpo et al. (2018) combine the RIF regressions again with the
-reweighting estimator to avoid misspecification errors.
+reweighting estimator to avoid specification errors.
 
 First, the approach computes the recentered influence function (RIF) of
 the outcome variable $Y$ and a distributional statistic of interest
@@ -314,55 +314,38 @@ and $\widehat\Delta^\nu_{X,p}$ and $\widehat\Delta^\nu_{X,e}$ estimating
 the pure coefficient effect and the specification error:
 
 $$\widehat\Delta^\nu_{X,R} = \widehat\Delta^\nu_{X,p} + \widehat\Delta^\nu_{X,e} = \sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k} + (\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k})$$
-with coefficients $\widehat \beta$ representing the outcome of an OLS
-regression where the transformed outcome variable $Y$, the RIF variable,
-is regressed on the explanatory variables $X$ for groups $0$, $1$, and
-$X_C$, the reweighted group 0 (the reference group).
+with the RIF regression coefficients $\widehat \beta$ and the covariate
+means $\overline X$ of groups $0$, $1$, and $C$, the reweighted
+reference group 0, respectively.
 
-Again, the specification error is small if the conditional expectation
-of the RIF is well approximated with a linear model. Moreover, the RIF
-models the effects of small location shifts in the covariates
-distribution on the distributional statistics of the outcome variable.
-Thus, substantial location shifts but other between-group differences to
-the covariates distribution other than the mean can lead to large
-specification errors (see also [Rothe 2012:
+Again, the specification error increases if the conditional expectation
+of the RIF is not well approximated by the linear model. Moreover, as
+the RIF regression coefficients capture the marginal effects of small
+location shifts in the covariates distribution on the distributional
+statistic of the outcome variable, the specification error can be large
+if the location shifts are substantial or if the between-group
+differences in the covariates distribution relate to higher moments or
+the dependence structure (see also [Rothe 2012:
 p.16-9](https://docs.iza.org/dp6397.pdf) or [Rothe 2015:
 328](https://doi.org/10.1080/07350015.2014.948959)).
 
-**This paragraph should be moved to section where we discuss the
-function:** *The influence function of quantiles, the mean, the
-variance, the Gini coefficient, the interquantile range and the quantile
-ratio are available in `ddeco`. Additionally, the package enables
-calculating the RIF for additional statistics with user-written
-functions (see example below). [Cowell and Flachaire
-(2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah &
-Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and
-[Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the
-influence functions for an array of distributional statistics. More
-information about RIF regressions can be found in the documentation of
-the companion package [`rifreg`](https://github.com/samumei/rifreg).*
+### Inference
 
-**Old: Note that the specification error in RIF regression
-decompositions encompasses not only the error stemming from
-misspecifation of the linear model, but also the potential errors in the
-RIF estimate due to distributional changes. The influence function
-measures the impact of an infinitesimally small location shift on a
-distributional statistic $\nu$. However, larger changes may lead to
-inaccuracies in the RIF estimate. The specification error includes
-deviations arising from these inaccuracies (CITE).**
-
-## Inference
-
-`ddeco` allows to bootstrap standard errors in both the `ob_deco()` and
-`dfl_deco()` functions. Furthermore, we implemented analytical standard
-errors for the original OB decomposition as introduced by Jann
-([2005](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf),
-[2008](https://journals.sagepub.com/doi/abs/10.1177/1536867X0800800401).
-Analytical standard errors can be nontrivial when the RIF introduces an
-additional estimation step. In particular, this is the case for
-quantiles where the density has to be estimated (see [Firpo, Fortin, and
-Lemieux,
-2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)).
+Analytical standard errors are straightforward for the original OB
+decomposition (see Jann
+[2005](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf) and
+[2008](https://journals.sagepub.com/doi/abs/10.1177/1536867X0800800401)).
+[Firpo
+2007](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-0262.2007.00738.x)
+and [Firpo and Pinto 2016](https://www.jstor.org/stable/26609621)
+develop asymptotic theory for the reweighting estimator. [Firpo, Fortin,
+and Lemieux,
+2009b](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf))
+and Firpo et al. 2018 do the same for the RIF estimator and for the RIF
+decomposition terms, respectively. The authors propose to bootstrap
+standard errors. `ddeco` allows to bootstrap standard errors in both
+`ob_deco()` and `dfl_deco()`. For the classical OB decomposition,
+analytical standard errors are available, too.
 
 ## Examples (unfinished)
 
@@ -449,6 +432,18 @@ plot(flf_male_inequality)
 ```
 
 ### Reweighted RIF Regression Decomposition
+
+*The influence function of quantiles, the mean, the variance, the Gini
+coefficient, the interquantile range and the quantile ratio are
+available in `ddeco`. Additionally, the package enables calculating the
+RIF for additional statistics with user-written functions (see example
+below). [Cowell and Flachaire
+(2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah &
+Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and
+[Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the
+influence functions for an array of distributional statistics. More
+information about RIF regressions can be found in the documentation of
+the companion package [`rifreg`](https://github.com/samumei/rifreg).*
 
 The same function is used to decompose RIF regressions. Setting
 `rifreg = TRUE` and indicating `rifreg_statistic`, decomposes the gap at
@@ -672,6 +667,9 @@ for Policy Impact Analysis.” In John A. Bishop and Rafael Salas, eds.,
 *Inequality, Mobility and Segregation: Essays in Honor of Jacques
 Silber*. Bigley, UK: Emerald Group Publishing Limited.
 
+Firpo, Sergio. 2007. “Efficient Semiparametric Estimation of Quantile
+Treatment Effects.” *Econometrica* 75(1): 259-276.
+
 Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2007a.
 “Unconditional Quantile Regressions.” *Technical Working Paper 339,
 National Bureau of Economic Research*. Cambridge, MA.
@@ -691,6 +689,10 @@ Fortin, Nicole M., Thomas Lemieux, and Sergio Firpo. 2011.
 “Decomposition Methods in Economics.” *National Bureau of Economic
 Research - Working Paper Series*, 16045.
 
+Firpo, Sergio, and Pinto, Christine. 2016. “Identification and
+Estimation of Distributional Impacts of Interventions Using Changes in
+Inequality Measures.” *Journal of Applied Econometrics*, 31(3), 457–486.
+
 Jann, Ben, 2005. “Standard errors for the Blinder-Oaxaca decomposition.”
 *3rd German Stata Users’ Group Meeting 2005*. Available from
 <https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf>.
@@ -704,6 +706,10 @@ Berkeley mimeo.*
 Rios-Avila, Fernando (2020): “Recentered influence functions (RIFs) in
 Stata: RIF regression and RIF decomposition.” *The Stata Journal* 20(1):
 51-94.
+
+Rothe, Christoph (2012): “Decomposing the Composition Effect. The Role
+of Covariates in Determining Between-Group Differences in Economic
+Outcomes.” *IZA Discussion Paper* No. 6397.
 
 Rothe, Christoph (2015): “Decomposing the Composition Effect. The Role
 of Covariates in Determining Between-Group Differences in Economic
