@@ -239,7 +239,7 @@ capture the marginal effects of small location shifts in the covariates distribu
 distributional statistic of the outcome variable, the specification error can
 be large if the location shifts are substantial or if the between-group differences 
 in the covariates distribution relate to higher moments or the dependence structure 
-(see also [Rothe, 2012: 16-9](https://docs.iza.org/dp6397.pdf) or [Rothe, 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
+(see also [Rothe, 2012: 16-19](https://docs.iza.org/dp6397.pdf) or [Rothe, 2015: 328](https://doi.org/10.1080/07350015.2014.948959)).
 
 
 ### Inference
@@ -344,6 +344,8 @@ The same function is used to decompose RIF regressions. Setting `rifreg = TRUE` 
 
 To decompose the the difference in the Gini coefficient of two groups, `rifreg_statistic = "gini"` needs to be indicated accordingly. The RIF functions for the following functions are currently implemented: `"quantiles"`, `"mean"`, `"variance"`, `"gini"`, `"interquantile_range"`, and `"interquantile_ratio"`. However, `ob_deco` also allows to pass a custom RIF function for the decomposition, by setting `rifreg_statistic = "custom"` and passing the custom function to `custom_rif_function`. 
 
+
+*The influence function of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddeco`. Additionally, the package enables calculating the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg).*
 
 
 
