@@ -34,7 +34,7 @@ deco_male_as_reference <- ob_deco(formula = mod1,
                                   reweighting = TRUE,
                                   rifreg = TRUE,
                                   bootstrap = TRUE,
-                                  bootstrap_iterations = 10,
+                                  bootstrap_iterations = 50,
                                   reference_0 = FALSE)
 
 plot(deco_male_as_reference)

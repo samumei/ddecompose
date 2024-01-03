@@ -245,7 +245,7 @@ in the covariates distribution relate to higher moments or the dependence struct
 ### Inference
 
 Analytical standard errors are straightforward for the original OB decomposition
-(see Jann, [2005](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf) and [2008](https://journals.sagepub.com/doi/abs/10.1177/1536867X0800800401)). [Firpo (2007)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-0262.2007.00738.x) and 
+under the assumption of independence between the groups (see Jann, [2005](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf) and [2008](https://journals.sagepub.com/doi/abs/10.1177/1536867X0800800401)). [Firpo (2007)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-0262.2007.00738.x) and 
 [Firpo and Pinto (2016)](https://www.jstor.org/stable/26609621) develop asymptotic theory
 for the reweighting estimator. [Firpo, Fortin, and Lemieux  (2009b)](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf) and Firpo et al. (2018) do the same for the RIF estimator and for the RIF decomposition terms, respectively. The authors propose to bootstrap standard errors. `ddeco` allows to bootstrap standard errors in both `ob_deco()` and `dfl_deco()`. For the classical OB decomposition, analytical standard errors are available, too.
 

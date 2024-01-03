@@ -17,7 +17,7 @@
 #' @param formula a \code{formula} object with an outcome variable Y on the left-hand side
 #' and the covariates X on the right-hand side. For sequential decompositions,
 #' the sequence of covariates X are distinguished by the \code{|} operator. Covariates
-#' are used to estimate conditional probabilities for the reweighting factors.
+#' are used to estimate the conditional probabilities for the reweighting factors.
 #' @param data a \code{data.frame} containing all variables and observations of
 #' both groups.
 #' @param weights name of the observation weights variable or vector of
