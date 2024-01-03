@@ -10,8 +10,7 @@ ob_deco(
   group,
   subtract_1_from_0 = FALSE,
   weights = NULL,
-  rifreg = FALSE,
-  rifreg_statistic = "quantiles",
+  rifreg_statistic = NULL,
   rifreg_probs = c(1:9)/10,
   custom_rif_function = NULL,
   reweighting = FALSE,
@@ -53,12 +52,12 @@ the structure effect as \code{X0 * (b0 - b1)}.}
 The default (\code{NULL}) is equivalent to \code{weights = rep(1, length(dep_var))}.
 If no weights are used, make sure you do not define this parameter (e.g. with \code{weights = NULL}).}
 
-\item{rifreg}{boolean: if `TRUE`, then a RIF regression for the statistic
-indicated in `rifreg_statistic` is computed and decomposed.}
-
-\item{rifreg_statistic}{string containing the distributional statistic for which to compute the RIF. Can be one of
+\item{rifreg_statistic}{string containing the distributional statistic for which to compute the RIF.
+       If `NULL` (default), no RIF regression decomposition is computed.
+       If an available statistic is selected, `ob_deco` estimates a RIF regression decomposition.
+       The `rifreg_statistic` can be one of
 "quantiles", "mean", "variance", "gini", "interquantile_range", "interquantile_ratio", or "custom".
-Default is "quantiles". If "custom" is selected, a \code{custom_rif_function} needs to be provided.}
+ If "custom" is selected, a \code{custom_rif_function} needs to be provided.}
 
 \item{rifreg_probs}{a vector of length 1 or more with probabilities of quantiles. Each quantile is indicated with a value between 0 and 1.
 Default is \code{c(1:9)/10}. If \code{statistic = "quantiles"}, a single RIF regression for every quantile in \code{probs}

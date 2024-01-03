@@ -264,7 +264,7 @@ test_that("rifreg decomposition does not throw an error", {
                                      group = female,
                                      reference_0 = TRUE,
                                      reweighting = TRUE,
-                                     rifreg = TRUE,
+                                 rifreg_statistic = "quantiles",
                                  rifreg_probs = 0.5,
                                      normalize_factors = TRUE,
                                      bootstrap = FALSE)
@@ -287,7 +287,7 @@ test_that("rifreg decomposition does not throw an error with bootstrap", {
                                  group = female,
                                  reference_0 = TRUE,
                                  reweighting = TRUE,
-                                 rifreg = TRUE,
+                                 rifreg_statistic = "quantiles",
                                  rifreg_probs = 0.5,
                                  normalize_factors = TRUE,
                                  bootstrap = TRUE)
@@ -310,7 +310,7 @@ test_that("rifreg decomposition does not throw an error with multiple quantiles"
                                  group = female,
                                  reference_0 = TRUE,
                                  reweighting = TRUE,
-                                 rifreg = TRUE,
+                                 rifreg_statistic = "quantiles",
                                  rifreg_probs = c(1:9)/10,
                                  normalize_factors = TRUE,
                                  bootstrap = FALSE)
@@ -333,7 +333,7 @@ test_that("rifreg decomposition does not throw an error with multiple quantiles 
                                  group = female,
                                  reference_0 = TRUE,
                                  reweighting = TRUE,
-                                 rifreg = TRUE,
+                                 rifreg_statistic = "quantiles",
                                  rifreg_probs = c(1:9)/10,
                                  normalize_factors = TRUE,
                                  bootstrap = TRUE,

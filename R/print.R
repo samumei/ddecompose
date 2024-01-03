@@ -51,7 +51,7 @@ print.dfl_deco <- function(x, ...){
 print.ob_deco <- function(x, ...){
   reweighting <- ifelse(x$input_parameters$reweighting, TRUE, FALSE)
 
-  if(!x$input_parameters$rifreg) {
+  if(is.null(x$input_parameters$rifreg_statistic)) {
     if(!reweighting) {
       decomposition_type <- "\n\nOaxaca-Blinder decomposition of mean difference\nbetween"
     }
@@ -82,7 +82,7 @@ print.ob_deco <- function(x, ...){
 
   for(i in 1:n_decompositions) {
 
-    if(x$input_parameters$rifreg &
+    if(!is.null(x$input_parameters$rifreg_statistic) &&
        x$input_parameters$rifreg_statistic == "quantiles") {
       cat("\n*** Quantile:",  x$input_parameters$rifreg_probs[i], "***")
       cat("\n\n")

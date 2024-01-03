@@ -6,6 +6,13 @@
 \usage{
 estimate_iq_range(dep_var, weights, probs = c(0.1, 0.9))
 }
+\arguments{
+\item{dep_var}{numeric vector of outcome variable}
+
+\item{weights}{numeric vector of weights}
+
+\item{probs}{a vector with probabilities whose range defines the interquantile range}
+}
 \description{
-#' @export
+Interquantile range
 }

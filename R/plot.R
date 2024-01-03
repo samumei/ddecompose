@@ -123,7 +123,7 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
 #'                                   data = nlys00,
 #'                                   group = female,
 #'                                   reweighting = TRUE,
-#'                                   rifreg = TRUE,
+#'                                   rifreg_statistic = "quantiles",
 #'                                   bootstrap = TRUE,
 #'                                   bootstrap_iterations = 50,
 #'                                   reference_0 = FALSE)
@@ -135,6 +135,9 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
 #'
 plot.ob_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95){
 
+  if(!x$input_parameters$rifreg_statistic == "quantiles"){
+    stop("Difference must be decomposed at least at a single quantile.")
+  }
 
   n_quantiles <- length(x) - 5
   col_names <- c("probs", names(x[[1]][["decomposition_terms"]][-1]))

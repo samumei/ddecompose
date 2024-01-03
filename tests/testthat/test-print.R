@@ -78,7 +78,6 @@ test_that("Print function does not throw an error with multiple quantiles", {
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,
-                                      rifreg = TRUE,
                                       rifreg_statistic = "quantiles",
                                       rifreg_probs = c(0.1, 0.5, 0.9),
                                       reweighting = TRUE)

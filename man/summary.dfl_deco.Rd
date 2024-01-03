@@ -15,6 +15,8 @@ are defined as \code{qnorm((1-confidence_level)/2)} * standard error. Uniform ba
 are constructed by multiplying the standard error with \code{confidence_level}-quantile
 of the bootstrapped Kolmogorov-Smirnov statistic.}
 
+\item{digits}{number of digits to be printed.}
+
 \item{...}{other parameters to be passed through to printing functions.}
 }
 \value{

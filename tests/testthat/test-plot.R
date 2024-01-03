@@ -24,7 +24,8 @@ test_that("Plot function does not throw an error with ob_deco", {
                                     data = nlys00,
                                     group = female,
                                     reweighting = TRUE,
-                                    rifreg = TRUE,
+                                    rifreg_statistic = "quantiles",
+                                    rifreg_probs = 0.1,
                                     bootstrap = TRUE,
                                     bootstrap_iterations = 10,
                                     reference_0 = FALSE)

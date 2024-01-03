@@ -8,8 +8,7 @@
   x,
   confidence_bands = TRUE,
   confidence_level = 0.95,
-  uniform_bands = FALSE,
-  ...
+  uniform_bands = FALSE
 )
 }
 \arguments{
@@ -22,8 +21,6 @@ plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standa
 
 \item{uniform_bands}{If `FALSE` (default), pointsise confidence bands are computed. Otherwise, uniform bands are constructed
 based on the bootstrapped Kolmogrov-Smirnov statistic.}
-
-\item{...}{other parameters to be passed through to plotting functions.}
 }
 \value{
 a ggplot illustrating the decomposition terms for quantiles.

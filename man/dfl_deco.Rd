@@ -75,7 +75,7 @@ statistics are estimated and the decomposition is performed. If \code{FALSE},
 the function only returns the fitted inverse propensity weights.}
 
 \item{statistics}{a character vector that defines the distributional statistics
-for which the decomposition is perforemd. Per default,
+for which the decomposition is performed. Per default,
 \code{c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")}
 are estimated and decomposed. Also implemented are `c("iq_ratio_p90_p10", "iq_ratio_p90_p50", "iq_ratio_p50_p10")`.
 Note: The function calculates the Gini coefficient for the untransformed variable
@@ -88,7 +88,7 @@ to be estimated with default \code{c(1:9)/10}.}
 \item{custom_statistic_function}{a custom statistic function to pass as argument.}
 
 \item{trimming}{boolean: If \code{TRUE}, observations with dominant reweighting factor
-values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
+values are trimmed according to rule of Huber, Lechner, and Wunsch (2013). Per
 default, trimming is set to \code{FALSE}.}
 
 \item{trimming_threshold}{numeric: threshold defining the maximal accepted

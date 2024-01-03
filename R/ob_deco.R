@@ -41,11 +41,12 @@
 #' to compute the overall difference. Setting `subtract_1_from_0` to `TRUE` merely changes the sign of the decomposition results.
 #' This means the composition effect is computed as \code{(X0 - X1) * b1} and
 #' the structure effect as \code{X0 * (b0 - b1)}.
-#' @param rifreg boolean: if `TRUE`, then a RIF regression for the statistic
-#' indicated in `rifreg_statistic` is computed and decomposed.
-#' @param rifreg_statistic string containing the distributional statistic for which to compute the RIF. Can be one of
+#' @param rifreg_statistic string containing the distributional statistic for which to compute the RIF.
+#'                         If `NULL` (default), no RIF regression decomposition is computed.
+#'                         If an available statistic is selected, `ob_deco` estimates a RIF regression decomposition.
+#'                         The `rifreg_statistic` can be one of
 #'                  "quantiles", "mean", "variance", "gini", "interquantile_range", "interquantile_ratio", or "custom".
-#'                  Default is "quantiles". If "custom" is selected, a \code{custom_rif_function} needs to be provided.
+#'                   If "custom" is selected, a \code{custom_rif_function} needs to be provided.
 #' @param rifreg_probs a vector of length 1 or more with probabilities of quantiles. Each quantile is indicated with a value between 0 and 1.
 #'              Default is \code{c(1:9)/10}. If \code{statistic = "quantiles"}, a single RIF regression for every quantile in \code{probs}
 #'              is estimated. An interquantile ratio (range) is defined by the ratio (difference) between the \code{max(probs)}-quantile and
@@ -201,8 +202,7 @@ ob_deco <- function(formula,
                     group,
                     subtract_1_from_0 = FALSE,
                     weights = NULL,
-                    rifreg = FALSE,
-                    rifreg_statistic = "quantiles",
+                    rifreg_statistic = NULL,
                     rifreg_probs = c(1:9)/10,
                     custom_rif_function = NULL,
                     reweighting = FALSE,
@@ -219,6 +219,8 @@ ob_deco <- function(formula,
                     cores = 1,
                     vcov=stats::vcov,
                     ...){
+
+  rifreg <- ifelse(is.null(rifreg_statistic), FALSE, TRUE)
 
   if(rifreg & !reweighting) warning("If you want to decompose rifregression it is highly recommended to apply reweighting!
                                     See references for further information.")
@@ -298,7 +300,7 @@ ob_deco <- function(formula,
     data_used$weights_and_reweighting_factors <- data_used[, "weights"] * reweighting_factor
   }
 
-  if(rifreg & rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
+  if(rifreg && rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
       estimated_decomposition <- lapply(rifreg_probs, estimate_ob_deco,
                                         formula = formula_decomposition, data_used = data_used,
                                         reference_0 = reference_0, normalize_factors = normalize_factors,
@@ -420,7 +422,7 @@ ob_deco <- function(formula,
       parallel::stopCluster(core_cluster)
     }
 
-    if(rifreg & rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
+    if(rifreg && rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
       for(i in 1:length(rifreg_probs)) {
         current_bootstrap_estimates <- lapply(bootstrap_estimates, function(x) x[[i]])
         bootstrap_vcov <- retrieve_bootstrap_vcov(current_bootstrap_estimates, bootstrap_iterations)
@@ -457,8 +459,7 @@ ob_deco <- function(formula,
                          group_variable_levels=levels(group_variable),
                          reference_group=reference_group_print,
                          reweighting_estimates=reweighting_estimates,
-                         input_parameters = list(rifreg = rifreg,
-                                                 rifreg_statistic = rifreg_statistic,
+                         input_parameters = list(rifreg_statistic = rifreg_statistic,
                                                  rifreg_probs = rifreg_probs,
                                                  reweighting = reweighting,
                                                  reweighting_method = reweighting_method,
@@ -787,7 +788,7 @@ bootstrap_estimate_ob_deco <- function(formula_decomposition,
     data_used[sampled_observations, "weights_and_reweighting_factors"] <- data_used[sampled_observations, "weights"] * reweighting_factor
   }
 
-    if(rifreg & rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
+    if(rifreg && rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
       deco_estimates <- suppressWarnings(lapply(rifreg_probs, estimate_ob_deco,
                                         formula = formula_decomposition,
                                data_used = data_used[sampled_observations, ],

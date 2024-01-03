@@ -22,6 +22,44 @@ dfl_deco_estimate(
   ...
 )
 }
+\arguments{
+\item{formula}{\code{formula} object}
+
+\item{dep_var}{dependent variable}
+
+\item{data_used}{\code{data.frame} with data used for estimation}
+
+\item{weights}{weights variable}
+
+\item{group_variable}{group variable}
+
+\item{reference_group}{reference_group to be reweighted}
+
+\item{method}{method used to estimate conditional probabilities}
+
+\item{estimate_statistics}{boolean: if \code{TRUE} (default), then distributional
+statistics are estimated and the decomposition is performed. If \code{FALSE},
+the function only returns the fitted inverse propensity weights.}
+
+\item{statistics}{a character vector that defines the distributional statistics
+for which the decomposition is performed.}
+
+\item{right_to_left}{determines the direction of a sequential decomposition.}
+
+\item{trimming}{boolean: If \code{TRUE}, observations with dominant reweighting factor
+values are trimmed according to rule of Huber, Lechner, and Wunsch (2013).}
+
+\item{trimming_threshold}{numeric: threshold defining the maximal accepted
+relative weight of the reweighting factor value (i.e., inverse probability weight)
+of a single observation. If \code{NULL}, the threshold is set to \eqn{sqrt(N)/N},
+where \eqn{N} is the number of observations in the reference group.}
+
+\item{return_model}{boolean: If \code{TRUE} (default), the object(s) of the model
+fit(s) used to predict the conditional probabilities for the reweighting factor(s)
+are returned.}
+
+\item{...}{other parameters passed to the function estimating the conditional probabilities.}
+}
 \description{
 This function performs the actual DFL decomposition. It derives the
 reweighting factors, estimates the distributional statistics and
