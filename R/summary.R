@@ -6,6 +6,7 @@
 #'              are defined as \code{qnorm((1-confidence_level)/2)} * standard error. Uniform bands
 #'              are constructed by multiplying the standard error with \code{confidence_level}-quantile
 #'              of the bootstrapped Kolmogorov-Smirnov statistic.
+#' @param digits number of digits to be printed.
 #' @param ... other parameters to be passed through to printing functions.
 #' @return The function \code{summary.dfl_deco()} displays the decompositions
 #' terms save in \code{x}. If standard errors have been bootstrapped, standard

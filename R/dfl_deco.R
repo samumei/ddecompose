@@ -969,6 +969,16 @@ dfl_deco_bootstrap <- function(formula,
 #'
 #' This function fits a binary choice model and predicts probabilities for every
 #' observations.
+#'
+#' @param formula \code{formula} object specifying the conditional probability model.
+#' @param data_used \code{data.frame} with data.
+#' @param method method to estimate conditional probabilities
+#' @param  boolean: If \code{TRUE} (default), the object(s) of the model
+#' fit(s) used to predict the conditional probabilities for the reweighting factor(s)
+#' are returned.
+#' @param newdata \code{data.frame} with data to be used for predictions.
+#' @param ... other parameters passed to estimation function.
+#'
 fit_and_predict_probabilities <- function(formula,
                                           data_used,
                                           weights,
@@ -1060,7 +1070,7 @@ fit_and_predict_probabilities <- function(formula,
 #' is set to sqrt(N)/N, where N is the number of observation in the  reweighted
 #' reference group. The function returns vector index of observation to be trimmed.
 #'
-#' @param reweigting_factor Estimated reweigting factor
+#' @param reweighting_factor Estimated reweigting factor
 #' @param group_variable Variable identifying the reference and comparison group, respectively.
 #' @param group Identifier of reference group
 #' @param trimming_threshold threshold defining the maximal accepted relative weight of a reweighting factor/observation. If `NULL`, the threshold is set to `sqrt(N)/N`, where N is the number of observations in the reference group.

@@ -76,6 +76,9 @@ get_distributional_statistics <- function(dep_var,
 
 #' Interquantile ratio
 #'
+#' @param dep_var numeric vector of outcome variable
+#' @param weights numeric vector of weights
+#' @param probs a vector with probabilities whose range defines the interquantile range
 #' @export
 #'
 estimate_iq_ratio <- function(dep_var,
@@ -89,7 +92,11 @@ estimate_iq_ratio <- function(dep_var,
 
 #' Interquantile range
 #'
-#' #' @export
+#' @param dep_var numeric vector of outcome variable
+#' @param weights numeric vector of weights
+#' @param probs a vector with probabilities whose range defines the interquantile range
+#'
+#' @export
 #'
 estimate_iq_range <- function(dep_var,
                               weights,
