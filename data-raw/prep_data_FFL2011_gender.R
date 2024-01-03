@@ -177,6 +177,9 @@ nrow(subset(nlys00, female=="yes"))
 2654
 
 # Save only renamed variables
+sel_var <- c("female", "wage", "age", "central_city", "msa", "region", "black",
+             "hispanic",  "education", "afqt", "family_responsibility",
+             "years_worked_civilian", "years_worked_military", "part_time", "industry")
 nlys00 <- nlys00[, sel_var]
 
 
