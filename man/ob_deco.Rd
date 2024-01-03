@@ -31,7 +31,11 @@ ob_deco(
 )
 }
 \arguments{
-\item{formula}{an object of class "formula". See \link[stats]{lm} for further details.}
+\item{formula}{a \code{formula} object with an outcome variable Y on the left-hand side
+and the covariates X on the right-hand side. If \code{reweighting = TRUE}, the same
+covariates are used to estimate the conditional probabilities for the reweighting factor.
+A different model for estimating the conditional probabilities can be defined
+after a \code{|} operator on the right-hand side.}
 
 \item{data}{a data frame containing the variables in the model.}
 
@@ -41,7 +45,7 @@ lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
 first level of factor variable) is defined as group 0.}
 
 \item{subtract_1_from_0}{boolean: By default (`FALSE`), X0 is subtracted from X1 and beta0 from beta1 (X1b1 - X0b0)
-to compute the overall gap. Setting `subtract_1_from_0` to `TRUE` merely changes the sign of the decomposition results.
+to compute the overall difference. Setting `subtract_1_from_0` to `TRUE` merely changes the sign of the decomposition results.
 This means the composition effect is computed as \code{(X0 - X1) * b1} and
 the structure effect as \code{X0 * (b0 - b1)}.}
 
@@ -68,19 +72,21 @@ If they are not needed, they must be set to NULL in the function definition (e.g
 A custom function must return a data frame containing at least a "rif" and "weights" column.
 See \code{examples} for further details.}
 
-\item{reweighting}{boolean: if `TRUE`, then reweighted RIF regressions are computed.}
+\item{reweighting}{boolean: if `TRUE`, then the decomposition is performed with
+with respect to reweighted reference group yielding either a 'doubly robust'
+Oaxaca-Blinder decomposition or a reweighted RIF decomposition.}
 
 \item{reweighting_method}{specifies the method fit and predict conditional probabilities
-used to derive the reweighting factor. Currently, \code{"logit"} and \code{"random forests"} are
-the only methods available.}
+used to derive the reweighting factor. Currently, \code{"logit"}, \code{"fastglm"},
+and \code{"random forests"} are available.}
 
 \item{reference_0}{boolean: if `TRUE` (default), then the group 0 -- i.e.,
 the group identified by the lower ranked value in `group` -- will be defined
 as reference group. The reference group will be reweighted to match the
 covariates distribution of the counterfactual sample.
 By default, the composition effect is computed as \code{(X1 - X0) * b0} and
-the structure effect as \code{X1 * (b1 - b0)}. Putting \code{reference_0 == FALSE} changes
-the reference structure. Hence the composition effect is computed as \code{(X1 - X0) * b1} and
+the structure effect as \code{X1 * (b1 - b0)}. Putting \code{reference_0 = FALSE} changes
+the reference structure. Hence, the composition effect is computed as \code{(X1 - X0) * b1} and
 the structure effect as \code{X0 * (b1 - b0)}.}
 
 \item{na.action}{generic function that defines how NAs in the data should be handled.
@@ -89,7 +95,7 @@ See \link[stats]{na.action} for further details.}
 
 \item{normalize_factors}{boolean: If `TRUE`, then factor variables are normalized as
 proposed by Gardeazabal/Ugidos (2004) and results are not dependent on the factor's
-reference group. Per default (\code{normalize_factors  = FALSE}), factors are
+reference group. Per default (\code{normalize_factors  = FALSE}) and factors are not
 normalized.}
 
 \item{trimming}{boolean: If \code{TRUE}, observations with dominant reweighting factor
@@ -101,8 +107,9 @@ relative weight of the reweighting factor value (i.e., inverse probability weigh
 of a single observation. If \code{NULL}, the threshold is set to \eqn{sqrt(N)/N},
 where \eqn{N} is the number of observations in the reference group.}
 
-\item{bootstrap}{boolean: If `FALSE`, then the estimation is not boostrapped and no
-standard errors are calculated.}
+\item{bootstrap}{boolean: If `FALSE` (default), then no bootstrapped standard
+errors are calculated and, in the case of a standard Oaxaca-Blinder decomposition,
+analytical standard errors are estimated (assuming independence between groups).}
 
 \item{bootstrap_iterations}{positive integer indicating the number of bootstrap
 iterations to execute. Only required if \code{bootstrap = TRUE}.}
@@ -114,32 +121,39 @@ interquantile range of the standard distribution to estimate standard errors.}
 
 \item{cluster}{numeric vector of same length as \code{dep_var} indicating the
 clustering of observations. If \code{cluster = NULL} (default), no clustering
-is a assumend and bootstrap procedure resamples individual observations. Other
-wise bootstrap procedure resamples clusters.}
+is a assumend and bootstrap procedure resamples individual observations. Otherwise
+bootstrap procedure resamples clusters.}
 
 \item{cores}{positive integer indicating the number of cores to use when
 computing bootstrap standard errors. Only required if \code{bootstrap = TRUE}.}
 
 \item{vcov}{function estimating covariance matrix of regression coefficients if
 standard errors are not bootstrapped (i.e., \code{bootstrap = FALSE}). By default,
-\link[stats]{vcov} is used assuming homoskedastic errors.}
+\link[stats]{vcov} is used assuming homoscedastic errors.}
 
 \item{...}{additional parameters passed to the custom_rif_function.
 Apart from dep_var, weights and probs they must have a different name than the the ones in rifreg.
 For instance, if you want to pass a parameter statistic to the custom_rif_function, name it custom_statistic.
-Additional parameters can also be passed to the \link[stats]{density} function.}
+Additional parameters can also be passed to the \link[stats]{density} function used
+to estimate the RIF of quantiles.}
 }
 \description{
-Following Oaxaca (1973) and Blinder (1973), this function decomposes between-
-group differences in the mean of an outcome variable into a part explained
-by mean-differences in the observable covariates ("composition effect") and
-another part due to the returns to these covariates ("structure effect"). The
-function estimates the returns to covariates using OLS separately for the
-two groups.
+\code{ob_deco} implements the Oaxaca-Blinder decomposition that
+divides differences in the mean outcome between two groups into one part explained
+by different covariate means (composition effect) and into another part due to
+differences in linear regression coefficients linking covariates to the outcome
+variable (structure effect).
+
+The function allows for 'doubly robust' decompositions where the sample of one
+group is reweighted such that it matches the covariates distribution of the
+other group before the regression coefficients are estimated.
+
+For distributional statistics beyond the mean, the function performs the RIF
+regression decomposition proposed by Firpo, Fortin, and Lemieux (2018).
 }
 \examples{
 
-## Decompose gender wage gap
+## Oxaca-Blinder decomposition of gender wage gap
 ## with NLYS79 data like in Fortin, Lemieux, & Firpo (2011: 41)
 
 data("nlys00")
@@ -212,6 +226,20 @@ summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 
 # Return standard errors for all detailed terms
 summary(deco_female_as_reference, aggregate_factors = FALSE)
+
+
+## 'Doubly robust' Oxaca-Blinder decomposition of gender wage gap
+ mod2 <- log(wage) ~ age + central_city + msa + region + black +
+  hispanic + education + afqt + family_responsibility + years_worked_civilian +
+  years_worked_military + part_time + industry | age  + (central_city + msa) * region + (black +
+  hispanic) * (education + afqt) + family_responsibility * (years_worked_civilian +
+  years_worked_military) + part_time * industry
+deco_male_as_reference_robust <- ob_deco(formula = mod2,
+                                         data = nlys00,
+                                         group = female,
+                                         reference_0 = FALSE,
+                                         reweighting = TRUE)
+
 
 }
 \references{

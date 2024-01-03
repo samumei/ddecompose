@@ -38,7 +38,7 @@
 #' the reference structure. Hence, the composition effect is computed as \code{(X1 - X0) * b1} and
 #' the structure effect as \code{X0 * (b1 - b0)}.
 #' @param subtract_1_from_0 boolean: By default (`FALSE`), X0 is subtracted from X1 and beta0 from beta1 (X1b1 - X0b0)
-#' to compute the overall gap. Setting `subtract_1_from_0` to `TRUE` merely changes the sign of the decomposition results.
+#' to compute the overall difference. Setting `subtract_1_from_0` to `TRUE` merely changes the sign of the decomposition results.
 #' This means the composition effect is computed as \code{(X0 - X1) * b1} and
 #' the structure effect as \code{X0 * (b0 - b1)}.
 #' @param rifreg boolean: if `TRUE`, then a RIF regression for the statistic
