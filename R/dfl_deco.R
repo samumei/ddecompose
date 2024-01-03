@@ -39,8 +39,8 @@
 #' the decomposition start left and using all variables entered into
 #' \code{formula} object from the start, sequentially removing variables.
 #' @param method specifies the method fit and predict conditional probabilities
-#' used to derive the reweighting factor. At the moment, \code{"logit"} and \code{"random forests"} are
-#' the only methods available.
+#' used to derive the reweighting factor. At the moment, \code{"logit"}, \code{"fastglm"},
+#' and \code{"random forests"} are available.
 #' @param estimate_statistics boolean: if \code{TRUE} (default), then distributional
 #' statistics are estimated and the decomposition is performed. If \code{FALSE},
 #' the function only returns the fitted inverse propensity weights.
@@ -82,18 +82,20 @@
 #'
 #' \deqn{\DeltaO = \nu1 - \nu0,}
 #'
-#' where \eqn{\nut = \nu(F_t)} denotes the statistics of the outcome distribution
-#' \eqn{F_t} of group \eqn{t}. Group 0 is identified by the lower ranked value
+#' where \eqn{\nut = \nu(F_g)} denotes the statistics of the outcome distribution
+#' \eqn{F_g} of group \eqn{g}. Group 0 is identified by the lower ranked value
 #' of the \code{group} variable.
 #'
 #' If \code{reference_0=TRUE}, then group 0 is the reference group and its observations
 #' are reweighted such that they match the covariates distribution of group 1, the
-#' comparison group. The counterfactual outcome distribution corresponds to
+#' comparison group. The counterfactual combines the covariates distribution
+#' \eqn{F_1(x)} of group 1 with the conditional outcome distribution \eqn{F_0(y|x)}
+#' of group 0 and is derived by reweighting group 0
 #'
-#' \deqn{F_C(y) = \int F_0(y|x)dF_1(x),}
+#' \deqn{F_C(y) = \int F_0(y|x)dF_1(x) = \int F_0(y|x)\Psi(x)dF_0(x),}
 #'
-#' combining the covariates distribution \eqn{F_1(x)} of group 1 with
-#' the conditional outcome distribution \eqn{F_0(y|x)} of group 0.
+#' where \eqn{\Psi(x)} is the reweighting factor, i.e. the inverse probabilities
+#' of belonging to the comparison group conditional on covariates x.
 #'
 #' The distributional statistic of the counterfactual distribution,
 #' \eqn{\nuC = \nu(F_C)}, allows to decompose the observed difference into
@@ -102,22 +104,19 @@
 #'
 #' If \code{reference_0=FALSE}, then the counterfactual is derived by combining
 #' the covariates distribution of group 0 with the conditional outcome
-#' distribution of group 1, the composition effect becomes
-#' \eqn{\DeltaC = \nu1 - \nuC} and the structure effect
-#' \eqn{\DeltaS = \nuC - \nu0}, respectively.
+#' distribution of group 1 and, thus, reweighting group 1
 #'
-#' The counterfactual distribution is derived by reweighting the reference
-#' group. With \code{reference_0=TRUE}, we have
+#' \deqn{F_C(y) = \int F_1(y|x)dF_0(x) = \int F_1(y|x)\Psi(x)dF_1(x).}
 #'
-#' \deqn{F_C(y) = \int F_0(y|x)\Psi(x)dF_0(x),}
+#' The composition effect becomes \eqn{\DeltaC = \nu1 - \nuC} and the
+#' structure effect \eqn{\DeltaS = \nuC - \nu0}, respectively.
 #'
-#' where \eqn{\Psi(x)} is the reweighting factor, i.e. the inverse probabilities
-#' of belonging to the comparison group.
-#'
-#' The covariates are defined in \code{formula}. The reweighting factors is
-#' estimated on the pooled sample with observations from both groups. \code{method = "logit"}
-#' uses a logit model to fit the conditional probabilities. \code{method = "random forests"}
-#' uses the \strong{Ranger} implementation of the random forests classifier.
+#' The covariates are defined in \code{formula}. The reweighting factor is
+#' estimated in the pooled sample with observations from both groups. \code{method = "logit"}
+#' uses a logit model to fit the conditional probabilities. \code{method = "fastglm"}
+#' also fits a logit model but with a faster algorithm from \strong{fastglm}.
+#' \code{method = "random forests"} uses the \strong{Ranger} implementation of
+#' the random forests classifier.
 #'
 #' The counterfactual statistics are then estimated with the observed data of
 #' the reference group and the fitted reweighting factors.
@@ -127,7 +126,7 @@
 #' then all covariates have to be entered at once, e.g. \code{Y ~ X + Z}.
 #'
 #' The procedure allows for sequential decomposition of the composition effect.
-#' In this case more than one reweighting factor based on different sets of
+#' In this case, more than one reweighting factor based on different sets of
 #' covariates are estimated.
 #'
 #' If you are interested in a sequential decomposition, the decomposition
@@ -153,12 +152,13 @@
 #' \deqn{F_CX(y) = \iint F_0(y|x,z)dF_0(x|z)dF_1(z),}
 #'
 #' where \eqn{F_1(x|z)} is the conditional distribution of X given Z of
-#' group 1 and \eqn{F_0(z)} the distribution of Z. Otherwise, we have
+#' group 1 and \eqn{F_0(z)} the distribution of Z. If \code{right_to_left=FALSE},
+#' we have
 #' \deqn{F_CX(y) = \iint F_{0}(y|x,z)dF_1(x|z)dF_0(z).}
 #'
-#' Note can also specify the detailed models in every part of \code{formula}.
+#' Note that it is possible to specify the detailed models in every part of \code{formula}.
 #' This is useful if you want to estimate in every step a fully saturated model,
-#' e.g. \code{Y ~ X * Z | Z}. If not further specified, the variables are
+#' e.g., \code{Y ~ X * Z | Z}. If not further specified, the variables are
 #' additively included in the model used to derived the aggregate reweighting
 #' factor.
 #'
@@ -171,8 +171,8 @@
 #' \code{right_to_left=FALSE} instead, the same contribution is evaluated using
 #' the conditional distribution from group 1.
 #'
-#' Per default, the distributinal statistics, for which the between group ifferences
-#' are decomposed, are quantiles, the mean, the variance, the Gini coefficient
+#' Per default, the distributional statistics for which the between group ifferences
+#' are decomposed are quantiles, the mean, the variance, the Gini coefficient
 #' and the interquantile range between the 9th and the 1st decile, the 9th decile
 #' and the median, and the median and the first decile, respectively. The interquantile
 #' ratios between the same quantiles are implemented, as well.
@@ -210,10 +210,14 @@
 #' estimators based on the propensity score." \emph{Journal of Econometrics},
 #' 175(1), 1-21.
 #'
+#' @importMethodsFrom fastglm predict
+#' @importMethodsFrom ranger predict
 #' @export
 #'
 #' @examples
-#' ## Replicate example from handbook chapter of Fortin, Lemieux, and Firpo (FLF, 2011)
+#' ## Example from handbook chapter of Fortin, Lemieux, and Firpo (2011: 67)
+#' ## with a sample of the original data
+#'
 #' data("men8305")
 #'
 #' flf_model <- log(wage) ~ union*(education + experience) + education*experience
@@ -230,16 +234,13 @@
 #' # Plot decomposition of quantile differences
 #' plot(flf_male_inequality)
 #'
-#' # Use alternative reference group (i.e. reweight sample from 2003-05)
+#' # Use alternative reference group (i.e., reweight sample from 2003-05)
 #' flf_male_inequality_reference_0305  <- dfl_deco(flf_model,
 #'                                                 data = men8305,
 #'                                                 weights = weights,
 #'                                                 group = year,
 #'                                                 reference_0 = FALSE)
-#'
-#' # Summarize results
 #' summary(flf_male_inequality_reference_0305)
-#'
 #'
 #' # Bootstrap standard errors (using smaller sample for the sake of illustration)
 #' \dontrun{
@@ -303,8 +304,9 @@
 #'       male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
 #'       male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`)
 #'
-#' # Trim observations with weak common support
-#' # (i.e. observations with relative factor weights > \sqrt(N)/N)
+#'
+#' ## Trim observations with weak common support
+#' ## (i.e. observations with relative factor weights > \sqrt(N)/N)
 #'
 #' set.seed(123)
 #' data_weak_common_support <- data.frame(d = factor(c(c("A", "A", rep("B", 98)),
@@ -321,7 +323,6 @@
 #'
 #' identical(deco_results_trimmed$trimmed_observations,
 #'           which(data_weak_common_support$d == "A"))
-#'
 #'
 dfl_deco <-  function(formula,
                       data,
@@ -1004,9 +1005,11 @@ fit_and_predict_probabilities <- function(formula,
     }
     newdata_matrix <- model.matrix(formula, newdata)
 
-    fitted_probabilities  <-  fastglm:::predict.fastglm(model_fit,
-                                                       newdata = newdata_matrix,
-                                                       type="response")
+    fitted_probabilities  <- predict(model_fit,
+                                      newdata = newdata_matrix,
+                                      type="response")
+
+
   }
 
 
@@ -1023,8 +1026,9 @@ fit_and_predict_probabilities <- function(formula,
     if(is.null(newdata)){
       newdata <- data_used
     }
-    fitted_probabilities  <- ranger:::predict.ranger(model_fit,
-                                                     data = newdata)$predictions[,2]
+
+    fitted_probabilities  <-  predict(model_fit,
+                                      data = newdata)$predictions[,2]
   }
 
 
