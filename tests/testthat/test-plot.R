@@ -1,9 +1,9 @@
-test_that("Plot function does not throw an error with dfl_deco", {
+test_that("Plot function does not throw an error with dfl_decompose", {
   set.seed(89342395)
 
   model_sequential <- log(wage) ~ union + experience + education | experience + education | education
 
-  deco_results  <- dfl_deco(model_sequential,
+  deco_results  <- dfl_decompose(model_sequential,
                             data = men8305[1:1000, ],
                             weights = weights,
                             group = year)
@@ -12,7 +12,7 @@ test_that("Plot function does not throw an error with dfl_deco", {
   testthat::expect_error(plot(deco_results), NA)
 })
 
-test_that("Plot function does not throw an error with ob_deco", {
+test_that("Plot function does not throw an error with ob_decompose", {
 
   data("nlys00")
 
@@ -20,7 +20,7 @@ test_that("Plot function does not throw an error with ob_deco", {
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_male_as_reference <- ob_deco(formula = mod1,
+  deco_male_as_reference <- ob_decompose(formula = mod1,
                                     data = nlys00,
                                     group = female,
                                     reweighting = TRUE,

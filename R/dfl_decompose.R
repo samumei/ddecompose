@@ -225,7 +225,7 @@
 #' flf_model <- log(wage) ~ union*(education + experience) + education*experience
 #'
 #' # Reweighting sample from 1983-85
-#' flf_male_inequality  <- dfl_deco(flf_model,
+#' flf_male_inequality  <- dfl_decompose(flf_model,
 #'                                  data = men8305,
 #'                                  weights = weights,
 #'                                  group = year)
@@ -237,7 +237,7 @@
 #' plot(flf_male_inequality)
 #'
 #' # Use alternative reference group (i.e., reweight sample from 2003-05)
-#' flf_male_inequality_reference_0305  <- dfl_deco(flf_model,
+#' flf_male_inequality_reference_0305  <- dfl_decompose(flf_model,
 #'                                                 data = men8305,
 #'                                                 weights = weights,
 #'                                                 group = year,
@@ -247,7 +247,7 @@
 #' # Bootstrap standard errors (using smaller sample for the sake of illustration)
 #' \dontrun{
 #' set.seed(123)
-#' flf_male_inequality_boot  <- dfl_deco(flf_model,
+#' flf_male_inequality_boot  <- dfl_decompose(flf_model,
 #'                                  data = men8305[1:1000, ],
 #'                                  weights = weights,
 #'                                  group = year,
@@ -280,7 +280,7 @@
 #' # Contribution of union is evaluated using composition of
 #' # education and experience from 2003-2005 (group 1)
 #'
-#' male_inequality_sequential  <- dfl_deco(model_sequential,
+#' male_inequality_sequential  <- dfl_decompose(model_sequential,
 #'                                         data = men8305,
 #'                                         weights = weights,
 #'                                         group = year)
@@ -292,7 +292,7 @@
 #' # Contribution of union is evaluated using composition of
 #' # education and experience from 1983-1985 (group 0)
 #'
-#' male_inequality_sequential_2  <- dfl_deco(model_sequential,
+#' male_inequality_sequential_2  <- dfl_decompose(model_sequential,
 #'                                         data = men8305,
 #'                                         weights = weights,
 #'                                         group = year,
@@ -318,7 +318,7 @@
 #'                               data_weak_common_support$group +
 #'                               rnorm(200, 0, 0.5)
 #'
-#' deco_results_trimmed <- dfl_deco(y ~ d,
+#' deco_results_trimmed <- dfl_decompose(y ~ d,
 #'                                  data_weak_common_support,
 #'                                  group = group,
 #'                                  trimming = TRUE)
@@ -326,7 +326,7 @@
 #' identical(deco_results_trimmed$trimmed_observations,
 #'           which(data_weak_common_support$d == "A"))
 #'
-dfl_deco <-  function(formula,
+dfl_decompose <-  function(formula,
                       data,
                       weights,
                       group,
@@ -623,7 +623,7 @@ dfl_deco <-  function(formula,
                          subtract_1_from_0 = subtract_1_from_0)
   results <- c(results, add_to_results)
 
-  class(results) <- "dfl_deco"
+  class(results) <- "dfl_decompose"
   return(results)
 
 }
@@ -639,10 +639,9 @@ dfl_deco <-  function(formula,
 #' @param dep_var dependent variable
 #' @param data_used \code{data.frame} with data used for estimation
 #' @param weights weights variable
-#' @param group_variable group variable
+#' @param group_variable group variable<
 #' @param reference_group reference_group to be reweighted
 #' @param method method used to estimate conditional probabilities
-#' @param estimate_statistics
 #' @param right_to_left determines the direction of a sequential decomposition.
 #' @param estimate_statistics boolean: if \code{TRUE} (default), then distributional
 #' statistics are estimated and the decomposition is performed. If \code{FALSE},

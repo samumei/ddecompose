@@ -1,6 +1,6 @@
-#' summary method for class "dfl_deco"
+#' summary method for class "dfl_decompose"
 #'
-#' @param x an object of class "dfl_deco", a result of a call to [dfl_deco()].
+#' @param x an object of class "dfl_decompose", a result of a call to [dfl_decompose()].
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the
 #'              confidence level of the printed confidence intervals. Pointwise confidences bands
 #'              are defined as \code{qnorm((1-confidence_level)/2)} * standard error. Uniform bands
@@ -8,14 +8,14 @@
 #'              of the bootstrapped Kolmogorov-Smirnov statistic.
 #' @param digits number of digits to be printed.
 #' @param ... other parameters to be passed through to printing functions.
-#' @return The function \code{summary.dfl_deco()} displays the decompositions
+#' @return The function \code{summary.dfl_decompose()} displays the decompositions
 #' terms save in \code{x}. If standard errors have been bootstrapped, standard
 #' errors and confidence bands are given. Uniform confidence bands for quantiles
 #' are constructed based on the bootstrappend Kolmogorov-Smirnov distribution.
 #'
 #' @export
 #'
-summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
+summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
 
   if(x$subtract_1_from_0 == FALSE){
   cat("Decomposition of difference between",
@@ -138,13 +138,13 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
 }
 
 
-#' summary method for class "ob_deco"
+#' summary method for class "ob_decompose"
 #'
 #' Apart from displaying the (detailed) decomposition results with standard
-#' errors, \code{summary.ob_deco()} allows to customize the aggregation of the
+#' errors, \code{summary.ob_decompose()} allows to customize the aggregation of the
 #' detailed decomposition terms.
 #'
-#' @param x an object of class "ob_deco", usually , a result of a call to [ob_deco()].
+#' @param x an object of class "ob_decompose", usually , a result of a call to [ob_decompose()].
 #' @param aggregate_factors boolean, if `TRUE` (default) terms associated with detailed factor
 #' levels are aggregated to a single term for every factor variable.
 #' @param custom_aggregation list specifying the aggregation of detailed decomposition
@@ -154,7 +154,7 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the printed confidence interval.
 #' @param ... other parameters to be passed through to print functions.
 #'
-#' @return The function \code{summary.ob_deco()} summarizes the decompositions terms saved in \code{x}.
+#' @return The function \code{summary.ob_decompose()} summarizes the decompositions terms saved in \code{x}.
 #'
 #' @export
 #'
@@ -163,7 +163,7 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
 #' mod1 <- log(wage) ~ age + education + years_worked_civilian +
 #'   years_worked_military + part_time + industry
 #'
-#' deco_results <- ob_deco(formula = mod1,
+#' deco_results <- ob_decompose(formula = mod1,
 #'                         data = nlys00,
 #'                         group = female,
 #'                         reference_0 = TRUE)
@@ -192,7 +192,7 @@ summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
 #'                                 "industryOther services"))
 #' summary(deco_results, custom_aggregation = custom_aggregation)
 #'
-summary.ob_deco <- function(x,
+summary.ob_decompose <- function(x,
                             aggregate_factors = TRUE,
                             custom_aggregation = NULL,
                             confidence_level = 0.95,
@@ -438,7 +438,7 @@ summary.ob_deco <- function(x,
 #' The function aggregates decomposition terms and calculates
 #' their covariance matrix based on detailed decomposition results.
 #'
-#' @param x an object of class "ob_deco", usually , a result of a call to [ob_deco()].
+#' @param x an object of class "ob_decompose", usually , a result of a call to [ob_decompose()].
 #' @param aggregate_factors boolean, if `TRUE` (default) terms associated with detailed factor
 #' levels are aggregated to a single term for every factor variable.
 #' @param custom_aggregation list specifying the aggregation of detailed decomposition
@@ -448,7 +448,7 @@ summary.ob_deco <- function(x,
 #' @param reweighting boolean, if `TRUE` the decompostion in `x` contains reweighting
 #' (i.e. specification and reweighting error)
 #'
-#' @return The function returns an updated object of class "ob_deco" containing
+#' @return The function returns an updated object of class "ob_decompose" containing
 #' the aggregated decomposition terms.
 #'
 aggregate_terms <- function(x,

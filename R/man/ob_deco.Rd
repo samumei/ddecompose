@@ -4,7 +4,7 @@
 \alias{ob_deco}
 \title{Oaxaca-Blinder decomposition}
 \usage{
-ob_deco(
+ob_decompose(
   formula,
   data,
   group,
@@ -90,14 +90,14 @@ hispanic + education + afqt + family_responsibility + years_worked_civilian +
 years_worked_military + part_time + industry
 
 # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
-deco_female_as_reference <- ob_deco(formula = mod1,
+deco_female_as_reference <- ob_decompose(formula = mod1,
                                     data = nlys00,
                                     group = female,
                                     reference_0 = TRUE)
 deco_female_as_reference
 
 # Using male coefficients (reference_0 = FALSE)
-deco_male_as_reference <- ob_deco(formula = mod1,
+deco_male_as_reference <- ob_decompose(formula = mod1,
                                   data = nlys00,
                                   group = female,
                                   reference_0 = FALSE)
@@ -136,7 +136,7 @@ summary(deco_male_as_reference, custom_aggregation = custom_aggregation)
 summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 
 ## Compare bootstrapped standard errors...
-deco_female_as_reference_bs <- ob_deco(formula = mod1,
+deco_female_as_reference_bs <- ob_decompose(formula = mod1,
                                        data = nlys00,
                                        group = female,
                                        bootstrap = TRUE,

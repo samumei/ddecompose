@@ -4,7 +4,7 @@
 \alias{estimate_ob_deco}
 \title{Estimate OB decomposition}
 \usage{
-estimate_ob_deco(
+estimate_ob_decompose(
   formula,
   data_used,
   reference_0,

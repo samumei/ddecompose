@@ -9,7 +9,7 @@
 #   flf_model <- log(wage) ~ union*(education + experience) + education*experience
 #
 #   # Reweighting sample from 1983-85
-#   flf_male_inequality  <- dfl_deco(flf_model,
+#   flf_male_inequality  <- dfl_decompose(flf_model,
 #                                    data = men8305_full,
 #                                    weights = weights,
 #                                    group = year)
@@ -30,12 +30,12 @@
 
 
 
-test_that("dfl_deco() does not throw an error", {
+test_that("dfl_decompose() does not throw an error", {
   set.seed(89342395)
 
   model_sequential <- log(wage) ~ union + experience + education | experience + education | education
 
-  deco_results  <- dfl_deco(model_sequential,
+  deco_results  <- dfl_decompose(model_sequential,
                             data = men8305[1:1000, ],
                             weights = weights,
                             group = year)
@@ -44,12 +44,12 @@ test_that("dfl_deco() does not throw an error", {
 })
 
 
-test_that("dfl_deco() does not return fitted models if required", {
+test_that("dfl_decompose() does not return fitted models if required", {
   set.seed(89342395)
 
   model_sequential <- log(wage) ~ union + experience + education | experience + education | education
 
-  deco_results  <- dfl_deco(model_sequential,
+  deco_results  <- dfl_decompose(model_sequential,
                             data = men8305[1:1000, ],
                             weights = weights,
                             group = year,
@@ -58,13 +58,13 @@ test_that("dfl_deco() does not return fitted models if required", {
   testthat::expect_error(deco_results, NA)
 })
 
-# test_that("bootstrapping dfl_deco() does not throw an error", {
+# test_that("bootstrapping dfl_decompose() does not throw an error", {
 #
 #
 #   flf_model <- log(wage) ~ union + experience + education
 #
 #   set.seed(123)
-#   deco_results_boot_single_core  <- dfl_deco(flf_model,
+#   deco_results_boot_single_core  <- dfl_decompose(flf_model,
 #                                              data = men8305[1:1000, ],
 #                                              weights = weights,
 #                                              group = year,
@@ -72,7 +72,7 @@ test_that("dfl_deco() does not return fitted models if required", {
 #                                              bootstrap_iterations = 10,
 #                                              cores = 1)
 #   set.seed(123)
-#   deco_results_boot_parallel  <- dfl_deco(flf_model,
+#   deco_results_boot_parallel  <- dfl_decompose(flf_model,
 #                                           data = men8305[1:1000, ],
 #                                           weights = weights,
 #                                           group = year,
@@ -236,13 +236,13 @@ test_that("dfl_deco_estimate() works properly with ranger random forests estimat
 
 
 
-test_that("dfl_deco() does not throw an error without estimating statistics", {
+test_that("dfl_decompose() does not throw an error without estimating statistics", {
   set.seed(89342395)
   formula <- log(wage) ~ age + central_city + msa + region + black +
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_results <- dfl_deco(formula = formula,
+  deco_results <- dfl_decompose(formula = formula,
                            data = nlys00[1:300,],
                            weights = runif(nrow(nlys00[1:300,]), 0.5, 1.5),
                            group = female,
@@ -273,7 +273,7 @@ test_that("select_observations_to_be_trimmed() trimms observations as intended",
 
 })
 
-test_that("dfl_deco() trimms estimated factors as expected", {
+test_that("dfl_decompose() trimms estimated factors as expected", {
 
   set.seed(123)
   data_used <- data.frame(x = c(c(1, 1, rep(2, 98)),
@@ -303,11 +303,11 @@ test_that("dfl_deco() trimms estimated factors as expected", {
   #                                                           group_variable,
   #                                                           group,
   #                                                           trimming_threshold)
-  # deco_results_untrimmed <- dfl_deco(y ~ x,
+  # deco_results_untrimmed <- dfl_decompose(y ~ x,
   #                                   data_used,
   #                                   group = group)
 
-  deco_results_trimmed <- dfl_deco(y ~ x,
+  deco_results_trimmed <- dfl_decompose(y ~ x,
                                    data_used,
                                    group = group,
                                    trimming = TRUE)
@@ -357,14 +357,14 @@ test_that("dfl_deco() trimms estimated factors as expected", {
 # })
 
 
-# test_that("dfl_deco() replicates Table 5, p. 67, in FLF 2011 Handbook Chapter", {
+# test_that("dfl_decompose() replicates Table 5, p. 67, in FLF 2011 Handbook Chapter", {
 #
 #   load("data-raw/men8305_full.rda")
 #   men8305_full$weights <- men8305_full$weights/sum(men8305_full$weights) * length(men8305_full$weights)
 #   flf_model <- log(wage) ~ union*(education + experience) + education*experience
 #
 #   # Replicate statistics in table 5, p.67, in in FLF (2011)
-#   flf_male_inequality_table_5  <- dfl_deco(flf_model,
+#   flf_male_inequality_table_5  <- dfl_decompose(flf_model,
 #                                            data = men8305_full,
 #                                            weights = weights,
 #                                            group = year,
@@ -373,14 +373,14 @@ test_that("dfl_deco() trimms estimated factors as expected", {
 #                                                            "iq_range_p90_p50",
 #                                                            "iq_range_p50_p10",
 #                                                             "variance"))
-#   results_dfl_deco <- flf_male_inequality_table_5$decomposition_other_statistics
-#   published_results_FLF_table_5 <- data.frame(statistic = results_dfl_deco$statistic,
+#   results_dfl_decompose <- flf_male_inequality_table_5$decomposition_other_statistics
+#   published_results_FLF_table_5 <- data.frame(statistic = results_dfl_decompose$statistic,
 #                                               `Observed difference` = c(0.0617, 0.1091, 0.1827, -0.0736),
 #                                               `Structure effect` = c(0.0408, 0.0336, 0.1637, -0.1301),
 #                                               `Composition effect` = c(0.0208, 0.0756, 0.0191, 0.0565))
-#   rownames(results_dfl_deco) <- rownames(published_results_FLF_table_5) <- 1:4
-#   names(published_results_FLF_table_5) <- names(results_dfl_deco)
-#   testthat::expect_equal(results_dfl_deco,
+#   rownames(results_dfl_decompose) <- rownames(published_results_FLF_table_5) <- 1:4
+#   names(published_results_FLF_table_5) <- names(results_dfl_decompose)
+#   testthat::expect_equal(results_dfl_decompose,
 #                          published_results_FLF_table_5,
 #                          tolerance = 0.0075)
 # })

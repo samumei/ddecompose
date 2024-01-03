@@ -4,7 +4,7 @@
 \alias{bootstrap_estimate_ob_deco}
 \title{Estimate OB decomposition in bootstrap replications}
 \usage{
-bootstrap_estimate_ob_deco(
+bootstrap_estimate_ob_decompose(
   formula,
   data_used,
   reference_0 = TRUE,

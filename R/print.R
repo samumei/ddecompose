@@ -1,13 +1,13 @@
-#' print method for class "dfl_deco"
+#' print method for class "dfl_decompose"
 #'
-#' @param x an object of class "dfl_deco", usually , a result of a call to [dfl_deco()].
+#' @param x an object of class "dfl_decompose", usually , a result of a call to [dfl_decompose()].
 #' @param ... other parameters to be passed through to printing functions.
 #'
-#' @return The function \code{print.dfl_deco()} displays the decompositions terms saved in \code{x}.
+#' @return The function \code{print.dfl_decompose()} displays the decompositions terms saved in \code{x}.
 #'
 #' @export
 #'
-print.dfl_deco <- function(x, ...){
+print.dfl_decompose <- function(x, ...){
 
   if(x$subtract_1_from_0 == FALSE){
     cat("Decomposition of difference between",
@@ -39,16 +39,17 @@ print.dfl_deco <- function(x, ...){
 }
 
 
-#' print method for class "ob_deco"
+#' print method for class "ob_decompose"
 #'
-#' @param x an object of class "ob_deco", usually , a result of a call to [ob_deco()].
+#' @param x an object of class "ob_decompose", usually , a result of a call to [ob_decompose()].
 #' @param ... other parameters to be passed through to printing functions.
 #'
-#' @return The function \code{print.ob_deco()} displays the decompositions terms saved in \code{x}.
+#' @return The function \code{print.ob_decompose()} displays the decompositions terms saved in \code{x}.
 #'
 #' @export
 #'
-print.ob_deco <- function(x, ...){
+print.ob_decompose <- function(x, ...){
+
   reweighting <- ifelse(x$input_parameters$reweighting, TRUE, FALSE)
 
   if(is.null(x$input_parameters$rifreg_statistic)) {

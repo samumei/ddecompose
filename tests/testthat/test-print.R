@@ -5,7 +5,7 @@ test_that("Print function does not throw an error", {
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_male_as_reference <- ob_deco(formula = mod1,
+  deco_male_as_reference <- ob_decompose(formula = mod1,
                                     data = nlys00,
                                     group = female,
                                     reference_0 = FALSE)
@@ -24,7 +24,7 @@ test_that("Print function does not throw an error with reweighting (no SE)", {
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_female_as_reference <- ob_deco(formula = mod1,
+  deco_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,
@@ -49,11 +49,10 @@ test_that("Print function does not throw an error with reweighting RIFREG and SE
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_female_as_reference <- ob_deco(formula = mod1,
+  deco_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,
-                                      rifreg = TRUE,
                                       rifreg_statistic = "variance",
                                       reweighting = TRUE,
                                       bootstrap = TRUE,
@@ -74,7 +73,7 @@ test_that("Print function does not throw an error with multiple quantiles", {
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_female_as_reference <- ob_deco(formula = mod1,
+  deco_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,

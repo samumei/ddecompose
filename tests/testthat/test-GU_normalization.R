@@ -33,20 +33,23 @@ testthat::test_that("Test GU normalization", {
                                    coef_non_union_1 * ((1-union_share1) - (1-union_share0)),
                                    coef_union_1 * (union_share1 - union_share0))
 
-  expected_deco <- data.frame(`Composition_effect` = detailed_composition_effect,
+  expected_decompose <- data.frame(`Composition_effect` = detailed_composition_effect,
                               `Structure_effect` = detailed_wage_structure_effect)
-  rownames(expected_deco) <- c("(Intercept)", "unionno", "unionyes")
+  rownames(expected_decompose) <- c("(Intercept)", "unionno", "unionyes")
 
-  model_deco <- wage ~ union
-  deco_union <- ob_deco(formula = model_deco,
+  model_decompose <- wage ~ union
+  deco_union <- ob_decompose(formula = model_decompose,
                         data = men8305,
                         group = year,
                         normalize_factors = TRUE,
                         reference_0 = FALSE)
 
-  estimated_deco <- deco_union$ob_deco$decomposition_terms[which(rownames(deco_union$ob_deco$decomposition_terms) %in% rownames(expected_deco)), names(expected_deco)]
+  estimated_decompose <-
+    deco_union$ob_decompose$decomposition_terms[
+      which(rownames(deco_union$ob_decompose$decomposition_terms) %in%
+              rownames(expected_decompose)), names(expected_decompose)]
 
-  testthat::expect_equal(estimated_deco,
-                         expected_deco,
+  testthat::expect_equal(estimated_decompose,
+                         expected_decompose,
                          tolerance = 0.0000000001)
 })

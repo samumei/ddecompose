@@ -119,14 +119,14 @@
 #'   years_worked_military + part_time + industry
 #'
 #' # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
-#' deco_female_as_reference <- ob_deco(formula = mod1,
+#' deco_female_as_reference <- ob_decompose(formula = mod1,
 #'                                     data = nlys00,
 #'                                     group = female,
 #'                                     reference_0 = TRUE)
 #' deco_female_as_reference
 #'
 #' # Using male coefficients (reference_0 = FALSE)
-#' deco_male_as_reference <- ob_deco(formula = mod1,
+#' deco_male_as_reference <- ob_decompose(formula = mod1,
 #'                                   data = nlys00,
 #'                                   group = female,
 #'                                   reference_0 = FALSE)
@@ -165,7 +165,7 @@
 #' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
 #'
 #' ## Compare bootstrapped standard errors...
-#' deco_female_as_reference_bs <- ob_deco(formula = mod1,
+#' deco_female_as_reference_bs <- ob_decompose(formula = mod1,
 #'                                        data = nlys00,
 #'                                        group = female,
 #'                                        bootstrap = TRUE,
@@ -174,7 +174,7 @@
 #'
 #' # ... to analytical standard errors (assuming independence between groups and
 #' # homoskedasticity)
-#' deco_female_as_reference <- ob_deco(formula = mod1,
+#' deco_female_as_reference <- ob_decompose(formula = mod1,
 #'                                     data = nlys00,
 #'                                     group = female,
 #'                                     reference_0 = TRUE)
@@ -190,14 +190,14 @@
 #'   years_worked_military + part_time + industry | age  + (central_city + msa) * region + (black +
 #'   hispanic) * (education + afqt) + family_responsibility * (years_worked_civilian +
 #'   years_worked_military) + part_time * industry
-#' deco_male_as_reference_robust <- ob_deco(formula = mod2,
+#' deco_male_as_reference_robust <- ob_decompose(formula = mod2,
 #'                                          data = nlys00,
 #'                                          group = female,
 #'                                          reference_0 = FALSE,
 #'                                          reweighting = TRUE)
 #'
 #'
-ob_deco <- function(formula,
+ob_decompose <- function(formula,
                     data,
                     group,
                     subtract_1_from_0 = FALSE,
@@ -286,7 +286,7 @@ ob_deco <- function(formula,
   else compute_analytical_se <- FALSE
 
   if(reweighting) {
-    dfl_deco_results <- dfl_deco(formula = formula_reweighting,
+    dfl_deco_results <- dfl_decompose(formula = formula_reweighting,
                                  data = data_used,
                                  weights = weights,
                                  group = group,
@@ -301,7 +301,7 @@ ob_deco <- function(formula,
   }
 
   if(rifreg && rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
-      estimated_decomposition <- lapply(rifreg_probs, estimate_ob_deco,
+      estimated_decomposition <- lapply(rifreg_probs, estimate_ob_decompose,
                                         formula = formula_decomposition, data_used = data_used,
                                         reference_0 = reference_0, normalize_factors = normalize_factors,
                                         compute_analytical_se = compute_analytical_se,
@@ -322,7 +322,7 @@ ob_deco <- function(formula,
 
   }
   else {
-    estimated_decomposition <- estimate_ob_deco(formula = formula_decomposition,
+    estimated_decomposition <- estimate_ob_decompose(formula = formula_decomposition,
                                                 data_used = data_used,
                                                 reference_0 = reference_0,
                                                 normalize_factors = normalize_factors,
@@ -352,10 +352,10 @@ ob_deco <- function(formula,
     }
     else {
       if(reweighting) {
-        deco_name <- "reweighted_ob_deco"
+        deco_name <- "reweighted_ob_decompose"
       }
       else{
-        deco_name <- "ob_deco"
+        deco_name <- "ob_decompose"
       }
     }
     names(estimated_decomposition) <- deco_name
@@ -376,7 +376,7 @@ ob_deco <- function(formula,
 
     if(cores == 1) {
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
-                                               function(x) bootstrap_estimate_ob_deco(formula_decomposition = formula_decomposition,
+                                               function(x) bootstrap_estimate_ob_decompose(formula_decomposition = formula_decomposition,
                                                                                       formula_reweighting = formula_reweighting,
                                                                                       data_used = data_used,
                                                                                       group = group,
@@ -401,7 +401,7 @@ ob_deco <- function(formula,
                               varlist = ls(),
                               envir = environment())
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
-                                               function(x) bootstrap_estimate_ob_deco(formula_decomposition = formula_decomposition,
+                                               function(x) bootstrap_estimate_ob_decompose(formula_decomposition = formula_decomposition,
                                                                                       formula_reweighting = formula_reweighting,
                                                                                       data_used = data_used,
                                                                                       group = group,
@@ -472,7 +472,7 @@ ob_deco <- function(formula,
   estimated_decomposition <- c(estimated_decomposition,
                                add_to_results)
 
-  class(estimated_decomposition) <- "ob_deco"
+  class(estimated_decomposition) <- "ob_decompose"
   return(estimated_decomposition)
 
 }
@@ -480,7 +480,7 @@ ob_deco <- function(formula,
 
 # Estimate OB decomposition
 #
-estimate_ob_deco <- function(formula,
+estimate_ob_decompose <- function(formula,
                              data_used,
                              reference_0,
                              normalize_factors,
@@ -737,7 +737,7 @@ estimate_ob_deco <- function(formula,
 
 # Estimate OB decomposition in bootstrap replications
 #
-bootstrap_estimate_ob_deco <- function(formula_decomposition,
+bootstrap_estimate_ob_decompose <- function(formula_decomposition,
                                        formula_reweighting,
                                        data_used,
                                        group,
@@ -774,7 +774,7 @@ bootstrap_estimate_ob_deco <- function(formula_decomposition,
     sink(nullfile())  # Start suppressing output
 
     if(reweighting) {
-    dfl_deco_results <- suppressWarnings(dfl_deco(formula = formula_reweighting,
+    dfl_deco_results <- suppressWarnings(dfl_decompose(formula = formula_reweighting,
                                  data = data_used[sampled_observations, ],
                                  weights = weights,
                                  group = group,
@@ -789,7 +789,7 @@ bootstrap_estimate_ob_deco <- function(formula_decomposition,
   }
 
     if(rifreg && rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
-      deco_estimates <- suppressWarnings(lapply(rifreg_probs, estimate_ob_deco,
+      deco_estimates <- suppressWarnings(lapply(rifreg_probs, estimate_ob_decompose,
                                         formula = formula_decomposition,
                                data_used = data_used[sampled_observations, ],
                                         reference_0 = reference_0,
@@ -808,7 +808,7 @@ bootstrap_estimate_ob_deco <- function(formula_decomposition,
 
   }
   else {
-    deco_estimates <- suppressWarnings(estimate_ob_deco(formula = formula_decomposition,
+    deco_estimates <- suppressWarnings(estimate_ob_decompose(formula = formula_decomposition,
                                        data_used = data_used[sampled_observations, ],
                                        reference_0 = reference_0,
                                        normalize_factors = normalize_factors,

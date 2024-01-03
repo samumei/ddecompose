@@ -12,7 +12,7 @@ aggregate_terms(
 )
 }
 \arguments{
-\item{x}{an object of class "ob_deco", usually , a result of a call to [ob_deco()].}
+\item{x}{an object of class "ob_decompose", usually , a result of a call to [ob_decompose()].}
 
 \item{aggregate_factors}{boolean, if `TRUE` (default) terms associated with detailed factor
 levels are aggregated to a single term for every factor variable.}
@@ -26,7 +26,7 @@ a single variable are returned.}
 (i.e. specification and reweighting error)}
 }
 \value{
-The function returns an updated object of class "ob_deco" containing
+The function returns an updated object of class "ob_decompose" containing
 the aggregated decomposition terms.
 }
 \description{

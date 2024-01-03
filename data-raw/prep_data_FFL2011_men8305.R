@@ -3,7 +3,7 @@
 
 # Setwd
 #setwd("C:/Users/gallusse/switchdrive/Uni Basel/R Code/LSE/functions/dfl-rif-deco/")
-# setwd("C:/Users/david/switchdrive/Uni Basel/Dissprojekte/7 Reweighting decomposition in R/rif-dfl-deco")
+# setwd("C:/Users/david/switchdrive/Uni Basel/Dissprojekte/7 Reweighting decomposition in R/rif-dfl-decompose")
 
 #load("data/men8305.rda")
 

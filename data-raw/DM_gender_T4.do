@@ -115,14 +115,14 @@ oaxaca rif_90 age00 msa ctrlcity north_central south00 west hispanic black
         groupind:manuf  eduheal othind) ;
 
 
-* perform the MM procedure for these quantiles using Melly's rqdeco ;
-rqdeco lropc00  age00 msa ctrlcity north_central south00 west hispanic black 
+* perform the MM procedure for these quantiles using Melly's rqdecompose ;
+rqdecompose lropc00  age00 msa ctrlcity north_central south00 west hispanic black 
 	 sch_10   diploma_hs ged_hs smcol bachelor_col master_col doctor_col afqtp89 
         famrspb wkswk_18 yrsmil78_00 pcntpt_22  manuf  eduheal othind  
         , by(female)  quantiles(0.1 0.5 0.9) vce(none);
 
 *use bootstrap option to get the se;
-rqdeco lropc00  age00 msa ctrlcity north_central south00 west hispanic black 
+rqdecompose lropc00  age00 msa ctrlcity north_central south00 west hispanic black 
 	 sch_10   diploma_hs ged_hs smcol bachelor_col master_col doctor_col afqtp89 
         famrspb wkswk_18 yrsmil78_00 pcntpt_22  manuf  eduheal othind  
         , by(female)  quantiles(0.1 0.5 0.9)

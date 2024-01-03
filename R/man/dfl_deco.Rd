@@ -4,7 +4,7 @@
 \alias{dfl_deco}
 \title{DFL reweighting decomposition}
 \usage{
-dfl_deco(
+dfl_decompose(
   formula,
   data,
   weights,
@@ -177,13 +177,13 @@ please use `custom_statistic_function`.
 # library(AER)
 # data("CPS1985")
 # mod1 <- log(wage) ~ education + experience + ethnicity + region + sector
-# est1 <- dfl_deco(mod1, data=CPS1985, group=union)
+# est1 <- dfl_decompose(mod1, data=CPS1985, group=union)
 # est1
 #
 # plot(est1)
 #
 # # Bootstrap
-# est2 <- dfl_deco(mod1,
+# est2 <- dfl_decompose(mod1,
 #                 data=CPS1985,
 #                 group=union,
 #                 bootstrap=TRUE,
@@ -201,7 +201,7 @@ please use `custom_statistic_function`.
 # # https://sites.google.com/view/nicole-m-fortin/data-and-programs?pli=1)
 # load("data/men8305.rda")
 # mod2 <- log(wage) ~ union*(education + experience) + education*experience
-# ffl2012  <- dfl_deco(mod2,
+# ffl2012  <- dfl_decompose(mod2,
 #                     data=men8305,
 #                     weights=weights,
 #                     group=year,

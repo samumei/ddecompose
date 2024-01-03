@@ -6,7 +6,7 @@ test_that("Summary function does not throw an error", {
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_male_as_reference <- ob_deco(formula = mod1,
+  deco_male_as_reference <- ob_decompose(formula = mod1,
                                     data = nlys00,
                                     group = female,
                                     reference_0 = FALSE)
@@ -23,7 +23,7 @@ test_that("Summary function does not throw an error with aggregation", {
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_male_as_reference <- ob_deco(formula = mod1,
+  deco_male_as_reference <- ob_decompose(formula = mod1,
                                     data = nlys00,
                                     group = female,
                                     reference_0 = FALSE)
@@ -65,7 +65,7 @@ test_that("Summary function does not throw an error with aggregation and bootstr
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_female_as_reference_bs <- ob_deco(formula = mod1,
+  deco_female_as_reference_bs <- ob_decompose(formula = mod1,
                                          data = nlys00,
                                          group = female,
                                          bootstrap = TRUE,
@@ -109,7 +109,7 @@ test_that("Summary function does not throw an error with Variance and Gini (and 
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_female_as_reference_bs <- ob_deco(formula = mod1,
+  deco_female_as_reference_bs <- ob_decompose(formula = mod1,
                                          data = nlys00,
                                          group = female,
                                          rifreg_statistic = "gini",
@@ -180,7 +180,7 @@ test_that("Summary function does not throw an error in example", {
                                              "industryEducation, Health, Public Admin.",
                                              "industryOther services"))
 
-  deco_female_as_reference <- ob_deco(formula = mod1,
+  deco_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE)
@@ -230,7 +230,7 @@ test_that("Summary function does not throw an error with reweighting (no SE)", {
                                                       "industryEducation, Health, Public Admin.",
                                                       "industryOther services"))
 
-  deco_female_as_reference <- ob_deco(formula = mod1,
+  deco_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,
@@ -278,7 +278,7 @@ test_that("Summary function does not throw an error with reweighting and SE", {
                                                       "industryEducation, Health, Public Admin.",
                                                       "industryOther services"))
 
-  deco_female_as_reference <- ob_deco(formula = mod1,
+  deco_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,
@@ -328,7 +328,7 @@ test_that("Summary function does not throw an error with reweighting RIFREG and 
                                                       "industryEducation, Health, Public Admin.",
                                                       "industryOther services"))
 
-  deco_female_as_reference <- ob_deco(formula = mod1,
+  deco_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,
@@ -379,7 +379,7 @@ test_that("Summary function does not throw an error with multiple quantiles", {
                                                       "industryEducation, Health, Public Admin.",
                                                       "industryOther services"))
 
-  deco_female_as_reference <- ob_deco(formula = mod1,
+  deco_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,

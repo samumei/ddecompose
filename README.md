@@ -39,7 +39,7 @@
 generalizations of it that decompose differences in distributional
 statistics beyond the mean.
 
-`ob_deco()` decomposes differences in the mean outcome between two
+`ob_decompose()` decomposes differences in the mean outcome between two
 groups into one part explained by different covariates (composition
 effect) and into another part due to differences in the way covariates
 are linked to the outcome variable (structure effect). The function
@@ -49,7 +49,7 @@ distributional statistics beyond the mean, the function performs the RIF
 decomposition proposed by [Firpo, Fortin, and Lemieux
 (2018)](https://doi.org/10.3390/econometrics6020028).
 
-`dfl_deco()` divides differences in distributional statistics into an
+`dfl_decompose()` divides differences in distributional statistics into an
 composition effect and a structure effect using inverse probability
 weighting as introduced by [DiNardo, Fortin, and Lemieux
 (1996)](https://www.jstor.org/stable/2171954). The function also allows
@@ -69,13 +69,13 @@ and Firpo et al. (2018).
 You can either install the CRAN version of `ddeco`
 
 ``` r
-install.packages("ddeco")
+install.packages("ddecompose")
 ```
 
 or the latest development version from GitHub:
 
 ``` r
-devtools::install_github("samumei/ddeco")
+devtools::install_github("samumei/ddecompose")
 ```
 
 ## Background
@@ -344,7 +344,7 @@ and Lemieux
 and Firpo et al. (2018) do the same for the RIF estimator and for the
 RIF decomposition terms, respectively. The authors propose to bootstrap
 standard errors. `ddeco` allows to bootstrap standard errors in both
-`ob_deco()` and `dfl_deco()`. For the classical OB decomposition,
+`ob_decompose()` and `dfl_decompose()`. For the classical OB decomposition,
 analytical standard errors are available, too.
 
 ## Examples (unfinished)
@@ -358,7 +358,7 @@ Fortin, Lemieux, and Firpo (2011). The data contains 2655 male and 2654
 female observations, respectively.
 
 ``` r
-library(ddeco)
+library(ddecompose)
 data("nlys00")
 ```
 
@@ -377,7 +377,7 @@ quantiles.
 
   model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
 
-  ob_deco_estimate <- ob_deco(formula = model,
+  ob_deco_estimate <- ob_decompose(formula = model,
                                       data = nlys00,
                                       group = female)
 ```
@@ -409,10 +409,10 @@ treat the observations from 1983 to 1985 as reference group that is
 reweighted.
 
 ``` r
-library(ddeco)
+library(ddecompose)
 data("men8305")
 flf_model <- log(wage) ~ union*(education + experience) + education*experience
-flf_male_inequality  <- dfl_deco(flf_model,
+flf_male_inequality  <- dfl_decompose(flf_model,
                                   data = men8305,
                                   weights = weights,
                                   group = year)
@@ -454,7 +454,7 @@ decile.
 ``` r
   model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
 
-  ob_deco_estimate <- ob_deco(formula = model,
+  ob_deco_estimate <- ob_decompose(formula = model,
                               data = nlys00,
                               group = female, 
                               reweighting = TRUE, 
@@ -482,7 +482,7 @@ and the regression in every iteration. We can set number of
 ``` r
   model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
 
-  ob_deco_estimate <- ob_deco(formula = model,
+  ob_deco_estimate <- ob_decompose(formula = model,
                               data = nlys00,
                               group = female, 
                               reweighting = TRUE)
@@ -566,7 +566,7 @@ ffl_model_with_reweighting <- as.formula(
 
 
 # Interquantile Ratio 90-10 
-deco_90_10  <- ddeco::ob_deco(formula = ffl_model_with_reweighting,
+deco_90_10  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting,
                                 data = men8816_t4,
                                 weights = eweight,
                                 group = time,
@@ -585,7 +585,7 @@ deco_90_10  <- ddeco::ob_deco(formula = ffl_model_with_reweighting,
                               cores = 4)
 
 ## Variance
-deco_variance  <- ddeco::ob_deco(formula = var_model,
+deco_variance  <- ddeco::ob_decompose(formula = var_model,
                                  data = men8816_t4,
                                  weights = eweight,
                                  group = time,
@@ -603,7 +603,7 @@ deco_variance  <- ddeco::ob_deco(formula = var_model,
 # Gini 
 ffl_model_with_reweighting_gini <- update.formula(ffl_model_with_reweighting, exp(.) ~ .)
 
-deco_gini  <- ddeco::ob_deco(formula = ffl_model_with_reweighting_gini,
+deco_gini  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting_gini,
                                data = men8816_t4,
                                weights = eweight,
                                group = time,

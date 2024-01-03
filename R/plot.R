@@ -3,7 +3,7 @@
 #' The function plots decomposition terms for quantiles estimated
 #' with \code{dfl_deco} over the  unit interval.
 #'
-#' @param x an object of class "dfl_deco", usually, a result of a call to [dfl_deco()] with code{statistics = "quantiles"}.
+#' @param x an object of class "dfl_decompose", usually, a result of a call to [dfl_decompose()] with code{statistics = "quantiles"}.
 #' @param confidence_bands If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the confidence interval
 #'              plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standard error.
@@ -16,13 +16,13 @@
 #' @examples
 #' data("men8305")
 #' flf_model <- log(wage) ~ union*(education + experience) + education*experience
-#' flf_male_inequality  <- dfl_deco(flf_model,
+#' flf_male_inequality  <- dfl_decompose(flf_model,
 #'                                  data = men8305,
 #'                                  weights = weights,
 #'                                  group = year)
 #' plot(flf_male_inequality)
 #'
-plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uniform_bands=FALSE){
+plot.dfl_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uniform_bands=FALSE){
 
   if(is.null(x$decomposition_quantiles)){
     stop("Difference must be decomposed at least at a single quantile.")
@@ -104,7 +104,7 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
 #' The function plots decomposition terms for quantiles estimtated
 #' with \code{ob_deco} over the  unit interval.
 #'
-#' @param x an object of class "ob_deco", usually, a result of a call to [ob_deco()] with code{statistics = "quantiles"}.
+#' @param x an object of class "ob_decompose", usually, a result of a call to [ob_decompose()] with code{statistics = "quantiles"}.
 #' @param confidence_bands If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the confidence interval
 #'              plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standard error.
@@ -119,7 +119,7 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
 #'   hispanic + education + afqt + family_responsibility + years_worked_civilian +
 #'   years_worked_military + part_time + industry
 #'
-#' deco_male_as_reference <- ob_deco(formula = mod1,
+#' deco_male_as_reference <- ob_decompose(formula = mod1,
 #'                                   data = nlys00,
 #'                                   group = female,
 #'                                   reweighting = TRUE,
@@ -133,7 +133,7 @@ plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uni
 #' plot(deco_male_as_reference,
 #'      confidence_bands = FALSE)
 #'
-plot.ob_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95){
+plot.ob_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95){
 
   if(!x$input_parameters$rifreg_statistic == "quantiles"){
     stop("Difference must be decomposed at least at a single quantile.")

@@ -2,14 +2,14 @@
 % Please edit documentation in R/summary.R
 \name{summary.dfl_deco}
 \alias{summary.dfl_deco}
-\title{summary method for class "dfl_deco"}
+\title{summary method for class "dfl_decompose"}
 \usage{
 \method{summary}{dfl_deco}(x, confidence_level = 0.95, digits = 4, ...)
 
 \method{summary}{dfl_deco}(x, confidence_level = 0.95, digits = 4, ...)
 }
 \arguments{
-\item{x}{an object of class "dfl_deco", a result of a call to [dfl_deco()].}
+\item{x}{an object of class "dfl_decompose", a result of a call to [dfl_decompose()].}
 
 \item{confidence_level}{numeric value between 0 and 1 (default = 0.95) that defines the
 confidence level of the printed confidence intervals. Pointwise confidences bands
@@ -20,18 +20,18 @@ of the bootstrapped Kolmogorov-Smirnov statistic.}
 \item{...}{other parameters to be passed through to printing functions.}
 }
 \value{
-The function \code{summary.dfl_deco()} displays the decompositions
+The function \code{summary.dfl_decompose()} displays the decompositions
 terms save in \code{x}. If standard errors have been bootstrapped, standard
 errors and confidence bands are given. Uniform confidence bands for quantiles
 are constructed based on the bootstrappend Kolmogorov-Smirnov distribution.
 
-The function \code{summary.dfl_deco()} displays the decompositions
+The function \code{summary.dfl_decompose()} displays the decompositions
 terms save in \code{x}. If standard errors have been bootstrapped, standard
 errors and confidence bands are given. Uniform confidence bands for quantiles
 are constructed based on the bootstrappend Kolmogorov-Smirnov distribution.
 }
 \description{
-summary method for class "dfl_deco"
+summary method for class "dfl_decompose"
 
-summary method for class "dfl_deco"
+summary method for class "dfl_decompose"
 }

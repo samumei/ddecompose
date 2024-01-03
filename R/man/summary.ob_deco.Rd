@@ -2,7 +2,7 @@
 % Please edit documentation in R/summary.R
 \name{summary.ob_deco}
 \alias{summary.ob_deco}
-\title{summary method for class "ob_deco"}
+\title{summary method for class "ob_decompose"}
 \usage{
 \method{summary}{ob_deco}(
   x,
@@ -21,7 +21,7 @@
 )
 }
 \arguments{
-\item{x}{an object of class "ob_deco", usually , a result of a call to [ob_deco()].}
+\item{x}{an object of class "ob_decompose", usually , a result of a call to [ob_decompose()].}
 
 \item{aggregate_factors}{boolean, if `TRUE` (default) terms associated with detailed factor
 levels are aggregated to a single term for every factor variable.}
@@ -36,24 +36,24 @@ a single variable are returned.}
 \item{...}{other parameters to be passed through to print functions.}
 }
 \value{
-The function \code{summary.ob_deco()} summarizes the decompositions terms saved in \code{x}.
+The function \code{summary.ob_decompose()} summarizes the decompositions terms saved in \code{x}.
 
-The function \code{summary.ob_deco()} summarizes the decompositions terms saved in \code{x}.
+The function \code{summary.ob_decompose()} summarizes the decompositions terms saved in \code{x}.
 }
 \description{
 Apart from displaying the (detailed) decomposition results with standard
-errors, \code{summary.ob_deco()} allows to customize the aggregation of the
+errors, \code{summary.ob_decompose()} allows to customize the aggregation of the
 detailed decomposition terms.
 
 Apart from displaying the (detailed) decomposition results with standard
-errors, \code{summary.ob_deco()} allows to customize the aggregation of the
+errors, \code{summary.ob_decompose()} allows to customize the aggregation of the
 detailed decomposition terms.
 }
 \examples{
 library("AER")
 data("CPS1985")
 mod2 <- log(wage) ~ education + experience + union + ethnicity
-deco_results <- ob_deco(formula = mod2, data = CPS1985, group = gender)
+deco_results <- ob_decompose(formula = mod2, data = CPS1985, group = gender)
 
 # Print standard errors
 summary(deco_results)
@@ -69,7 +69,7 @@ summary(deco_results, custom_aggregation = custom_aggregation)
 library("AER")
 data("CPS1985")
 mod2 <- log(wage) ~ education + experience + union + ethnicity
-deco_results <- ob_deco(formula = mod2, data = CPS1985, group = gender)
+deco_results <- ob_decompose(formula = mod2, data = CPS1985, group = gender)
 
 # Print standard errors
 summary(deco_results)

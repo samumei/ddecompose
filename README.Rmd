@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 **ddeco** implements the [Oaxaca (1973)](https://www.jstor.org/stable/2525981)-[Blinder (1973)](https://www.jstor.org/stable/144855) decomposition method and generalizations
 of it that decompose differences in distributional statistics beyond the mean.
 
-`ob_deco()` decomposes differences in the mean outcome between two groups into one 
+`ob_decompose()` decomposes differences in the mean outcome between two groups into one 
 part explained by different covariates (composition effect) and into 
 another part due to differences in the way covariates are linked to the 
 outcome variable (structure effect). The function further divides the two
@@ -32,7 +32,7 @@ effects into the contribution of each covariate and allows for weighted 'doubly
 robust' decompositions. For distributional statistics beyond the mean,
 the function performs the RIF decomposition proposed by [Firpo, Fortin, and Lemieux (2018)]( https://doi.org/10.3390/econometrics6020028). 
 
-`dfl_deco()` divides differences in distributional statistics into an
+`dfl_decompose()` divides differences in distributional statistics into an
 composition effect and a structure effect using inverse probability
 weighting as introduced by [DiNardo, Fortin, and Lemieux (1996)](https://www.jstor.org/stable/2171954). The function also allows
 to sequentially decompose the composition effect into the contribution of
@@ -48,12 +48,12 @@ limitations, refer to [Fortin, Lemieux, and Firpo (2011)](https://economics.ubc.
 
 You can either install the CRAN version of `ddeco`
 ```{r, eval=FALSE}
-install.packages("ddeco")
+install.packages("ddecompose")
 ```
 
 or the latest development version from GitHub:
 ```{r , eval=FALSE}
-devtools::install_github("samumei/ddeco")
+devtools::install_github("samumei/ddecompose")
 ```
 
 
@@ -247,7 +247,7 @@ in the covariates distribution relate to higher moments or the dependence struct
 Analytical standard errors are straightforward for the original OB decomposition
 under the assumption of independence between the groups (see Jann, [2005](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf) and [2008](https://journals.sagepub.com/doi/abs/10.1177/1536867X0800800401)). [Firpo (2007)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-0262.2007.00738.x) and 
 [Firpo and Pinto (2016)](https://www.jstor.org/stable/26609621) develop asymptotic theory
-for the reweighting estimator. [Firpo, Fortin, and Lemieux  (2009b)](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf) and Firpo et al. (2018) do the same for the RIF estimator and for the RIF decomposition terms, respectively. The authors propose to bootstrap standard errors. `ddeco` allows to bootstrap standard errors in both `ob_deco()` and `dfl_deco()`. For the classical OB decomposition, analytical standard errors are available, too.
+for the reweighting estimator. [Firpo, Fortin, and Lemieux  (2009b)](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf) and Firpo et al. (2018) do the same for the RIF estimator and for the RIF decomposition terms, respectively. The authors propose to bootstrap standard errors. `ddeco` allows to bootstrap standard errors in both `ob_decompose()` and `dfl_decompose()`. For the classical OB decomposition, analytical standard errors are available, too.
 
 
 ## Examples (unfinished)
@@ -255,7 +255,7 @@ for the reweighting estimator. [Firpo, Fortin, and Lemieux  (2009b)](https://www
 The following examples illustrate the workings of the main decomposition functions in `ddeco`. We use a sample of the National Longitudinal Survey (NLSY) 79 containig wage data from 2000 of workers who were aged 35 to 43 in that year. The data is from O'Neill and O'Neill (2006) and is used as an illustration of the Oxaca-Blinder mean decomposition in Fortin, Lemieux, and Firpo (2011). The data contains 2655 male and 2654 female observations, respectively.
 
 ```{r, eval = FALSE} 
-library(ddeco)
+library(ddecompose)
 data("nlys00")
 ```
 
@@ -271,7 +271,7 @@ The parameter `statistic` specifies quantiles as our distributional statistic of
 
   model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
 
-  ob_deco_estimate <- ob_deco(formula = model,
+  ob_deco_estimate <- ob_decompose(formula = model,
                                       data = nlys00,
                                       group = female)
 ```
@@ -298,10 +298,10 @@ data. In this example, we replicate their results and treat the observations fro
 1983 to 1985 as reference group that is reweighted.
 
 ```{r, eval = FALSE}
-library(ddeco)
+library(ddecompose)
 data("men8305")
 flf_model <- log(wage) ~ union*(education + experience) + education*experience
-flf_male_inequality  <- dfl_deco(flf_model,
+flf_male_inequality  <- dfl_decompose(flf_model,
                                   data = men8305,
                                   weights = weights,
                                   group = year)
@@ -329,7 +329,7 @@ The same function is used to decompose RIF regressions. Setting `rifreg = TRUE` 
 ```{r, eval=FALSE}
   model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
 
-  ob_deco_estimate <- ob_deco(formula = model,
+  ob_deco_estimate <- ob_decompose(formula = model,
                               data = nlys00,
                               group = female, 
                               reweighting = TRUE, 
@@ -357,7 +357,7 @@ Setting `bootstrap=TRUE` bootstraps standard errors by resampling from all obser
 ```{r, eval=FALSE}
   model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
 
-  ob_deco_estimate <- ob_deco(formula = model,
+  ob_deco_estimate <- ob_decompose(formula = model,
                               data = nlys00,
                               group = female, 
                               reweighting = TRUE)
@@ -424,12 +424,11 @@ ffl_model_with_reweighting <- as.formula(
 
 
 # Interquantile Ratio 90-10 
-deco_90_10  <- ddeco::ob_deco(formula = ffl_model_with_reweighting,
+deco_90_10  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting,
                                 data = men8816_t4,
                                 weights = eweight,
                                 group = time,
                                 reference_0 = TRUE,
-                                rifreg = TRUE,
                                 rifreg_statistic = "interquantile_range",
                                 rifreg_probs = c(0.9, 0.1),
                                 bw = 0.065,
@@ -443,12 +442,11 @@ deco_90_10  <- ddeco::ob_deco(formula = ffl_model_with_reweighting,
                               cores = 4)
 
 ## Variance
-deco_variance  <- ddeco::ob_deco(formula = var_model,
+deco_variance  <- ddeco::ob_decompose(formula = var_model,
                                  data = men8816_t4,
                                  weights = eweight,
                                  group = time,
                                  reference_0 = TRUE,
-                                 rifreg = TRUE,
                                  rifreg_statistic = "variance",
                                  reweighting = TRUE,
                               reweighting_method = "fast_glm",
@@ -461,11 +459,10 @@ deco_variance  <- ddeco::ob_deco(formula = var_model,
 # Gini 
 ffl_model_with_reweighting_gini <- update.formula(ffl_model_with_reweighting, exp(.) ~ .)
 
-deco_gini  <- ddeco::ob_deco(formula = ffl_model_with_reweighting_gini,
+deco_gini  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting_gini,
                                data = men8816_t4,
                                weights = eweight,
                                group = time,
-                               rifreg = TRUE,
                                rifreg_statistic = "gini",
                                reweighting = TRUE,
                               reweighting_method = "fast_glm",
