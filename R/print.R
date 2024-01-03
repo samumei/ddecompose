@@ -70,7 +70,8 @@ print.ob_deco <- function(x, ...){
 
   for(i in 1:n_decompositions) {
 
-    if(x$input_parameters$rifreg_statistic == "quantiles") {
+    if(x$input_parameters$rifreg &
+       x$input_parameters$rifreg_statistic == "quantiles") {
       cat("\n*** Quantile:",  x$input_parameters$rifreg_probs[i], "***")
       cat("\n\n")
     }
