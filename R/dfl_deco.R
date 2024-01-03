@@ -49,7 +49,7 @@
 #' statistics are estimated and the decomposition is performed. If \code{FALSE},
 #' the function only returns the fitted inverse propensity weights.
 #' @param statistics a character vector that defines the distributional statistics
-#' for which the decomposition is perforemd. Per default,
+#' for which the decomposition is performed. Per default,
 #' \code{c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")}
 #' are estimated and decomposed. Also implemented are `c("iq_ratio_p90_p10", "iq_ratio_p90_p50", "iq_ratio_p50_p10")`.
 #' Note: The function calculates the Gini coefficient for the untransformed variable
@@ -59,7 +59,7 @@
 #' to be estimated with default \code{c(1:9)/10}.
 #' @param custom_statistic_function a custom statistic function to pass as argument.
 #' @param trimming boolean: If \code{TRUE}, observations with dominant reweighting factor
-#' values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
+#' values are trimmed according to rule of Huber, Lechner, and Wunsch (2013). Per
 #' default, trimming is set to \code{FALSE}.
 #' @param trimming_threshold numeric: threshold defining the maximal accepted
 #' relative weight of the reweighting factor value (i.e., inverse probability weight)
@@ -634,6 +634,33 @@ dfl_deco <-  function(formula,
 #' This function performs the actual DFL decomposition. It derives the
 #' reweighting factors, estimates the distributional statistics and
 #' calculates the decomposition terms.
+#'
+#' @param formula \code{formula} object
+#' @param dep_var dependent variable
+#' @param data_used \code{data.frame} with data used for estimation
+#' @param weights weights variable
+#' @param group_variable group variable
+#' @param reference_group reference_group to be reweighted
+#' @param method method used to estimate conditional probabilities
+#' @param estimate_statistics
+#' @param right_to_left determines the direction of a sequential decomposition.
+#' @param estimate_statistics boolean: if \code{TRUE} (default), then distributional
+#' statistics are estimated and the decomposition is performed. If \code{FALSE},
+#' the function only returns the fitted inverse propensity weights.
+#' @param statistics a character vector that defines the distributional statistics
+#' for which the decomposition is performed.
+#' @param trimming boolean: If \code{TRUE}, observations with dominant reweighting factor
+#' values are trimmed according to rule of Huber, Lechner, and Wunsch (2013).
+#' @param trimming_threshold numeric: threshold defining the maximal accepted
+#' relative weight of the reweighting factor value (i.e., inverse probability weight)
+#' of a single observation. If \code{NULL}, the threshold is set to \eqn{sqrt(N)/N},
+#' where \eqn{N} is the number of observations in the reference group.
+#' @param return_model boolean: If \code{TRUE} (default), the object(s) of the model
+#' fit(s) used to predict the conditional probabilities for the reweighting factor(s)
+#' are returned.
+#' @param ... other parameters passed to the function estimating the conditional probabilities.
+#'
+#'
 #'
 dfl_deco_estimate <- function(formula,
                               dep_var,
