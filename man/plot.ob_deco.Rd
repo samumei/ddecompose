@@ -4,13 +4,7 @@
 \alias{plot.ob_deco}
 \title{Plot decomposition terms for quantiles}
 \usage{
-\method{plot}{ob_deco}(
-  x,
-  confidence_bands = TRUE,
-  confidence_level = 0.95,
-  uniform_bands = FALSE,
-  ...
-)
+\method{plot}{ob_deco}(x, confidence_bands = TRUE, confidence_level = 0.95)
 }
 \arguments{
 \item{x}{an object of class "ob_deco", usually, a result of a call to [ob_deco()] with code{statistics = "quantiles"}.}
@@ -19,11 +13,6 @@
 
 \item{confidence_level}{numeric value between 0 and 1 (default = 0.95) that defines the confidence interval
 plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standard error.}
-
-\item{uniform_bands}{If `FALSE` (default), pointsise confidence bands are computed. Otherwise, uniform bands are constructed
-based on the bootstrapped Kolmogrov-Smirnov statistic.}
-
-\item{...}{other parameters to be passed through to plotting functions.}
 }
 \value{
 a ggplot illustrating the decomposition terms for quantiles.
@@ -33,6 +22,24 @@ The function plots decomposition terms for quantiles estimtated
 with \code{ob_deco} over the  unit interval.
 }
 \examples{
-# NOT YET PROVIDED
+data("nlys00")
+
+mod1 <- log(wage) ~ age + central_city + msa + region + black +
+  hispanic + education + afqt + family_responsibility + years_worked_civilian +
+  years_worked_military + part_time + industry
+
+deco_male_as_reference <- ob_deco(formula = mod1,
+                                  data = nlys00,
+                                  group = female,
+                                  reweighting = TRUE,
+                                  rifreg = TRUE,
+                                  bootstrap = TRUE,
+                                  bootstrap_iterations = 10,
+                                  reference_0 = FALSE)
+
+plot(deco_male_as_reference)
+
+plot(deco_male_as_reference,
+     confidence_bands = FALSE)
 
 }

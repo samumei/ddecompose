@@ -29,9 +29,9 @@ test_that("Plot function does not throw an error with ob_deco", {
                                     bootstrap_iterations = 10,
                                     reference_0 = FALSE)
 
-
-  plot(deco_male_as_reference)
-  # plot(deco_male_as_reference, confidence_bands = TRUE)
-
+  testthat::expect_error(plot(deco_male_as_reference,
+                              confidence_bands = FALSE), NA)
   testthat::expect_error(plot(deco_male_as_reference), NA)
 })
+
+

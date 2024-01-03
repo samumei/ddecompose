@@ -33,6 +33,12 @@ The function plots decomposition terms for quantiles estimtated
 with \code{dfl_deco} over the  unit interval.
 }
 \examples{
-# NOT YET PROVIDED
+data("men8305")
+flf_model <- log(wage) ~ union*(education + experience) + education*experience
+flf_male_inequality  <- dfl_deco(flf_model,
+                                 data = men8305,
+                                 weights = weights,
+                                 group = year)
+plot(flf_male_inequality)
 
 }
