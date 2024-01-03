@@ -1007,7 +1007,6 @@ fit_and_predict_probabilities <- function(formula,
     fitted_probabilities  <-  fastglm:::predict.fastglm(model_fit,
                                                        newdata = newdata_matrix,
                                                        type="response")
-    browser()
   }
 
 

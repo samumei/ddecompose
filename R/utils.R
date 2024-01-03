@@ -6,6 +6,7 @@
 #' @import Formula
 #' @import parallel
 #' @import sandwich
+#' @import fastglm
 NULL
 
 utils::globalVariables(c("Variable",

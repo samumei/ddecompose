@@ -26,7 +26,10 @@ Imports:
     pbapply,
     sandwich,
     stats, 
-    ranger
+    ranger,
+    fastglm
 Suggests: 
-    testthat (>= 3.0.0)  
+    testthat (>= 3.0.0),
+    tidyr, 
+    dplyr  
 Config/testthat/edition: 3
