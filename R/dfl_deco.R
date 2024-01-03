@@ -407,8 +407,8 @@ dfl_deco <-  function(formula,
     estimate_statistics <- FALSE
   }
 
-  if(method %in% c("logit", "random forests") == FALSE){
-    stop("Only 'logit' and 'random forests' are available methods to estimate reweighting factors")
+  if(method %in% c("logit", "fastglm", "random forests") == FALSE){
+    stop("Only 'logit', 'fastglm', and 'random forests' are available methods to estimate reweighting factors")
   }
 
   results <- dfl_deco_estimate(formula = formula,
@@ -973,8 +973,8 @@ dfl_deco_bootstrap <- function(formula,
 #' @param formula \code{formula} object specifying the conditional probability model.
 #' @param data_used \code{data.frame} with data.
 #' @param method method to estimate conditional probabilities
-#' @param  boolean: If \code{TRUE} (default), the object(s) of the model
-#' fit(s) used to predict the conditional probabilities for the reweighting factor(s)
+#' @param  boolean: If \code{TRUE} (default), the object of the model
+#' fit used to predict the conditional probabilities for the reweighting factor
 #' are returned.
 #' @param newdata \code{data.frame} with data to be used for predictions.
 #' @param ... other parameters passed to estimation function.
