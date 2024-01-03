@@ -532,8 +532,8 @@ dfl_deco <-  function(formula,
                                            )
       )
       bs_kolmogorov_smirnov_stat <- do.call("rbind",  bs_kolmogorov_smirnov_stat)
-      bs_kolmogorov_smirnov_stat$value_over_se <- bs_kolmogorov_smirnov_stat$value/bs_kolmogorov_smirnov_stat$se
-      bs_kolmogorov_smirnov_stat <- lapply(split(bs_kolmogorov_smirnov_stat, bs_kolmogorov_smirnov_stat[, c("effect","iteration")]),
+      bs_kolmogorov_smirnov_stat$value_over_se <- abs(bs_kolmogorov_smirnov_stat$value/bs_kolmogorov_smirnov_stat$se)
+      bs_kolmogorov_smirnov_stat <- lapply(split(bs_kolmogorov_smirnov_stat, bs_kolmogorov_smirnov_stat[, c("effect", "iteration")]),
                                            function(x) data.frame(effect=x$effect[1],
                                                                   iteration=x$iteration[1],
                                                                   kms_t_value = max(x$value_over_se)
