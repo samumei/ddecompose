@@ -15,11 +15,22 @@
 #' @export
 #'
 summary.dfl_deco <- function(x, confidence_level=0.95, digits=4, ...){
+
+  if(x$subtract_1_from_0 == FALSE){
   cat("Decomposition of difference between",
       paste0(x$group_variable_name, " == '",x$group_variable_levels[2],"'"),
       "(group 1) and\n",
       paste0(x$group_variable_name, " == '",x$group_variable_levels[1],"'"),
       "(group 0)\n\n")
+  }else{
+    cat("Decomposition of difference between",
+        paste0(x$group_variable_name, " == '",x$group_variable_levels[1],"'"),
+        "(group 0) and\n",
+        paste0(x$group_variable_name, " == '",x$group_variable_levels[2],"'"),
+        "(group 1)\n\n")
+  }
+
+  cat("Reweighted reference group:",  paste0(x$group_variable_name, " == '", x$reference_group,"' (group ", ifelse(x$group_variable_levels[1]==x$reference_group,0,1), ")"), "\n \n")
 
   if(length(x$covariates_labels) == 1){
     cat("Composition effect accounts for between-group differences\nin the distribution of the following covariates:\n\n")
@@ -193,7 +204,7 @@ summary.ob_deco <- function(x,
       decomposition_type <- "\n\nOaxaca-Blinder decomposition of mean difference\nbetween"
     }
     else{
-      decomposition_type <- "\n\nDobuly robust Oaxaca-Blinder decomposition of mean difference\nbetween"
+      decomposition_type <- "\n\n'Doubly robust' Oaxaca-Blinder decomposition of mean difference\nbetween"
     }
   }
   else {

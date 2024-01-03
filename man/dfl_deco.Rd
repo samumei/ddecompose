@@ -11,6 +11,7 @@ dfl_deco(
   group,
   na.action = na.exclude,
   reference_0 = TRUE,
+  subtract_1_from_0 = FALSE,
   right_to_left = TRUE,
   method = "logit",
   estimate_statistics = TRUE,
@@ -32,7 +33,7 @@ dfl_deco(
 \item{formula}{a \code{formula} object with an outcome variable Y on the left-hand side
 and the covariates X on the right-hand side. For sequential decompositions,
 the sequence of covariates X are distinguished by the \code{|} operator. Covariates
-are used to estimate conditional probabilities for the reweighting factors.}
+are used to estimate the conditional probabilities for the reweighting factors.}
 
 \item{data}{a \code{data.frame} containing all variables and observations of
 both groups.}
@@ -52,6 +53,11 @@ as group 0. Per default, group 0 is the reference group (see \code{reference_0})
 the group identified by the lower ranked value in \code{group} -- will be defined
 as reference group. The reference group will be reweighted to match the
 covariates distribution of the sample of the comparison group.}
+
+\item{subtract_1_from_0}{boolean: By default (`FALSE`), the distributional statistic
+of group 0 is subtracted from the one of group 1 to compute the overall difference.
+Setting `subtract_1_from_0` to `TRUE` merely changes the sign of the decomposition
+results.}
 
 \item{right_to_left}{determines the direction of a sequential decomposition.
 If \code{TRUE} (default), the sequential decomposition starts right and reweights

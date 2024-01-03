@@ -32,6 +32,10 @@
 #' the group identified by the lower ranked value in \code{group} -- will be defined
 #' as reference group. The reference group will be reweighted to match the
 #' covariates distribution of the sample of the comparison group.
+#' @param subtract_1_from_0 boolean: By default (`FALSE`), the distributional statistic
+#' of group 0 is subtracted from the one of group 1 to compute the overall difference.
+#' Setting `subtract_1_from_0` to `TRUE` merely changes the sign of the decomposition
+#' results.
 #' @param right_to_left determines the direction of a sequential decomposition.
 #' If \code{TRUE} (default), the sequential decomposition starts right and reweights
 #' first the reference group using only the variables entered last into the
@@ -210,8 +214,6 @@
 #' estimators based on the propensity score." \emph{Journal of Econometrics},
 #' 175(1), 1-21.
 #'
-#' @importMethodsFrom fastglm predict
-#' @importMethodsFrom ranger predict
 #' @export
 #'
 #' @examples
@@ -330,6 +332,7 @@ dfl_deco <-  function(formula,
                       group,
                       na.action = na.exclude,
                       reference_0 = TRUE,
+                      subtract_1_from_0 = FALSE,
                       right_to_left = TRUE,
                       method = "logit",
                       estimate_statistics = TRUE,
@@ -386,7 +389,6 @@ dfl_deco <-  function(formula,
   }
   reference_group <- ifelse(reference_0, 0, 1)
   reference_group_print <- levels(group_variable)[reference_group + 1]
-  cat("Reweighted reference group:",  paste0(group_variable_name, " == '", reference_group_print ,"'"), "\n \n")
 
   ## Check if statistics are implemented
   statistics_implemented <-  c("quantiles", "mean", "variance", "gini",
@@ -415,7 +417,7 @@ dfl_deco <-  function(formula,
                                weights = weights,
                                group_variable = group_variable,
                                reference_group = reference_group,
-                               method=method,
+                               method = method,
                                estimate_statistics = estimate_statistics,
                                statistics = statistics,
                                probs = probs,
@@ -609,10 +611,16 @@ dfl_deco <-  function(formula,
 
   }
 
+  if(subtract_1_from_0 & estimate_statistics){
+    if(!is.null(results$decomposition_quantiles)) results$decomposition_quantiles[,-1] <- results$decomposition_quantiles[,-1] * -1
+    if(!is.null(results$decomposition_other_statistics)) results$decomposition_other_statistics[,-1] <- results$decomposition_other_statistics[,-1] * -1
+  }
+
   add_to_results <- list(bootstrapped_standard_errors = bootstrap_se,
                          group_variable_name = group_variable_name,
                          group_variable_levels = levels(group_variable),
-                         reference_group = reference_group_print)
+                         reference_group = reference_group_print,
+                         subtract_1_from_0 = subtract_1_from_0)
   results <- c(results, add_to_results)
 
   class(results) <- "dfl_deco"
@@ -834,6 +842,7 @@ dfl_deco_estimate <- function(formula,
       colnames(Delta) <- c("Observed difference", "Structure effect", "Composition effect")
     }
 
+    Delta <- Delta[, match(c("Observed difference", "Composition effect", "Structure effect"), colnames(Delta))]
 
     # Detailed decomposition -----------------------------------------------------
     if(nvar>1){
@@ -936,7 +945,7 @@ dfl_deco_bootstrap <- function(formula,
                                  replace=TRUE,
                                  prob=weights/sum(weights,na.rm=TRUE))
 
-  deco_estimates <- dfl_deco_estimate(formula=formula,
+  deco_estimates <- dfl_deco_estimate(formula = formula,
                                       dep_var = dep_var[sampled_observations],
                                       data_used = data_used[sampled_observations,],
                                       weights = (weights[sampled_observations]/sum(weights[sampled_observations],na.rm=TRUE))*sum(weights,na.rm=TRUE),

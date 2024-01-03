@@ -29,7 +29,7 @@ based on the bootstrapped Kolmogrov-Smirnov statistic.}
 a ggplot illustrating the decomposition terms for quantiles.
 }
 \description{
-The function plots decomposition terms for quantiles estimtated
+The function plots decomposition terms for quantiles estimated
 with \code{dfl_deco} over the  unit interval.
 }
 \examples{

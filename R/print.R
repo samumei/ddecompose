@@ -8,11 +8,23 @@
 #' @export
 #'
 print.dfl_deco <- function(x, ...){
-  cat("Decomposition of difference between",
-      paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
-      "(group 1) and",
-      paste0(x$group_variable_name, " == '", x$group_variable_levels[1], "'"),
-      "(group 0)\n\n")
+
+  if(x$subtract_1_from_0 == FALSE){
+    cat("Decomposition of difference between",
+        paste0(x$group_variable_name, " == '",x$group_variable_levels[2],"'"),
+        "(group 1) and\n",
+        paste0(x$group_variable_name, " == '",x$group_variable_levels[1],"'"),
+        "(group 0)\n\n")
+  }else{
+    cat("Decomposition of difference between",
+        paste0(x$group_variable_name, " == '",x$group_variable_levels[1],"'"),
+        "(group 0) and\n",
+        paste0(x$group_variable_name, " == '",x$group_variable_levels[2],"'"),
+        "(group 1)\n\n")
+  }
+
+  cat("Reweighted reference group:",  paste0(x$group_variable_name, " == '", x$reference_group,"' (group ", ifelse(x$group_variable_levels[1]==x$reference_group,0,1), ")"), "\n \n")
+
   if(is.null(x$decomposition_quantiles)==FALSE){
     cat("Decomposition of difference at conditional quantiles:\n\n")
     print(x$decomposition_quantiles[, -1])
