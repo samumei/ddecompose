@@ -1,6 +1,6 @@
 #' Plot decomposition terms for quantiles
 #'
-#' The function plots decomposition terms for quantiles estimtated
+#' The function plots decomposition terms for quantiles estimated
 #' with \code{dfl_deco} over the  unit interval.
 #'
 #' @param x an object of class "dfl_deco", usually, a result of a call to [dfl_deco()] with code{statistics = "quantiles"}.
@@ -9,7 +9,6 @@
 #'              plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standard error.
 #' @param uniform_bands If `FALSE` (default), pointsise confidence bands are computed. Otherwise, uniform bands are constructed
 #'              based on the bootstrapped Kolmogrov-Smirnov statistic.
-#' @param ... other parameters to be passed through to plotting functions.
 #'
 #' @return a ggplot illustrating the decomposition terms for quantiles.
 #' @export
@@ -23,7 +22,11 @@
 #'                                  group = year)
 #' plot(flf_male_inequality)
 #'
-plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uniform_bands=FALSE, ...){
+plot.dfl_deco <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uniform_bands=FALSE){
+
+  if(is.null(x$decomposition_quantiles)){
+    stop("Difference must be decomposed at least at a single quantile.")
+  }
 
   decomposition_quantiles <-  stats::reshape(x$decomposition_quantiles,
                                                 idvar = c("probs"),
