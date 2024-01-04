@@ -1,6 +1,6 @@
 #' Oaxaca-Blinder decomposition
 #'
-#' @description \code{ob_deco} implements the Oaxaca-Blinder decomposition that
+#' @description \code{ob_decompose} implements the Oaxaca-Blinder decomposition that
 #' divides differences in the mean outcome between two groups into one part explained
 #' by different covariate means (composition effect) and into another part due to
 #' differences in linear regression coefficients linking covariates to the outcome
@@ -109,7 +109,7 @@
 #'
 #' @examples
 #'
-#' ## Oxaca-Blinder decomposition of gender wage gap
+#' ## Oaxaca-Blinder decomposition of gender wage gap
 #' ## with NLYS79 data like in Fortin, Lemieux, & Firpo (2011: 41)
 #'
 #' data("nlys00")
@@ -173,7 +173,7 @@
 #' summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
 #'
 #' # ... to analytical standard errors (assuming independence between groups and
-#' # homoskedasticity)
+#' # homoscedasticity)
 #' deco_female_as_reference <- ob_decompose(formula = mod1,
 #'                                     data = nlys00,
 #'                                     group = female,
@@ -184,7 +184,7 @@
 #' summary(deco_female_as_reference, aggregate_factors = FALSE)
 #'
 #'
-#' ## 'Doubly robust' Oxaca-Blinder decomposition of gender wage gap
+#' ## 'Doubly robust' Oaxaca-Blinder decomposition of gender wage gap
 #'  mod2 <- log(wage) ~ age + central_city + msa + region + black +
 #'   hispanic + education + afqt + family_responsibility + years_worked_civilian +
 #'   years_worked_military + part_time + industry | age  + (central_city + msa) * region + (black +
@@ -196,6 +196,13 @@
 #'                                          reference_0 = FALSE,
 #'                                          reweighting = TRUE)
 #'
+#' # ... using random forests instead of logit to estimate weights
+#' deco_male_as_reference_robust_rf <- ob_decompose(formula = mod1,
+#'                                          data = nlys00,
+#'                                          group = female,
+#'                                          reference_0 = FALSE,
+#'                                          reweighting = TRUE,
+#'                                          method = "random forests")
 #'
 ob_decompose <- function(formula,
                     data,
@@ -259,7 +266,7 @@ ob_decompose <- function(formula,
   nvar <- length(formula)[2] # Number of detailed decomposition effects
   if(nvar == 1) {
     if(reweighting) {
-      print("The same model specification is used for decomposition and to compute reweighting weights.")
+      cat("The same model specification is used for decomposition and to compute reweighting weights.")
     }
     formula_decomposition <- formula
     formula_reweighting <- formula

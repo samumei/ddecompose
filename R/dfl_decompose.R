@@ -1,6 +1,6 @@
 #' DFL reweighting decomposition
 #'
-#' @description \code{dfl_deco} decomposes between-group differences in distributional
+#' @description \code{dfl_decompose} divides between-group differences in distributional
 #' statistics of an outcome variable into a structure effect and a composition
 #' effect. Following DiNardo, Fortin, and Lemieux (1996), the procedure reweights
 #' the sample distribution of a reference group such that the group's covariates
@@ -510,7 +510,6 @@ dfl_decompose <-  function(formula,
                                              direction = "wide")
       names(bs_se_deco_quantiles) <- gsub("se[.]","",names( bs_se_deco_quantiles))
 
-
       bs_se_deco_quantiles <- bs_se_deco_quantiles[, names(results$decomposition_quantiles)]
 
       bs_kolmogorov_smirnov_stat  <-  stats::reshape(bootstrapped_quantiles,
@@ -532,7 +531,22 @@ dfl_decompose <-  function(formula,
                                            )
       )
       bs_kolmogorov_smirnov_stat <- do.call("rbind",  bs_kolmogorov_smirnov_stat)
-      bs_kolmogorov_smirnov_stat$value_over_se <- abs(bs_kolmogorov_smirnov_stat$value/bs_kolmogorov_smirnov_stat$se)
+
+      decomposition_quantiles_long  <-  stats::reshape(results$decomposition_quantiles,
+                                                       idvar = c("probs"),
+                                                       times = setdiff(names(results$decomposition_quantiles),c("probs")),
+                                                       timevar="effect",
+                                                       varying = list(setdiff(names(results$decomposition_quantiles),c("probs"))),
+                                                       direction = "long",
+                                                       v.names = "estimate")
+
+      select_rows <- match(paste0(bs_kolmogorov_smirnov_stat$probs, bs_kolmogorov_smirnov_stat$effect),
+                           paste0(decomposition_quantiles_long$probs, decomposition_quantiles_long$effect))
+
+      bs_kolmogorov_smirnov_stat <- cbind(bs_kolmogorov_smirnov_stat, decomposition_quantiles_long[select_rows, c("estimate")])
+      names(bs_kolmogorov_smirnov_stat)[ncol(bs_kolmogorov_smirnov_stat)] <- "estimate"
+
+      bs_kolmogorov_smirnov_stat$value_over_se <- abs(bs_kolmogorov_smirnov_stat$value - bs_kolmogorov_smirnov_stat$estimate)/bs_kolmogorov_smirnov_stat$se
       bs_kolmogorov_smirnov_stat <- lapply(split(bs_kolmogorov_smirnov_stat, bs_kolmogorov_smirnov_stat[, c("effect", "iteration")]),
                                            function(x) data.frame(effect=x$effect[1],
                                                                   iteration=x$iteration[1],
@@ -586,6 +600,7 @@ dfl_decompose <-  function(formula,
     bs_se_quantiles_reweighting_factor <- tidyr::pivot_longer(bootstrapped_quantiles_reweighting_factor,
                                                               col=names(bootstrapped_quantiles_reweighting_factor)[-1],
                                                               names_to="effect")
+
     bs_se_quantiles_reweighting_factor <- dplyr::summarise(dplyr::group_by(bs_se_quantiles_reweighting_factor,
                                                                            probs,
                                                                            effect),
