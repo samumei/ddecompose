@@ -89,6 +89,52 @@ get_distributional_statistics <- function(dep_var,
   return(results)
 }
 
+#' Get normalized differences
+#'
+#' The function calculates normalized differences between covariate means of comparison
+#' group and reweighted reference group.
+#'
+#' @param formula model formula used to calulate the conditional probabilities of the reweighting factor
+#' @param data_used \code{data.frame} with the observation for the estimation of the reweighting factor
+#' @param weights vector with observations weights
+#' @param psi vector with the estimated reweighting factor
+#' @param group_variable variable with group identifier
+#' @param reference_group identifier of (reweighted) reference group
+#'
+#' @references Imbens, Guido W. and Jeffrey M. Wooldridge. 2009. Recent developments in the econometrics of program evaluation. Journal of Economic Literature 47, no. 1: 5-86.
+#'
+get_normalized_difference <- function(formula,
+                                      data_used,
+                                      weights,
+                                      psi,
+                                      group_variable,
+                                      reference_group){
+
+    select_comparison <- which(group_variable != reference_group)
+    select_reference <- which(group_variable == reference_group)
+
+    mean_comparison <- apply(model.matrix(formula, data_used[select_comparison, ]), 2, function(x) weighted.mean(x = x, w = weights[select_comparison]))
+    mean_reference <- apply(model.matrix(formula, data_used[select_reference, ]), 2, function(x) weighted.mean(x = x, w = weights[select_reference] * psi[select_reference]))
+    sd_comparison <- apply(model.matrix(formula, data_used[select_comparison, ]), 2, function(x) sqrt(Hmisc::wtd.var(x = x, weights = weights[select_comparison])))
+    sd_reference <- apply(model.matrix(formula, data_used[select_reference, ]), 2, function(x) sqrt(Hmisc::wtd.var(x = x, weights = weights[select_reference] * psi[select_reference])))
+    normalized_difference <- (mean_comparison - mean_reference)/sqrt(sd_comparison^2 + sd_reference^2)
+
+    results <- as.data.frame(cbind(mean_comparison,
+                                   mean_reference,
+                                   sd_comparison,
+                                   sd_reference,
+                                   normalized_difference))[-1, ]
+
+    comparison_group <- setdiff(unique(group_variable), reference_group)
+    names(results) <- c(paste0("Mean ", comparison_group),
+                        paste0("Mean ", reference_group, " (reweighted)"),
+                        paste0("SD ", comparison_group),
+                        paste0("SD ", reference_group, " (reweighted)"),
+                        "Normalized  difference")
+    return(results)
+
+}
+
 #' Interquantile ratio
 #'
 #' @param dep_var numeric vector of outcome variable

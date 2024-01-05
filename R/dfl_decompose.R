@@ -71,6 +71,9 @@
 #' @param return_model boolean: If \code{TRUE} (default), the object(s) of the model
 #' fit(s) used to predict the conditional probabilities for the reweighting factor(s)
 #' are returned.
+#' @param estimate_normalized_difference boolean: If \code{TRUE} (default), the
+#' normalized differences between the covariate means of the comparison group and the
+#' reweighted reference group are calculated.
 #' @param bootstrap boolean: If \code{FALSE} (default), then the estimation is not boostrapped
 #' and no standard errors are calculated.
 #' @param bootstrap_iterations positive integer with default \code{100} indicating the
@@ -193,9 +196,10 @@
 #' statistics, respectively, a data.frame with the estimated reweighting factor
 #' for every observation, a data.frame with sample quantiles of the reweighting
 #' factors and a list with standard errors for the decomposition terms, the
-#' quantiles of the reweighting factor as well as the bootstrapped
+#' quantiles of the reweighting factor, the bootstrapped
 #' Kolmogorov-Smirnov distribution to construct uniform confidence bands for
-#' quantiles.
+#' quantiles, as well as a list with the normalized differences between the
+#' covariate means of the comparison group and the reweighted reference group.
 #'
 #' @references
 #' DiNardo, John, Nicole M. Fortin, and Thomas Lemieux. 1996. "Labor Market
@@ -363,6 +367,7 @@ dfl_decompose <-  function(formula,
                       trimming = FALSE,
                       trimming_threshold = NULL,
                       return_model = TRUE,
+                      estimate_normalized_difference = TRUE,
                       bootstrap = FALSE,
                       bootstrap_iterations = 100,
                       bootstrap_robust = FALSE,
@@ -452,6 +457,7 @@ dfl_decompose <-  function(formula,
                                trimming = trimming,
                                trimming_threshold = trimming_threshold,
                                return_model = return_model,
+                               estimate_normalized_difference = estimate_normalized_difference,
                                ...)
 
 
@@ -748,6 +754,7 @@ dfl_decompose_estimate <- function(formula,
                               trimming,
                               trimming_threshold,
                               return_model,
+                              estimate_normalized_difference,
                               ...){
 
   # Estimate probabilities -------------------------------------------------------
@@ -758,7 +765,7 @@ dfl_decompose_estimate <- function(formula,
 
   formula <- Formula::as.Formula(formula)
   nvar <- length(formula)[2] # Number of detailed decomposition effects
-  covariates_labels <- fitted_models <- vector("list", nvar)
+  covariates_labels <- fitted_models <- all_formulas <- vector("list", nvar)
 
   for(i in nvar:1){
     mod <- update(stats::formula(formula, rhs=nvar:i, collapse=TRUE), group_variable ~ .)
@@ -775,6 +782,8 @@ dfl_decompose_estimate <- function(formula,
 
     covariates_labels[[i]] <- attr(terms(mod), "term.labels")[which(attr(terms(mod), "order") == 1)]
     fitted_models[i] <- fitted_model[2]
+    all_formulas[[i]] <- mod
+
   }
 
   names(fitted_models) <- sapply(nvar:1, function(i) paste0("P(g=1|", paste0(paste0("X", nvar:i), collapse = ","), ")"))
@@ -860,8 +869,6 @@ dfl_decompose_estimate <- function(formula,
                                             function(i) paste0(paste0(paste0("X", i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))),
                                      names_decomposition_terms)
     }
-    #names_decomposition_terms <- 1:nvar
-
 
   }
 
@@ -1005,8 +1012,8 @@ dfl_decompose_estimate <- function(formula,
   # Compute sample quantiles of reweighting factors ----------------------------
   quantiles_reweighting_factor <- data.frame(probs=c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1))
   rownames(quantiles_reweighting_factor) <- c("Min.", "10%-quantile", "25%-quantile", "50%-quantile", "75%-quantile", "90%-quantile", "Max.")
-  factors_to_be_considered <- setdiff(1:nrow(psi), observations_to_be_trimmed)
-  factors_to_be_considered <- intersect(factors_to_be_considered,
+  factors_to_be_considered_all <- setdiff(1:nrow(psi), observations_to_be_trimmed)
+  factors_to_be_considered <- intersect(factors_to_be_considered_all,
                                         which(group_variable == levels(group_variable)[reference_group + 1]))
 
   for(i in 1:ncol(psi)){
@@ -1015,6 +1022,25 @@ dfl_decompose_estimate <- function(formula,
     names(quantiles_reweighting_factor)[i+1] <- names(psi)[i]
   }
 
+  # Calculate normalized difference between covariate means of comparison group
+  # and reweighted reference group ---------------------------------------------
+  if(estimate_normalized_difference){
+    normalized_difference <- list()
+    for(i in 1:length(all_formulas)){
+      j <- length(all_formulas) - i + 1
+      normalized_difference[[i]] <- get_normalized_difference(formula = all_formulas[[i]],
+                                                              data_used = data_used[factors_to_be_considered_all, ],
+                                                              weights = weights[factors_to_be_considered_all],
+                                                              psi = psi[factors_to_be_considered_all,  j],
+                                                              group_variable = group_variable[factors_to_be_considered_all],
+                                                              reference_group = levels(group_variable)[reference_group + 1])
+      names(normalized_difference)[i] <- names(psi)[j]
+    }
+  }else{
+    normalized_difference <- NULL
+  }
+
+
   # Export results
   results <- list(decomposition_quantiles = decomposition_quantiles,
                   decomposition_other_statistics = decomposition_other_statistics,
@@ -1022,7 +1048,9 @@ dfl_decompose_estimate <- function(formula,
                   quantiles_reweighting_factor = quantiles_reweighting_factor,
                   trimmed_observations = observations_to_be_trimmed,
                   covariates_labels = covariates_labels,
-                  fitted_models = fitted_models)
+                  fitted_models = fitted_models,
+                  normalized_difference = normalized_difference)
+
   return(results)
 }
 
@@ -1067,6 +1095,7 @@ dfl_decompose_bootstrap <- function(formula,
                                       right_to_left = right_to_left,
                                       trimming = trimming,
                                       trimming_threshold = trimming_threshold,
+                                      estimate_normalized_difference = FALSE,
                                       ...)
 
   deco_estimates$reweighting_factor <- NULL

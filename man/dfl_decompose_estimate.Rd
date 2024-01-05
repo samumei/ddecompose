@@ -20,6 +20,7 @@ dfl_decompose_estimate(
   trimming,
   trimming_threshold,
   return_model,
+  estimate_normalized_difference,
   ...
 )
 }

@@ -22,6 +22,7 @@ dfl_decompose(
   trimming = FALSE,
   trimming_threshold = NULL,
   return_model = TRUE,
+  estimate_normalized_difference = TRUE,
   bootstrap = FALSE,
   bootstrap_iterations = 100,
   bootstrap_robust = FALSE,
@@ -103,6 +104,10 @@ where \eqn{N} is the number of observations in the reference group.}
 fit(s) used to predict the conditional probabilities for the reweighting factor(s)
 are returned.}
 
+\item{estimate_normalized_difference}{boolean: If \code{TRUE} (default), the
+normalized differences between the covariate means of the comparison group and the
+reweighted reference group are calculated.}
+
 \item{bootstrap}{boolean: If \code{FALSE} (default), then the estimation is not boostrapped
 and no standard errors are calculated.}
 
@@ -125,9 +130,10 @@ decomposition results for the quantiles and for the other distributional
 statistics, respectively, a data.frame with the estimated reweighting factor
 for every observation, a data.frame with sample quantiles of the reweighting
 factors and a list with standard errors for the decomposition terms, the
-quantiles of the reweighting factor as well as the bootstrapped
+quantiles of the reweighting factor, the bootstrapped
 Kolmogorov-Smirnov distribution to construct uniform confidence bands for
-quantiles.
+quantiles, as well as a list with the normalized differences between the
+covariate means of the comparison group and the reweighted reference group.
 }
 \description{
 \code{dfl_decompose} divides between-group differences in distributional
