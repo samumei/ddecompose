@@ -85,7 +85,10 @@ in \code{formula}).}
 \item{probs}{a vector of length 1 or more with the probabilities of the quantiles
 to be estimated with default \code{c(1:9)/10}.}
 
-\item{custom_statistic_function}{a custom statistic function to pass as argument.}
+\item{custom_statistic_function}{a function estimating a custom distributional statistic
+that will be decomposed (\code{NULL} by default). Every custom_statistic_function needs the parameters
+\code{dep_var} (vector of the outcome variable) and \code{weights} (vector with observation weights);
+additional arguments are not allowed or need to be 'hardcoded'. See \code{examples} for further details.}
 
 \item{trimming}{boolean: If \code{TRUE}, observations with dominant reweighting factor
 values are trimmed according to rule of Huber, Lechner, and Wunsch (2013). Per
@@ -127,7 +130,7 @@ Kolmogorov-Smirnov distribution to construct uniform confidence bands for
 quantiles.
 }
 \description{
-\code{dfl_deco} decomposes between-group differences in distributional
+\code{dfl_decompose} divides between-group differences in distributional
 statistics of an outcome variable into a structure effect and a composition
 effect. Following DiNardo, Fortin, and Lemieux (1996), the procedure reweights
 the sample distribution of a reference group such that the group's covariates
@@ -355,6 +358,25 @@ deco_results_trimmed <- dfl_decompose(y ~ d,
 
 identical(deco_results_trimmed$trimmed_observations,
           which(data_weak_common_support$d == "A"))
+
+
+## Pass a custom statstic function
+## e.g., decompose share of top 10\%
+
+top_share <- function(dep_var,
+                      weights,
+                      top_percent = 0.1){
+  threshold <- Hmisc::wtd.quantile(dep_var, weights = weights, probs = 1-top_percent)
+  share <- sum(weights[which(dep_var > threshold)] * dep_var[which(dep_var > threshold)])/sum(weights * dep_var)
+  return(share)
+}
+
+flf_male_inequality_custom_stat  <- dfl_decompose(flf_model,
+                                                  data = men8305,
+                                                  weights = weights,
+                                                  group = year,
+                                                  custom_statistic_function = top_share)
+summary(flf_male_inequality_custom_stat)
 
 }
 \references{

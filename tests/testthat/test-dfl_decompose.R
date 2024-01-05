@@ -30,6 +30,9 @@
 
 
 
+
+
+
 test_that("dfl_decompose() does not throw an error", {
   set.seed(89342395)
 
@@ -316,6 +319,51 @@ test_that("dfl_decompose() trimms estimated factors as expected", {
                          expected_trimmed_observations)
 
 })
+
+
+test_that("get_distributional_statistics() does not throw an error with custom_statistic_function", {
+
+  data_sample <- men8305
+  formula <- Formula::as.Formula(log(wage) ~ union*(education + experience) + education*experience)
+  data_used <- model.frame(formula, data_sample, weights = weights, group = year)
+  dep_var <- model.response(data_used, "numeric")
+
+  weights <- model.weights(data_used)
+  group_variable_name <- "year"
+  group_variable <- data_used[, ncol(data_used)]
+  names(data_used)[ncol(data_used)] <- "group_variable"
+
+  reference_0 <- TRUE
+  reference_group <- ifelse(reference_0, 0, 1)
+
+  statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")
+  probs = c(1:9)/10
+  log_transformed = TRUE
+
+  top_share <- function(dep_var,
+                        weights,
+                        top_percent){
+    threshold <- Hmisc::wtd.quantile(dep_var, weights = weights, probs = 1-top_percent)
+    share <- sum(weights[which(dep_var > threshold)] * dep_var[which(dep_var > threshold)])/sum(weights * dep_var)
+    return(share)
+  }
+
+  direct_estimation <- top_share(dep_var[which(group_variable == "2003-2005")], weights[which(group_variable == "2003-2005")], 0.1)
+
+  nu1 <- get_distributional_statistics(dep_var = dep_var,
+                                       weights = weights,
+                                       group_variable = group_variable,
+                                       group = 1,
+                                       statistics = statistics,
+                                       custom_statistic_function = top_share,
+                                       probs = probs,
+                                       log_transformed = log_transformed,
+                                       top_percent = 0.1)
+
+  testthat::expect_equal(direct_estimation, as.numeric(nu1[length(nu1)]), tolerance = 0.000001)
+
+})
+
 
 
 

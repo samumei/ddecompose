@@ -10,9 +10,27 @@ get_distributional_statistics(
   group_variable,
   group,
   statistics,
+  custom_statistic_function = NULL,
   probs = 1:9/10,
   log_transformed
 )
+}
+\arguments{
+\item{dep_var}{vector of outcome variable}
+
+\item{weights}{vector of observations weights}
+
+\item{group_variable}{vector of group assignment}
+
+\item{group}{identifier of group for which distributional statistics are calculated}
+
+\item{statistics}{vector of statistics to be calculated}
+
+\item{custom_statistic_function}{a custom statistic function to be evaluated}
+
+\item{probs}{probabilities of quantiles to be calculated}
+
+\item{log_transformed}{indicator if outcome variable is log transformed}
 }
 \description{
 Estimate weighted distributional statistics for the reference or

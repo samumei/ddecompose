@@ -3,11 +3,21 @@
 #' Estimate weighted distributional statistics for the reference or
 #' the counterfactual group.
 #'
+#' @param dep_var vector of outcome variable
+#' @param weights vector of observations weights
+#' @param group_variable vector of group assignment
+#' @param group identifier of group for which distributional statistics are calculated
+#' @param statistics vector of statistics to be calculated
+#' @param custom_statistic_function a custom statistic function to be evaluated
+#' @param probs probabilities of quantiles to be calculated
+#' @param log_transformed indicator if outcome variable is log transformed
+#'
 get_distributional_statistics <- function(dep_var,
                                           weights,
                                           group_variable,
                                           group,
                                           statistics,
+                                          custom_statistic_function = NULL,
                                           probs=1:9/10,
                                           log_transformed){
 
@@ -69,6 +79,11 @@ get_distributional_statistics <- function(dep_var,
   if("iq_ratio_p90_p10" %in% statistics){
     results  <- c(results, estimate_iq_ratio(dep_var=dep_var, weights=weights, probs=c(0.5,0.1)))
     names(results)[length(results)] <- "Interquantile ratio p50/p10"
+  }
+
+  if(is.null(custom_statistic_function) == FALSE){
+    results  <- c(results, custom_statistic_function(dep_var = dep_var, weights = weights))
+    names(results)[length(results)] <- "Custom statistic"
   }
 
   return(results)

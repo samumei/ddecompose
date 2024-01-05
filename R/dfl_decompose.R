@@ -57,7 +57,10 @@
 #' in \code{formula}).
 #' @param probs a vector of length 1 or more with the probabilities of the quantiles
 #' to be estimated with default \code{c(1:9)/10}.
-#' @param custom_statistic_function a custom statistic function to pass as argument.
+#' @param custom_statistic_function a function estimating a custom distributional statistic
+#' that will be decomposed (\code{NULL} by default). Every custom_statistic_function needs the parameters
+#' \code{dep_var} (vector of the outcome variable) and \code{weights} (vector with observation weights);
+#' additional arguments are not allowed or need to be 'hardcoded'. See \code{examples} for further details.
 #' @param trimming boolean: If \code{TRUE}, observations with dominant reweighting factor
 #' values are trimmed according to rule of Huber, Lechner, and Wunsch (2013). Per
 #' default, trimming is set to \code{FALSE}.
@@ -326,6 +329,25 @@
 #' identical(deco_results_trimmed$trimmed_observations,
 #'           which(data_weak_common_support$d == "A"))
 #'
+#'
+#' ## Pass a custom statstic function
+#' ## e.g., decompose share of top 10%
+#'
+#' top_share <- function(dep_var,
+#'                       weights,
+#'                       top_percent = 0.1){
+#'   threshold <- Hmisc::wtd.quantile(dep_var, weights = weights, probs = 1-top_percent)
+#'   share <- sum(weights[which(dep_var > threshold)] * dep_var[which(dep_var > threshold)])/sum(weights * dep_var)
+#'   return(share)
+#' }
+#'
+#' flf_male_inequality_custom_stat  <- dfl_decompose(flf_model,
+#'                                                   data = men8305,
+#'                                                   weights = weights,
+#'                                                   group = year,
+#'                                                   custom_statistic_function = top_share)
+#' summary(flf_male_inequality_custom_stat)
+#'
 dfl_decompose <-  function(formula,
                       data,
                       weights,
@@ -403,6 +425,11 @@ dfl_decompose <-  function(formula,
   if("quantiles" %in% statistics & length(probs)==0){
     probs <- seq(5,95,5)/100
   }
+  if(!is.null(custom_statistic_function)){
+    if("dep_var" %in% formalArgs(custom_statistic_function) == FALSE | "weights" %in% formalArgs(custom_statistic_function) == FALSE){
+      stop("The arguments 'dep_var' and 'weights' in 'custom_statistic_function' must be defined!")
+    }
+  }
   if(length(statistics)==0){
     estimate_statistics <- FALSE
   }
@@ -411,7 +438,7 @@ dfl_decompose <-  function(formula,
     stop("Only 'logit', 'fastglm', and 'random forests' are available methods to estimate reweighting factors")
   }
 
-  results <- dfl_deco_estimate(formula = formula,
+  results <- dfl_decompose_estimate(formula = formula,
                                dep_var = dep_var,
                                data_used = data_used ,
                                weights = weights,
@@ -421,6 +448,7 @@ dfl_decompose <-  function(formula,
                                estimate_statistics = estimate_statistics,
                                statistics = statistics,
                                probs = probs,
+                               custom_statistic_function =  custom_statistic_function,
                                right_to_left = right_to_left,
                                trimming = trimming,
                                trimming_threshold = trimming_threshold,
@@ -432,7 +460,7 @@ dfl_decompose <-  function(formula,
     cat("Bootstrapping standard errors...\n")
     if(cores == 1) {
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
-                                               function(x) dfl_deco_bootstrap(formula = formula,
+                                               function(x) dfl_decompose_bootstrap(formula = formula,
                                                                               dep_var = dep_var,
                                                                               data_used = data_used,
                                                                               weights = weights,
@@ -442,6 +470,7 @@ dfl_decompose <-  function(formula,
                                                                               estimate_statistics = estimate_statistics,
                                                                               statistics = statistics,
                                                                               probs = probs,
+                                                                              custom_statistic_function = custom_statistic_function,
                                                                               right_to_left = right_to_left,
                                                                               trimming = trimming,
                                                                               trimming_threshold = trimming_threshold,
@@ -455,8 +484,8 @@ dfl_decompose <-  function(formula,
                               varlist = ls(),
                               envir = environment())
       parallel::clusterExport(cl = cluster,
-                              c("dfl_deco_bootstrap",
-                                "dfl_deco_estimate",
+                              c("dfl_decompose_bootstrap",
+                                "dfl_decompose_estimate",
                                 "fit_and_predict_probabilities",
                                 "select_observations_to_be_trimmed",
                                 "get_distributional_statistics",
@@ -464,7 +493,7 @@ dfl_decompose <-  function(formula,
                                 "estimate_iq_ratio"
                               ))
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
-                                               function(x) dfl_deco_bootstrap(formula = formula,
+                                               function(x) dfl_decompose_bootstrap(formula = formula,
                                                                               dep_var = dep_var,
                                                                               data_used = data_used,
                                                                               weights = weights,
@@ -474,6 +503,7 @@ dfl_decompose <-  function(formula,
                                                                               estimate_statistics = estimate_statistics,
                                                                               statistics = statistics,
                                                                               probs = probs,
+                                                                              custom_statistic_function = custom_statistic_function,
                                                                               right_to_left = right_to_left,
                                                                               trimming = trimming,
                                                                               trimming_threshold = trimming_threshold,
@@ -644,9 +674,9 @@ dfl_decompose <-  function(formula,
 }
 
 
-#' Estimate DFL reweighting decomposition
+#' Estimate the DFL reweighting decomposition
 #'
-#' This function performs the actual DFL decomposition. It derives the
+#' This function performs the DFL decomposition. It derives the
 #' reweighting factors, estimates the distributional statistics and
 #' calculates the decomposition terms.
 #'
@@ -654,7 +684,7 @@ dfl_decompose <-  function(formula,
 #' @param dep_var dependent variable
 #' @param data_used \code{data.frame} with data used for estimation
 #' @param weights weights variable
-#' @param group_variable group variable<
+#' @param group_variable group variable
 #' @param reference_group reference_group to be reweighted
 #' @param method method used to estimate conditional probabilities
 #' @param right_to_left determines the direction of a sequential decomposition.
@@ -663,6 +693,10 @@ dfl_decompose <-  function(formula,
 #' the function only returns the fitted inverse propensity weights.
 #' @param statistics a character vector that defines the distributional statistics
 #' for which the decomposition is performed.
+#' @param probs a vector of length 1 or more with the probabilities of the quantiles
+#' to be estimated.
+#' @param custom_statistic_function a function estimating a custom distributional statistic
+#' that will be decomposed.
 #' @param trimming boolean: If \code{TRUE}, observations with dominant reweighting factor
 #' values are trimmed according to rule of Huber, Lechner, and Wunsch (2013).
 #' @param trimming_threshold numeric: threshold defining the maximal accepted
@@ -675,8 +709,7 @@ dfl_decompose <-  function(formula,
 #' @param ... other parameters passed to the function estimating the conditional probabilities.
 #'
 #'
-#'
-dfl_deco_estimate <- function(formula,
+dfl_decompose_estimate <- function(formula,
                               dep_var,
                               data_used ,
                               weights,
@@ -686,6 +719,7 @@ dfl_deco_estimate <- function(formula,
                               estimate_statistics,
                               statistics,
                               probs,
+                              custom_statistic_function,
                               right_to_left,
                               trimming,
                               trimming_threshold,
@@ -839,19 +873,21 @@ dfl_deco_estimate <- function(formula,
   if(estimate_statistics){
 
     log_transformed <- grepl(pattern = "log[(]", strsplit(as.character(formula), split="~")[[2]])
-    nu1 <- get_distributional_statistics(dep_var,
-                                         weights,
-                                         group_variable,
+    nu1 <- get_distributional_statistics(dep_var = dep_var,
+                                         weights = weights,
+                                         group_variable = group_variable,
                                          group = 1,
                                          statistics = statistics,
+                                         custom_statistic_function = custom_statistic_function,
                                          probs = probs,
                                          log_transformed = log_transformed)
 
-    nu0 <- get_distributional_statistics(dep_var,
-                                         weights,
-                                         group_variable,
+    nu0 <- get_distributional_statistics(dep_var = dep_var,
+                                         weights = weights,
+                                         group_variable = group_variable,
                                          group = 0,
                                          statistics = statistics,
+                                         custom_statistic_function = custom_statistic_function,
                                          probs = probs,
                                          log_transformed = log_transformed)
 
@@ -861,13 +897,14 @@ dfl_deco_estimate <- function(formula,
 
     for(i in 1:nvar){
       nuC <- cbind(nuC,
-                   get_distributional_statistics(dep_var,
-                                                 weights*psi[,i],
-                                                 group_variable,
-                                                 group=reference_group,
-                                                 statistics=statistics,
-                                                 probs=probs,
-                                                 log_transformed=log_transformed))
+                   get_distributional_statistics(dep_var = dep_var,
+                                                 weights = weights*psi[,i],
+                                                 group_variable = group_variable,
+                                                 group = reference_group,
+                                                 statistics = statistics,
+                                                 custom_statistic_function = custom_statistic_function,
+                                                 probs = probs,
+                                                 log_transformed = log_transformed))
     }
     nuC <- as.matrix(nuC)
 
@@ -966,8 +1003,14 @@ dfl_deco_estimate <- function(formula,
 }
 
 
-#' Bootstrap function
-dfl_deco_bootstrap <- function(formula,
+#' Bootstrapping the DFL reweighting decomposition
+#'
+#' The function resamples observations and restimates the DFL decomposition
+#' with the new sample.
+#'
+#' @inheritParams dfl_decompose_estimate
+#'
+dfl_decompose_bootstrap <- function(formula,
                                dep_var,
                                data_used ,
                                weights,
@@ -976,6 +1019,7 @@ dfl_deco_bootstrap <- function(formula,
                                estimate_statistics,
                                statistics,
                                probs,
+                               custom_statistic_function,
                                right_to_left,
                                trimming,
                                trimming_threshold,
@@ -986,7 +1030,7 @@ dfl_deco_bootstrap <- function(formula,
                                  replace=TRUE,
                                  prob=weights/sum(weights,na.rm=TRUE))
 
-  deco_estimates <- dfl_deco_estimate(formula = formula,
+  deco_estimates <- dfl_decompose_estimate(formula = formula,
                                       dep_var = dep_var[sampled_observations],
                                       data_used = data_used[sampled_observations,],
                                       weights = (weights[sampled_observations]/sum(weights[sampled_observations],na.rm=TRUE))*sum(weights,na.rm=TRUE),
@@ -995,6 +1039,7 @@ dfl_deco_bootstrap <- function(formula,
                                       estimate_statistics=estimate_statistics,
                                       statistics = statistics,
                                       probs = probs,
+                                      custom_statistic_function = custom_statistic_function,
                                       right_to_left = right_to_left,
                                       trimming = trimming,
                                       trimming_threshold = trimming_threshold,
@@ -1018,7 +1063,7 @@ dfl_deco_bootstrap <- function(formula,
 #' fit used to predict the conditional probabilities for the reweighting factor
 #' are returned.
 #' @param newdata \code{data.frame} with data to be used for predictions.
-#' @param ... other parameters passed to estimation function.
+#' @param ... other parameters passed to the estimation function.
 #'
 fit_and_predict_probabilities <- function(formula,
                                           data_used,
