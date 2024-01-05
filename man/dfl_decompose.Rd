@@ -360,8 +360,7 @@ identical(deco_results_trimmed$trimmed_observations,
           which(data_weak_common_support$d == "A"))
 
 
-## Pass a custom statstic function
-## e.g., decompose share of top 10\%
+## Pass a custom statistic function to decompose income share of top 10\%
 
 top_share <- function(dep_var,
                       weights,

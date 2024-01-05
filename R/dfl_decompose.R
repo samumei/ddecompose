@@ -626,24 +626,50 @@ dfl_decompose <-  function(formula,
     }
 
     bootstrapped_quantiles_reweighting_factor <- as.data.frame(do.call("rbind", lapply(bootstrap_estimates, function(x) x[["quantiles_reweighting_factor"]])))
-    bs_se_quantiles_reweighting_factor <- tidyr::pivot_longer(bootstrapped_quantiles_reweighting_factor,
-                                                              col=names(bootstrapped_quantiles_reweighting_factor)[-1],
-                                                              names_to="effect")
 
-    bs_se_quantiles_reweighting_factor <- dplyr::summarise(dplyr::group_by(bs_se_quantiles_reweighting_factor,
-                                                                           probs,
-                                                                           effect),
-                                                           se=ifelse(bootstrap_robust,
-                                                                     (quantile(value, 0.75) - quantile(value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
-                                                                     sqrt(var(value))),
-                                                           .groups = "keep")
-    bs_se_quantiles_reweighting_factor <- tidyr::pivot_wider(bs_se_quantiles_reweighting_factor,
-                                                             id_cols = "probs",
-                                                             names_from = "effect",
-                                                             values_from = "se")
+    bootstrapped_quantiles_reweighting_factor$iteration <- rep(1:(nrow(bootstrapped_quantiles_reweighting_factor)/length(unique(bootstrapped_quantiles_reweighting_factor$probs))), each = length(unique(bootstrapped_quantiles_reweighting_factor$probs)))
+    bs_se_quantiles_reweighting_factor <- stats::reshape(bootstrapped_quantiles_reweighting_factor,
+                                                  idvar = c("probs","iteration"),
+                                                  ids=1:nrow(bootstrapped_quantiles_reweighting_factor),
+                                                  times = setdiff(names(bootstrapped_quantiles_reweighting_factor),c("probs", "iteration")),
+                                                  timevar= "effect",
+                                                  varying = list(setdiff(names(bootstrapped_quantiles_reweighting_factor), c("probs","iteration"))),
+                                                  direction = "long",
+                                                  v.names = "value")
+    bs_se_quantiles_reweighting_factor <- lapply(split(bs_se_quantiles_reweighting_factor, bs_se_quantiles_reweighting_factor[,c("probs","effect")]),
+                                          function(x) data.frame(probs=x$probs[1],
+                                                                 effect=x$effect[1],
+                                                                 se=ifelse(bootstrap_robust,
+                                                                           (quantile(x$value, 0.75) - quantile(x$value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
+                                                                           sqrt(var(x$value))))
+    )
+    bs_se_quantiles_reweighting_factor <- do.call("rbind", bs_se_quantiles_reweighting_factor)
+    bs_se_quantiles_reweighting_factor <- stats::reshape(bs_se_quantiles_reweighting_factor,
+                                                  idvar = c("probs"),
+                                                  timevar="effect",
+                                                  direction = "wide")
+    names(bs_se_quantiles_reweighting_factor) <- gsub("se[.]","",names(bs_se_quantiles_reweighting_factor))
+
+    # bs_se_quantiles_reweighting_factor <- tidyr::pivot_longer(bootstrapped_quantiles_reweighting_factor,
+    #                                                           col=names(bootstrapped_quantiles_reweighting_factor)[-1],
+    #                                                           names_to="effect")
+    #
+    # bs_se_quantiles_reweighting_factor <- dplyr::summarise(dplyr::group_by(bs_se_quantiles_reweighting_factor,
+    #                                                                        probs,
+    #                                                                        effect),
+    #                                                        se=ifelse(bootstrap_robust,
+    #                                                                  (quantile(value, 0.75) - quantile(value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
+    #                                                                  sqrt(var(value))),
+    #                                                        .groups = "keep")
+    # bs_se_quantiles_reweighting_factor <- tidyr::pivot_wider(bs_se_quantiles_reweighting_factor,
+    #                                                          id_cols = "probs",
+    #                                                          names_from = "effect",
+    #                                                          values_from = "se")
+
     bs_se_quantiles_reweighting_factor <- as.data.frame(bs_se_quantiles_reweighting_factor[, names(results$quantiles_reweighting_factor)])
     bs_se_quantiles_reweighting_factor[which(bs_se_quantiles_reweighting_factor$probs %in% c(0,1)),
                                        2:ncol(bs_se_quantiles_reweighting_factor)] <- NA
+    rownames(bs_se_quantiles_reweighting_factor) <- rownames(results$quantiles_reweighting_factor)
 
     bootstrap_se <- list(decomposition_quantiles=bs_se_deco_quantiles,
                          decomposition_other_statistics=bs_se_deco_other_statistics,
@@ -706,7 +732,6 @@ dfl_decompose <-  function(formula,
 #' fit(s) used to predict the conditional probabilities for the reweighting factor(s)
 #' are returned.
 #' @param ... other parameters passed to the function estimating the conditional probabilities.
-#'
 #'
 dfl_decompose_estimate <- function(formula,
                               dep_var,

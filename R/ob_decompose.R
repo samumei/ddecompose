@@ -456,7 +456,7 @@ ob_decompose <- function(formula,
 
 
   if(reweighting) {
-    reweighting_estimates <- dfl_deco_results[c(3, 5:12)]
+    reweighting_estimates <- dfl_deco_results[-c(1:2)]
   }
   else {
     reweighting_estimates <- NA

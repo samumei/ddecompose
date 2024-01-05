@@ -2,10 +2,27 @@
 % Please edit documentation in R/ob_decompose.R
 \name{ob_deco_calculate_terms}
 \alias{ob_deco_calculate_terms}
-\title{Calculate decomposition terms based on model.matrix and estimated OLS coefficients}
+\title{Calculate OB decomposition terms}
 \usage{
 ob_deco_calculate_terms(beta0, beta1, X0, X1, weights0, weights1, reference_0)
 }
+\arguments{
+\item{beta0}{vector of estimated coefficients of group 0}
+
+\item{beta1}{vector of estimated coefficients of group 1}
+
+\item{X0}{\code{model.matrix} of group 0}
+
+\item{X1}{\code{model.matrix} of group 1}
+
+\item{weights0}{vector of observation weights of group 0}
+
+\item{weights1}{vector of observation weights of group 1}
+
+\item{reference_0}{boolean: indicating if group 0 is the reference group and if its coefficients are used to compute the counterfactual mean.}
+}
 \description{
-Calculate decomposition terms based on model.matrix and estimated OLS coefficients
+The function calculates the decomposition terms of the linear
+Oaxaca-Blinder decomposition based on the estimated OLS
+coefficients and the respective \code{model.matrix}.
 }

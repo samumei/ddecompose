@@ -54,7 +54,7 @@ If no weights are used, make sure you do not define this parameter (e.g. with \c
 
 \item{rifreg_statistic}{string containing the distributional statistic for which to compute the RIF.
        If `NULL` (default), no RIF regression decomposition is computed.
-       If an available statistic is selected, `ob_deco` estimates a RIF regression decomposition.
+       If an available statistic is selected, `ob_decompose` estimates a RIF regression decomposition.
        The `rifreg_statistic` can be one of
 "quantiles", "mean", "variance", "gini", "interquantile_range", "interquantile_ratio", or "custom".
  If "custom" is selected, a \code{custom_rif_function} needs to be provided.}

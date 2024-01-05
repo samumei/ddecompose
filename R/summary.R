@@ -132,7 +132,7 @@ summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
     quantiles_reweighting_factor <- as.data.frame(x$quantiles_reweighting_factor[,-1])
     names(quantiles_reweighting_factor) <- names(x$quantiles_reweighting_factor)[-1]
     rownames(quantiles_reweighting_factor ) <- rownames(x$quantiles_reweighting_factor)
-    print(quantiles_reweighting_factor)
+    print(quantiles_reweighting_factor, digits = digits)
     cat("\n")
   }
 }
@@ -264,7 +264,7 @@ summary.ob_decompose <- function(x,
         paste0("(",length(x[[1]]$model_fits$fit_group_0$residuals)," observations)"),
         "\nGroup 1:", paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
         paste0("(",length(x[[1]]$model_fits$fit_group_1$residuals)," observations)"),
-        "\nGroup C: The reweighted group C is group", paste0("'",x$reference_group,"'"), "(reference group) reweighted
+        "\nGroup C:", paste0(x$group_variable_name, " == '",x$reference_group,"'"), "(reference group) reweighted
          to match the characteristics of the other group", paste0("(",length(x[[1]]$model_fits$fit_group_reweighted$residuals)," observations).\n\n"))
 
     if(x$input_parameters$reference_0) {
@@ -427,6 +427,20 @@ summary.ob_decompose <- function(x,
       cat("Reweighting error:\n\n")
       print(detailed_decomposition_rw_error, ...)
       cat("\n")
+
+      cat("Summary statistics of reweighting factors\n\n")
+      cat(paste0("Number of trimmed observations (not included in statistics): ",
+                 length(x$reweighting_estimates$trimmed_observations),
+                 " (",
+                 round(length(x$reweighting_estimates$trimmed_observations)/nrow(x$reweighting_estimates$reweighting_factor)*100, 1),
+                 "%)\n\n"))
+
+        quantiles_reweighting_factor <- as.data.frame(x$reweighting_estimates$quantiles_reweighting_factor[,-1])
+        names(quantiles_reweighting_factor) <- names(x$reweighting_estimates$quantiles_reweighting_factor)[-1]
+        rownames(quantiles_reweighting_factor) <- rownames(x$reweighting_estimates$quantiles_reweighting_factor)
+        print(quantiles_reweighting_factor)
+        cat("\n")
+
     }
   }
 }
