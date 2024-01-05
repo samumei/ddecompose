@@ -3,13 +3,13 @@ test_that("Plot function does not throw an error with dfl_decompose", {
 
   model_sequential <- log(wage) ~ union + experience + education | experience + education | education
 
-  deco_results  <- dfl_decompose(model_sequential,
+  decompose_results  <- dfl_decompose(model_sequential,
                             data = men8305[1:1000, ],
                             weights = weights,
                             group = year)
 
-  plot(deco_results)
-  testthat::expect_error(plot(deco_results), NA)
+  plot(decompose_results)
+  testthat::expect_error(plot(decompose_results), NA)
 })
 
 test_that("Plot function does not throw an error with ob_decompose", {
@@ -20,7 +20,7 @@ test_that("Plot function does not throw an error with ob_decompose", {
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_male_as_reference <- ob_decompose(formula = mod1,
+  decompose_male_as_reference <- ob_decompose(formula = mod1,
                                     data = nlys00,
                                     group = female,
                                     reweighting = TRUE,
@@ -30,9 +30,9 @@ test_that("Plot function does not throw an error with ob_decompose", {
                                     bootstrap_iterations = 10,
                                     reference_0 = FALSE)
 
-  testthat::expect_error(plot(deco_male_as_reference,
+  testthat::expect_error(plot(decompose_male_as_reference,
                               confidence_bands = FALSE), NA)
-  testthat::expect_error(plot(deco_male_as_reference), NA)
+  testthat::expect_error(plot(decompose_male_as_reference), NA)
 })
 
 

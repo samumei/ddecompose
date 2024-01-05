@@ -37,11 +37,11 @@ their covariance matrix based on detailed decomposition results.
 # library("AER")
 # data("CPS1985")
 # mod2 <- log(wage) ~ education + experience + union + ethnicity
-# deco_results <- ob_decompose(formula = mod2, data = CPS1985, group = gender)
+# decompose_results <- ob_decompose(formula = mod2, data = CPS1985, group = gender)
 #
 # custom_aggregation <- list(human_capital = c("education", "experience"),
 #                            union = "unionyes")
-# aggregated_results <- aggregate_terms(deco_results2,
+# aggregated_results <- aggregate_terms(decompose_results2,
 #                                       custom_aggregation = custom_aggregation)
 
 }

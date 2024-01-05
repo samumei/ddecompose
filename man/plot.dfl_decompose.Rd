@@ -27,7 +27,7 @@ a ggplot illustrating the decomposition terms for quantiles.
 }
 \description{
 The function plots decomposition terms for quantiles estimated
-with \code{dfl_deco} over the  unit interval.
+with \code{dfl_decompose} over the  unit interval.
 }
 \examples{
 data("men8305")

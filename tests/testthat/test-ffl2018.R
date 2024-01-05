@@ -8,7 +8,7 @@
 #   oaxaca_results <- oaxaca(ln.real.wage ~ age + female | foreign.born,
 #                              data = chicago, R = 100)
 #
-#   ddeco_results <- ob_decompose(formula = ln.real.wage ~ age + female,
+#   ddecompose_results <- ob_decompose(formula = ln.real.wage ~ age + female,
 #                            data = chicago,
 #                            group = foreign.born,
 #                            bootstrap = TRUE,
@@ -16,84 +16,84 @@
 #
 #   # no errors
 #   testthat::expect_error(oaxaca_results, NA)
-#   testthat::expect_error(ddeco_results, NA)
+#   testthat::expect_error(ddecompose_results, NA)
 #
 #   # same regression results
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_0$coefficients,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$coefficients,
 #                          oaxaca_results$reg$reg.A$coefficients)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_0$residuals,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$residuals,
 #                          oaxaca_results$reg$reg.A$residuals)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_0$fitted.values,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$fitted.values,
 #                          oaxaca_results$reg$reg.A$fitted.values)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_0$effects,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$effects,
 #                          oaxaca_results$reg$reg.A$effects)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_0$rank,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$rank,
 #                          oaxaca_results$reg$reg.A$rank)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_0$assign,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$assign,
 #                          oaxaca_results$reg$reg.A$assign)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_0$df.residual,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$df.residual,
 #                          oaxaca_results$reg$reg.A$df.residual)
 #
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_1$coefficients,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$coefficients,
 #                          oaxaca_results$reg$reg.B$coefficients)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_1$residuals,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$residuals,
 #                          oaxaca_results$reg$reg.B$residuals)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_1$fitted.values,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$fitted.values,
 #                          oaxaca_results$reg$reg.B$fitted.values)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_1$effects,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$effects,
 #                          oaxaca_results$reg$reg.B$effects)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_1$rank,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$rank,
 #                          oaxaca_results$reg$reg.B$rank)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_1$assign,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$assign,
 #                          oaxaca_results$reg$reg.B$assign)
-#   testthat::expect_equal(ddeco_results$ob_decompose$model_fits$fit_group_1$df.residual,
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$df.residual,
 #                          oaxaca_results$reg$reg.B$df.residual)
 #
 #
 #   ## same decomposition results
 #   # overall
-#   testthat::expect_equal(ddeco_results$ob_decompose$decomposition_terms$Composition_effect[1]*(-1), # we compute X1-X0
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Composition_effect[1]*(-1), # we compute X1-X0
 #                          unname(oaxaca_results$twofold$overall[2,2]))
-#   testthat::expect_equal(ddeco_results$ob_decompose$decomposition_terms$Structure_effect[1]*(-1),
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Structure_effect[1]*(-1),
 #                          unname(oaxaca_results$twofold$overall[2,4]))
 #
 #   # detailed
-#   testthat::expect_equal(ddeco_results$ob_decompose$decomposition_terms$Composition_effect[2:4]*(-1),
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Composition_effect[2:4]*(-1),
 #                          unname(oaxaca_results$twofold$variables[[2]][,2]))
-#   testthat::expect_equal(ddeco_results$ob_decompose$decomposition_terms$Structure_effect[2:4]*(-1),
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Structure_effect[2:4]*(-1),
 #                          unname(oaxaca_results$twofold$variables[[2]][,4]))
 #
 #   # SE similar
-#   testthat::expect_equal(ddeco_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[1],
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[1],
 #                          unname(oaxaca_results$twofold$overall[2,3]),
 #                          tolerance = 0.03)
-#   testthat::expect_equal(ddeco_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[1],
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[1],
 #                          unname(oaxaca_results$twofold$overall[2,5]),
 #                          tolerance = 0.1)
 #
-#   testthat::expect_equal(ddeco_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[2:4],
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[2:4],
 #                          unname(oaxaca_results$twofold$variables[[2]][,3]),
 #                          tolerance = 0.03)
-#   testthat::expect_equal(ddeco_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[2:4],
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[2:4],
 #                          unname(oaxaca_results$twofold$variables[[2]][,5]),
 #                          tolerance = 0.1)
 #
 #   # compare analytical se
-#   ddeco_results_analytical_se <- ob_decompose(formula = ln.real.wage ~ age + female,
+#   ddecompose_results_analytical_se <- ob_decompose(formula = ln.real.wage ~ age + female,
 #                                          data = chicago,
 #                                          group = foreign.born)
 #
-#   testthat::expect_equal(ddeco_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[1],
+#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[1],
 #                          unname(oaxaca_results$twofold$overall[2,3]),
 #                          tolerance = 0.03)
-#   testthat::expect_equal(ddeco_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[1],
+#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[1],
 #                          unname(oaxaca_results$twofold$overall[2,5]),
 #                          tolerance = 0.08)
 #
-#   testthat::expect_equal(ddeco_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[2:4],
+#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[2:4],
 #                          unname(oaxaca_results$twofold$variables[[2]][,3]),
 #                          tolerance = 0.03)
-#   testthat::expect_equal(ddeco_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[2:4],
+#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[2:4],
 #                          unname(oaxaca_results$twofold$variables[[2]][,5]),
 #                          tolerance = 0.08)
 # })
@@ -448,7 +448,7 @@
 #   #   men8816_t3 <- men8816_t3[men8816_t3$time <= 1,]
 #   #
 #   #
-#   deco_90_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_10  <- ddeco::ob_decompose(formula = var_model,
 #                                 data = men8816_t3,
 #                                 weights = eweight,
 #                                 group = time,
@@ -461,33 +461,33 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(as.numeric(deco_90_10$interquantile_range$decomposition_term$Observed_difference[1]), 0.1251959 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(deco_90_10$interquantile_range$decomposition_term$Composition_effect[1]), 0.0880184 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*0.0371775, tolerance = 0.014)
+#   testthat::expect_equal(as.numeric(decompose_90_10$interquantile_range$decomposition_term$Observed_difference[1]), 0.1251959 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[1]), 0.0880184 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*0.0371775, tolerance = 0.014)
 #   # (2. bw und kernel Stata)0.1256141; (2.bw und kernel R-default) 0.1256292
 #   # (2. bw und kernel Stata)0.0810027; (2.bw und kernel R-default) 0.07632009
 #   # (2. bw und kernel Stata)0.04461135; (2.bw und kernel R-default) 0.04930909
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*0.0163294, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*0.0188145, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*0.0086518 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*0.0186474, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*0.0255752 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*0.0163294, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*0.0188145, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*0.0086518 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*0.0186474, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*0.0255752 , tolerance = 0.01)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*0.0134943 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-0.0480036 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*0.0162826, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*0.0505249 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0749435 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*0.0798227 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*0.0134943 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-0.0480036 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*0.0162826, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*0.0505249 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0749435 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*0.0798227 , tolerance = 0.01)
 #
 #
 #
-#   deco_50_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_50_10  <- ddeco::ob_decompose(formula = var_model,
 #                                 data = men8816_t3,
 #                                 weights = eweight,
 #                                 group = time,
@@ -500,29 +500,29 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(as.numeric(deco_50_10$interquantile_range$decomposition_term$Observed_difference[1]), -.0754307, tolerance = 0.04)
-#   testthat::expect_equal(as.numeric(deco_50_10$interquantile_range$decomposition_term$Composition_effect[1]), .036705, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*-.1121357, tolerance = 0.03)
+#   testthat::expect_equal(as.numeric(decompose_50_10$interquantile_range$decomposition_term$Observed_difference[1]), -.0754307, tolerance = 0.04)
+#   testthat::expect_equal(as.numeric(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[1]), .036705, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*-.1121357, tolerance = 0.03)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*-.0187761, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0080743, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0133806  , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0213631, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0126631, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*-.0187761, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0080743, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0133806  , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0213631, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0126631, tolerance = 0.01)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*-.0019561, tolerance = 0.05)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0342662  , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0084491, tolerance = 0.05)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*-.0667522 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0478626  , tolerance = 0.02)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0302523, tolerance = 0.1)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*-.0019561, tolerance = 0.05)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0342662  , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0084491, tolerance = 0.05)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*-.0667522 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0478626  , tolerance = 0.02)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0302523, tolerance = 0.1)
 #
 #
-#   deco_90_50  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_50  <- ddeco::ob_decompose(formula = var_model,
 #                                 data = men8816_t3,
 #                                 weights = eweight,
 #                                 group = time,
@@ -534,29 +534,29 @@
 #                                 kernel = "epanechnikov")
 #
 #   # Overall
-#   testthat::expect_equal(as.numeric(deco_90_50$interquantile_range$decomposition_term$Observed_difference[1]), .2006267, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(deco_90_50$interquantile_range$decomposition_term$Composition_effect[1]), .0513134 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Structure_effect[1]), 100*.1493133, tolerance = 0.013)
+#   testthat::expect_equal(as.numeric(decompose_90_50$interquantile_range$decomposition_term$Observed_difference[1]), .2006267, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[1]), .0513134 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Structure_effect[1]), 100*.1493133, tolerance = 0.013)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0351056 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0107402 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*-.0047288 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*-.0027157, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0129121  , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0351056 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0107402 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*-.0047288 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*-.0027157, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0129121  , tolerance = 0.01)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0154504 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0137374  , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0078335, tolerance = 0.06)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.1172772 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0270809  , tolerance = 0.03)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0495704  , tolerance = 0.07)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0154504 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0137374  , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0078335, tolerance = 0.06)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.1172772 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0270809  , tolerance = 0.03)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0495704  , tolerance = 0.07)
 #
 #
-#   deco_variance  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_variance  <- ddeco::ob_decompose(formula = var_model,
 #                                    data = men8816_t3,
 #                                    weights = eweight,
 #                                    group = time,
@@ -565,26 +565,26 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Observed_difference[1]), 3), 7.775137, tolerance = 0.0001)
-#   testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Composition_effect[1]), 3), 4.146447, tolerance = 0.001)
-#   testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Structure_effect[1]), 3),  3.62869 , tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Observed_difference[1]), 3), 7.775137, tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Composition_effect[1]), 3), 4.146447, tolerance = 0.001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Structure_effect[1]), 3),  3.62869 , tolerance = 0.0001)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_variance$variance$decomposition_term$Composition_effect[3]), .7134834 , tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_variance$variance$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_variance$variance$decomposition_term$Composition_effect[11:18]))), .9839646, tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[6:10])), .6652325 , tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[19:34])), .6553098, tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[35:48])),  1.128457 , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*decompose_variance$variance$decomposition_term$Composition_effect[3]), .7134834 , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_variance$variance$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_variance$variance$decomposition_term$Composition_effect[11:18]))), .9839646, tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[6:10])), .6652325 , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[19:34])), .6553098, tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[35:48])),  1.128457 , tolerance = 0.000001)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_variance$variance$decomposition_term$Structure_effect[3]), .4369568  , tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_variance$variance$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_variance$variance$decomposition_term$Structure_effect[11:18]))), -.9844021  , tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[6:10])), 1.484122, tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[19:34])), 5.349821, tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[35:48])), -2.99592 , tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[2])), .338112 , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*decompose_variance$variance$decomposition_term$Structure_effect[3]), .4369568  , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_variance$variance$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_variance$variance$decomposition_term$Structure_effect[11:18]))), -.9844021  , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[6:10])), 1.484122, tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[19:34])), 5.349821, tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[35:48])), -2.99592 , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[2])), .338112 , tolerance = 0.000001)
 #
 #
 #   gini_model <- as.formula(paste("exp(lwage2) ~ covered + nonwhite + nmarr +
@@ -595,7 +595,7 @@
 #
 #
 #
-#   deco_gini  <- ddeco::ob_decompose(formula = gini_model,
+#   decompose_gini  <- ddeco::ob_decompose(formula = gini_model,
 #                                data = men8816_t3,
 #                                weights = eweight,
 #                                group = time,
@@ -603,26 +603,26 @@
 #                                rifreg_statistic = "gini")
 #
 #   # Overall
-#   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Observed_difference[1]), 3), 6.599147, tolerance = 0.0001)
-#   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Composition_effect[1]), 3), 1.956308, tolerance = 0.0002)
-#   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Structure_effect[1]), 3), 4.64284, tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Observed_difference[1]), 3), 6.599147, tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Composition_effect[1]), 3), 1.956308, tolerance = 0.0002)
+#   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Structure_effect[1]), 3), 4.64284, tolerance = 0.0001)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_gini$gini$decomposition_term$Composition_effect[3]), .6385443, tolerance = 0.00001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_gini$gini$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_gini$gini$decomposition_term$Composition_effect[11:18]))), .4729887, tolerance = 0.00001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[6:10])), .2069459, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[19:34])), .1017178, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[35:48])),  .536111, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*decompose_gini$gini$decomposition_term$Composition_effect[3]), .6385443, tolerance = 0.00001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_gini$gini$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_gini$gini$decomposition_term$Composition_effect[11:18]))), .4729887, tolerance = 0.00001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[6:10])), .2069459, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[19:34])), .1017178, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[35:48])),  .536111, tolerance = 0.0001)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_gini$gini$decomposition_term$Structure_effect[3]), .3575257, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_gini$gini$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_gini$gini$decomposition_term$Structure_effect[11:18]))), -.1623484, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[6:10])), .2063659, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[19:34])), 2.294733, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[35:48])), -.9556691, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[2])), 2.902232, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*decompose_gini$gini$decomposition_term$Structure_effect[3]), .3575257, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_gini$gini$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_gini$gini$decomposition_term$Structure_effect[11:18]))), -.1623484, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[6:10])), .2063659, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[19:34])), 2.294733, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[35:48])), -.9556691, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[2])), 2.902232, tolerance = 0.0001)
 #
 #
 # })
@@ -643,7 +643,7 @@
 #   # men8816_t3 <- readstata13::read.dta13("data-raw/ddecompose literature/FFL_2018/usmen8816_t3.dta")
 #   # men8816_t3 <- men8816_t3[men8816_t3$time <= 1,]
 #
-#   #   deco_90_10  <- ddeco::ob_decompose(formula = var_model,
+#   #   decompose_90_10  <- ddeco::ob_decompose(formula = var_model,
 #   #                                 data = men8816_t3,
 #   #                                 weights = eweight,
 #   #                                 group = time,
@@ -658,30 +658,30 @@
 #   # browser()
 #   #
 #   #   # Overall
-#   #   testthat::expect_equal(as.numeric(deco_90_10$interquantile_range$decomposition_term$Observed_difference[1]), 0.1251959 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(deco_90_10$interquantile_range$decomposition_term$Composition_effect[1]), 0.0880184 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*0.0371775, tolerance = 0.014)
+#   #   testthat::expect_equal(as.numeric(decompose_90_10$interquantile_range$decomposition_term$Observed_difference[1]), 0.1251959 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[1]), 0.0880184 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*0.0371775, tolerance = 0.014)
 #   #
 #   #   # Composition Effects
-#   #   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*0.0163294, tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*(sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#   #                                            sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*0.0188145, tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*0.0086518 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*0.0186474, tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*0.0255752 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*0.0163294, tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*(sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#   #                                            sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*0.0188145, tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*0.0086518 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*0.0186474, tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*0.0255752 , tolerance = 0.01)
 #   #
 #   #   # Wage Structure Effects
-#   #   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*0.0134943 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*(sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#   #                                            sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-0.0480036 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*0.0162826, tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*0.0505249 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0749435 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*0.0798227 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*0.0134943 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*(sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#   #                                            sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-0.0480036 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*0.0162826, tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*0.0505249 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0749435 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*0.0798227 , tolerance = 0.01)
 #   #
 #   #
 #   #
-#   #   deco_50_10  <- ddeco::ob_decompose(formula = var_model,
+#   #   decompose_50_10  <- ddeco::ob_decompose(formula = var_model,
 #   #                                 data = men8816_t3,
 #   #                                 weights = eweight,
 #   #                                 group = time,
@@ -694,29 +694,29 @@
 #   #
 #   #
 #   #   # Overall
-#   #   testthat::expect_equal(as.numeric(deco_50_10$interquantile_range$decomposition_term$Observed_difference[1]), -.0754307, tolerance = 0.04)
-#   #   testthat::expect_equal(as.numeric(deco_50_10$interquantile_range$decomposition_term$Composition_effect[1]), .036705, tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*-.1121357, tolerance = 0.03)
+#   #   testthat::expect_equal(as.numeric(decompose_50_10$interquantile_range$decomposition_term$Observed_difference[1]), -.0754307, tolerance = 0.04)
+#   #   testthat::expect_equal(as.numeric(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[1]), .036705, tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*-.1121357, tolerance = 0.03)
 #   #
 #   #   # Composition Effects
-#   #   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*-.0187761, tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*(sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#   #                                            sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0080743, tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0133806  , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0213631, tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0126631, tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*-.0187761, tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*(sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#   #                                            sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0080743, tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0133806  , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0213631, tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0126631, tolerance = 0.01)
 #   #
 #   #   # Wage Structure Effects
-#   #   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*-.0019561, tolerance = 0.05)
-#   #   testthat::expect_equal(as.numeric(100*(sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#   #                                            sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0342662  , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0084491, tolerance = 0.05)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*-.0667522 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0478626  , tolerance = 0.02)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0302523, tolerance = 0.1)
+#   #   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*-.0019561, tolerance = 0.05)
+#   #   testthat::expect_equal(as.numeric(100*(sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#   #                                            sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0342662  , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0084491, tolerance = 0.05)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*-.0667522 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0478626  , tolerance = 0.02)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0302523, tolerance = 0.1)
 #   #
 #   #
-#   #   deco_90_50  <- ddeco::ob_decompose(formula = var_model,
+#   #   decompose_90_50  <- ddeco::ob_decompose(formula = var_model,
 #   #                                 data = men8816_t3,
 #   #                                 weights = eweight,
 #   #                                 group = time,
@@ -728,29 +728,29 @@
 #   #                                 kernel = "epanechnikov")
 #   #
 #   #   # Overall
-#   #   testthat::expect_equal(as.numeric(deco_90_50$interquantile_range$decomposition_term$Observed_difference[1]), .2006267, tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(deco_90_50$interquantile_range$decomposition_term$Composition_effect[1]), .0513134 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Structure_effect[1]), 100*.1493133, tolerance = 0.013)
+#   #   testthat::expect_equal(as.numeric(decompose_90_50$interquantile_range$decomposition_term$Observed_difference[1]), .2006267, tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[1]), .0513134 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Structure_effect[1]), 100*.1493133, tolerance = 0.013)
 #   #
 #   #   # Composition Effects
-#   #   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0351056 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*(sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#   #                                            sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0107402 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*-.0047288 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*-.0027157, tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0129121  , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0351056 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*(sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#   #                                            sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0107402 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*-.0047288 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*-.0027157, tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0129121  , tolerance = 0.01)
 #   #
 #   #   # Wage Structure Effects
-#   #   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0154504 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*(sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#   #                                            sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0137374  , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0078335, tolerance = 0.06)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.1172772 , tolerance = 0.01)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0270809  , tolerance = 0.03)
-#   #   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0495704  , tolerance = 0.07)
+#   #   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0154504 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*(sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#   #                                            sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0137374  , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0078335, tolerance = 0.06)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.1172772 , tolerance = 0.01)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0270809  , tolerance = 0.03)
+#   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0495704  , tolerance = 0.07)
 #
 #   browser()
-#   deco_variance  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_variance  <- ddeco::ob_decompose(formula = var_model,
 #                                    data = men8816_t3,
 #                                    weights = eweight,
 #                                    group = time,
@@ -761,26 +761,26 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Observed_difference[1]), 3), 7.775137, tolerance = 0.0001)
-#   testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Composition_effect[1]), 3), 4.146447, tolerance = 0.001)
-#   testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Structure_effect[1]), 3),  3.62869 , tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Observed_difference[1]), 3), 7.775137, tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Composition_effect[1]), 3), 4.146447, tolerance = 0.001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Structure_effect[1]), 3),  3.62869 , tolerance = 0.0001)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_variance$variance$decomposition_term$Composition_effect[3]), .7134834 , tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_variance$variance$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_variance$variance$decomposition_term$Composition_effect[11:18]))), .9839646, tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[6:10])), .6652325 , tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[19:34])), .6553098, tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[35:48])),  1.128457 , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*decompose_variance$variance$decomposition_term$Composition_effect[3]), .7134834 , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_variance$variance$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_variance$variance$decomposition_term$Composition_effect[11:18]))), .9839646, tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[6:10])), .6652325 , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[19:34])), .6553098, tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[35:48])),  1.128457 , tolerance = 0.000001)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_variance$variance$decomposition_term$Structure_effect[3]), .4369568  , tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_variance$variance$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_variance$variance$decomposition_term$Structure_effect[11:18]))), -.9844021  , tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[6:10])), 1.484122, tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[19:34])), 5.349821, tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[35:48])), -2.99592 , tolerance = 0.000001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[2])), .338112 , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*decompose_variance$variance$decomposition_term$Structure_effect[3]), .4369568  , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_variance$variance$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_variance$variance$decomposition_term$Structure_effect[11:18]))), -.9844021  , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[6:10])), 1.484122, tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[19:34])), 5.349821, tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[35:48])), -2.99592 , tolerance = 0.000001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[2])), .338112 , tolerance = 0.000001)
 #
 #
 #   gini_model <- as.formula(paste("exp(lwage2) ~ covered + nonwhite + nmarr +
@@ -791,7 +791,7 @@
 #
 #
 #
-#   deco_gini  <- ddeco::ob_decompose(formula = gini_model,
+#   decompose_gini  <- ddeco::ob_decompose(formula = gini_model,
 #                                data = men8816_t3,
 #                                weights = eweight,
 #                                group = time,
@@ -801,26 +801,26 @@
 #                                bootstrap_iterations = 100)
 #
 #   # Overall
-#   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Observed_difference[1]), 3), 6.599147, tolerance = 0.0001)
-#   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Composition_effect[1]), 3), 1.956308, tolerance = 0.0002)
-#   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Structure_effect[1]), 3), 4.64284, tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Observed_difference[1]), 3), 6.599147, tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Composition_effect[1]), 3), 1.956308, tolerance = 0.0002)
+#   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Structure_effect[1]), 3), 4.64284, tolerance = 0.0001)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_gini$gini$decomposition_term$Composition_effect[3]), .6385443, tolerance = 0.00001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_gini$gini$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_gini$gini$decomposition_term$Composition_effect[11:18]))), .4729887, tolerance = 0.00001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[6:10])), .2069459, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[19:34])), .1017178, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[35:48])),  .536111, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*decompose_gini$gini$decomposition_term$Composition_effect[3]), .6385443, tolerance = 0.00001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_gini$gini$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_gini$gini$decomposition_term$Composition_effect[11:18]))), .4729887, tolerance = 0.00001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[6:10])), .2069459, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[19:34])), .1017178, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[35:48])),  .536111, tolerance = 0.0001)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_gini$gini$decomposition_term$Structure_effect[3]), .3575257, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_gini$gini$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_gini$gini$decomposition_term$Structure_effect[11:18]))), -.1623484, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[6:10])), .2063659, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[19:34])), 2.294733, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[35:48])), -.9556691, tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[2])), 2.902232, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*decompose_gini$gini$decomposition_term$Structure_effect[3]), .3575257, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_gini$gini$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_gini$gini$decomposition_term$Structure_effect[11:18]))), -.1623484, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[6:10])), .2063659, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[19:34])), 2.294733, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[35:48])), -.9556691, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[2])), 2.902232, tolerance = 0.0001)
 #
 #
 # })
@@ -859,7 +859,7 @@
 #
 # browser()
 #   # IQR 90-10
-#   deco_90_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_10  <- ddeco::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -876,36 +876,36 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Observed_difference[1]), 100*(.0923746  + .0328213) , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Composition_effect[1]), 100*.0900131  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*.034831, tolerance = 0.017)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Observed_difference[1]), 100*(.0923746  + .0328213) , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Composition_effect[1]), 100*.0900131  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*.034831, tolerance = 0.017)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0162751, tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0192389 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0072483, tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0207977 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0264531  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0162751, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0192389 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0072483, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0207977 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0264531  , tolerance = 0.005)
 #
 #   # Total Specification Error
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Specification_error[1]),  100*.0023615  , tolerance = 0.04)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Specification_error[1]),  100*.0023615  , tolerance = 0.04)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0121873, tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0481368 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0564411, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.0117771 , tolerance = 0.07)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.086405  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0889673, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0121873, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0481368 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0564411, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.0117771 , tolerance = 0.07)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.086405  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0889673, tolerance = 0.005)
 #
 #   # Total Reweighting Error
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Reweighting_error[1]),  100*-.0020097, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Reweighting_error[1]),  100*-.0020097, tolerance = 0.005)
 #
 #
 #   #IQR 50-10
-#   deco_50_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_50_10  <- ddeco::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -922,36 +922,36 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Observed_difference[1]), 100*(.0283386  -.1037693)   , tolerance = 0.04)
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Composition_effect[1]), 100*.0380101   , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*-.1038954 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Observed_difference[1]), 100*(.0283386  -.1037693)   , tolerance = 0.04)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Composition_effect[1]), 100*.0380101   , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*-.1038954 , tolerance = 0.005)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*-.0187136 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0085151 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0126624 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0226244  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0129219  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*-.0187136 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0085151 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0126624 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0226244  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0129219  , tolerance = 0.005)
 #
 #   # Total Specification Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Specification_error[1])),  100*-.0096715   , tolerance = 0.3)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Specification_error[1])),  100*-.0096715   , tolerance = 0.3)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*-.0050529 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0260159 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0103851 , tolerance = 0.03)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*-.0757565 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0291649  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0217097 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*-.0050529 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0260159 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0103851 , tolerance = 0.03)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*-.0757565 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0291649  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0217097 , tolerance = 0.005)
 #
 #   # Total Reweighting Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Reweighting_error[1])),  100*.0001261, tolerance = 0.013)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Reweighting_error[1])),  100*.0001261, tolerance = 0.013)
 #
 #
 #   #IQR 90-50
-#   deco_90_50  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_50  <- ddeco::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -968,37 +968,37 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Observed_difference[1]),100*(.0640361  + .1365906)   , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Composition_effect[1]), 100*.052003   , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Structure_effect[1]), 100*.1387263, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Observed_difference[1]),100*(.0640361  + .1365906)   , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Composition_effect[1]), 100*.052003   , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Structure_effect[1]), 100*.1387263, tolerance = 0.005)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0349887 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0107239  , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*-.0054142 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*-.0018267  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0135312   , tolerance = 0.1)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0349887 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0107239  , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*-.0054142 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*-.0018267  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0135312   , tolerance = 0.1)
 #
 #   # Total Specification Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Specification_error[1])), 100* .0120331, tolerance = 0.21)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Specification_error[1])), 100* .0120331, tolerance = 0.21)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0172402 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.022121 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.046056 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.0875336 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0572401  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0672576, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0172402 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.022121 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.046056 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.0875336 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0572401  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0672576, tolerance = 0.01)
 #
 #   # Total Reweighting Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_terms$Reweighting_error[1])),  100*-.0021358 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_terms$Reweighting_error[1])),  100*-.0021358 , tolerance = 0.005)
 #
 #
 #
 #   ### Variance
-# # deco_variance  <- ddeco::ob_decompose(formula = var_model,
+# # decompose_variance  <- ddeco::ob_decompose(formula = var_model,
 # #                                  data = men8816_t4,
 # #                                  weights = eweight,
 # #                                  group = time,
@@ -1011,33 +1011,33 @@
 # #
 # #
 # # # Overall
-# # testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Observed_difference[1]), 3),
+# # testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Observed_difference[1]), 3),
 # #                        4.205934 + 3.332824 + .3173928 - .0810136  , tolerance = 0.0001)
-# # testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Composition_effect[1]), 3), 4.205934, tolerance = 0.0001)
-# # testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Structure_effect[1]), 3),  3.332824, tolerance = 0.0001)
+# # testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Composition_effect[1]), 3), 4.205934, tolerance = 0.0001)
+# # testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Structure_effect[1]), 3),  3.332824, tolerance = 0.0001)
 # #
 # # # Composition Effects
-# # testthat::expect_equal(as.numeric(100*deco_variance$variance$decomposition_term$Composition_effect[3]), .7111088 , tolerance = 0.001)
-# # testthat::expect_equal(as.numeric(100*(sum(deco_variance$variance$decomposition_term$Composition_effect[4:5]) +
-# #                                          sum(deco_variance$variance$decomposition_term$Composition_effect[11:18]))), 1.005518, tolerance = 0.001)
-# # testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[6:10])), .5995667 , tolerance = 0.001)
-# # testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[19:34])), .733287, tolerance = 0.001)
-# # testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[35:48])),  1.156454 , tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*decompose_variance$variance$decomposition_term$Composition_effect[3]), .7111088 , tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*(sum(decompose_variance$variance$decomposition_term$Composition_effect[4:5]) +
+# #                                          sum(decompose_variance$variance$decomposition_term$Composition_effect[11:18]))), 1.005518, tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[6:10])), .5995667 , tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[19:34])), .733287, tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[35:48])),  1.156454 , tolerance = 0.001)
 # #
 # # # Total Specification Error
-# # testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Specification_error[1])),  .3173928 , tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Specification_error[1])),  .3173928 , tolerance = 0.001)
 # #
 # # # Wage Structure Effects
-# # testthat::expect_equal(as.numeric(100*deco_variance$variance$decomposition_term$Structure_effect[3]), .3310032 , tolerance = 0.001)
-# # testthat::expect_equal(as.numeric(100*(sum(deco_variance$variance$decomposition_term$Structure_effect[4:5]) +
-# #                                          sum(deco_variance$variance$decomposition_term$Structure_effect[11:18]))), -.8647259, tolerance = 0.001)
-# # testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[6:10])), 2.36585, tolerance = 0.001)
-# # testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[19:34])), 2.566117, tolerance = 0.001)
-# # testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[35:48])), -3.508731, tolerance = 0.001)
-# # testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[2])),  2.44331, tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*decompose_variance$variance$decomposition_term$Structure_effect[3]), .3310032 , tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*(sum(decompose_variance$variance$decomposition_term$Structure_effect[4:5]) +
+# #                                          sum(decompose_variance$variance$decomposition_term$Structure_effect[11:18]))), -.8647259, tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[6:10])), 2.36585, tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[19:34])), 2.566117, tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[35:48])), -3.508731, tolerance = 0.001)
+# # testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[2])),  2.44331, tolerance = 0.001)
 # #
 # # # Total Reweighting Error
-# # testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Reweighting_error[1])),  -.0810136, tolerance = 0.004)
+# # testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Reweighting_error[1])),  -.0810136, tolerance = 0.004)
 # #
 # #   ### Gini
 # #
@@ -1058,7 +1058,7 @@
 # #                                       paste(grep("^occd", names(men8816_t4), value = TRUE), collapse = " + "))))
 # #
 # #
-# #   deco_gini  <- ddeco::ob_decompose(formula = gini_model,
+# #   decompose_gini  <- ddeco::ob_decompose(formula = gini_model,
 # #                                data = men8816_t4,
 # #                                weights = eweight,
 # #                                group = time,
@@ -1070,32 +1070,32 @@
 # #
 # #
 # #   # Overall
-# #   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Observed_difference[1]), 3), 2.150751 + 4.448396, tolerance = 0.0001)
-# #   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Composition_effect[1]), 3), 1.970835, tolerance = 0.0001)
-# #   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Structure_effect[1]), 3), 4.489704 , tolerance = 0.0001)
+# #   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Observed_difference[1]), 3), 2.150751 + 4.448396, tolerance = 0.0001)
+# #   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Composition_effect[1]), 3), 1.970835, tolerance = 0.0001)
+# #   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Structure_effect[1]), 3), 4.489704 , tolerance = 0.0001)
 # #
 # #   # Composition Effects
-# #   testthat::expect_equal(as.numeric(100*deco_gini$gini$decomposition_term$Composition_effect[3]), .6364191, tolerance = 0.001)
-# #   testthat::expect_equal(as.numeric(100*(sum(deco_gini$gini$decomposition_term$Composition_effect[4:5]) +
-# #                                            sum(deco_gini$gini$decomposition_term$Composition_effect[11:18]))), .4801526 , tolerance = 0.0001)
-# #   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[6:10])), .173072 , tolerance = 0.0001)
-# #   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[19:34])), .1350762 , tolerance = 0.0001)
-# #   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[35:48])),   .5461151, tolerance = 0.0001)
+# #   testthat::expect_equal(as.numeric(100*decompose_gini$gini$decomposition_term$Composition_effect[3]), .6364191, tolerance = 0.001)
+# #   testthat::expect_equal(as.numeric(100*(sum(decompose_gini$gini$decomposition_term$Composition_effect[4:5]) +
+# #                                            sum(decompose_gini$gini$decomposition_term$Composition_effect[11:18]))), .4801526 , tolerance = 0.0001)
+# #   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[6:10])), .173072 , tolerance = 0.0001)
+# #   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[19:34])), .1350762 , tolerance = 0.0001)
+# #   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[35:48])),   .5461151, tolerance = 0.0001)
 # #
 # #   # Total Specification Error
-# #   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Specification_error[1])),  .1799161, tolerance = 0.001)
+# #   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Specification_error[1])),  .1799161, tolerance = 0.001)
 # #
 # #   # Wage Structure Effects
-# #   testthat::expect_equal(as.numeric(100*deco_gini$gini$decomposition_term$Structure_effect[3]), .2171314, tolerance = 0.001)
-# #   testthat::expect_equal(as.numeric(100*(sum(deco_gini$gini$decomposition_term$Structure_effect[4:5]) +
-# #                                            sum(deco_gini$gini$decomposition_term$Structure_effect[11:18]))), -.0680191, tolerance = 0.003)
-# #   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[6:10])),  1.210563, tolerance = 0.001)
-# #   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[19:34])), 1.30061 , tolerance = 0.001)
-# #   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[35:48])),  -1.158205, tolerance = 0.001)
-# #   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[2])), 2.987624 , tolerance = 0.001)
+# #   testthat::expect_equal(as.numeric(100*decompose_gini$gini$decomposition_term$Structure_effect[3]), .2171314, tolerance = 0.001)
+# #   testthat::expect_equal(as.numeric(100*(sum(decompose_gini$gini$decomposition_term$Structure_effect[4:5]) +
+# #                                            sum(decompose_gini$gini$decomposition_term$Structure_effect[11:18]))), -.0680191, tolerance = 0.003)
+# #   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[6:10])),  1.210563, tolerance = 0.001)
+# #   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[19:34])), 1.30061 , tolerance = 0.001)
+# #   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[35:48])),  -1.158205, tolerance = 0.001)
+# #   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[2])), 2.987624 , tolerance = 0.001)
 # #
 # #   # Total Reweighting Error
-# #   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Reweighting_error[1])),  -.0413075 , tolerance = 0.001)
+# #   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Reweighting_error[1])),  -.0413075 , tolerance = 0.001)
 #
 #
 # })
@@ -1137,7 +1137,7 @@
 #
 #   browser()
 #   # IQR 90-10
-#   deco_90_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_10  <- ddeco::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -1156,36 +1156,36 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Observed_difference[1]), 100*(.0923746  + .0328213) , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Composition_effect[1]), 100*.0900131  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*.034831, tolerance = 0.017)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Observed_difference[1]), 100*(.0923746  + .0328213) , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Composition_effect[1]), 100*.0900131  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*.034831, tolerance = 0.017)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0162751, tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0192389 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0072483, tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0207977 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0264531  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0162751, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0192389 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0072483, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0207977 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0264531  , tolerance = 0.005)
 #
 #   # Total Specification Error
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Specification_error[1]),  100*.0023615  , tolerance = 0.04)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Specification_error[1]),  100*.0023615  , tolerance = 0.04)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0121873, tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0481368 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0564411, tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.0117771 , tolerance = 0.07)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.086405  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0889673, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0121873, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0481368 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0564411, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.0117771 , tolerance = 0.07)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.086405  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0889673, tolerance = 0.005)
 #
 #   # Total Reweighting Error
-#   testthat::expect_equal(as.numeric(100*deco_90_10$interquantile_range$decomposition_term$Reweighting_error[1]),  100*-.0020097, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_10$interquantile_range$decomposition_term$Reweighting_error[1]),  100*-.0020097, tolerance = 0.005)
 #
 #
 #   #IQR 50-10
-#   deco_50_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_50_10  <- ddeco::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -1204,36 +1204,36 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Observed_difference[1]), 100*(.0283386  -.1037693)   , tolerance = 0.04)
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Composition_effect[1]), 100*.0380101   , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*-.1038954 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Observed_difference[1]), 100*(.0283386  -.1037693)   , tolerance = 0.04)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Composition_effect[1]), 100*.0380101   , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Structure_effect[1]), 100*-.1038954 , tolerance = 0.005)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*-.0187136 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0085151 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0126624 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0226244  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0129219  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Composition_effect[3]), 100*-.0187136 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0085151 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*.0126624 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*.0226244  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0129219  , tolerance = 0.005)
 #
 #   # Total Specification Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Specification_error[1])),  100*-.0096715   , tolerance = 0.3)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Specification_error[1])),  100*-.0096715   , tolerance = 0.3)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_50_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*-.0050529 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0260159 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0103851 , tolerance = 0.03)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*-.0757565 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0291649  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0217097 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_50_10$interquantile_range$decomposition_term$Structure_effect[3]), 100*-.0050529 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.0260159 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.0103851 , tolerance = 0.03)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*-.0757565 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0291649  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0217097 , tolerance = 0.005)
 #
 #   # Total Reweighting Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_50_10$interquantile_range$decomposition_term$Reweighting_error[1])),  100*.0001261, tolerance = 0.013)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Reweighting_error[1])),  100*.0001261, tolerance = 0.013)
 #
 #
 #   #IQR 90-50
-#   deco_90_50  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_50  <- ddeco::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -1252,37 +1252,37 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Observed_difference[1]),100*(.0640361  + .1365906)   , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Composition_effect[1]), 100*.052003   , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Structure_effect[1]), 100*.1387263, tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Observed_difference[1]),100*(.0640361  + .1365906)   , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Composition_effect[1]), 100*.052003   , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Structure_effect[1]), 100*.1387263, tolerance = 0.005)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0349887 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0107239  , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*-.0054142 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*-.0018267  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0135312   , tolerance = 0.1)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Composition_effect[3]), 100*.0349887 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[11:18]))), 100*.0107239  , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[6:10])), 100*-.0054142 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[19:34])), 100*-.0018267  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Composition_effect[35:48])), 100*.0135312   , tolerance = 0.1)
 #
 #   # Total Specification Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Specification_error[1])), 100* .0120331, tolerance = 0.21)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Specification_error[1])), 100* .0120331, tolerance = 0.21)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_90_50$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0172402 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.022121 , tolerance = 0.01)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.046056 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.0875336 , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0572401  , tolerance = 0.005)
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0672576, tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*decompose_90_50$interquantile_range$decomposition_term$Structure_effect[3]), 100*.0172402 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[11:18]))), 100*-.022121 , tolerance = 0.01)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[6:10])), 100*.046056 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[19:34])), 100*.0875336 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0572401  , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0672576, tolerance = 0.01)
 #
 #   # Total Reweighting Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_90_50$interquantile_range$decomposition_terms$Reweighting_error[1])),  100*-.0021358 , tolerance = 0.005)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_terms$Reweighting_error[1])),  100*-.0021358 , tolerance = 0.005)
 #
 #
 #
 #   ## Variance
-#   deco_variance  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_variance  <- ddeco::ob_decompose(formula = var_model,
 #                                    data = men8816_t4,
 #                                    weights = eweight,
 #                                    group = time,
@@ -1297,33 +1297,33 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Observed_difference[1]), 3),
+#   testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Observed_difference[1]), 3),
 #                          4.205934 + 3.332824 + .3173928 - .0810136  , tolerance = 0.0001)
-#   testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Composition_effect[1]), 3), 4.205934, tolerance = 0.0001)
-#   testthat::expect_equal(round(as.numeric(100*deco_variance$variance$decomposition_term$Structure_effect[1]), 3),  3.332824, tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Composition_effect[1]), 3), 4.205934, tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_variance$variance$decomposition_term$Structure_effect[1]), 3),  3.332824, tolerance = 0.0001)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_variance$variance$decomposition_term$Composition_effect[3]), .7111088 , tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_variance$variance$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_variance$variance$decomposition_term$Composition_effect[11:18]))), 1.005518, tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[6:10])), .5995667 , tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[19:34])), .733287, tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Composition_effect[35:48])),  1.156454 , tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*decompose_variance$variance$decomposition_term$Composition_effect[3]), .7111088 , tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_variance$variance$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_variance$variance$decomposition_term$Composition_effect[11:18]))), 1.005518, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[6:10])), .5995667 , tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[19:34])), .733287, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Composition_effect[35:48])),  1.156454 , tolerance = 0.001)
 #
 #   # Total Specification Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Specification_error[1])),  .3173928 , tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Specification_error[1])),  .3173928 , tolerance = 0.001)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_variance$variance$decomposition_term$Structure_effect[3]), .3310032 , tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_variance$variance$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_variance$variance$decomposition_term$Structure_effect[11:18]))), -.8647259, tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[6:10])), 2.36585, tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[19:34])), 2.566117, tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[35:48])), -3.508731, tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Structure_effect[2])),  2.44331, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*decompose_variance$variance$decomposition_term$Structure_effect[3]), .3310032 , tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_variance$variance$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_variance$variance$decomposition_term$Structure_effect[11:18]))), -.8647259, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[6:10])), 2.36585, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[19:34])), 2.566117, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[35:48])), -3.508731, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Structure_effect[2])),  2.44331, tolerance = 0.001)
 #
 #   # Total Reweighting Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_variance$variance$decomposition_term$Reweighting_error[1])),  -.0810136, tolerance = 0.004)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_variance$variance$decomposition_term$Reweighting_error[1])),  -.0810136, tolerance = 0.004)
 #
 #   ### Gini
 #
@@ -1344,7 +1344,7 @@
 #                                       paste(grep("^occd", names(men8816_t4), value = TRUE), collapse = " + "))))
 #
 #
-#   deco_gini  <- ddeco::ob_decompose(formula = gini_model,
+#   decompose_gini  <- ddeco::ob_decompose(formula = gini_model,
 #                                data = men8816_t4,
 #                                weights = eweight,
 #                                group = time,
@@ -1359,32 +1359,32 @@
 #
 #
 #   # Overall
-#   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Observed_difference[1]), 3), 2.150751 + 4.448396, tolerance = 0.0001)
-#   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Composition_effect[1]), 3), 1.970835, tolerance = 0.0001)
-#   testthat::expect_equal(round(as.numeric(100*deco_gini$gini$decomposition_term$Structure_effect[1]), 3), 4.489704 , tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Observed_difference[1]), 3), 2.150751 + 4.448396, tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Composition_effect[1]), 3), 1.970835, tolerance = 0.0001)
+#   testthat::expect_equal(round(as.numeric(100*decompose_gini$gini$decomposition_term$Structure_effect[1]), 3), 4.489704 , tolerance = 0.0001)
 #
 #   # Composition Effects
-#   testthat::expect_equal(as.numeric(100*deco_gini$gini$decomposition_term$Composition_effect[3]), .6364191, tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_gini$gini$decomposition_term$Composition_effect[4:5]) +
-#                                            sum(deco_gini$gini$decomposition_term$Composition_effect[11:18]))), .4801526 , tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[6:10])), .173072 , tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[19:34])), .1350762 , tolerance = 0.0001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Composition_effect[35:48])),   .5461151, tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*decompose_gini$gini$decomposition_term$Composition_effect[3]), .6364191, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_gini$gini$decomposition_term$Composition_effect[4:5]) +
+#                                            sum(decompose_gini$gini$decomposition_term$Composition_effect[11:18]))), .4801526 , tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[6:10])), .173072 , tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[19:34])), .1350762 , tolerance = 0.0001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Composition_effect[35:48])),   .5461151, tolerance = 0.0001)
 #
 #   # Total Specification Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Specification_error[1])),  .1799161, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Specification_error[1])),  .1799161, tolerance = 0.001)
 #
 #   # Wage Structure Effects
-#   testthat::expect_equal(as.numeric(100*deco_gini$gini$decomposition_term$Structure_effect[3]), .2171314, tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*(sum(deco_gini$gini$decomposition_term$Structure_effect[4:5]) +
-#                                            sum(deco_gini$gini$decomposition_term$Structure_effect[11:18]))), -.0680191, tolerance = 0.003)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[6:10])),  1.210563, tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[19:34])), 1.30061 , tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[35:48])),  -1.158205, tolerance = 0.001)
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Structure_effect[2])), 2.987624 , tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*decompose_gini$gini$decomposition_term$Structure_effect[3]), .2171314, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*(sum(decompose_gini$gini$decomposition_term$Structure_effect[4:5]) +
+#                                            sum(decompose_gini$gini$decomposition_term$Structure_effect[11:18]))), -.0680191, tolerance = 0.003)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[6:10])),  1.210563, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[19:34])), 1.30061 , tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[35:48])),  -1.158205, tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Structure_effect[2])), 2.987624 , tolerance = 0.001)
 #
 #   # Total Reweighting Error
-#   testthat::expect_equal(as.numeric(100*sum(deco_gini$gini$decomposition_term$Reweighting_error[1])),  -.0413075 , tolerance = 0.001)
+#   testthat::expect_equal(as.numeric(100*sum(decompose_gini$gini$decomposition_term$Reweighting_error[1])),  -.0413075 , tolerance = 0.001)
 #
 #
 # })
@@ -1487,54 +1487,54 @@
 #   gsoep29$female <- with(gsoep29, ifelse(bcsex == "[1] Maennlich", 0, 1))
 #
 #   # without weights
-#   ob_deco_results <- ob_decompose(formula = lnwage ~ schooling + ft_experience + ft_experience2,
+#   ob_decompose_results <- ob_decompose(formula = lnwage ~ schooling + ft_experience + ft_experience2,
 #                              data = gsoep29,
 #                              group = female,
 #                              reference_0 = TRUE)
 #
-#   testthat::expect_equal(ob_deco_results$ob_decompose$decomposition_terms$Observed_difference[1],
+#   testthat::expect_equal(ob_decompose_results$ob_decompose$decomposition_terms$Observed_difference[1],
 #                          0.250,
 #                          tolerance = 0.0075)
 #
-#   testthat::expect_equal(ob_deco_results$ob_decompose$decomposition_terms$Composition_effect[c(1, 3)],
+#   testthat::expect_equal(ob_decompose_results$ob_decompose$decomposition_terms$Composition_effect[c(1, 3)],
 #                          c(0.149, -0.00630),
 #                          tolerance = 0.0075)
 #
-#   testthat::expect_equal(sum(ob_deco_results$ob_decompose$decomposition_terms$Composition_effect[4:5]),
+#   testthat::expect_equal(sum(ob_decompose_results$ob_decompose$decomposition_terms$Composition_effect[4:5]),
 #                          0.155,
 #                          tolerance = 0.0075)
 #
-#   testthat::expect_equal(ob_deco_results$ob_decompose$decomposition_terms$Structure_effect[1:3],
+#   testthat::expect_equal(ob_decompose_results$ob_decompose$decomposition_terms$Structure_effect[1:3],
 #                          c(0.101, -0.121, 0.0856),
 #                          tolerance = 0.01)
-#   testthat::expect_equal(sum(ob_deco_results$ob_decompose$decomposition_terms$Structure_effect[4:5]),
+#   testthat::expect_equal(sum(ob_decompose_results$ob_decompose$decomposition_terms$Structure_effect[4:5]),
 #                          0.136,
 #                          tolerance = 0.02)
 #
 #   # with weights
-#   ob_deco_results_weights <- ob_decompose(formula = lnwage ~ schooling + ft_experience + ft_experience2,
+#   ob_decompose_results_weights <- ob_decompose(formula = lnwage ~ schooling + ft_experience + ft_experience2,
 #                                      data = gsoep29,
 #                                      group = female,
 #                                      weights = bcphrf,
 #                                      reference_0 = TRUE)
 #
-#   testthat::expect_equal(ob_deco_results_weights$ob_decompose$decomposition_terms$Observed_difference[1],
+#   testthat::expect_equal(ob_decompose_results_weights$ob_decompose$decomposition_terms$Observed_difference[1],
 #                          0.223,
 #                          tolerance = 0.0075)
 #
-#   testthat::expect_equal(ob_deco_results_weights$ob_decompose$decomposition_terms$Composition_effect[c(1, 3)],
+#   testthat::expect_equal(ob_decompose_results_weights$ob_decompose$decomposition_terms$Composition_effect[c(1, 3)],
 #                          c(0.114, -0.0162),
 #                          tolerance = 0.0075)
 #
-#   testthat::expect_equal(sum(ob_deco_results_weights$ob_decompose$decomposition_terms$Composition_effect[4:5]),
+#   testthat::expect_equal(sum(ob_decompose_results_weights$ob_decompose$decomposition_terms$Composition_effect[4:5]),
 #                          0.130,
 #                          tolerance = 0.0075)
 #
-#   testthat::expect_equal(ob_deco_results_weights$ob_decompose$decomposition_terms$Structure_effect[1:3],
+#   testthat::expect_equal(ob_decompose_results_weights$ob_decompose$decomposition_terms$Structure_effect[1:3],
 #                          c(0.109, -0.126, 0.117),
 #                          tolerance = 0.0075)
 #
-#   testthat::expect_equal(sum(ob_deco_results_weights$ob_decompose$decomposition_terms$Structure_effect[4:5]),
+#   testthat::expect_equal(sum(ob_decompose_results_weights$ob_decompose$decomposition_terms$Structure_effect[4:5]),
 #                          0.119,
 #                          tolerance = 0.0075)
 #

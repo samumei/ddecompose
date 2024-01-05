@@ -125,7 +125,7 @@ to use when computing bootstrap standard errors.}
 \item{...}{other parameters passed to the function estimating the conditional probabilities.}
 }
 \value{
-an object of class \code{dfl_deco} containing a data.frame with the
+an object of class \code{dfl_decompose} containing a data.frame with the
 decomposition results for the quantiles and for the other distributional
 statistics, respectively, a data.frame with the estimated reweighting factor
 for every observation, a data.frame with sample quantiles of the reweighting
@@ -357,12 +357,12 @@ data_weak_common_support$y <- ifelse(data_weak_common_support$d == "A", 1, 2) +
                               data_weak_common_support$group +
                               rnorm(200, 0, 0.5)
 
-deco_results_trimmed <- dfl_decompose(y ~ d,
+decompose_results_trimmed <- dfl_decompose(y ~ d,
                                  data_weak_common_support,
                                  group = group,
                                  trimming = TRUE)
 
-identical(deco_results_trimmed$trimmed_observations,
+identical(decompose_results_trimmed$trimmed_observations,
           which(data_weak_common_support$d == "A"))
 
 

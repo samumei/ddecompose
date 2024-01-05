@@ -38,12 +38,12 @@ test_that("dfl_decompose() does not throw an error", {
 
   model_sequential <- log(wage) ~ union + experience + education | experience + education | education
 
-  deco_results  <- dfl_decompose(model_sequential,
+  decompose_results  <- dfl_decompose(model_sequential,
                             data = men8305[1:1000, ],
                             weights = weights,
                             group = year)
 
-  testthat::expect_error(deco_results, NA)
+  testthat::expect_error(decompose_results, NA)
 })
 
 
@@ -52,13 +52,13 @@ test_that("dfl_decompose() does not return fitted models if required", {
 
   model_sequential <- log(wage) ~ union + experience + education | experience + education | education
 
-  deco_results  <- dfl_decompose(model_sequential,
+  decompose_results  <- dfl_decompose(model_sequential,
                             data = men8305[1:1000, ],
                             weights = weights,
                             group = year,
                             return_model = FALSE)
 
-  testthat::expect_error(deco_results, NA)
+  testthat::expect_error(decompose_results, NA)
 })
 
 # test_that("bootstrapping dfl_decompose() does not throw an error", {
@@ -67,7 +67,7 @@ test_that("dfl_decompose() does not return fitted models if required", {
 #   flf_model <- log(wage) ~ union + experience + education
 #
 #   set.seed(123)
-#   deco_results_boot_single_core  <- dfl_decompose(flf_model,
+#   decompose_results_boot_single_core  <- dfl_decompose(flf_model,
 #                                              data = men8305[1:1000, ],
 #                                              weights = weights,
 #                                              group = year,
@@ -75,7 +75,7 @@ test_that("dfl_decompose() does not return fitted models if required", {
 #                                              bootstrap_iterations = 10,
 #                                              cores = 1)
 #   set.seed(123)
-#   deco_results_boot_parallel  <- dfl_decompose(flf_model,
+#   decompose_results_boot_parallel  <- dfl_decompose(flf_model,
 #                                           data = men8305[1:1000, ],
 #                                           weights = weights,
 #                                           group = year,
@@ -83,10 +83,10 @@ test_that("dfl_decompose() does not return fitted models if required", {
 #                                           bootstrap_iterations = 10,
 #                                           cores = 2)
 #
-#   testthat::expect_error(deco_results_boot_single_core, NA)
+#   testthat::expect_error(decompose_results_boot_single_core, NA)
 # })
 
-test_that("dfl_deco_estimate() does not throw an error", {
+test_that("dfl_decompose_estimate() does not throw an error", {
   set.seed(89342395)
 
   data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
@@ -109,7 +109,7 @@ test_that("dfl_deco_estimate() does not throw an error", {
   right_to_left = TRUE
   method = "logit"
 
-  deco_results <- dfl_deco_estimate(formula = formula,
+  decompose_results <- dfl_decompose_estimate(formula = formula,
                                     dep_var = dep_var,
                                     data_used = data_used ,
                                     weights = weights,
@@ -124,7 +124,7 @@ test_that("dfl_deco_estimate() does not throw an error", {
                                     trimming_threshold = trimming_threshold,
                                     return_model = TRUE)
 
-  testthat::expect_error(deco_results, NA)
+  testthat::expect_error(decompose_results, NA)
 
 })
 
@@ -195,7 +195,7 @@ test_that("fit_and_predict_probabilities works properly with ranger random fores
 })
 
 
-test_that("dfl_deco_estimate() works properly with ranger random forests estimation", {
+test_that("dfl_decompose_estimate() works properly with ranger random forests estimation", {
   set.seed(89342395)
 
   data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
@@ -218,7 +218,7 @@ test_that("dfl_deco_estimate() works properly with ranger random forests estimat
   right_to_left = TRUE
   method = "random forests"
 
-  deco_results <- dfl_deco_estimate(formula = formula,
+  decompose_results <- dfl_decompose_estimate(formula = formula,
                                     dep_var = dep_var,
                                     data_used = data_used ,
                                     weights = weights,
@@ -233,7 +233,7 @@ test_that("dfl_deco_estimate() works properly with ranger random forests estimat
                                     trimming_threshold = trimming_threshold,
                                     return_model = TRUE)
 
-  testthat::expect_error(deco_results, NA)
+  testthat::expect_error(decompose_results, NA)
 
 })
 
@@ -245,13 +245,13 @@ test_that("dfl_decompose() does not throw an error without estimating statistics
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_results <- dfl_decompose(formula = formula,
+  decompose_results <- dfl_decompose(formula = formula,
                            data = nlys00[1:300,],
                            weights = runif(nrow(nlys00[1:300,]), 0.5, 1.5),
                            group = female,
                            estimate_statistics = FALSE)
 
-  testthat::expect_error(deco_results, NA)
+  testthat::expect_error(decompose_results, NA)
 })
 
 
@@ -306,16 +306,16 @@ test_that("dfl_decompose() trimms estimated factors as expected", {
   #                                                           group_variable,
   #                                                           group,
   #                                                           trimming_threshold)
-  # deco_results_untrimmed <- dfl_decompose(y ~ x,
+  # decompose_results_untrimmed <- dfl_decompose(y ~ x,
   #                                   data_used,
   #                                   group = group)
 
-  deco_results_trimmed <- dfl_decompose(y ~ x,
+  decompose_results_trimmed <- dfl_decompose(y ~ x,
                                    data_used,
                                    group = group,
                                    trimming = TRUE)
 
-  testthat::expect_equal(deco_results_trimmed$trimmed_observations,
+  testthat::expect_equal(decompose_results_trimmed$trimmed_observations,
                          expected_trimmed_observations)
 
 })

@@ -162,18 +162,18 @@ mod1 <- log(wage) ~ age + central_city + msa + region + black +
   years_worked_military + part_time + industry
 
 # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
-deco_female_as_reference <- ob_decompose(formula = mod1,
+decompose_female_as_reference <- ob_decompose(formula = mod1,
                                     data = nlys00,
                                     group = female,
                                     reference_0 = TRUE)
-deco_female_as_reference
+decompose_female_as_reference
 
 # Using male coefficients (reference_0 = FALSE)
-deco_male_as_reference <- ob_decompose(formula = mod1,
+decompose_male_as_reference <- ob_decompose(formula = mod1,
                                   data = nlys00,
                                   group = female,
                                   reference_0 = FALSE)
-deco_male_as_reference
+decompose_male_as_reference
 
 # Replicate first and third column in Table 3 in Fortin, Lemieux, & Firpo (2011: 41)
 # Define aggregation of decomposition terms
@@ -202,29 +202,29 @@ custom_aggregation <- list(`Age, race, region, etc.` = c("age",
                                             "industryOther services"))
 
 # First column
-summary(deco_male_as_reference, custom_aggregation = custom_aggregation)
+summary(decompose_male_as_reference, custom_aggregation = custom_aggregation)
 
 # Third column
-summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
 ## Compare bootstrapped standard errors...
-deco_female_as_reference_bs <- ob_decompose(formula = mod1,
+decompose_female_as_reference_bs <- ob_decompose(formula = mod1,
                                        data = nlys00,
                                        group = female,
                                        bootstrap = TRUE,
                                        bootstrap_iterations = 100)
-summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
+summary(decompose_female_as_reference_bs, custom_aggregation = custom_aggregation)
 
 # ... to analytical standard errors (assuming independence between groups and
 # homoscedasticity)
-deco_female_as_reference <- ob_decompose(formula = mod1,
+decompose_female_as_reference <- ob_decompose(formula = mod1,
                                     data = nlys00,
                                     group = female,
                                     reference_0 = TRUE)
-summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
 # Return standard errors for all detailed terms
-summary(deco_female_as_reference, aggregate_factors = FALSE)
+summary(decompose_female_as_reference, aggregate_factors = FALSE)
 
 
 ## 'Doubly robust' Oaxaca-Blinder decomposition of gender wage gap
@@ -233,14 +233,14 @@ summary(deco_female_as_reference, aggregate_factors = FALSE)
   years_worked_military + part_time + industry | age  + (central_city + msa) * region + (black +
   hispanic) * (education + afqt) + family_responsibility * (years_worked_civilian +
   years_worked_military) + part_time * industry
-deco_male_as_reference_robust <- ob_decompose(formula = mod2,
+decompose_male_as_reference_robust <- ob_decompose(formula = mod2,
                                          data = nlys00,
                                          group = female,
                                          reference_0 = FALSE,
                                          reweighting = TRUE)
 
 # ... using random forests instead of logit to estimate weights
-deco_male_as_reference_robust_rf <- ob_decompose(formula = mod1,
+decompose_male_as_reference_robust_rf <- ob_decompose(formula = mod1,
                                          data = nlys00,
                                          group = female,
                                          reference_0 = FALSE,

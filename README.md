@@ -377,7 +377,7 @@ quantiles.
 
   model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
 
-  ob_deco_estimate <- ob_decompose(formula = model,
+  ob_decompose_estimate <- ob_decompose(formula = model,
                                       data = nlys00,
                                       group = female)
 ```
@@ -387,7 +387,7 @@ errors. Per default, `summary` returns heteroscedasticity-consistent
 standard errors estimated if the variance is not bootstrapped.
 
 ``` r
-summary(ob_deco_estimate)
+summary(ob_decompose_estimate)
 ```
 
 `ddeco` comes with a convenient plot function. It illustrates the
@@ -397,7 +397,7 @@ on the same standard errors as returned by `summary`.
 -\> DO WE NEED PLOT FUNCTION FOR CLASSIC OB DECO?
 
 ``` r
-plot(ob_deco_estimate, varselect = c("education"))
+plot(ob_decompose_estimate, varselect = c("education"))
 ```
 
 ### Reweighting Decomposition
@@ -454,7 +454,7 @@ decile.
 ``` r
   model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
 
-  ob_deco_estimate <- ob_decompose(formula = model,
+  ob_decompose_estimate <- ob_decompose(formula = model,
                               data = nlys00,
                               group = female, 
                               reweighting = TRUE, 
@@ -482,7 +482,7 @@ and the regression in every iteration. We can set number of
 ``` r
   model <- log(wage) ~ age + region + black + hispanic + education + years_worked_civilian + part_time + industry
 
-  ob_deco_estimate <- ob_decompose(formula = model,
+  ob_decompose_estimate <- ob_decompose(formula = model,
                               data = nlys00,
                               group = female, 
                               reweighting = TRUE)
@@ -566,7 +566,7 @@ ffl_model_with_reweighting <- as.formula(
 
 
 # Interquantile Ratio 90-10 
-deco_90_10  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting,
+decompose_90_10  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting,
                                 data = men8816_t4,
                                 weights = eweight,
                                 group = time,
@@ -585,7 +585,7 @@ deco_90_10  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting,
                               cores = 4)
 
 ## Variance
-deco_variance  <- ddeco::ob_decompose(formula = var_model,
+decompose_variance  <- ddeco::ob_decompose(formula = var_model,
                                  data = men8816_t4,
                                  weights = eweight,
                                  group = time,
@@ -603,7 +603,7 @@ deco_variance  <- ddeco::ob_decompose(formula = var_model,
 # Gini 
 ffl_model_with_reweighting_gini <- update.formula(ffl_model_with_reweighting, exp(.) ~ .)
 
-deco_gini  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting_gini,
+decompose_gini  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting_gini,
                                data = men8816_t4,
                                weights = eweight,
                                group = time,

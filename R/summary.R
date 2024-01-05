@@ -163,16 +163,16 @@ summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
 #' mod1 <- log(wage) ~ age + education + years_worked_civilian +
 #'   years_worked_military + part_time + industry
 #'
-#' deco_results <- ob_decompose(formula = mod1,
+#' decompose_results <- ob_decompose(formula = mod1,
 #'                         data = nlys00,
 #'                         group = female,
 #'                         reference_0 = TRUE)
 #'
 #' # Print standard errors
-#' summary(deco_results)
+#' summary(decompose_results)
 #'
 #' # Aggregate decomposition terms associated with factor levels
-#' summary(deco_results, aggregate_factors = TRUE)
+#' summary(decompose_results, aggregate_factors = TRUE)
 #'
 #' # custom aggregation of decomposition terms
 #' custom_aggregation <-
@@ -190,7 +190,7 @@ summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
 #'        `Industrial sectors` = c("industryManufacturing",
 #'                                 "industryEducation, Health, Public Admin.",
 #'                                 "industryOther services"))
-#' summary(deco_results, custom_aggregation = custom_aggregation)
+#' summary(decompose_results, custom_aggregation = custom_aggregation)
 #'
 summary.ob_decompose <- function(x,
                             aggregate_factors = TRUE,

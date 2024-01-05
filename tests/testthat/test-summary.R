@@ -6,12 +6,12 @@ test_that("Summary function does not throw an error", {
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_male_as_reference <- ob_decompose(formula = mod1,
+  decompose_male_as_reference <- ob_decompose(formula = mod1,
                                     data = nlys00,
                                     group = female,
                                     reference_0 = FALSE)
 
-  testthat::expect_error(summary(deco_male_as_reference), NA)
+  testthat::expect_error(summary(decompose_male_as_reference), NA)
 })
 
 
@@ -23,7 +23,7 @@ test_that("Summary function does not throw an error with aggregation", {
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_male_as_reference <- ob_decompose(formula = mod1,
+  decompose_male_as_reference <- ob_decompose(formula = mod1,
                                     data = nlys00,
                                     group = female,
                                     reference_0 = FALSE)
@@ -52,7 +52,7 @@ test_that("Summary function does not throw an error with aggregation", {
                                                         "industryEducation, Health, Public Admin.",
                                                         "industryOther services"))
 
-  testthat::expect_error(summary(deco_male_as_reference,
+  testthat::expect_error(summary(decompose_male_as_reference,
                                  custom_aggregation = custom_aggregation),
                          NA)
 })
@@ -65,7 +65,7 @@ test_that("Summary function does not throw an error with aggregation and bootstr
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_female_as_reference_bs <- ob_decompose(formula = mod1,
+  decompose_female_as_reference_bs <- ob_decompose(formula = mod1,
                                          data = nlys00,
                                          group = female,
                                          bootstrap = TRUE,
@@ -95,7 +95,7 @@ test_that("Summary function does not throw an error with aggregation and bootstr
                                                       "industryEducation, Health, Public Admin.",
                                                       "industryOther services"))
 
-  testthat::expect_error(summary(deco_female_as_reference_bs,
+  testthat::expect_error(summary(decompose_female_as_reference_bs,
                                  custom_aggregation = custom_aggregation),
                          NA)
 })
@@ -109,7 +109,7 @@ test_that("Summary function does not throw an error with Variance and Gini (and 
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
 
-  deco_female_as_reference_bs <- ob_decompose(formula = mod1,
+  decompose_female_as_reference_bs <- ob_decompose(formula = mod1,
                                          data = nlys00,
                                          group = female,
                                          rifreg_statistic = "gini",
@@ -140,7 +140,7 @@ test_that("Summary function does not throw an error with Variance and Gini (and 
                                                       "industryEducation, Health, Public Admin.",
                                                       "industryOther services"))
 
-  testthat::expect_error(summary(deco_female_as_reference_bs,
+  testthat::expect_error(summary(decompose_female_as_reference_bs,
                                  custom_aggregation = custom_aggregation),
                          NA)
 })
@@ -180,16 +180,16 @@ test_that("Summary function does not throw an error in example", {
                                              "industryEducation, Health, Public Admin.",
                                              "industryOther services"))
 
-  deco_female_as_reference <- ob_decompose(formula = mod1,
+  decompose_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE)
 
-  summary <- summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+  summary <- summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
   testthat::expect_error(summary, NA)
 
-  summary_detailed <- summary(deco_female_as_reference, aggregate_factors = FALSE)
+  summary_detailed <- summary(decompose_female_as_reference, aggregate_factors = FALSE)
   testthat::expect_error(summary_detailed, NA)
 
 
@@ -230,17 +230,17 @@ test_that("Summary function does not throw an error with reweighting (no SE)", {
                                                       "industryEducation, Health, Public Admin.",
                                                       "industryOther services"))
 
-  deco_female_as_reference <- ob_decompose(formula = mod1,
+  decompose_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,
                                       reweighting = TRUE)
 
-  summary <- summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+  summary <- summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
   testthat::expect_error(summary, NA)
 
-  summary_detailed <- summary(deco_female_as_reference, aggregate_factors = FALSE)
+  summary_detailed <- summary(decompose_female_as_reference, aggregate_factors = FALSE)
   testthat::expect_error(summary_detailed, NA)
 
 })
@@ -278,7 +278,7 @@ test_that("Summary function does not throw an error with reweighting and SE", {
                                                       "industryEducation, Health, Public Admin.",
                                                       "industryOther services"))
 
-  deco_female_as_reference <- ob_decompose(formula = mod1,
+  decompose_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,
@@ -286,11 +286,11 @@ test_that("Summary function does not throw an error with reweighting and SE", {
                                       bootstrap = TRUE,
                                       bootstrap_iterations = 50)
 
-  summary <- summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+  summary <- summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
   testthat::expect_error(summary, NA)
 
-  summary_detailed <- summary(deco_female_as_reference, aggregate_factors = FALSE)
+  summary_detailed <- summary(decompose_female_as_reference, aggregate_factors = FALSE)
   testthat::expect_error(summary_detailed, NA)
 })
 
@@ -328,7 +328,7 @@ test_that("Summary function does not throw an error with reweighting RIFREG and 
                                                       "industryEducation, Health, Public Admin.",
                                                       "industryOther services"))
 
-  deco_female_as_reference <- ob_decompose(formula = mod1,
+  decompose_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,
@@ -337,11 +337,11 @@ test_that("Summary function does not throw an error with reweighting RIFREG and 
                                       bootstrap = TRUE,
                                       bootstrap_iterations = 50)
 
-  summary <- summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+  summary <- summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
   testthat::expect_error(summary, NA)
 
-  summary_detailed <- summary(deco_female_as_reference, aggregate_factors = FALSE)
+  summary_detailed <- summary(decompose_female_as_reference, aggregate_factors = FALSE)
   testthat::expect_error(summary_detailed, NA)
 })
 
@@ -379,7 +379,7 @@ test_that("Summary function does not throw an error with multiple quantiles", {
                                                       "industryEducation, Health, Public Admin.",
                                                       "industryOther services"))
 
-  deco_female_as_reference <- ob_decompose(formula = mod1,
+  decompose_female_as_reference <- ob_decompose(formula = mod1,
                                       data = nlys00,
                                       group = female,
                                       reference_0 = TRUE,
@@ -388,7 +388,7 @@ test_that("Summary function does not throw an error with multiple quantiles", {
                                       reweighting = TRUE,
                                       bootstrap = TRUE)
 
-  summary <- summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+  summary <- summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
   testthat::expect_error(summary, NA)
 

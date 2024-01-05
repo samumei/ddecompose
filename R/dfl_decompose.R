@@ -191,7 +191,7 @@
 #' probabilities of the quantiles of interest. For other distributional statistics,
 #' please use \code{custom_statistic_function}
 #'
-#' @return an object of class \code{dfl_deco} containing a data.frame with the
+#' @return an object of class \code{dfl_decompose} containing a data.frame with the
 #' decomposition results for the quantiles and for the other distributional
 #' statistics, respectively, a data.frame with the estimated reweighting factor
 #' for every observation, a data.frame with sample quantiles of the reweighting
@@ -325,12 +325,12 @@
 #'                               data_weak_common_support$group +
 #'                               rnorm(200, 0, 0.5)
 #'
-#' deco_results_trimmed <- dfl_decompose(y ~ d,
+#' decompose_results_trimmed <- dfl_decompose(y ~ d,
 #'                                  data_weak_common_support,
 #'                                  group = group,
 #'                                  trimming = TRUE)
 #'
-#' identical(deco_results_trimmed$trimmed_observations,
+#' identical(decompose_results_trimmed$trimmed_observations,
 #'           which(data_weak_common_support$d == "A"))
 #'
 #'
@@ -522,7 +522,7 @@ dfl_decompose <-  function(formula,
       bootstrapped_quantiles <- as.data.frame(do.call("rbind", lapply(bootstrap_estimates, function(x) x[["decomposition_quantiles"]])))
       bootstrapped_quantiles$iteration <- rep(1:bootstrap_iterations, each=length(probs))
 
-      bs_se_deco_quantiles <-  stats::reshape(bootstrapped_quantiles,
+      bs_se_decompose_quantiles <-  stats::reshape(bootstrapped_quantiles,
                                               idvar = c("probs","iteration"),
                                               times = setdiff(names( bootstrapped_quantiles),c("probs","iteration")),
                                               timevar="effect",
@@ -530,7 +530,7 @@ dfl_decompose <-  function(formula,
                                               direction = "long",
                                               v.names = "value")
 
-      bs_se_deco_quantiles <- lapply(split(bs_se_deco_quantiles, bs_se_deco_quantiles[,c("probs","effect")]),
+      bs_se_decompose_quantiles <- lapply(split(bs_se_decompose_quantiles, bs_se_decompose_quantiles[,c("probs","effect")]),
                                      function(x) data.frame(probs=x$probs[1],
                                                             effect=x$effect[1],
                                                             se=ifelse(bootstrap_robust,
@@ -538,14 +538,14 @@ dfl_decompose <-  function(formula,
                                                                       sqrt(var(x$value))))
       )
 
-      bs_se_deco_quantiles <- do.call("rbind",  bs_se_deco_quantiles)
-      bs_se_deco_quantiles <- stats::reshape(bs_se_deco_quantiles,
+      bs_se_decompose_quantiles <- do.call("rbind",  bs_se_decompose_quantiles)
+      bs_se_decompose_quantiles <- stats::reshape(bs_se_decompose_quantiles,
                                              idvar = c("probs"),
                                              timevar="effect",
                                              direction = "wide")
-      names(bs_se_deco_quantiles) <- gsub("se[.]","",names( bs_se_deco_quantiles))
+      names(bs_se_decompose_quantiles) <- gsub("se[.]","",names( bs_se_decompose_quantiles))
 
-      bs_se_deco_quantiles <- bs_se_deco_quantiles[, names(results$decomposition_quantiles)]
+      bs_se_decompose_quantiles <- bs_se_decompose_quantiles[, names(results$decomposition_quantiles)]
 
       bs_kolmogorov_smirnov_stat  <-  stats::reshape(bootstrapped_quantiles,
                                                      idvar = c("probs","iteration"),
@@ -593,14 +593,14 @@ dfl_decompose <-  function(formula,
       bs_kolmogorov_smirnov_stat <- do.call("rbind", bs_kolmogorov_smirnov_stat)
 
     } else {
-      bs_se_deco_quantiles <- NULL
+      bs_se_decompose_quantiles <- NULL
     }
 
     if(length(setdiff(statistics,"quantiles"))>1){
       bootstrapped_other_statistics <- as.data.frame(do.call("rbind", lapply(bootstrap_estimates, function(x) x[["decomposition_other_statistics"]])))
       bootstrapped_other_statistics$iteration <- rep(1:bootstrap_iterations, each=length(unique(bootstrapped_other_statistics$statistic)))
 
-      bs_se_deco_other_statistics <- stats::reshape(bootstrapped_other_statistics,
+      bs_se_decompose_other_statistics <- stats::reshape(bootstrapped_other_statistics,
                                                     idvar = c("statistic","iteration"),
                                                     ids=unique(bootstrapped_other_statistics$statistic),
                                                     times = setdiff(names(bootstrapped_other_statistics),c("statistic","iteration")),
@@ -609,7 +609,7 @@ dfl_decompose <-  function(formula,
                                                     direction = "long",
                                                     v.names = "value")
 
-      bs_se_deco_other_statistics <- lapply(split(bs_se_deco_other_statistics, bs_se_deco_other_statistics[,c("statistic","effect")]),
+      bs_se_decompose_other_statistics <- lapply(split(bs_se_decompose_other_statistics, bs_se_decompose_other_statistics[,c("statistic","effect")]),
                                             function(x) data.frame(statistic=x$statistic[1],
                                                                    effect=x$effect[1],
                                                                    se=ifelse(bootstrap_robust,
@@ -617,18 +617,18 @@ dfl_decompose <-  function(formula,
                                                                              sqrt(var(x$value))))
       )
 
-      bs_se_deco_other_statistics <- do.call("rbind",  bs_se_deco_other_statistics)
+      bs_se_decompose_other_statistics <- do.call("rbind",  bs_se_decompose_other_statistics)
 
-      bs_se_deco_other_statistics <- stats::reshape(bs_se_deco_other_statistics,
+      bs_se_decompose_other_statistics <- stats::reshape(bs_se_decompose_other_statistics,
                                                     idvar = c("statistic"),
                                                     timevar="effect",
                                                     direction = "wide")
-      names(bs_se_deco_other_statistics) <- gsub("se[.]","",names( bs_se_deco_other_statistics ))
-      bs_se_deco_other_statistics <- as.data.frame(bs_se_deco_other_statistics[match(results$decomposition_other_statistics$statistic,
-                                                                                     bs_se_deco_other_statistics$statistic),
+      names(bs_se_decompose_other_statistics) <- gsub("se[.]","",names( bs_se_decompose_other_statistics ))
+      bs_se_decompose_other_statistics <- as.data.frame(bs_se_decompose_other_statistics[match(results$decomposition_other_statistics$statistic,
+                                                                                     bs_se_decompose_other_statistics$statistic),
                                                                                names(results$decomposition_other_statistics)])
     }else{
-      bs_se_deco_other_statistics <- NULL
+      bs_se_decompose_other_statistics <- NULL
     }
 
     bootstrapped_quantiles_reweighting_factor <- as.data.frame(do.call("rbind", lapply(bootstrap_estimates, function(x) x[["quantiles_reweighting_factor"]])))
@@ -677,8 +677,8 @@ dfl_decompose <-  function(formula,
                                        2:ncol(bs_se_quantiles_reweighting_factor)] <- NA
     rownames(bs_se_quantiles_reweighting_factor) <- rownames(results$quantiles_reweighting_factor)
 
-    bootstrap_se <- list(decomposition_quantiles=bs_se_deco_quantiles,
-                         decomposition_other_statistics=bs_se_deco_other_statistics,
+    bootstrap_se <- list(decomposition_quantiles=bs_se_decompose_quantiles,
+                         decomposition_other_statistics=bs_se_decompose_other_statistics,
                          quantiles_reweighting_factor=bs_se_quantiles_reweighting_factor,
                          decomposition_quantiles_kms_distribution=bs_kolmogorov_smirnov_stat)
   }
@@ -1082,7 +1082,7 @@ dfl_decompose_bootstrap <- function(formula,
                                  replace=TRUE,
                                  prob=weights/sum(weights,na.rm=TRUE))
 
-  deco_estimates <- dfl_decompose_estimate(formula = formula,
+  decompose_estimates <- dfl_decompose_estimate(formula = formula,
                                       dep_var = dep_var[sampled_observations],
                                       data_used = data_used[sampled_observations,],
                                       weights = (weights[sampled_observations]/sum(weights[sampled_observations],na.rm=TRUE))*sum(weights,na.rm=TRUE),
@@ -1098,9 +1098,9 @@ dfl_decompose_bootstrap <- function(formula,
                                       estimate_normalized_difference = FALSE,
                                       ...)
 
-  deco_estimates$reweighting_factor <- NULL
+  decompose_estimates$reweighting_factor <- NULL
 
-  return(deco_estimates)
+  return(decompose_estimates)
 }
 
 

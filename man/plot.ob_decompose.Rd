@@ -19,7 +19,7 @@ a ggplot illustrating the decomposition terms for quantiles.
 }
 \description{
 The function plots decomposition terms for quantiles estimtated
-with \code{ob_deco} over the  unit interval.
+with \code{ob_decompose} over the  unit interval.
 }
 \examples{
 data("nlys00")
@@ -28,7 +28,7 @@ mod1 <- log(wage) ~ age + central_city + msa + region + black +
   hispanic + education + afqt + family_responsibility + years_worked_civilian +
   years_worked_military + part_time + industry
 
-deco_male_as_reference <- ob_decompose(formula = mod1,
+decompose_male_as_reference <- ob_decompose(formula = mod1,
                                   data = nlys00,
                                   group = female,
                                   reweighting = TRUE,
@@ -37,9 +37,9 @@ deco_male_as_reference <- ob_decompose(formula = mod1,
                                   bootstrap_iterations = 50,
                                   reference_0 = FALSE)
 
-plot(deco_male_as_reference)
+plot(decompose_male_as_reference)
 
-plot(deco_male_as_reference,
+plot(decompose_male_as_reference,
      confidence_bands = FALSE)
 
 }

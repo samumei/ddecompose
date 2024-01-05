@@ -38,15 +38,15 @@ testthat::test_that("Test GU normalization", {
   rownames(expected_decompose) <- c("(Intercept)", "unionno", "unionyes")
 
   model_decompose <- wage ~ union
-  deco_union <- ob_decompose(formula = model_decompose,
+  decompose_union <- ob_decompose(formula = model_decompose,
                         data = men8305,
                         group = year,
                         normalize_factors = TRUE,
                         reference_0 = FALSE)
 
   estimated_decompose <-
-    deco_union$ob_decompose$decomposition_terms[
-      which(rownames(deco_union$ob_decompose$decomposition_terms) %in%
+    decompose_union$ob_decompose$decomposition_terms[
+      which(rownames(decompose_union$ob_decompose$decomposition_terms) %in%
               rownames(expected_decompose)), names(expected_decompose)]
 
   testthat::expect_equal(estimated_decompose,

@@ -1,7 +1,7 @@
 #' Plot decomposition terms for quantiles
 #'
 #' The function plots decomposition terms for quantiles estimated
-#' with \code{dfl_deco} over the  unit interval.
+#' with \code{dfl_decompose} over the  unit interval.
 #'
 #' @param x an object of class "dfl_decompose", usually, a result of a call to [dfl_decompose()] with code{statistics = "quantiles"}.
 #' @param confidence_bands If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.
@@ -102,7 +102,7 @@ plot.dfl_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95
 #' Plot decomposition terms for quantiles
 #'
 #' The function plots decomposition terms for quantiles estimtated
-#' with \code{ob_deco} over the  unit interval.
+#' with \code{ob_decompose} over the  unit interval.
 #'
 #' @param x an object of class "ob_decompose", usually, a result of a call to [ob_decompose()] with code{statistics = "quantiles"}.
 #' @param confidence_bands If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.
@@ -119,7 +119,7 @@ plot.dfl_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95
 #'   hispanic + education + afqt + family_responsibility + years_worked_civilian +
 #'   years_worked_military + part_time + industry
 #'
-#' deco_male_as_reference <- ob_decompose(formula = mod1,
+#' decompose_male_as_reference <- ob_decompose(formula = mod1,
 #'                                   data = nlys00,
 #'                                   group = female,
 #'                                   reweighting = TRUE,
@@ -128,9 +128,9 @@ plot.dfl_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95
 #'                                   bootstrap_iterations = 50,
 #'                                   reference_0 = FALSE)
 #'
-#' plot(deco_male_as_reference)
+#' plot(decompose_male_as_reference)
 #'
-#' plot(deco_male_as_reference,
+#' plot(decompose_male_as_reference,
 #'      confidence_bands = FALSE)
 #'
 plot.ob_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95){
@@ -143,21 +143,21 @@ plot.ob_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95)
   col_names <- c("probs", names(x[[1]][["decomposition_terms"]][-1]))
 
   na_matrix <- matrix(NA, nrow = n_quantiles, ncol = length(col_names))
-  deco_results <- as.data.frame(na_matrix)
-  colnames(deco_results) <- col_names
+  decompose_results <- as.data.frame(na_matrix)
+  colnames(decompose_results) <- col_names
 
-  deco_results$probs <- x$input_parameters$rifreg_probs
+  decompose_results$probs <- x$input_parameters$rifreg_probs
 
   for(i in 1:n_quantiles) {
-    deco_results[i, 2:length(col_names)] <- x[[i]]$decomposition_terms[1, 2:length(col_names)]
+    decompose_results[i, 2:length(col_names)] <- x[[i]]$decomposition_terms[1, 2:length(col_names)]
   }
 
 
-    decomposition_quantiles <-  stats::reshape(deco_results,
+    decomposition_quantiles <-  stats::reshape(decompose_results,
                                                idvar = c("probs"),
-                                               times = setdiff(names(deco_results),c("probs")),
+                                               times = setdiff(names(decompose_results),c("probs")),
                                                timevar="effect",
-                                               varying = list(setdiff(names(deco_results),c("probs"))),
+                                               varying = list(setdiff(names(decompose_results),c("probs"))),
                                                direction = "long",
                                                v.names = "value")
 
@@ -167,20 +167,20 @@ plot.ob_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95)
                              FALSE)
   if(confidence_bands){
 
-    deco_se <- as.data.frame(na_matrix)
-    colnames(deco_se) <- col_names
+    decompose_se <- as.data.frame(na_matrix)
+    colnames(decompose_se) <- col_names
 
-    deco_se$probs <- x$input_parameters$rifreg_probs
+    decompose_se$probs <- x$input_parameters$rifreg_probs
 
     for(i in 1:n_quantiles) {
-      deco_se[i, 2:length(col_names)] <- x[[i]]$decomposition_vcov$decomposition_terms_se[1, 2:length(col_names)]
+      decompose_se[i, 2:length(col_names)] <- x[[i]]$decomposition_vcov$decomposition_terms_se[1, 2:length(col_names)]
     }
 
-    decomposition_quantiles_se <-  stats::reshape(deco_se,
+    decomposition_quantiles_se <-  stats::reshape(decompose_se,
                                                   idvar = c("probs"),
-                                                  times = setdiff(names(deco_se),c("probs")),
+                                                  times = setdiff(names(decompose_se),c("probs")),
                                                   timevar="effect",
-                                                  varying = list(setdiff(names(deco_se),c("probs"))),
+                                                  varying = list(setdiff(names(decompose_se),c("probs"))),
                                                   direction = "long",
                                                   v.names = "se")
 
@@ -260,7 +260,7 @@ plot.ob_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95)
 #
 # #############################################################
 # ### Plot function for composition effect results
-# rifreg_deco_plot <- function(estimations, type=c(1,2,3,4),
+# rifreg_decompose_plot <- function(estimations, type=c(1,2,3,4),
 #                              effect=c("all","X","S"),
 #                              varselect=NULL, ylim=c(-1, 1)){
 #

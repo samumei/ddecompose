@@ -119,18 +119,18 @@
 #'   years_worked_military + part_time + industry
 #'
 #' # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
-#' deco_female_as_reference <- ob_decompose(formula = mod1,
+#' decompose_female_as_reference <- ob_decompose(formula = mod1,
 #'                                     data = nlys00,
 #'                                     group = female,
 #'                                     reference_0 = TRUE)
-#' deco_female_as_reference
+#' decompose_female_as_reference
 #'
 #' # Using male coefficients (reference_0 = FALSE)
-#' deco_male_as_reference <- ob_decompose(formula = mod1,
+#' decompose_male_as_reference <- ob_decompose(formula = mod1,
 #'                                   data = nlys00,
 #'                                   group = female,
 #'                                   reference_0 = FALSE)
-#' deco_male_as_reference
+#' decompose_male_as_reference
 #'
 #' # Replicate first and third column in Table 3 in Fortin, Lemieux, & Firpo (2011: 41)
 #' # Define aggregation of decomposition terms
@@ -159,29 +159,29 @@
 #'                                             "industryOther services"))
 #'
 #' # First column
-#' summary(deco_male_as_reference, custom_aggregation = custom_aggregation)
+#' summary(decompose_male_as_reference, custom_aggregation = custom_aggregation)
 #'
 #' # Third column
-#' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+#' summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 #'
 #' ## Compare bootstrapped standard errors...
-#' deco_female_as_reference_bs <- ob_decompose(formula = mod1,
+#' decompose_female_as_reference_bs <- ob_decompose(formula = mod1,
 #'                                        data = nlys00,
 #'                                        group = female,
 #'                                        bootstrap = TRUE,
 #'                                        bootstrap_iterations = 100)
-#' summary(deco_female_as_reference_bs, custom_aggregation = custom_aggregation)
+#' summary(decompose_female_as_reference_bs, custom_aggregation = custom_aggregation)
 #'
 #' # ... to analytical standard errors (assuming independence between groups and
 #' # homoscedasticity)
-#' deco_female_as_reference <- ob_decompose(formula = mod1,
+#' decompose_female_as_reference <- ob_decompose(formula = mod1,
 #'                                     data = nlys00,
 #'                                     group = female,
 #'                                     reference_0 = TRUE)
-#' summary(deco_female_as_reference, custom_aggregation = custom_aggregation)
+#' summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 #'
 #' # Return standard errors for all detailed terms
-#' summary(deco_female_as_reference, aggregate_factors = FALSE)
+#' summary(decompose_female_as_reference, aggregate_factors = FALSE)
 #'
 #'
 #' ## 'Doubly robust' Oaxaca-Blinder decomposition of gender wage gap
@@ -190,14 +190,14 @@
 #'   years_worked_military + part_time + industry | age  + (central_city + msa) * region + (black +
 #'   hispanic) * (education + afqt) + family_responsibility * (years_worked_civilian +
 #'   years_worked_military) + part_time * industry
-#' deco_male_as_reference_robust <- ob_decompose(formula = mod2,
+#' decompose_male_as_reference_robust <- ob_decompose(formula = mod2,
 #'                                          data = nlys00,
 #'                                          group = female,
 #'                                          reference_0 = FALSE,
 #'                                          reweighting = TRUE)
 #'
 #' # ... using random forests instead of logit to estimate weights
-#' deco_male_as_reference_robust_rf <- ob_decompose(formula = mod1,
+#' decompose_male_as_reference_robust_rf <- ob_decompose(formula = mod1,
 #'                                          data = nlys00,
 #'                                          group = female,
 #'                                          reference_0 = FALSE,
@@ -293,7 +293,7 @@ ob_decompose <- function(formula,
   else compute_analytical_se <- FALSE
 
   if(reweighting) {
-    dfl_deco_results <- dfl_decompose(formula = formula_reweighting,
+    dfl_decompose_results <- dfl_decompose(formula = formula_reweighting,
                                  data = data_used,
                                  weights = weights,
                                  group = group,
@@ -303,7 +303,7 @@ ob_decompose <- function(formula,
                                  trimming = trimming,
                                  trimming_threshold = trimming_threshold)
 
-    reweighting_factor <- dfl_deco_results$reweighting_factor$Psi_X1
+    reweighting_factor <- dfl_decompose_results$reweighting_factor$Psi_X1
     data_used$weights_and_reweighting_factors <- data_used[, "weights"] * reweighting_factor
   }
 
@@ -351,21 +351,21 @@ ob_decompose <- function(formula,
     # set name
     if(rifreg) {
       if(rifreg_statistic == "quantiles") {
-        deco_name <- paste0("quantile_", as.character(rifreg_probs))
+        decompose_name <- paste0("quantile_", as.character(rifreg_probs))
       }
       else {
-        deco_name <- rifreg_statistic
+        decompose_name <- rifreg_statistic
       }
     }
     else {
       if(reweighting) {
-        deco_name <- "reweighted_ob_decompose"
+        decompose_name <- "reweighted_ob_decompose"
       }
       else{
-        deco_name <- "ob_decompose"
+        decompose_name <- "ob_decompose"
       }
     }
-    names(estimated_decomposition) <- deco_name
+    names(estimated_decomposition) <- decompose_name
   }
 
 
@@ -456,7 +456,7 @@ ob_decompose <- function(formula,
 
 
   if(reweighting) {
-    reweighting_estimates <- dfl_deco_results[-c(1:2)]
+    reweighting_estimates <- dfl_decompose_results[-c(1:2)]
   }
   else {
     reweighting_estimates <- NA
@@ -644,8 +644,8 @@ estimate_ob_decompose <- function(formula,
     }
 
     if(reference_0) {
-      deco_results_group0_group_reweighted <-
-        ob_deco_calculate_terms(beta0 = beta0,
+      decompose_results_group0_group_reweighted <-
+        ob_decompose_calculate_terms(beta0 = beta0,
                                 beta1 = beta_reweighted,
                                 X0 = X0,
                                 X1 = X0,
@@ -653,8 +653,8 @@ estimate_ob_decompose <- function(formula,
                                 weights1 = data_used[obs_0, "weights_and_reweighting_factors"],
                                 reference_0 = TRUE)
 
-      deco_results_group_reweighted_group_1 <-
-        ob_deco_calculate_terms(beta0 = beta_reweighted,
+      decompose_results_group_reweighted_group_1 <-
+        ob_decompose_calculate_terms(beta0 = beta_reweighted,
                                 beta1 = beta1,
                                 X0 = X0,
                                 X1 = X1,
@@ -662,20 +662,20 @@ estimate_ob_decompose <- function(formula,
                                 weights1 = weights1,
                                 reference_0 = TRUE)
 
-      deco_results <- deco_results_group0_group_reweighted
-      deco_results$Composition_effect <- deco_results_group0_group_reweighted$Composition_effect
-      deco_results$Specification_error <- deco_results_group0_group_reweighted$Structure_effect
+      decompose_results <- decompose_results_group0_group_reweighted
+      decompose_results$Composition_effect <- decompose_results_group0_group_reweighted$Composition_effect
+      decompose_results$Specification_error <- decompose_results_group0_group_reweighted$Structure_effect
 
-      deco_results$Structure_effect <- deco_results_group_reweighted_group_1$Structure_effect
-      deco_results$Reweighting_error <- deco_results_group_reweighted_group_1$Composition_effect
+      decompose_results$Structure_effect <- decompose_results_group_reweighted_group_1$Structure_effect
+      decompose_results$Reweighting_error <- decompose_results_group_reweighted_group_1$Composition_effect
 
-      deco_results$Observed_difference <- deco_results_group0_group_reweighted$Observed_difference +
-        deco_results_group_reweighted_group_1$Observed_difference
+      decompose_results$Observed_difference <- decompose_results_group0_group_reweighted$Observed_difference +
+        decompose_results_group_reweighted_group_1$Observed_difference
 
     }
     else {
-      deco_results_group0_group_reweighted <-
-        ob_deco_calculate_terms(beta0 = beta0,
+      decompose_results_group0_group_reweighted <-
+        ob_decompose_calculate_terms(beta0 = beta0,
                                 beta1 = beta_reweighted,
                                 X0 = X0,
                                 X1 = X1,
@@ -683,8 +683,8 @@ estimate_ob_decompose <- function(formula,
                                 weights1 = data_used[obs_1, "weights_and_reweighting_factors"],
                                 reference_0 = FALSE)
 
-      deco_results_group_reweighted_group_1 <-
-        ob_deco_calculate_terms(beta0 = beta_reweighted,
+      decompose_results_group_reweighted_group_1 <-
+        ob_decompose_calculate_terms(beta0 = beta_reweighted,
                                 beta1 = beta1,
                                 X0 = X1,
                                 X1 = X1,
@@ -692,31 +692,31 @@ estimate_ob_decompose <- function(formula,
                                 weights1 = weights1,
                                 reference_0 = FALSE)
 
-      deco_results <- deco_results_group0_group_reweighted
+      decompose_results <- decompose_results_group0_group_reweighted
 
-      deco_results$Composition_effect <- deco_results_group_reweighted_group_1$Composition_effect
-      deco_results$Specification_error <- deco_results_group_reweighted_group_1$Structure_effect
+      decompose_results$Composition_effect <- decompose_results_group_reweighted_group_1$Composition_effect
+      decompose_results$Specification_error <- decompose_results_group_reweighted_group_1$Structure_effect
 
-      deco_results$Structure_effect <- deco_results_group0_group_reweighted$Structure_effect
-      deco_results$Reweighting_error <- deco_results_group0_group_reweighted$Composition_effect
+      decompose_results$Structure_effect <- decompose_results_group0_group_reweighted$Structure_effect
+      decompose_results$Reweighting_error <- decompose_results_group0_group_reweighted$Composition_effect
 
-      deco_results$Observed_difference <- deco_results_group0_group_reweighted$Observed_difference +
-        deco_results_group_reweighted_group_1$Observed_difference
+      decompose_results$Observed_difference <- decompose_results_group0_group_reweighted$Observed_difference +
+        decompose_results_group_reweighted_group_1$Observed_difference
     }
 
-    estimated_deco_vcov <- NULL
+    estimated_decompose_vcov <- NULL
 
   }
   else {
-    deco_results <- ob_deco_calculate_terms(beta0 = beta0,
+    decompose_results <- ob_decompose_calculate_terms(beta0 = beta0,
                                             beta1 = beta1,
                                             X0 = X0,
                                             X1 = X1,
                                             weights0 = weights0,
                                             weights1 = weights1,
                                             reference_0 = reference_0)
-    deco_results$Specification_error <- NA
-    deco_results$Reweighting_error <- NA
+    decompose_results$Specification_error <- NA
+    decompose_results$Reweighting_error <- NA
     fit_reweighted <- NA
 
 
@@ -731,7 +731,7 @@ estimate_ob_decompose <- function(formula,
                                                Cov_beta = Cov_beta1)
       }
 
-      estimated_deco_vcov <-  ob_deco_calculate_vcov(beta0 = beta0,
+      estimated_decompose_vcov <-  ob_decompose_calculate_vcov(beta0 = beta0,
                                                      beta1 = beta1,
                                                      X0 = X0,
                                                      X1 = X1,
@@ -741,7 +741,7 @@ estimate_ob_decompose <- function(formula,
                                                      Cov_beta1  =  Cov_beta1,
                                                      reference_0 = reference_0)
     }else{
-      estimated_deco_vcov <- NULL
+      estimated_decompose_vcov <- NULL
     }
   }
 
@@ -754,8 +754,8 @@ estimate_ob_decompose <- function(formula,
     model_fits <- NULL
   }
 
-  results <- list(decomposition_terms = deco_results,
-                  decomposition_vcov = estimated_deco_vcov,
+  results <- list(decomposition_terms = decompose_results,
+                  decomposition_vcov = estimated_decompose_vcov,
                   model_fits = model_fits,
                   GU_normalized_coefficient_names = adjusted_coefficient_names)
   return(results)
@@ -804,7 +804,7 @@ bootstrap_estimate_ob_decompose <- function(formula_decomposition,
     sink(nullfile())  # Start suppressing output
 
     if(reweighting) {
-    dfl_deco_results <- suppressWarnings(dfl_decompose(formula = formula_reweighting,
+    dfl_decompose_results <- suppressWarnings(dfl_decompose(formula = formula_reweighting,
                                  data = data_used[sampled_observations, ],
                                  weights = weights,
                                  group = group,
@@ -814,12 +814,12 @@ bootstrap_estimate_ob_decompose <- function(formula_decomposition,
                                  trimming = trimming,
                                  trimming_threshold = trimming_threshold))
 
-    reweighting_factor <- dfl_deco_results$reweighting_factor$Psi_X1
+    reweighting_factor <- dfl_decompose_results$reweighting_factor$Psi_X1
     data_used[sampled_observations, "weights_and_reweighting_factors"] <- data_used[sampled_observations, "weights"] * reweighting_factor
   }
 
     if(rifreg && rifreg_statistic == "quantiles" & length(rifreg_probs) > 1) {
-      deco_estimates <- suppressWarnings(lapply(rifreg_probs, estimate_ob_decompose,
+      decompose_estimates <- suppressWarnings(lapply(rifreg_probs, estimate_ob_decompose,
                                         formula = formula_decomposition,
                                data_used = data_used[sampled_observations, ],
                                         reference_0 = reference_0,
@@ -834,11 +834,11 @@ bootstrap_estimate_ob_decompose <- function(formula_decomposition,
                                         vcov = NULL,
                                ... = ...))
 
-      deco_estimates <- lapply(deco_estimates, function(x) x$decomposition_terms)
+      decompose_estimates <- lapply(decompose_estimates, function(x) x$decomposition_terms)
 
   }
   else {
-    deco_estimates <- suppressWarnings(estimate_ob_decompose(formula = formula_decomposition,
+    decompose_estimates <- suppressWarnings(estimate_ob_decompose(formula = formula_decomposition,
                                        data_used = data_used[sampled_observations, ],
                                        reference_0 = reference_0,
                                        normalize_factors = normalize_factors,
@@ -853,7 +853,7 @@ bootstrap_estimate_ob_decompose <- function(formula_decomposition,
                                        return_model_fit = FALSE,
                                        ... = ...))
 
-    deco_estimates <- list(deco_estimates[["decomposition_terms"]])
+    decompose_estimates <- list(decompose_estimates[["decomposition_terms"]])
   }
   }, error = function(e) {
     print(e)
@@ -865,7 +865,7 @@ bootstrap_estimate_ob_decompose <- function(formula_decomposition,
 
 
 
-  return(deco_estimates)
+  return(decompose_estimates)
 }
 
 retrieve_bootstrap_vcov <- function(bootstrap_estimates, bootstrap_iterations) {
@@ -917,7 +917,7 @@ retrieve_bootstrap_vcov <- function(bootstrap_estimates, bootstrap_iterations) {
 #' @param reference_0 boolean: indicating if group 0 is the reference group and if its coefficients are used to compute the counterfactual mean.
 #'
 #'
-ob_deco_calculate_terms <- function(beta0,
+ob_decompose_calculate_terms <- function(beta0,
                                     beta1,
                                     X0,
                                     X1,
@@ -973,7 +973,7 @@ ob_deco_calculate_terms <- function(beta0,
 #'
 #' @references Jann, Ben, 2005. "Standard errors for the Blinder-Oaxaca decomposition." *3rd German Stata Users’ Group Meeting 2005*. Available from [https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf).
 
-ob_deco_calculate_vcov  <- function(beta0,
+ob_decompose_calculate_vcov  <- function(beta0,
                                     beta1,
                                     X0,
                                     X1,
