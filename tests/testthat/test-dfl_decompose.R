@@ -342,7 +342,7 @@ test_that("get_distributional_statistics() does not throw an error with custom_s
 
   top_share <- function(dep_var,
                         weights,
-                        top_percent){
+                        top_percent = 0.1){
     threshold <- Hmisc::wtd.quantile(dep_var, weights = weights, probs = 1-top_percent)
     share <- sum(weights[which(dep_var > threshold)] * dep_var[which(dep_var > threshold)])/sum(weights * dep_var)
     return(share)
@@ -357,8 +357,7 @@ test_that("get_distributional_statistics() does not throw an error with custom_s
                                        statistics = statistics,
                                        custom_statistic_function = top_share,
                                        probs = probs,
-                                       log_transformed = log_transformed,
-                                       top_percent = 0.1)
+                                       log_transformed = log_transformed)
 
   testthat::expect_equal(direct_estimation, as.numeric(nu1[length(nu1)]), tolerance = 0.000001)
 

@@ -485,8 +485,27 @@ ob_decompose <- function(formula,
 }
 
 
-# Estimate OB decomposition
-#
+#' Estimate OB decomposition
+#'
+#' The function performs the linear Oaxaca-Blinder decomposition.
+#'
+#' @param formula \code{formula} object
+#' @param data_used \code{data.frame} with data used for estimation (including weight and group variable)
+#' @param reference_0 boolean: indicating if group 0 is the reference group and if its coefficients are used to compute the counterfactual mean.
+#' @param normalize_factors boolean: If `TRUE`, then factor variables are normalized as proposed by Gardeazabal/Ugidos (2004)
+#' @param compute_analytical_se boolean: If `TRUE`, then analytical standard errors for decomposition terms are calculated (assuming independence between groups).
+#' @param return_model_fit boolean: If `TRUE`, then model objects are returned.
+#' @param reweighting boolean: if `TRUE`, then the decomposition is performed with
+#' with respect to reweighted reference group.
+#' @param rifreg boolean: if `TRUE`, then RIF decomposition is performed
+#' @param rifreg_statistic string containing the distributional statistic for which to compute the RIF.
+#' @param rifreg_probs a vector of length 1 or more with probabilities of quantiles.
+#' @param custom_rif_function the RIF function to compute the RIF of the custom distributional statistic.
+#' @param na.action generic function that defines how NAs in the data should be handled.
+#' @param vcov unction estimating covariance matrix of regression coefficients if \code{compute_analytical_se == TRUE}
+#' @param ... additional parameters passed to custom_rif_function
+#'
+
 estimate_ob_decompose <- function(formula,
                              data_used,
                              reference_0,
@@ -879,7 +898,20 @@ retrieve_bootstrap_vcov <- function(bootstrap_estimates, bootstrap_iterations) {
               decomposition_terms_vcov = decomposition_terms_vcov))
 }
 
-#' Calculate decomposition terms based on model.matrix and estimated OLS coefficients
+#' Calculate OB decomposition terms
+#'
+#' The function calculates the decomposition terms of the linear
+#' Oaxaca-Blinder decomposition based on the estimated OLS
+#' coefficients and the respective \code{model.matrix}.
+#'
+#' @param beta0 vector of estimated coefficients of group 0
+#' @param beta1 vector of estimated coefficients of group 1
+#' @param X0 \code{model.matrix} of group 0
+#' @param X1 \code{model.matrix} of group 1
+#' @param weights0 vector of observation weights of group 0
+#' @param weights1 vector of observation weights of group 1
+#' @param reference_0 boolean: indicating if group 0 is the reference group and if its coefficients are used to compute the counterfactual mean.
+#'
 #'
 ob_deco_calculate_terms <- function(beta0,
                                     beta1,
@@ -919,14 +951,24 @@ ob_deco_calculate_terms <- function(beta0,
 
 }
 
-#' Estimate covariance matrix for OB decomposition terms
+#' Calculate covariance matrix for OB decomposition terms
 #'
-#' assuming independence between groups
-#' see also: https://www.stata.com/meeting/3german/jann.pdf
+#' The function calculate the covariance matrix for the decomposition terms
+#' of the linear Oaxaca-Blinder decomposition assuming independence between
+#' groups.
 #'
-#' Var(xb) = Var(x)Var(b) + Var(x)E(b)^2 + Var(b)E(x)^2
-#' Cov(x1b1, x2b2) = Cov(x1,x2)Cov(b1,b2) + Cov(x1,x2)E(b1)E(b2) + Cov(b1,b2)E(x1)E(x2)
-#' Matrix notation Sigma_b * Sigma_X + Sigma_b * mu %*% mu' + Sigma_X * b %*% b'
+#' @param beta0 vector of estimated coefficients of group 0
+#' @param beta1 vector of estimated coefficients of group 1
+#' @param X0 \code{model.matrix} of group 0
+#' @param X1 \code{model.matrix} of group 1
+#' @param weights0 vector of observation weights of group 0
+#' @param weights1 vector of observation weights of group 1
+#' @param Cov_beta0 estimated covariance matrix of coefficients of group 0
+#' @param Cov_beta1 estimated covariance matrix of coefficients of group 1
+#' @param reference_0 boolean: indicating if group 0 is the reference group and if its coefficients are used to compute the counterfactual mean.
+#'
+#' @references Jann, Ben, 2005. "Standard errors for the Blinder-Oaxaca decomposition." *3rd German Stata Users’ Group Meeting 2005*. Available from [https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf).
+
 ob_deco_calculate_vcov  <- function(beta0,
                                     beta1,
                                     X0,
@@ -937,7 +979,9 @@ ob_deco_calculate_vcov  <- function(beta0,
                                     Cov_beta1,
                                     reference_0){
 
-  ### New
+  # Var(xb) = Var(x)Var(b) + Var(x)E(b)^2 + Var(b)E(x)^2
+  # Cov(x1b1, x2b2) = Cov(x1,x2)Cov(b1,b2) + Cov(x1,x2)E(b1)E(b2) + Cov(b1,b2)E(x1)E(x2)
+  # Matrix notation: Sigma_b * Sigma_X + Sigma_b * mu %*% mu' + Sigma_X * b %*% b'
 
   Cov_X0 <- stats::cov.wt(X0, wt=weights0)$cov / nrow(X0)
   Cov_X1 <- stats::cov.wt(X1, wt=weights1)$cov / nrow(X1)
@@ -969,71 +1013,6 @@ ob_deco_calculate_vcov  <- function(beta0,
   Var_agg_observed_diff <-  sum(Cov_observed_diff)
   Var_agg_composition_effect <- sum(Cov_composition_effect)
   Var_agg_structure_effect <- sum(Cov_structure_effect)
-
-  ### Old
-
-  # Cov_X0 <- stats::cov.wt(X0, wt=weights0)$cov
-  # Cov_X1 <- stats::cov.wt(X1, wt=weights1)$cov
-  # Cov_X_diff <- Cov_X1 + Cov_X0
-  #
-  # Cov_beta_diff <- Cov_beta1 + Cov_beta0
-  #
-  # X0 <- apply(X0, 2, weighted.mean, w=weights0)
-  # X1 <- apply(X1, 2, weighted.mean, w=weights1)
-  # X_diff <- X1 - X0
-  #
-  # Xb0 <- X0*beta0
-  # Xb1 <- X1*beta1
-  #
-  # beta_diff <- beta1 - beta0
-  #
-  # if(reference_0){
-  #   XbC <- X1*beta0
-  #   structure_effect <- Xb1 - XbC
-  #   composition_effect <- XbC - Xb0
-  #   beta_reference <- beta0
-  #   X_counterfactual <- X1
-  #   Cov_beta_reference <-   Cov_beta0
-  #   Cov_X_counterfactual <- Cov_X1
-  # }else{
-  #   XbC <- X0*beta1
-  #   composition_effect <- Xb1 - XbC
-  #   structure_effect <- XbC - Xb0
-  #   beta_reference <- beta1
-  #   X_counterfactual <- X0
-  #   Cov_beta_reference <-   Cov_beta1
-  #   Cov_X_counterfactual <- Cov_X0
-  # }
-  #
-  # Var_agg_observed_diff <- t(X1) %*% Cov_beta1 %*% X1 +
-  #   t(beta1) %*% Cov_X1 %*% beta1 +
-  #   sum(diag(Cov_X1 %*% Cov_beta1)) +
-  #   t(X0) %*% Cov_beta0 %*% X0 +
-  #   t(beta0) %*% Cov_X0 %*% beta0 +
-  #   sum(diag(Cov_X0 %*% Cov_beta0))
-  #
-  # Cov_observed_diff <- Cov_beta1 * X1 %*% t(X1) +
-  #   Cov_X1 * beta1 %*% t(beta1) +
-  #   Cov_X1 %*% Cov_beta1 +
-  #   Cov_beta0 * X0 %*% t(X0) +
-  #   Cov_X0 * beta0 %*% t(beta0) +
-  #   Cov_X0 %*% Cov_beta0
-  #
-  # Var_agg_composition_effect <- t(X_diff) %*% Cov_beta_reference %*% X_diff +
-  #   t(beta_reference) %*% Cov_X_diff %*% beta_reference +
-  #   sum(diag(Cov_X_diff %*% Cov_beta_reference))
-  #
-  # Cov_composition_effect <- Cov_beta_reference * X_diff %*% t(X_diff) +
-  #   Cov_X_diff * beta_reference %*% t(beta_reference) +
-  #   Cov_X_diff %*% Cov_beta_reference
-  #
-  # Var_agg_structure_effect <- t(X_counterfactual) %*% Cov_beta_diff %*% X_counterfactual +
-  #   t(beta_diff) %*% Cov_X_counterfactual %*% beta_diff +
-  #   sum(diag(Cov_X_counterfactual %*% Cov_beta_diff))
-  #
-  # Cov_structure_effect <- Cov_beta_diff * X_counterfactual %*% t(X_counterfactual) +
-  #   Cov_X_counterfactual * beta_diff %*% t(beta_diff) +
-  #   Cov_X_counterfactual %*% Cov_beta_diff
 
   decomposition_terms_se <- data.frame(Variable = c("Total", names(X0)),
                                        Observed_difference = sqrt(c(Var_agg_observed_diff,
