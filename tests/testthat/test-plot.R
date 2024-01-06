@@ -43,17 +43,16 @@ test_that("Plot function does not throw an error with classic ob_decompose", {
   mod1 <- log(wage) ~ age + central_city + msa + region + black +
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
     years_worked_military + part_time + industry
-browser()
+
   decompose_male_as_reference <- ob_decompose(formula = mod1,
                                               data = nlys00,
                                               group = female,
                                               rifreg_statistic = "variance",
-                                              reweighting = F,
+                                              reweighting = TRUE,
                                               bootstrap = TRUE,
                                               bootstrap_iterations = 10,
                                               reference_0 = FALSE)
 
-  browser()
   testthat::expect_error(plot(decompose_male_as_reference),
                          NA)
   testthat::expect_error(plot(decompose_male_as_reference, detailed_effects = FALSE),
@@ -62,9 +61,7 @@ browser()
   testthat::expect_error(plot(decompose_male_as_reference,
                               aggregate_factors = FALSE),
                          NA)
-  plot(decompose_male_as_reference, detailed_effects = FALSE)
 
-browser()
   custom_aggregation <- list(`Age, race, region, etc.` = c("age",
                                                            "blackyes",
                                                            "hispanicyes",
@@ -91,8 +88,6 @@ browser()
 
   testthat::expect_error(plot(decompose_male_as_reference, custom_aggregation = custom_aggregation),
                          NA)
-
-
 })
 
 

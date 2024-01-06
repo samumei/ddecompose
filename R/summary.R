@@ -521,6 +521,7 @@ aggregate_terms <- function(x,
       }
       else{
         custom_aggregation <- x$GU_normalized_coefficient_names
+        custom_aggregation <- lapply(custom_aggregation, function(x) gsub("`", "", x))
       }
 
     }else if(!is.null(custom_aggregation)){
@@ -622,7 +623,6 @@ aggregate_terms <- function(x,
       x$decomposition_vcov$decomposition_terms_vcov <- aggregated_terms_se[, -1]
     }
     else {
-
       aggregated_vcov_Observed_difference <- aggregated_vcov_Observed_difference[names(custom_aggregation), names(custom_aggregation)]
       aggregated_vcov_Composition_effect <- aggregated_vcov_Composition_effect[names(custom_aggregation), names(custom_aggregation)]
       aggregated_vcov_Structure_effect <- aggregated_vcov_Structure_effect[names(custom_aggregation), names(custom_aggregation)]
