@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
 ```
 
 
-# `ddecompose`: Detailed Distributional Decompositions of Between-Group Differences in R
+# `ddecompose`: Detailed Distributional Decompositions
 
 ## Overview
 
-**ddecompose** implements the [Oaxaca (1973)](https://www.jstor.org/stable/2525981)-[Blinder (1973)](https://www.jstor.org/stable/144855) decomposition method and generalizations
+The R package **ddecompose** implements the [Oaxaca (1973)](https://www.jstor.org/stable/2525981)-[Blinder (1973)](https://www.jstor.org/stable/144855) decomposition method and generalizations
 of it that decompose differences in distributional statistics beyond the mean.
 
 `ob_decompose()` decomposes differences in the mean outcome between two groups into one 
@@ -46,12 +46,12 @@ limitations, refer to [Fortin, Lemieux, and Firpo (2011)](https://economics.ubc.
 
 ## Installation 
 
-You can either install the CRAN version of `ddecompose`
+You can hopefully soon install the CRAN version of `ddecompose`
 ```{r, eval=FALSE}
 install.packages("ddecompose")
 ```
 
-or the latest development version from GitHub:
+Until now, refer to the latest development version from GitHub:
 ```{r , eval=FALSE}
 devtools::install_github("samumei/ddecompose")
 ```
@@ -381,13 +381,9 @@ To reproduce the code below, make sure you download the entire data set and Stat
 
 
 ```{r, eval=FALSE}
-
-set.seed(987421)
-
-
 # Make sure you execute the Stata Code until the oaxaca commands 
 # and save the data in the appropriate folder.
-men8816_t4 <- readstata13::read.dta13("data-raw/FFL_2018/usmen8816_t4.dta")
+men8816_t4 <- readstata13::read.dta13("data-raw/usmen8816_t4.dta")
 
 # Removing redundant observations - we replicate the reweighting within the function
 men8816_t4 <- men8816_t4[men8816_t4$time <= 1,] 
@@ -400,7 +396,8 @@ The model is specified as in the Stata files, containing weights, computing boot
 
 ```{r eval=FALSE}
 
-men8816_t4 <- men8816
+set.seed(987421)
+
 ffl_model_with_reweighting <- as.formula(
     paste("lwage2 ~ covered + nonwhite + nmarr + 
           ed0 + ed1 + ed3 + ed4 + ed5 + ",
@@ -434,7 +431,7 @@ decompose_90_10  <- ddecompose::ob_decompose(formula = ffl_model_with_reweightin
                                 bw = 0.065,
                                 kernel = "epanechnikov",
                                 reweighting = TRUE,
-                              reweighting_method = "fast_glm",
+                              reweighting_method = "fastglm",
                                 trimming = TRUE,
                                 trimming_threshold = 100,
                                 bootstrap = TRUE,
@@ -449,7 +446,7 @@ decompose_variance  <- ddecompose::ob_decompose(formula = var_model,
                                  reference_0 = TRUE,
                                  rifreg_statistic = "variance",
                                  reweighting = TRUE,
-                              reweighting_method = "fast_glm",
+                              reweighting_method = "fastglm",
                                  trimming = TRUE,
                                  trimming_threshold = 100,
                                  bootstrap = TRUE,
@@ -465,7 +462,7 @@ decompose_gini  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting
                                group = time,
                                rifreg_statistic = "gini",
                                reweighting = TRUE,
-                              reweighting_method = "fast_glm",
+                              reweighting_method = "fastglm",
                                trimming = TRUE,
                                trimming_threshold = 100,
                                bootstrap = TRUE,
