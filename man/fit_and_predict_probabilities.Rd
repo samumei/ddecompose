@@ -19,15 +19,17 @@ fit_and_predict_probabilities(
 
 \item{data_used}{\code{data.frame} with data.}
 
+\item{weights}{weights variable}
+
 \item{method}{method to estimate conditional probabilities}
+
+\item{return_model}{boolean: If \code{FALSE} (default), the object of the model
+fit used to predict the conditional probabilities for the reweighting factor
+are not returned.}
 
 \item{newdata}{\code{data.frame} with data to be used for predictions.}
 
 \item{...}{other parameters passed to the estimation function.}
-
-\item{boolean:}{If \code{TRUE} (default), the object of the model
-fit used to predict the conditional probabilities for the reweighting factor
-are returned.}
 }
 \description{
 This function fits a binary choice model and predicts probabilities for every

@@ -66,6 +66,10 @@ where \eqn{N} is the number of observations in the reference group.}
 fit(s) used to predict the conditional probabilities for the reweighting factor(s)
 are returned.}
 
+\item{estimate_normalized_difference}{boolean: If \code{TRUE} (default), the
+normalized differences between the covariate means of the comparison group and the
+reweighted reference group are calculated.}
+
 \item{...}{other parameters passed to the function estimating the conditional probabilities.}
 }
 \description{

@@ -372,7 +372,9 @@ top_share <- function(dep_var,
                       weights,
                       top_percent = 0.1){
   threshold <- Hmisc::wtd.quantile(dep_var, weights = weights, probs = 1-top_percent)
-  share <- sum(weights[which(dep_var > threshold)] * dep_var[which(dep_var > threshold)])/sum(weights * dep_var)
+  share <- sum(weights[which(dep_var > threshold)] *
+                 dep_var[which(dep_var > threshold)]) /
+              sum(weights * dep_var)
   return(share)
 }
 

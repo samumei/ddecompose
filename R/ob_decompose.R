@@ -507,7 +507,6 @@ ob_decompose <- function(formula,
 #' @param vcov unction estimating covariance matrix of regression coefficients if \code{compute_analytical_se == TRUE}
 #' @param ... additional parameters passed to custom_rif_function
 #'
-
 estimate_ob_decompose <- function(formula,
                              data_used,
                              reference_0,
@@ -768,7 +767,39 @@ estimate_ob_decompose <- function(formula,
 #' The function resamples observations and restimates the OB decomposition
 #' with the new sample.
 #'
-
+#' @param formula_decomposition \code{formula} object that contains the formula for the decomposition
+#' @param formula_reweighting \code{formula} object that contains the formula for
+#'        the reweighting in case of a reweighted decompostion
+#' @param data_used \code{data.frame} with data used for estimation (including weight and group variable)
+#' @param group name of the a binary variable (numeric or factor)
+#' identifying the two groups that will be compared. The group identified by the
+#' lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
+#' first level of factor variable) is defined as group 0.
+#' @param reference_0 boolean: indicating if group 0 is the reference group and if its coefficients are used to compute the counterfactual mean.
+#' @param normalize_factors boolean: If `TRUE`, then factor variables are normalized as proposed by Gardeazabal/Ugidos (2004)
+#' @param reweighting boolean: if `TRUE`, then the decomposition is performed with
+#' with respect to reweighted reference group.
+#' @param reweighting_method  specifies the method fit and predict conditional probabilities
+#' used to derive the reweighting factor. Currently, \code{"logit"}, \code{"fastglm"},
+#' and \code{"random forests"} are available.
+#' @param trimming boolean: If \code{TRUE}, observations with dominant reweighting factor
+#' values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
+#' default, trimming is set to \code{FALSE}.
+#' @param trimming_threshold numeric: threshold defining the maximal accepted
+#' relative weight of the reweighting factor value (i.e., inverse probability weight)
+#' of a single observation. If \code{NULL}, the threshold is set to \eqn{sqrt(N)/N},
+#' where \eqn{N} is the number of observations in the reference group.
+#' @param rifreg boolean: if `TRUE`, then RIF decomposition is performed
+#' @param rifreg_statistic string containing the distributional statistic for which to compute the RIF.
+#' @param rifreg_probs a vector of length 1 or more with probabilities of quantiles.
+#' @param custom_rif_function the RIF function to compute the RIF of the custom distributional statistic.
+#' @param na.action generic function that defines how NAs in the data should be handled.
+#' @param cluster numeric vector of same length as \code{dep_var} indicating the
+#' clustering of observations. If \code{cluster = NULL} (default), no clustering
+#' is a assumend and bootstrap procedure resamples individual observations. Otherwise
+#' bootstrap procedure resamples clusters.
+#' @param ... additional parameters passed to custom_rif_function
+#'
 bootstrap_estimate_ob_decompose <- function(formula_decomposition,
                                        formula_reweighting,
                                        data_used,

@@ -340,7 +340,9 @@
 #'                       weights,
 #'                       top_percent = 0.1){
 #'   threshold <- Hmisc::wtd.quantile(dep_var, weights = weights, probs = 1-top_percent)
-#'   share <- sum(weights[which(dep_var > threshold)] * dep_var[which(dep_var > threshold)])/sum(weights * dep_var)
+#'   share <- sum(weights[which(dep_var > threshold)] *
+#'                  dep_var[which(dep_var > threshold)]) /
+#'               sum(weights * dep_var)
 #'   return(share)
 #' }
 #'
@@ -737,6 +739,9 @@ dfl_decompose <-  function(formula,
 #' @param return_model boolean: If \code{TRUE} (default), the object(s) of the model
 #' fit(s) used to predict the conditional probabilities for the reweighting factor(s)
 #' are returned.
+#' @param estimate_normalized_difference boolean: If \code{TRUE} (default), the
+#' normalized differences between the covariate means of the comparison group and the
+#' reweighted reference group are calculated.
 #' @param ... other parameters passed to the function estimating the conditional probabilities.
 #'
 dfl_decompose_estimate <- function(formula,
@@ -1111,10 +1116,11 @@ dfl_decompose_bootstrap <- function(formula,
 #'
 #' @param formula \code{formula} object specifying the conditional probability model.
 #' @param data_used \code{data.frame} with data.
+#' @param weights weights variable
 #' @param method method to estimate conditional probabilities
-#' @param  boolean: If \code{TRUE} (default), the object of the model
+#' @param  return_model boolean: If \code{FALSE} (default), the object of the model
 #' fit used to predict the conditional probabilities for the reweighting factor
-#' are returned.
+#' are not returned.
 #' @param newdata \code{data.frame} with data to be used for predictions.
 #' @param ... other parameters passed to the estimation function.
 #'
