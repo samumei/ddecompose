@@ -12,7 +12,7 @@ test_that("Plot function does not throw an error with dfl_decompose", {
   testthat::expect_error(plot(decompose_results), NA)
 })
 
-test_that("Plot function does not throw an error with ob_decompose", {
+test_that("Plot function does not throw an error with rifreg in ob_decompose", {
 
   data("nlys00")
 
@@ -25,7 +25,7 @@ test_that("Plot function does not throw an error with ob_decompose", {
                                     group = female,
                                     reweighting = TRUE,
                                     rifreg_statistic = "quantiles",
-                                    rifreg_probs = 0.1,
+                                    rifreg_probs = c(0.1, 0.5, 0.9),
                                     bootstrap = TRUE,
                                     bootstrap_iterations = 10,
                                     reference_0 = FALSE)
@@ -33,6 +33,66 @@ test_that("Plot function does not throw an error with ob_decompose", {
   testthat::expect_error(plot(decompose_male_as_reference,
                               confidence_bands = FALSE), NA)
   testthat::expect_error(plot(decompose_male_as_reference), NA)
+})
+
+
+test_that("Plot function does not throw an error with classic ob_decompose", {
+
+  data("nlys00")
+
+  mod1 <- log(wage) ~ age + central_city + msa + region + black +
+    hispanic + education + afqt + family_responsibility + years_worked_civilian +
+    years_worked_military + part_time + industry
+browser()
+  decompose_male_as_reference <- ob_decompose(formula = mod1,
+                                              data = nlys00,
+                                              group = female,
+                                              rifreg_statistic = "variance",
+                                              reweighting = F,
+                                              bootstrap = TRUE,
+                                              bootstrap_iterations = 10,
+                                              reference_0 = FALSE)
+
+  browser()
+  testthat::expect_error(plot(decompose_male_as_reference),
+                         NA)
+  testthat::expect_error(plot(decompose_male_as_reference, detailed_effects = FALSE),
+                         NA)
+
+  testthat::expect_error(plot(decompose_male_as_reference,
+                              aggregate_factors = FALSE),
+                         NA)
+  plot(decompose_male_as_reference, detailed_effects = FALSE)
+
+browser()
+  custom_aggregation <- list(`Age, race, region, etc.` = c("age",
+                                                           "blackyes",
+                                                           "hispanicyes",
+                                                           "regionNorth-central",
+                                                           "regionSouth",
+                                                           "regionWest",
+                                                           "central_cityyes",
+                                                           "msayes"),
+                             `Education` = c("education<10 yrs",
+                                             "educationHS grad (diploma)",
+                                             "educationHS grad (GED)",
+                                             "educationSome college",
+                                             "educationBA or equiv. degree",
+                                             "educationMA or equiv. degree",
+                                             "educationPh.D or prof. degree"),
+                             `AFTQ` = "afqt",
+                             `L.T. withdrawal due to family` = "family_responsibility",
+                             `Life-time work experience` = c("years_worked_civilian",
+                                                             "years_worked_military",
+                                                             "part_time"),
+                             `Industrial sectors` = c("industryManufacturing",
+                                                      "industryEducation, Health, Public Admin.",
+                                                      "industryOther services"))
+
+  testthat::expect_error(plot(decompose_male_as_reference, custom_aggregation = custom_aggregation),
+                         NA)
+
+
 })
 
 

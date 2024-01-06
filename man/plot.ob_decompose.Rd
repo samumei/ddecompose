@@ -4,10 +4,28 @@
 \alias{plot.ob_decompose}
 \title{Plot decomposition terms for quantiles}
 \usage{
-\method{plot}{ob_decompose}(x, confidence_bands = TRUE, confidence_level = 0.95)
+\method{plot}{ob_decompose}(
+  x,
+  detailed_effects = TRUE,
+  aggregate_factors = TRUE,
+  custom_aggregation = NULL,
+  confidence_bands = FALSE,
+  confidence_level = 0.95
+)
 }
 \arguments{
 \item{x}{an object of class "ob_decompose", usually, a result of a call to [ob_decompose()] with code{statistics = "quantiles"}.}
+
+\item{detailed_effects}{If `TRUE` (default) and not several quantiles are being plotted, the detailed effects are plotted.
+Else, only the total (aggregate) effects are plotted.}
+
+\item{aggregate_factors}{boolean, if `TRUE` (default) terms associated with detailed factor
+levels are aggregated to a single term for every factor variable.}
+
+\item{custom_aggregation}{list specifying the aggregation of detailed decomposition
+terms. The parameter `custom_aggregation` overrides the parameter `aggregate_factors`.
+If `NULL` (default), then either all detailed terms or all terms associated with
+a single variable are returned.}
 
 \item{confidence_bands}{If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.}
 
@@ -28,7 +46,8 @@ mod1 <- log(wage) ~ age + central_city + msa + region + black +
   hispanic + education + afqt + family_responsibility + years_worked_civilian +
   years_worked_military + part_time + industry
 
-decompose_male_as_reference <- ob_decompose(formula = mod1,
+# plotting RIF regression decomposition of deciles
+decompose_rifreg_deciles <- ob_decompose(formula = mod1,
                                   data = nlys00,
                                   group = female,
                                   reweighting = TRUE,
@@ -37,9 +56,51 @@ decompose_male_as_reference <- ob_decompose(formula = mod1,
                                   bootstrap_iterations = 50,
                                   reference_0 = FALSE)
 
-plot(decompose_male_as_reference)
+plot(decompose_rifreg_deciles)
 
-plot(decompose_male_as_reference,
+plot(decompose_rifreg_deciles,
      confidence_bands = FALSE)
+
+
+# plotting Oaxaca-Blinder decomposition
+
+ decompose_ob_mean <- ob_decompose(formula = mod1,
+                                   data = nlys00,
+                                   group = female,
+                                   reweighting = TRUE,
+                                   bootstrap = FALSE,
+                                   reference_0 = FALSE)
+
+ plot(decompose_ob_mean)
+ plot(decompose_ob_mean, detailed_effects = FALSE)
+
+
+# With custom aggregation
+
+custom_aggregation <- list(`Age, race, region, etc.` = c("age",
+                                                         "blackyes",
+                                                         "hispanicyes",
+                                                         "regionNorth-central",
+                                                         "regionSouth",
+                                                         "regionWest",
+                                                         "central_cityyes",
+                                                         "msayes"),
+                           `Education` = c("education<10 yrs",
+                                           "educationHS grad (diploma)",
+                                           "educationHS grad (GED)",
+                                           "educationSome college",
+                                           "educationBA or equiv. degree",
+                                           "educationMA or equiv. degree",
+                                           "educationPh.D or prof. degree"),
+                           `AFTQ` = "afqt",
+                           `L.T. withdrawal due to family` = "family_responsibility",
+                           `Life-time work experience` = c("years_worked_civilian",
+                                                           "years_worked_military",
+                                                           "part_time"),
+                           `Industrial sectors` = c("industryManufacturing",
+                                                    "industryEducation, Health, Public Admin.",
+                                                    "industryOther services"))
+
+plot(decompose_ob_mean, custom_aggregation = custom_aggregation)
 
 }

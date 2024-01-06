@@ -105,9 +105,17 @@ plot.dfl_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95
 #' with \code{ob_decompose} over the  unit interval.
 #'
 #' @param x an object of class "ob_decompose", usually, a result of a call to [ob_decompose()] with code{statistics = "quantiles"}.
+#' @param detailed_effects If `TRUE` (default) and not several quantiles are being plotted, the detailed effects are plotted.
+#'                         Else, only the total (aggregate) effects are plotted.
 #' @param confidence_bands If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the confidence interval
 #'              plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standard error.
+#' @param aggregate_factors boolean, if `TRUE` (default) terms associated with detailed factor
+#' levels are aggregated to a single term for every factor variable.
+#' @param custom_aggregation list specifying the aggregation of detailed decomposition
+#' terms. The parameter `custom_aggregation` overrides the parameter `aggregate_factors`.
+#' If `NULL` (default), then either all detailed terms or all terms associated with
+#' a single variable are returned.
 #'
 #' @return a ggplot illustrating the decomposition terms for quantiles.
 #' @export
@@ -119,7 +127,8 @@ plot.dfl_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95
 #'   hispanic + education + afqt + family_responsibility + years_worked_civilian +
 #'   years_worked_military + part_time + industry
 #'
-#' decompose_male_as_reference <- ob_decompose(formula = mod1,
+#' # plotting RIF regression decomposition of deciles
+#' decompose_rifreg_deciles <- ob_decompose(formula = mod1,
 #'                                   data = nlys00,
 #'                                   group = female,
 #'                                   reweighting = TRUE,
@@ -128,29 +137,77 @@ plot.dfl_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95
 #'                                   bootstrap_iterations = 50,
 #'                                   reference_0 = FALSE)
 #'
-#' plot(decompose_male_as_reference)
+#' plot(decompose_rifreg_deciles)
 #'
-#' plot(decompose_male_as_reference,
+#' plot(decompose_rifreg_deciles,
 #'      confidence_bands = FALSE)
 #'
-plot.ob_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95){
+#'
+#' # plotting Oaxaca-Blinder decomposition
+#'
+#'  decompose_ob_mean <- ob_decompose(formula = mod1,
+#'                                    data = nlys00,
+#'                                    group = female,
+#'                                    reweighting = TRUE,
+#'                                    bootstrap = FALSE,
+#'                                    reference_0 = FALSE)
+#'
+#'  plot(decompose_ob_mean)
+#'  plot(decompose_ob_mean, detailed_effects = FALSE)
+#'
+#'
+#' # With custom aggregation
+#'
+#' custom_aggregation <- list(`Age, race, region, etc.` = c("age",
+#'                                                          "blackyes",
+#'                                                          "hispanicyes",
+#'                                                          "regionNorth-central",
+#'                                                          "regionSouth",
+#'                                                          "regionWest",
+#'                                                          "central_cityyes",
+#'                                                          "msayes"),
+#'                            `Education` = c("education<10 yrs",
+#'                                            "educationHS grad (diploma)",
+#'                                            "educationHS grad (GED)",
+#'                                            "educationSome college",
+#'                                            "educationBA or equiv. degree",
+#'                                            "educationMA or equiv. degree",
+#'                                            "educationPh.D or prof. degree"),
+#'                            `AFTQ` = "afqt",
+#'                            `L.T. withdrawal due to family` = "family_responsibility",
+#'                            `Life-time work experience` = c("years_worked_civilian",
+#'                                                            "years_worked_military",
+#'                                                            "part_time"),
+#'                            `Industrial sectors` = c("industryManufacturing",
+#'                                                     "industryEducation, Health, Public Admin.",
+#'                                                     "industryOther services"))
+#'
+#' plot(decompose_ob_mean, custom_aggregation = custom_aggregation)
+#'
+plot.ob_decompose <- function(x,
+                              detailed_effects = TRUE,
+                              aggregate_factors = TRUE,
+                              custom_aggregation = NULL,
+                              confidence_bands = FALSE,
+                              confidence_level = 0.95){
 
-  if(!x$input_parameters$rifreg_statistic == "quantiles"){
-    stop("Difference must be decomposed at least at a single quantile.")
-  }
+  if(!is.null(x$input_parameters$rifreg_statistic) &&
+     x$input_parameters$rifreg_statistic == "quantiles" &&
+     length(x$input_parameters$rifreg_probs) > 1){
 
-  n_quantiles <- length(x) - 5
-  col_names <- c("probs", names(x[[1]][["decomposition_terms"]][-1]))
+    # Plot for several quantiles
+    n_quantiles <- length(x) - 5
+    col_names <- c("probs", names(x[[1]][["decomposition_terms"]][-1]))
 
-  na_matrix <- matrix(NA, nrow = n_quantiles, ncol = length(col_names))
-  decompose_results <- as.data.frame(na_matrix)
-  colnames(decompose_results) <- col_names
+    na_matrix <- matrix(NA, nrow = n_quantiles, ncol = length(col_names))
+    decompose_results <- as.data.frame(na_matrix)
+    colnames(decompose_results) <- col_names
 
-  decompose_results$probs <- x$input_parameters$rifreg_probs
+    decompose_results$probs <- x$input_parameters$rifreg_probs
 
-  for(i in 1:n_quantiles) {
-    decompose_results[i, 2:length(col_names)] <- x[[i]]$decomposition_terms[1, 2:length(col_names)]
-  }
+    for(i in 1:n_quantiles) {
+      decompose_results[i, 2:length(col_names)] <- x[[i]]$decomposition_terms[1, 2:length(col_names)]
+    }
 
 
     decomposition_quantiles <-  stats::reshape(decompose_results,
@@ -161,61 +218,115 @@ plot.ob_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95)
                                                direction = "long",
                                                v.names = "value")
 
-  confidence_bands <- ifelse(confidence_bands
-                             & x$input_parameters$bootstrap,
-                             TRUE,
-                             FALSE)
-  if(confidence_bands){
+    confidence_bands <- ifelse(confidence_bands
+                               & x$input_parameters$bootstrap,
+                               TRUE,
+                               FALSE)
+    if(confidence_bands){
 
-    decompose_se <- as.data.frame(na_matrix)
-    colnames(decompose_se) <- col_names
+      decompose_se <- as.data.frame(na_matrix)
+      colnames(decompose_se) <- col_names
 
-    decompose_se$probs <- x$input_parameters$rifreg_probs
+      decompose_se$probs <- x$input_parameters$rifreg_probs
 
-    for(i in 1:n_quantiles) {
-      decompose_se[i, 2:length(col_names)] <- x[[i]]$decomposition_vcov$decomposition_terms_se[1, 2:length(col_names)]
+      for(i in 1:n_quantiles) {
+        decompose_se[i, 2:length(col_names)] <- x[[i]]$decomposition_vcov$decomposition_terms_se[1, 2:length(col_names)]
+      }
+
+      decomposition_quantiles_se <-  stats::reshape(decompose_se,
+                                                    idvar = c("probs"),
+                                                    times = setdiff(names(decompose_se),c("probs")),
+                                                    timevar="effect",
+                                                    varying = list(setdiff(names(decompose_se),c("probs"))),
+                                                    direction = "long",
+                                                    v.names = "se")
+
+      decomposition_quantiles$se <- decomposition_quantiles_se$se
+
+
+      decomposition_quantiles$t_value <- stats::qnorm(1-(1-confidence_level)/2)
+
+      decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed_difference")
+      plot <-  ggplot(data=decomposition_quantiles, aes(x=probs,
+                                                        y=value,
+                                                        col=effect,
+                                                        fill=effect,
+                                                        ymin=value-t_value*se,
+                                                        ymax=value+t_value*se
+      )) +
+        geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
+        geom_ribbon(alpha=0.2, col=NA, fill="red") +
+        geom_line(col="red") +
+        geom_point(col="red") +
+        facet_wrap(~ effect) +
+        labs(y="Difference", x="Quantile rank")
     }
+    else{
 
-    decomposition_quantiles_se <-  stats::reshape(decompose_se,
-                                                  idvar = c("probs"),
-                                                  times = setdiff(names(decompose_se),c("probs")),
-                                                  timevar="effect",
-                                                  varying = list(setdiff(names(decompose_se),c("probs"))),
-                                                  direction = "long",
-                                                  v.names = "se")
-
-    decomposition_quantiles$se <- decomposition_quantiles_se$se
-
-
-    decomposition_quantiles$t_value <- stats::qnorm(1-(1-confidence_level)/2)
-
-    decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed_difference")
-    plot <-  ggplot(data=decomposition_quantiles, aes(x=probs,
-                                                      y=value,
-                                                      col=effect,
-                                                      fill=effect,
-                                                      ymin=value-t_value*se,
-                                                      ymax=value+t_value*se
-    )) +
-      geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
-      geom_ribbon(alpha=0.2, col=NA, fill="red") +
-      geom_line(col="red") +
-      geom_point(col="red") +
-      facet_wrap(~ effect) +
-      labs(y="Difference", x="Quantile rank")
+      decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed_difference")
+      plot <- ggplot(decomposition_quantiles, aes(probs, value, col=effect, shape=effect)) +
+        geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
+        geom_line() +
+        geom_point() +
+        labs(y="Difference", x="Quantile rank")
+    }
   }
   else{
+    # Plot for single statistic
 
-    decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed_difference")
-    plot <- ggplot(decomposition_quantiles, aes(probs, value, col=effect, shape=effect)) +
-      geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
-      geom_line() +
-      geom_point() +
-      labs(y="Difference", x="Quantile rank")
+    reweighting <- ifelse(x$input_parameters$reweighting, TRUE, FALSE)
+
+    if(aggregate_factors | !is.null(custom_aggregation)){
+      aggregated_terms <- aggregate_terms(x[[1]],
+                                 aggregate_factors = aggregate_factors,
+                                 custom_aggregation = custom_aggregation,
+                                 reweighting = reweighting)
+
+      results <- aggregated_terms$decomposition_terms
+    }
+    else {
+      results <- x[[1]]$decomposition_terms
+    }
+
+
+    results <- results[ifelse(detailed_effects, -1, 1),]
+
+    decomposition_results <-  stats::reshape(data = results,
+                                               idvar = c("Variable"),
+                                               times = setdiff(names(results),c("Variable")),
+                                               timevar="effect",
+                                               varying = list(setdiff(names(results),c("Variable"))),
+                                               direction = "long",
+                                               v.names = "value")
+
+    if(reweighting) {
+      decomposition_results$effect <- factor(decomposition_results$effect,
+                                             levels = c("Observed_difference",
+                                                        "Composition_effect",
+                                                        "Structure_effect",
+                                                        "Specification_error",
+                                                        "Reweighting_error"))
+    }
+    else {
+      decomposition_results$effect <- factor(decomposition_results$effect,
+                                             levels = c("Observed_difference",
+                                                        "Composition_effect",
+                                                        "Structure_effect"))
+    }
+
+
+    plot <- ggplot(decomposition_results, aes(x = effect, y = value, fill = Variable)) +
+      geom_bar(stat = "identity", position = "stack") +
+      xlab("Effect Type") +
+      ylab("Value") +
+      labs(fill = "Variable") +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
   }
 
   return(plot)
 }
+
+
 #
 #
 # ############### OLD CODE

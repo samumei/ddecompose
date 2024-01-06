@@ -470,8 +470,6 @@ aggregate_terms <- function(x,
                             custom_aggregation = NULL,
                             reweighting){
 
-
-
   no_se <- ifelse(is.null(x$decomposition_vcov), TRUE, FALSE)
 
   if(no_se) {
@@ -493,12 +491,20 @@ aggregate_terms <- function(x,
 
       if(is.null(x$GU_normalized_coefficient_names)){
 
-        model_variables <- all.vars(x$model_fits[[1]]$terms)[-1]
-        if(names(x$model_fits[[1]]$coefficients[1])=="(Intercept)") {
+        if(length(x$model_fits[[1]]) < 10) {
+          # RIFREG statistic
+          lm_list <- x$model_fits[[1]]$rif_lm[[1]]
+        }
+        else {
+          lm_list <- x$model_fits[[1]]
+        }
+
+        model_variables <- all.vars(lm_list$terms)[-1]
+        if(names(lm_list$coefficients[1])=="(Intercept)") {
           model_variables <- c("(Intercept)", model_variables)
         }
 
-        factor_levels <- x$model_fits[[1]]$xlevels
+        factor_levels <- lm_list$xlevels
         number_of_factors <- length(factor_levels)
         factor_variables <- names(factor_levels)
 
@@ -530,7 +536,6 @@ aggregate_terms <- function(x,
         custom_aggregation <- c(custom_aggregation, list(other_variables))
         names(custom_aggregation)[length(custom_aggregation)] <- "(Other variables)"
       }
-
     }
 
     # Aggregate terms and vcov
@@ -617,6 +622,7 @@ aggregate_terms <- function(x,
       x$decomposition_vcov$decomposition_terms_vcov <- aggregated_terms_se[, -1]
     }
     else {
+
       aggregated_vcov_Observed_difference <- aggregated_vcov_Observed_difference[names(custom_aggregation), names(custom_aggregation)]
       aggregated_vcov_Composition_effect <- aggregated_vcov_Composition_effect[names(custom_aggregation), names(custom_aggregation)]
       aggregated_vcov_Structure_effect <- aggregated_vcov_Structure_effect[names(custom_aggregation), names(custom_aggregation)]
