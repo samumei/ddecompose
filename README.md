@@ -1,7 +1,7 @@
 
-- [`ddeco`: Detailed Distributional Decompositions of Between-Group
+- [`ddecompose`: Detailed Distributional Decompositions of Between-Group
   Differences in
-  R](#ddeco-detailed-distributional-decompositions-of-between-group-differences-in-r)
+  R](#ddecompose-detailed-distributional-decompositions-of-between-group-differences-in-r)
   - [Overview](#overview)
   - [Installation](#installation)
   - [Background](#background)
@@ -29,11 +29,11 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `ddeco`: Detailed Distributional Decompositions of Between-Group Differences in R
+# `ddecompose`: Detailed Distributional Decompositions of Between-Group Differences in R
 
 ## Overview
 
-**ddeco** implements the [Oaxaca
+**ddecompose** implements the [Oaxaca
 (1973)](https://www.jstor.org/stable/2525981)-[Blinder
 (1973)](https://www.jstor.org/stable/144855) decomposition method and
 generalizations of it that decompose differences in distributional
@@ -66,7 +66,7 @@ and Firpo et al. (2018).
 
 ## Installation
 
-You can either install the CRAN version of `ddeco`
+You can either install the CRAN version of `ddecompose`
 
 ``` r
 install.packages("ddecompose")
@@ -343,14 +343,14 @@ and Lemieux
 (2009b)](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)
 and Firpo et al. (2018) do the same for the RIF estimator and for the
 RIF decomposition terms, respectively. The authors propose to bootstrap
-standard errors. `ddeco` allows to bootstrap standard errors in both
+standard errors. `ddecompose` allows to bootstrap standard errors in both
 `ob_decompose()` and `dfl_decompose()`. For the classical OB decomposition,
 analytical standard errors are available, too.
 
 ## Examples (unfinished)
 
 The following examples illustrate the workings of the main decomposition
-functions in `ddeco`. We use a sample of the National Longitudinal
+functions in `ddecompose`. We use a sample of the National Longitudinal
 Survey (NLSY) 79 containig wage data from 2000 of workers who were aged
 35 to 43 in that year. The data is from O’Neill and O’Neill (2006) and
 is used as an illustration of the Oxaca-Blinder mean decomposition in
@@ -390,7 +390,7 @@ standard errors estimated if the variance is not bootstrapped.
 summary(ob_decompose_estimate)
 ```
 
-`ddeco` comes with a convenient plot function. It illustrates the
+`ddecompose` comes with a convenient plot function. It illustrates the
 estimated UQPE across the distribution. The confidence bands are based
 on the same standard errors as returned by `summary`.
 
@@ -435,7 +435,7 @@ plot(flf_male_inequality)
 
 *The influence function of quantiles, the mean, the variance, the Gini
 coefficient, the interquantile range and the quantile ratio are
-available in `ddeco`. Additionally, the package enables calculating the
+available in `ddecompose`. Additionally, the package enables calculating the
 RIF for additional statistics with user-written functions (see example
 below). [Cowell and Flachaire
 (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah &
@@ -467,7 +467,7 @@ To decompose the the difference in the Gini coefficient of two groups,
 `rifreg_statistic = "gini"` needs to be indicated accordingly. The RIF
 functions for the following functions are currently implemented:
 `"quantiles"`, `"mean"`, `"variance"`, `"gini"`,
-`"interquantile_range"`, and `"interquantile_ratio"`. However, `ob_deco`
+`"interquantile_range"`, and `"interquantile_ratio"`. However, `ob_decompose`
 also allows to pass a custom RIF function for the decomposition, by
 setting `rifreg_statistic = "custom"` and passing the custom function to
 `custom_rif_function`.
@@ -566,7 +566,7 @@ ffl_model_with_reweighting <- as.formula(
 
 
 # Interquantile Ratio 90-10 
-decompose_90_10  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting,
+decompose_90_10  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting,
                                 data = men8816_t4,
                                 weights = eweight,
                                 group = time,
@@ -585,7 +585,7 @@ decompose_90_10  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting,
                               cores = 4)
 
 ## Variance
-decompose_variance  <- ddeco::ob_decompose(formula = var_model,
+decompose_variance  <- ddecompose::ob_decompose(formula = var_model,
                                  data = men8816_t4,
                                  weights = eweight,
                                  group = time,
@@ -603,7 +603,7 @@ decompose_variance  <- ddeco::ob_decompose(formula = var_model,
 # Gini 
 ffl_model_with_reweighting_gini <- update.formula(ffl_model_with_reweighting, exp(.) ~ .)
 
-decompose_gini  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting_gini,
+decompose_gini  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting_gini,
                                data = men8816_t4,
                                weights = eweight,
                                group = time,

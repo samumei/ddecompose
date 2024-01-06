@@ -448,7 +448,7 @@
 #   #   men8816_t3 <- men8816_t3[men8816_t3$time <= 1,]
 #   #
 #   #
-#   decompose_90_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_10  <- ddecompose::ob_decompose(formula = var_model,
 #                                 data = men8816_t3,
 #                                 weights = eweight,
 #                                 group = time,
@@ -487,7 +487,7 @@
 #
 #
 #
-#   decompose_50_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_50_10  <- ddecompose::ob_decompose(formula = var_model,
 #                                 data = men8816_t3,
 #                                 weights = eweight,
 #                                 group = time,
@@ -522,7 +522,7 @@
 #   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0302523, tolerance = 0.1)
 #
 #
-#   decompose_90_50  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_50  <- ddecompose::ob_decompose(formula = var_model,
 #                                 data = men8816_t3,
 #                                 weights = eweight,
 #                                 group = time,
@@ -556,7 +556,7 @@
 #   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0495704  , tolerance = 0.07)
 #
 #
-#   decompose_variance  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_variance  <- ddecompose::ob_decompose(formula = var_model,
 #                                    data = men8816_t3,
 #                                    weights = eweight,
 #                                    group = time,
@@ -595,7 +595,7 @@
 #
 #
 #
-#   decompose_gini  <- ddeco::ob_decompose(formula = gini_model,
+#   decompose_gini  <- ddecompose::ob_decompose(formula = gini_model,
 #                                data = men8816_t3,
 #                                weights = eweight,
 #                                group = time,
@@ -643,7 +643,7 @@
 #   # men8816_t3 <- readstata13::read.dta13("data-raw/ddecompose literature/FFL_2018/usmen8816_t3.dta")
 #   # men8816_t3 <- men8816_t3[men8816_t3$time <= 1,]
 #
-#   #   decompose_90_10  <- ddeco::ob_decompose(formula = var_model,
+#   #   decompose_90_10  <- ddecompose::ob_decompose(formula = var_model,
 #   #                                 data = men8816_t3,
 #   #                                 weights = eweight,
 #   #                                 group = time,
@@ -681,7 +681,7 @@
 #   #
 #   #
 #   #
-#   #   decompose_50_10  <- ddeco::ob_decompose(formula = var_model,
+#   #   decompose_50_10  <- ddecompose::ob_decompose(formula = var_model,
 #   #                                 data = men8816_t3,
 #   #                                 weights = eweight,
 #   #                                 group = time,
@@ -716,7 +716,7 @@
 #   #   testthat::expect_equal(as.numeric(100*sum(decompose_50_10$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0302523, tolerance = 0.1)
 #   #
 #   #
-#   #   decompose_90_50  <- ddeco::ob_decompose(formula = var_model,
+#   #   decompose_90_50  <- ddecompose::ob_decompose(formula = var_model,
 #   #                                 data = men8816_t3,
 #   #                                 weights = eweight,
 #   #                                 group = time,
@@ -750,7 +750,7 @@
 #   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0495704  , tolerance = 0.07)
 #
 #   browser()
-#   decompose_variance  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_variance  <- ddecompose::ob_decompose(formula = var_model,
 #                                    data = men8816_t3,
 #                                    weights = eweight,
 #                                    group = time,
@@ -791,7 +791,7 @@
 #
 #
 #
-#   decompose_gini  <- ddeco::ob_decompose(formula = gini_model,
+#   decompose_gini  <- ddecompose::ob_decompose(formula = gini_model,
 #                                data = men8816_t3,
 #                                weights = eweight,
 #                                group = time,
@@ -859,7 +859,7 @@
 #
 # browser()
 #   # IQR 90-10
-#   decompose_90_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_10  <- ddecompose::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -905,7 +905,7 @@
 #
 #
 #   #IQR 50-10
-#   decompose_50_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_50_10  <- ddecompose::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -951,7 +951,7 @@
 #
 #
 #   #IQR 90-50
-#   decompose_90_50  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_50  <- ddecompose::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -998,7 +998,7 @@
 #
 #
 #   ### Variance
-# # decompose_variance  <- ddeco::ob_decompose(formula = var_model,
+# # decompose_variance  <- ddecompose::ob_decompose(formula = var_model,
 # #                                  data = men8816_t4,
 # #                                  weights = eweight,
 # #                                  group = time,
@@ -1058,7 +1058,7 @@
 # #                                       paste(grep("^occd", names(men8816_t4), value = TRUE), collapse = " + "))))
 # #
 # #
-# #   decompose_gini  <- ddeco::ob_decompose(formula = gini_model,
+# #   decompose_gini  <- ddecompose::ob_decompose(formula = gini_model,
 # #                                data = men8816_t4,
 # #                                weights = eweight,
 # #                                group = time,
@@ -1137,7 +1137,7 @@
 #
 #   browser()
 #   # IQR 90-10
-#   decompose_90_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_10  <- ddecompose::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -1185,7 +1185,7 @@
 #
 #
 #   #IQR 50-10
-#   decompose_50_10  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_50_10  <- ddecompose::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -1233,7 +1233,7 @@
 #
 #
 #   #IQR 90-50
-#   decompose_90_50  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_90_50  <- ddecompose::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
@@ -1282,7 +1282,7 @@
 #
 #
 #   ## Variance
-#   decompose_variance  <- ddeco::ob_decompose(formula = var_model,
+#   decompose_variance  <- ddecompose::ob_decompose(formula = var_model,
 #                                    data = men8816_t4,
 #                                    weights = eweight,
 #                                    group = time,
@@ -1344,7 +1344,7 @@
 #                                       paste(grep("^occd", names(men8816_t4), value = TRUE), collapse = " + "))))
 #
 #
-#   decompose_gini  <- ddeco::ob_decompose(formula = gini_model,
+#   decompose_gini  <- ddecompose::ob_decompose(formula = gini_model,
 #                                data = men8816_t4,
 #                                weights = eweight,
 #                                group = time,

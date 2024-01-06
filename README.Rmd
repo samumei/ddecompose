@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
 ```
 
 
-# `ddeco`: Detailed Distributional Decompositions of Between-Group Differences in R
+# `ddecompose`: Detailed Distributional Decompositions of Between-Group Differences in R
 
 ## Overview
 
-**ddeco** implements the [Oaxaca (1973)](https://www.jstor.org/stable/2525981)-[Blinder (1973)](https://www.jstor.org/stable/144855) decomposition method and generalizations
+**ddecompose** implements the [Oaxaca (1973)](https://www.jstor.org/stable/2525981)-[Blinder (1973)](https://www.jstor.org/stable/144855) decomposition method and generalizations
 of it that decompose differences in distributional statistics beyond the mean.
 
 `ob_decompose()` decomposes differences in the mean outcome between two groups into one 
@@ -46,7 +46,7 @@ limitations, refer to [Fortin, Lemieux, and Firpo (2011)](https://economics.ubc.
 
 ## Installation 
 
-You can either install the CRAN version of `ddeco`
+You can either install the CRAN version of `ddecompose`
 ```{r, eval=FALSE}
 install.packages("ddecompose")
 ```
@@ -247,12 +247,12 @@ in the covariates distribution relate to higher moments or the dependence struct
 Analytical standard errors are straightforward for the original OB decomposition
 under the assumption of independence between the groups (see Jann, [2005](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf) and [2008](https://journals.sagepub.com/doi/abs/10.1177/1536867X0800800401)). [Firpo (2007)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-0262.2007.00738.x) and 
 [Firpo and Pinto (2016)](https://www.jstor.org/stable/26609621) develop asymptotic theory
-for the reweighting estimator. [Firpo, Fortin, and Lemieux  (2009b)](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf) and Firpo et al. (2018) do the same for the RIF estimator and for the RIF decomposition terms, respectively. The authors propose to bootstrap standard errors. `ddeco` allows to bootstrap standard errors in both `ob_decompose()` and `dfl_decompose()`. For the classical OB decomposition, analytical standard errors are available, too.
+for the reweighting estimator. [Firpo, Fortin, and Lemieux  (2009b)](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf) and Firpo et al. (2018) do the same for the RIF estimator and for the RIF decomposition terms, respectively. The authors propose to bootstrap standard errors. `ddecompose` allows to bootstrap standard errors in both `ob_decompose()` and `dfl_decompose()`. For the classical OB decomposition, analytical standard errors are available, too.
 
 
 ## Examples (unfinished)
 
-The following examples illustrate the workings of the main decomposition functions in `ddeco`. We use a sample of the National Longitudinal Survey (NLSY) 79 containig wage data from 2000 of workers who were aged 35 to 43 in that year. The data is from O'Neill and O'Neill (2006) and is used as an illustration of the Oxaca-Blinder mean decomposition in Fortin, Lemieux, and Firpo (2011). The data contains 2655 male and 2654 female observations, respectively.
+The following examples illustrate the workings of the main decomposition functions in `ddecompose`. We use a sample of the National Longitudinal Survey (NLSY) 79 containig wage data from 2000 of workers who were aged 35 to 43 in that year. The data is from O'Neill and O'Neill (2006) and is used as an illustration of the Oxaca-Blinder mean decomposition in Fortin, Lemieux, and Firpo (2011). The data contains 2655 male and 2654 female observations, respectively.
 
 ```{r, eval = FALSE} 
 library(ddecompose)
@@ -281,7 +281,7 @@ The `summary` method returns the estimated coefficients and the standard errors.
 summary(ob_decompose_estimate)
 ```
 
-`ddeco` comes with a convenient plot function. It illustrates the estimated UQPE across the distribution. The confidence bands are based on the same standard errors as returned by `summary`. 
+`ddecompose` comes with a convenient plot function. It illustrates the estimated UQPE across the distribution. The confidence bands are based on the same standard errors as returned by `summary`. 
 
 -> DO WE NEED PLOT FUNCTION FOR CLASSIC OB DECO?
 ```{r, eval=FALSE}
@@ -321,7 +321,7 @@ plot(flf_male_inequality)
 
 ### Reweighted RIF Regression Decomposition
 
-*The influence function of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddeco`. Additionally, the package enables calculating the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg).*
+*The influence function of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddecompose`. Additionally, the package enables calculating the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg).*
 
 
 The same function is used to decompose RIF regressions. Setting `rifreg = TRUE` and indicating `rifreg_statistic`, decomposes the gap at the specified statistic. The default is `rifreg_statistic = "quantiles"` and `rifreg_probs = c(1:9)/10`, meaning the gap is decomposed at each decile. 
@@ -342,10 +342,10 @@ The same function is used to decompose RIF regressions. Setting `rifreg = TRUE` 
 
 
 
-To decompose the the difference in the Gini coefficient of two groups, `rifreg_statistic = "gini"` needs to be indicated accordingly. The RIF functions for the following functions are currently implemented: `"quantiles"`, `"mean"`, `"variance"`, `"gini"`, `"interquantile_range"`, and `"interquantile_ratio"`. However, `ob_deco` also allows to pass a custom RIF function for the decomposition, by setting `rifreg_statistic = "custom"` and passing the custom function to `custom_rif_function`. 
+To decompose the the difference in the Gini coefficient of two groups, `rifreg_statistic = "gini"` needs to be indicated accordingly. The RIF functions for the following functions are currently implemented: `"quantiles"`, `"mean"`, `"variance"`, `"gini"`, `"interquantile_range"`, and `"interquantile_ratio"`. However, `ob_decompose` also allows to pass a custom RIF function for the decomposition, by setting `rifreg_statistic = "custom"` and passing the custom function to `custom_rif_function`. 
 
 
-*The influence function of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddeco`. Additionally, the package enables calculating the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg).*
+*The influence function of quantiles, the mean, the variance, the Gini coefficient, the interquantile range and the quantile ratio are available in `ddecompose`. Additionally, the package enables calculating the RIF for additional statistics with user-written functions (see example below). [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg).*
 
 
 
@@ -424,7 +424,7 @@ ffl_model_with_reweighting <- as.formula(
 
 
 # Interquantile Ratio 90-10 
-decompose_90_10  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting,
+decompose_90_10  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting,
                                 data = men8816_t4,
                                 weights = eweight,
                                 group = time,
@@ -442,7 +442,7 @@ decompose_90_10  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting,
                               cores = 4)
 
 ## Variance
-decompose_variance  <- ddeco::ob_decompose(formula = var_model,
+decompose_variance  <- ddecompose::ob_decompose(formula = var_model,
                                  data = men8816_t4,
                                  weights = eweight,
                                  group = time,
@@ -459,7 +459,7 @@ decompose_variance  <- ddeco::ob_decompose(formula = var_model,
 # Gini 
 ffl_model_with_reweighting_gini <- update.formula(ffl_model_with_reweighting, exp(.) ~ .)
 
-decompose_gini  <- ddeco::ob_decompose(formula = ffl_model_with_reweighting_gini,
+decompose_gini  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting_gini,
                                data = men8816_t4,
                                weights = eweight,
                                group = time,
