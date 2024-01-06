@@ -453,7 +453,6 @@
 #                                 weights = eweight,
 #                                 group = time,
 #                                 reference_0 = TRUE,
-#                                 rifreg = TRUE,
 #                                 rifreg_statistic = "interquantile_range",
 #                                 rifreg_probs = c(0.9, 0.1),
 #                                 bw = 0.065,
@@ -492,7 +491,6 @@
 #                                 weights = eweight,
 #                                 group = time,
 #                                 reference_0 = TRUE,
-#                                 rifreg = TRUE,
 #                                 rifreg_statistic = "interquantile_range",
 #                                 rifreg_probs = c(0.5, 0.1),
 #                                 bw = 0.065,
@@ -527,7 +525,6 @@
 #                                 weights = eweight,
 #                                 group = time,
 #                                 reference_0 = TRUE,
-#                                 rifreg = TRUE,
 #                                 rifreg_statistic = "interquantile_range",
 #                                 rifreg_probs = c(0.9, 0.5),
 #                                 bw = 0.065,
@@ -560,7 +557,6 @@
 #                                    data = men8816_t3,
 #                                    weights = eweight,
 #                                    group = time,
-#                                    rifreg = TRUE,
 #                                    rifreg_statistic = "variance")
 #
 #
@@ -599,7 +595,6 @@
 #                                data = men8816_t3,
 #                                weights = eweight,
 #                                group = time,
-#                                rifreg = TRUE,
 #                                rifreg_statistic = "gini")
 #
 #   # Overall
@@ -648,7 +643,6 @@
 #   #                                 weights = eweight,
 #   #                                 group = time,
 #   #                                 reference_0 = TRUE,
-#   #                                 rifreg = TRUE,
 #   #                                 rifreg_statistic = "interquantile_range",
 #   #                                 rifreg_probs = c(0.9, 0.1),
 #   #                                 bw = 0.065,
@@ -686,7 +680,6 @@
 #   #                                 weights = eweight,
 #   #                                 group = time,
 #   #                                 reference_0 = TRUE,
-#   #                                 rifreg = TRUE,
 #   #                                 rifreg_statistic = "interquantile_range",
 #   #                                 rifreg_probs = c(0.5, 0.1),
 #   #                                 bw = 0.065,
@@ -721,7 +714,6 @@
 #   #                                 weights = eweight,
 #   #                                 group = time,
 #   #                                 reference_0 = TRUE,
-#   #                                 rifreg = TRUE,
 #   #                                 rifreg_statistic = "interquantile_range",
 #   #                                 rifreg_probs = c(0.9, 0.5),
 #   #                                 bw = 0.065,
@@ -754,7 +746,6 @@
 #                                    data = men8816_t3,
 #                                    weights = eweight,
 #                                    group = time,
-#                                    rifreg = TRUE,
 #                                    rifreg_statistic = "variance",
 #                                    bootstrap = TRUE,
 #                                    bootstrap_iterations = 100)
@@ -795,7 +786,6 @@
 #                                data = men8816_t3,
 #                                weights = eweight,
 #                                group = time,
-#                                rifreg = TRUE,
 #                                rifreg_statistic = "gini",
 #                                bootstrap = TRUE,
 #                                bootstrap_iterations = 100)
@@ -864,7 +854,6 @@
 #                                 weights = eweight,
 #                                 group = time,
 #                                 reference_0 = TRUE,
-#                                 rifreg = TRUE,
 #                                 rifreg_statistic = "interquantile_range",
 #                                 rifreg_probs = c(0.9, 0.1),
 #                                 bw = 0.065,
@@ -910,7 +899,6 @@
 #                                 weights = eweight,
 #                                 group = time,
 #                                 reference_0 = TRUE,
-#                                 rifreg = TRUE,
 #                                 rifreg_statistic = "interquantile_range",
 #                                 rifreg_probs = c(0.5, 0.1),
 #                                 bw = 0.065,
@@ -956,7 +944,6 @@
 #                                 weights = eweight,
 #                                 group = time,
 #                                 reference_0 = TRUE,
-#                                 rifreg = TRUE,
 #                                 rifreg_statistic = "interquantile_range",
 #                                 rifreg_probs = c(0.9, 0.5),
 #                                 bw = 0.065,
@@ -1003,7 +990,6 @@
 # #                                  weights = eweight,
 # #                                  group = time,
 # #                                  reference_0 = TRUE,
-# #                                  rifreg = TRUE,
 # #                                  rifreg_statistic = "variance",
 # #                                  reweighting = TRUE,
 # #                                  trimming = TRUE,
@@ -1062,7 +1048,6 @@
 # #                                data = men8816_t4,
 # #                                weights = eweight,
 # #                                group = time,
-# #                                rifreg = TRUE,
 # #                                rifreg_statistic = "gini",
 # #                                reweighting = TRUE,
 # #                                trimming = TRUE,
@@ -1104,7 +1089,13 @@
 #
 #
 # test_that("ob_decompose() replicates Table 4 mit Bootstrap SE, p. 30, in FFL (2018)", {
-#   set.seed(9283274)
+#
+#
+# # browser()
+# # set.seed(9283274)
+# # sampled_indices <- sample(nrow(men8816_t4), size = 10000, replace = FALSE)
+# # men8816_t4 <- men8816_t4[sampled_indices, ]
+#
 #
 #   var_model <- as.formula(paste("lwage2 ~ covered + nonwhite + nmarr +
 #                                 ed0 + ed1 + ed3 + ed4 + ed5 + ",
@@ -1135,21 +1126,21 @@
 #   # men8816_sample <- readstata13::read.dta13("data-raw/ddecompose literature/FFL_2018/usmen8816_sample.dta")
 #   # men8816_sample <- men8816_sample[men8816_sample$time <= 1,]
 #
-#   browser()
 #   # IQR 90-10
 #   decompose_90_10  <- ddecompose::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
 #                                 weights = eweight,
 #                                 group = time,
 #                                 reference_0 = TRUE,
-#                                 rifreg = TRUE,
 #                                 rifreg_statistic = "interquantile_range",
 #                                 rifreg_probs = c(0.9, 0.1),
+#                                 reweighting_method = "fastglm",
 #                                 bw = 0.065,
 #                                 kernel = "epanechnikov",
 #                                 reweighting = TRUE,
 #                                 trimming = TRUE,
-#                                 trimming_threshold = 100,
+#                                 trimming_threshold = 10,
+#                                 cores = 4,
 #                                 bootstrap = TRUE,
 #                                 bootstrap_iterations = 100)
 #
@@ -1190,7 +1181,6 @@
 #                                 weights = eweight,
 #                                 group = time,
 #                                 reference_0 = TRUE,
-#                                 rifreg = TRUE,
 #                                 rifreg_statistic = "interquantile_range",
 #                                 rifreg_probs = c(0.5, 0.1),
 #                                 bw = 0.065,
@@ -1238,7 +1228,6 @@
 #                                 weights = eweight,
 #                                 group = time,
 #                                 reference_0 = TRUE,
-#                                 rifreg = TRUE,
 #                                 rifreg_statistic = "interquantile_range",
 #                                 rifreg_probs = c(0.9, 0.5),
 #                                 bw = 0.065,
@@ -1287,7 +1276,6 @@
 #                                    weights = eweight,
 #                                    group = time,
 #                                    reference_0 = TRUE,
-#                                    rifreg = TRUE,
 #                                    rifreg_statistic = "variance",
 #                                    reweighting = TRUE,
 #                                    trimming = TRUE,
@@ -1348,7 +1336,6 @@
 #                                data = men8816_t4,
 #                                weights = eweight,
 #                                group = time,
-#                                rifreg = TRUE,
 #                                rifreg_statistic = "gini",
 #                                reweighting = TRUE,
 #                                trimming = TRUE,
@@ -1426,7 +1413,6 @@
 #   rifreg_decompose <- ob_decompose(formula = lnwage ~ schooling + ft_experience + ft_experience2,
 #                          data = gsoep29,
 #                          group = public,
-#                          rifreg = TRUE,
 #                          reweighting = FALSE,
 #                          rifreg_statistic = "variance",
 #                          reference_0 = TRUE)
@@ -1573,7 +1559,6 @@
 #   rw_rifreg_decompose <- ob_decompose(formula = lnwage ~ schooling + ft_experience + ft_experience2 | schooling * ft_experience + schooling * I(ft_experience^2),
 #                                                          data = gsoep29,
 #                                                          group = female,
-#                                                          rifreg = TRUE,
 #                                                          reweighting = TRUE,
 #                                                          rifreg_statistic = "quantiles",
 #                                                          rifreg_probs = 0.1,

@@ -320,9 +320,10 @@ ob_decompose <- function(formula,
                                         na.action = na.action,
                                         vcov = vcov,
                                         ... = ...)
-
-      for (i in seq_along(estimated_decomposition)) {
-        estimated_decomposition[[i]][["decomposition_terms"]][, 2:6] <- estimated_decomposition[[i]][["decomposition_terms"]][, 2:6] * -1
+      if(subtract_1_from_0) {
+        for (i in seq_along(estimated_decomposition)) {
+          estimated_decomposition[[i]][["decomposition_terms"]][,-1] <- estimated_decomposition[[i]][["decomposition_terms"]][,-1] * -1
+        }
       }
 
       names(estimated_decomposition) <- paste0("quantile_", as.character(rifreg_probs))
@@ -344,7 +345,7 @@ ob_decompose <- function(formula,
                                                 vcov = vcov,
                                                 ... = ...)
 
-    if(subtract_1_from_0) estimated_decomposition$decomposition_terms[2:6] <- estimated_decomposition$decomposition_terms[2:6] *-1
+    if(subtract_1_from_0) estimated_decomposition$decomposition_terms[-1] <- estimated_decomposition$decomposition_terms[-1] *-1
 
     estimated_decomposition <- list(estimated_decomposition)
 
@@ -401,6 +402,7 @@ ob_decompose <- function(formula,
                                                                                       cluster = cluster,
                                                                                       ... = ...))
     } else {
+      rm(weights) # weights are stored in data_used
       cores <- min(cores, parallel::detectCores() - 1)
       core_cluster <- parallel::makeCluster(cores)
       parallel::clusterSetRNGStream(core_cluster, round(runif(1, 0, 100000)))
@@ -784,6 +786,9 @@ bootstrap_estimate_ob_decompose <- function(formula_decomposition,
                                        na.action,
                                        cluster = NULL,
                                        ...){
+
+
+
   if(is.null(cluster)){
     sampled_observations <- sample(1:nrow(data_used),
                                    size = nrow(data_used),
@@ -813,6 +818,7 @@ bootstrap_estimate_ob_decompose <- function(formula_decomposition,
                                  estimate_statistics = FALSE,
                                  trimming = trimming,
                                  trimming_threshold = trimming_threshold))
+
 
     reweighting_factor <- dfl_decompose_results$reweighting_factor$Psi_X1
     data_used[sampled_observations, "weights_and_reweighting_factors"] <- data_used[sampled_observations, "weights"] * reweighting_factor
