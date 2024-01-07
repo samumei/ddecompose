@@ -6,8 +6,12 @@
 \usage{
 GU_normalization_sum_vcov(coef_names, Cov_beta)
 }
+\arguments{
+\item{coef_names}{names of the dummy coefficients of a factor variable}
+
+\item{Cov_beta}{estimated covariance matrix of the regression coefficients}
+}
 \description{
-After adjusting model.matrix and estimating the regression, this function computes
-the covariance matrix containing aggregate coefficients for the reference group of
-GU normalized factor variables.
+This function adjusts the covariance matrix for the additional coefficient
+of the originally left-out reference level of a single factor variable.
 }

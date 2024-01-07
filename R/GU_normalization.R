@@ -1,32 +1,20 @@
 #' Gardeazabal and Ugidos normalization of factor variables
 #'
-
-
-# load("data/men8305.rda")
-# formula <- log(wage) ~ union + married + nonwhite + education + experience
-# data <- get_all_vars(formula, men8305, weights=weights, group=year)
-# data_used <- model.frame(formula, data, weights=weights, group=group)
-#
-
-# set.seed(125)
-# library("AER")
-# data("CPS1985")
-# formula <- log(wage) ~ education + experience + union + ethnicity
-# data_used <- CPS1985
-# data_used$weights <- runif(nrow(CPS1985), 0.5, 1.5)
-# # data_used[1,1] <- NA
-# data <- get_all_vars(formula, data_used, weights=weights, group=gender)
-# data_used <- model.frame(formula, data, weights=weights, group=group)
-
-
-
-#' Perform normalization of factor variables as proposed by Gardeazabal and Ugidos (2004)
+#' The function performs the normalization of the factor variables
+#' proposed by Gardeazabal and Ugidos (2004, GU) to estimate detailed decompositions
+#' that do not depend on the chosen reference levels of the factor variables.
+#'
 #' @param formula an object of class "formula". See \link[stats]{lm} for further details.
 #' @param data a data frame containing the variables in the model.
 #' @param weights numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
 #' @param group name of the a binary variable (numeric or factor) identifying the two groups that will be compared.
+#'
+#' @references Gardeazabal, Javier, and Arantza Ugidos. 2004. "More on identification in detailed wage decompositions."
+#' \emph{Review of Economics and Statistics} 86(4): 1034-1036.
+#'
 #' @export
 #' @examples
+#' data("men8305")
 #' mod1 <- log(wage) ~ union + married + nonwhite + education + experience
 #' normalized_data <- GU_normalization(formula = mod1,
 #'                                    data = men8305,
@@ -163,15 +151,18 @@ GU_normalization <- function(formula, data, weights, group){
 
 #' Sum coefficients for GU normalization
 #'
-#' After adjusting model.matrix and estimating the regression, this function sums
-#' the coefficients for reference group of GU normalized factor variables.
+#' This function sums the coefficients of a single factor variable to construct
+#' an additional coefficient for the left-out reference level.
+#'
+#' @param coef_names names of the dummy coefficients of a factor variable
+#' @param est_coef estimated coefficient vector
 #'
 GU_normalization_sum_coefficients <- function(coef_names, est_coef){
 
   est_coef <- est_coef[which(names(est_coef) %in% coef_names)]
   if(length(coef_names)>1){
-    coefficient_reference_group <- -sum(est_coef)
-    est_coef <- c(coefficient_reference_group, est_coef)
+    coefficient_reference_level <- -sum(est_coef)
+    est_coef <- c(coefficient_reference_level, est_coef)
     names(est_coef)[1] <- coef_names[1]
   }
   return(est_coef)
@@ -180,11 +171,15 @@ GU_normalization_sum_coefficients <- function(coef_names, est_coef){
 
 #' Get coefficients for GU normalization
 #'
-#' After adjusting model.matrix and estimating the regression, this function computes
-#' the coefficients for reference group of factors variables for GU normalization.
+#' This function constructs sums the coefficients of each factor variable to
+#' construct a additional coefficients for their originally left-out reference
+#' levels and adds them to the estimated coefficients vector.
+#'
+#' @param coef_names list with coefficients of every factor variable that need to be adjusted
+#' @param est_coef vector of estimated coefficients
 #'
 GU_normalization_get_coefficients <- function(coef_names, est_coef){
-  est_coef <- do.call("c",lapply(coef_names,
+  est_coef <- do.call("c", lapply(coef_names,
                                  GU_normalization_sum_coefficients,
                                  est_coef = est_coef))
   if(!all(!grepl("\\.", names(coef_names)))) {
@@ -198,9 +193,11 @@ GU_normalization_get_coefficients <- function(coef_names, est_coef){
 
 #' Sum covariance matrix for GU normalization
 #'
-#' After adjusting model.matrix and estimating the regression, this function computes
-#' the covariance matrix containing aggregate coefficients for the reference group of
-#' GU normalized factor variables.
+#' This function adjusts the covariance matrix for the additional coefficient
+#' of the originally left-out reference level of a single factor variable.
+#'
+#' @param coef_names names of the dummy coefficients of a factor variable
+#' @param Cov_beta estimated covariance matrix of the regression coefficients
 #'
 GU_normalization_sum_vcov <- function(coef_names, Cov_beta){
 
@@ -215,38 +212,41 @@ GU_normalization_sum_vcov <- function(coef_names, Cov_beta){
     }
     index_greater <- ri[1]:ncol(Cov_beta)
 
-    cov_reference_group_i <- Cov_beta[, index_factors]
-    if(is.null(nrow(cov_reference_group_i))){
-      cov_reference_group_i <- -cov_reference_group_i
+    cov_reference_level_i <- Cov_beta[, index_factors]
+    if(is.null(nrow(cov_reference_level_i))){
+      cov_reference_level_i <- -cov_reference_level_i
     }else{
-      cov_reference_group_i <- -rowSums(cov_reference_group_i)
+      cov_reference_level_i <- -rowSums(cov_reference_level_i)
     }
-    var_reference_group_i <- -sum(cov_reference_group_i[index_factors])
-    cov_reference_group_i <- c(cov_reference_group_i[index_lower],
-                               var_reference_group_i,
-                               cov_reference_group_i[index_greater])
-    names(cov_reference_group_i)[ri[1]] <- coef_names[1]
+    var_reference_level_i <- -sum(cov_reference_level_i[index_factors])
+    cov_reference_level_i <- c(cov_reference_level_i[index_lower],
+                               var_reference_level_i,
+                               cov_reference_level_i[index_greater])
+    names(cov_reference_level_i)[ri[1]] <- coef_names[1]
 
-    Cov_beta_adjusted[ri[1],] <- cov_reference_group_i
-    Cov_beta_adjusted[,ri[1]] <- cov_reference_group_i
+    Cov_beta_adjusted[ri[1],] <- cov_reference_level_i
+    Cov_beta_adjusted[,ri[1]] <- cov_reference_level_i
 
     Cov_beta_adjusted[index_lower, index_lower] <- Cov_beta[index_lower, index_lower]
     Cov_beta_adjusted[index_lower, index_greater+1] <- Cov_beta[index_lower, index_greater]
     Cov_beta_adjusted[index_greater+1, index_lower] <- Cov_beta[index_greater, index_lower]
     Cov_beta_adjusted[index_greater+1, index_greater+1] <- Cov_beta[index_greater, index_greater]
 
-    rownames(Cov_beta_adjusted) <- colnames(Cov_beta_adjusted) <- names(cov_reference_group_i)
+    rownames(Cov_beta_adjusted) <- colnames(Cov_beta_adjusted) <- names(cov_reference_level_i)
   }else{
     Cov_beta_adjusted <- Cov_beta
   }
   return(Cov_beta_adjusted)
 }
 
-#' Sum covariance matrix for GU normalization
+#' Get covariance matrix for GU normalization
 #'
-#' After adjusting model.matrix and estimating the regression, this function computes
-#' the covariance matrix containing aggregate coefficients for the reference group of
-#' GU normalized factor variables.
+#' This function adjusts the covariance matrix for the additional coefficients
+#' of the originally left-out reference levels of all factor variable.
+#'
+#' @param coef_names list with coefficients of every factor variable that need to be adjusted
+#' @param Cov_beta estimated covariance matrix of the regression coefficients
+#'
 GU_normalization_get_vcov <- function(coef_names, Cov_beta){
   for(i in 1:length(coef_names)){
     Cov_beta <- GU_normalization_sum_vcov(coef_names = coef_names[[i]], Cov_beta = Cov_beta)

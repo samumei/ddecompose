@@ -6,7 +6,13 @@
 \usage{
 GU_normalization_get_coefficients(coef_names, est_coef)
 }
+\arguments{
+\item{coef_names}{list with coefficients of every factor variable that need to be adjusted}
+
+\item{est_coef}{vector of estimated coefficients}
+}
 \description{
-After adjusting model.matrix and estimating the regression, this function computes
-the coefficients for reference group of factors variables for GU normalization.
+This function constructs sums the coefficients of each factor variable to
+construct a additional coefficients for their originally left-out reference
+levels and adds them to the estimated coefficients vector.
 }

@@ -2,12 +2,16 @@
 % Please edit documentation in R/GU_normalization.R
 \name{GU_normalization_get_vcov}
 \alias{GU_normalization_get_vcov}
-\title{Sum covariance matrix for GU normalization}
+\title{Get covariance matrix for GU normalization}
 \usage{
 GU_normalization_get_vcov(coef_names, Cov_beta)
 }
+\arguments{
+\item{coef_names}{list with coefficients of every factor variable that need to be adjusted}
+
+\item{Cov_beta}{estimated covariance matrix of the regression coefficients}
+}
 \description{
-After adjusting model.matrix and estimating the regression, this function computes
-the covariance matrix containing aggregate coefficients for the reference group of
-GU normalized factor variables.
+This function adjusts the covariance matrix for the additional coefficients
+of the originally left-out reference levels of all factor variable.
 }

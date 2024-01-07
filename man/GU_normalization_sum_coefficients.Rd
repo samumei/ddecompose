@@ -6,7 +6,12 @@
 \usage{
 GU_normalization_sum_coefficients(coef_names, est_coef)
 }
+\arguments{
+\item{coef_names}{names of the dummy coefficients of a factor variable}
+
+\item{est_coef}{estimated coefficient vector}
+}
 \description{
-After adjusting model.matrix and estimating the regression, this function sums
-the coefficients for reference group of GU normalized factor variables.
+This function sums the coefficients of a single factor variable to construct
+an additional coefficient for the left-out reference level.
 }

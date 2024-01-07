@@ -73,8 +73,6 @@ is a assumend and bootstrap procedure resamples individual observations. Otherwi
 bootstrap procedure resamples clusters.}
 
 \item{...}{additional parameters passed to custom_rif_function}
-
-\item{vcov}{unction estimating covariance matrix of regression coefficients if \code{compute_analytical_se == TRUE}}
 }
 \description{
 The function resamples observations and restimates the OB decomposition

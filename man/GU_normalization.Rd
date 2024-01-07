@@ -16,13 +16,20 @@ GU_normalization(formula, data, weights, group)
 \item{group}{name of the a binary variable (numeric or factor) identifying the two groups that will be compared.}
 }
 \description{
-Perform normalization of factor variables as proposed by Gardeazabal and Ugidos (2004)
+The function performs the normalization of the factor variables
+proposed by Gardeazabal and Ugidos (2004, GU) to estimate detailed decompositions
+that do not depend on the chosen reference levels of the factor variables.
 }
 \examples{
+data("men8305")
 mod1 <- log(wage) ~ union + married + nonwhite + education + experience
 normalized_data <- GU_normalization(formula = mod1,
                                    data = men8305,
                                    weights = weights,
                                    group = year)
 
+}
+\references{
+Gardeazabal, Javier, and Arantza Ugidos. 2004. "More on identification in detailed wage decompositions."
+\emph{Review of Economics and Statistics} 86(4): 1034-1036.
 }
