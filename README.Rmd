@@ -21,6 +21,10 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/samumei/ddecompose/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/samumei/ddecompose/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/samumei/ddecompose/branch/master/graph/badge.svg)](https://app.codecov.io/gh/samumei/ddecompose?branch=master)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![CRAN status](https://www.r-pkg.org/badges/version/ddecompose)](https://CRAN.R-project.org/package=ddecompose)
+[![License: GPL (>= 3)](https://img.shields.io/badge/License-GPL%20%28%3E%3D%203%29-blue.svg)](https://choosealicense.com/licenses/gpl-3.0/)
 <!-- badges: end -->
 
 
@@ -259,7 +263,7 @@ for the reweighting estimator. [Firpo, Fortin, and Lemieux  (2009b)](https://www
 
 The following examples illustrate the workings of the main decomposition functions in `ddecompose`. We use a sample of the National Longitudinal Survey (NLSY) 79 containig wage data from the year 2000 of workers who were aged 35 to 43 in that year. The data is from O'Neill and O'Neill (2006) and is used as an illustration of the Oxaca-Blinder mean decomposition in Fortin, Lemieux, and Firpo (2011). The data contains 2655 male and 2654 female observations, respectively.
 
-```{r, eval = FALSE} 
+```{r, eval = TRUE} 
 library(ddecompose)
 data("nlys00")
 ```
@@ -493,7 +497,7 @@ To reproduce the code below, make sure you download the entire data set and Stat
 ### Loading Data
 
 
-```{r, eval=TRUE}
+```{r, eval=FALSE}
 # Make sure you execute the Stata Code until the oaxaca commands 
 # and save the data in the appropriate folder.
 men8816_t4 <- readstata13::read.dta13("data-raw/usmen8816_t4.dta")
@@ -507,7 +511,7 @@ men8816_t4 <- men8816_t4[men8816_t4$time <= 1,]
 
 The model is specified as in the Stata files, containing weights, computing bootstrapped standard errors with 100 iterations, and setting a fixed bandwidth of 0.06 for the epanechnikov kernel density estimation.
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 
 set.seed(987421)
 
