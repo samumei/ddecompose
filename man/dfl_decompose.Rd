@@ -67,7 +67,7 @@ first the reference group using only the variables entered last into the
 the decomposition start left and using all variables entered into
 \code{formula} object from the start, sequentially removing variables.}
 
-\item{method}{specifies the method fit and predict conditional probabilities
+\item{method}{specifies the method to fit and predict conditional probabilities
 used to derive the reweighting factor. At the moment, \code{"logit"}, \code{"fastglm"},
 and \code{"random forests"} are available.}
 

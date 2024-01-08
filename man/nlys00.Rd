@@ -33,7 +33,8 @@ Handbook of Labor Economics, Volume 4a., Chapter 1, 1-102.
 nlys00
 }
 \description{
-Sample of National Longitudinal Survey (NLSY) 79 containig wage data from 2000
+Sample of National Longitudinal Survey (NLSY) 79
+ containig wage data from the year 2000
 of workers who were aged 35 to 43 in that year. The data is from O'Neill
 and O'Neill (2006) and is used as an illustration of the Oxaca-Blinder mean
 decomposition in Firpo, Fortin, and Lemieuex (2011). The data contains 2655

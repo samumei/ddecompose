@@ -107,7 +107,7 @@ plot.dfl_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95
 #' @param x an object of class "ob_decompose", usually, a result of a call to [ob_decompose()] with code{statistics = "quantiles"}.
 #' @param detailed_effects If `TRUE` (default) and not several quantiles are being plotted, the detailed effects are plotted.
 #'                         Else, only the total (aggregate) effects are plotted.
-#' @param confidence_bands If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.
+#' @param confidence_bands If `TRUE` and if standard errors have been bootstrapped, confidence bands are plotted.
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the confidence interval
 #'              plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standard error.
 #' @param aggregate_factors boolean, if `TRUE` (default) terms associated with detailed factor

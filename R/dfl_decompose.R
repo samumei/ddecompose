@@ -42,7 +42,7 @@
 #' \code{formula} sequence. Sequentially, the other variables are added. Otherwise,
 #' the decomposition start left and using all variables entered into
 #' \code{formula} object from the start, sequentially removing variables.
-#' @param method specifies the method fit and predict conditional probabilities
+#' @param method specifies the method to fit and predict conditional probabilities
 #' used to derive the reweighting factor. At the moment, \code{"logit"}, \code{"fastglm"},
 #' and \code{"random forests"} are available.
 #' @param estimate_statistics boolean: if \code{TRUE} (default), then distributional
@@ -432,7 +432,8 @@ dfl_decompose <-  function(formula,
     probs <- seq(5,95,5)/100
   }
   if(!is.null(custom_statistic_function)){
-    if("dep_var" %in% formalArgs(custom_statistic_function) == FALSE | "weights" %in% formalArgs(custom_statistic_function) == FALSE){
+    if("dep_var" %in% methods::formalArgs(custom_statistic_function) == FALSE |
+       "weights" %in% methods::formalArgs(custom_statistic_function) == FALSE){
       stop("The arguments 'dep_var' and 'weights' in 'custom_statistic_function' must be defined!")
     }
   }

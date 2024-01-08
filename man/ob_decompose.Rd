@@ -8,18 +8,18 @@ ob_decompose(
   formula,
   data,
   group,
-  subtract_1_from_0 = FALSE,
   weights = NULL,
+  reweighting = FALSE,
+  normalize_factors = FALSE,
+  reference_0 = TRUE,
+  subtract_1_from_0 = FALSE,
+  reweighting_method = "logit",
+  trimming = FALSE,
+  trimming_threshold = NULL,
   rifreg_statistic = NULL,
   rifreg_probs = c(1:9)/10,
   custom_rif_function = NULL,
-  reweighting = FALSE,
-  reweighting_method = "logit",
-  reference_0 = TRUE,
   na.action = na.omit,
-  normalize_factors = FALSE,
-  trimming = FALSE,
-  trimming_threshold = NULL,
   bootstrap = FALSE,
   bootstrap_iterations = 100,
   bootstrap_robust = FALSE,
@@ -43,14 +43,45 @@ identifying the two groups that will be compared. The group identified by the
 lower ranked value in `group` (i.e., 0 in the case of a dummy variable or the
 first level of factor variable) is defined as group 0.}
 
+\item{weights}{numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
+The default (\code{NULL}) is equivalent to \code{weights = rep(1, length(dep_var))}.
+If no weights are used, make sure you do not define this parameter (e.g. with \code{weights = NULL}).}
+
+\item{reweighting}{boolean: if `TRUE`, then the decomposition is performed with
+with respect to reweighted reference group yielding either a 'doubly robust'
+Oaxaca-Blinder decomposition or a reweighted RIF decomposition.}
+
+\item{normalize_factors}{boolean: If `TRUE`, then factor variables are normalized as
+proposed by Gardeazabal/Ugidos (2004) and results are not dependent on the factor's
+reference group. Per default (\code{normalize_factors  = FALSE}) and factors are not
+normalized.}
+
+\item{reference_0}{boolean: if `TRUE` (default), then the group 0 -- i.e.,
+the group identified by the lower ranked value in `group` -- will be defined
+as reference group. The reference group will be reweighted to match the
+covariates distribution of the counterfactual sample.
+By default, the composition effect is computed as \code{(X1 - X0) * b0} and
+the structure effect as \code{X1 * (b1 - b0)}. Putting \code{reference_0 = FALSE} changes
+the reference structure. Hence, the composition effect is computed as \code{(X1 - X0) * b1} and
+the structure effect as \code{X0 * (b1 - b0)}.}
+
 \item{subtract_1_from_0}{boolean: By default (`FALSE`), X0 is subtracted from X1 and beta0 from beta1 (X1b1 - X0b0)
 to compute the overall difference. Setting `subtract_1_from_0` to `TRUE` merely changes the sign of the decomposition results.
 This means the composition effect is computed as \code{(X0 - X1) * b1} and
 the structure effect as \code{X0 * (b0 - b1)}.}
 
-\item{weights}{numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
-The default (\code{NULL}) is equivalent to \code{weights = rep(1, length(dep_var))}.
-If no weights are used, make sure you do not define this parameter (e.g. with \code{weights = NULL}).}
+\item{reweighting_method}{specifies the method fit and predict conditional probabilities
+used to derive the reweighting factor. Currently, \code{"logit"}, \code{"fastglm"},
+and \code{"random forests"} are available.}
+
+\item{trimming}{boolean: If \code{TRUE}, observations with dominant reweighting factor
+values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
+default, trimming is set to \code{FALSE}.}
+
+\item{trimming_threshold}{numeric: threshold defining the maximal accepted
+relative weight of the reweighting factor value (i.e., inverse probability weight)
+of a single observation. If \code{NULL}, the threshold is set to \eqn{sqrt(N)/N},
+where \eqn{N} is the number of observations in the reference group.}
 
 \item{rifreg_statistic}{string containing the distributional statistic for which to compute the RIF.
        If `NULL` (default), no RIF regression decomposition is computed.
@@ -71,40 +102,9 @@ If they are not needed, they must be set to NULL in the function definition (e.g
 A custom function must return a data frame containing at least a "rif" and "weights" column.
 See \code{examples} for further details.}
 
-\item{reweighting}{boolean: if `TRUE`, then the decomposition is performed with
-with respect to reweighted reference group yielding either a 'doubly robust'
-Oaxaca-Blinder decomposition or a reweighted RIF decomposition.}
-
-\item{reweighting_method}{specifies the method fit and predict conditional probabilities
-used to derive the reweighting factor. Currently, \code{"logit"}, \code{"fastglm"},
-and \code{"random forests"} are available.}
-
-\item{reference_0}{boolean: if `TRUE` (default), then the group 0 -- i.e.,
-the group identified by the lower ranked value in `group` -- will be defined
-as reference group. The reference group will be reweighted to match the
-covariates distribution of the counterfactual sample.
-By default, the composition effect is computed as \code{(X1 - X0) * b0} and
-the structure effect as \code{X1 * (b1 - b0)}. Putting \code{reference_0 = FALSE} changes
-the reference structure. Hence, the composition effect is computed as \code{(X1 - X0) * b1} and
-the structure effect as \code{X0 * (b1 - b0)}.}
-
 \item{na.action}{generic function that defines how NAs in the data should be handled.
 Default is \code{na.omit}, leading to exclusion of observations that contain one or more missings.
 See \link[stats]{na.action} for further details.}
-
-\item{normalize_factors}{boolean: If `TRUE`, then factor variables are normalized as
-proposed by Gardeazabal/Ugidos (2004) and results are not dependent on the factor's
-reference group. Per default (\code{normalize_factors  = FALSE}) and factors are not
-normalized.}
-
-\item{trimming}{boolean: If \code{TRUE}, observations with dominant reweighting factor
-values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
-default, trimming is set to \code{FALSE}.}
-
-\item{trimming_threshold}{numeric: threshold defining the maximal accepted
-relative weight of the reweighting factor value (i.e., inverse probability weight)
-of a single observation. If \code{NULL}, the threshold is set to \eqn{sqrt(N)/N},
-where \eqn{N} is the number of observations in the reference group.}
 
 \item{bootstrap}{boolean: If `FALSE` (default), then no bootstrapped standard
 errors are calculated and, in the case of a standard Oaxaca-Blinder decomposition,
@@ -247,8 +247,52 @@ decompose_male_as_reference_robust_rf <- ob_decompose(formula = mod1,
                                          reweighting = TRUE,
                                          method = "random forests")
 
+# Reweighted RIF Regression Decomposition
+data("men8305")
+
+model_rifreg <- log(wage) ~ union*(education + experience) + education*experience
+
+# Variance
+variance_decomposition <- ob_decompose(formula = model_rifreg,
+                                       data = men8305,
+                                       group = year,
+                                       reweighting = TRUE,
+                                       rifreg_statistic = "variance")
+
+# Deciles
+deciles_decomposition <- ob_decompose(formula = model_rifreg,
+                                      data = men8305,
+                                      group = year,
+                                      reweighting = TRUE,
+                                      rifreg_statistic = "quantiles",
+                                      rifreg_probs = c(1:9)/10)
+
+plot(deciles_decomposition)
+
+# RIF regression decomposition with custom function
+
+# custom function
+custom_variance_function <- function(dep_var, weights, probs = NULL) {
+  weighted_mean <- weighted.mean(x = dep_var, w = weights)
+  rif <- (dep_var - weighted_mean)^2
+  rif <- data.frame(rif, weights)
+  names(rif) <- c("rif_variance", "weights")
+  return(rif)
+}
+
+custom_decomposition <-
+  ob_decompose(formula = model_rifreg,
+               data = men8305,
+               group = year,
+               reweighting = TRUE,
+               rifreg_statistic = "custom",
+               custom_rif_function = custom_variance_function)
+
 }
 \references{
+Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2018.
+"Decomposing Wage Distributions Using Recentered Influence Function Regressions." \emph{Econometrics} 6(2):28.
+
 Fortin, Nicole, Thomas Lemieux, and Sergio Firpo. 2011. "Decomposition methods in economics."
 In Orley Ashenfelter and David Card, eds., \emph{Handbook of labor economics}. Vol. 4. Elsevier, 1-102.
 

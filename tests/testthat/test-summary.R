@@ -15,7 +15,7 @@ test_that("Summary function does not throw an error", {
 })
 
 
-test_that("Summary function does not throw an error with aggregation", {
+test_that("Summary function does not throw an error with custom aggregation", {
 
   data("nlys00")
 

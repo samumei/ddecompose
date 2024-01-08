@@ -3,7 +3,7 @@
 \docType{data}
 \name{men8305}
 \alias{men8305}
-\title{Sample of male wage data from the CPS 1983-1985 and 2001-2003}
+\title{Sample of male wage data from the CPS 1983-1985 and 2003-2005}
 \format{
 A data frame with 40,347 rows and 8 variables.
 \describe{
