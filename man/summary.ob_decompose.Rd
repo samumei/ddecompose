@@ -5,15 +5,17 @@
 \title{summary method for class "ob_decompose"}
 \usage{
 \method{summary}{ob_decompose}(
-  x,
+  object,
+  ...,
   aggregate_factors = TRUE,
   custom_aggregation = NULL,
-  confidence_level = 0.95,
-  ...
+  confidence_level = 0.95
 )
 }
 \arguments{
-\item{x}{an object of class "ob_decompose", usually , a result of a call to [ob_decompose()].}
+\item{object}{an object of class "ob_decompose", usually , a result of a call to [ob_decompose()].}
+
+\item{...}{other parameters to be passed through to summary function.}
 
 \item{aggregate_factors}{boolean, if `TRUE` (default) terms associated with detailed factor
 levels are aggregated to a single term for every factor variable.}
@@ -24,11 +26,9 @@ If `NULL` (default), then either all detailed terms or all terms associated with
 a single variable are returned.}
 
 \item{confidence_level}{numeric value between 0 and 1 (default = 0.95) that defines the printed confidence interval.}
-
-\item{...}{other parameters to be passed through to print functions.}
 }
 \value{
-The function \code{summary.ob_decompose()} summarizes the decompositions terms saved in \code{x}.
+The function \code{summary.ob_decompose()} summarizes the decompositions terms saved in \code{object}.
 }
 \description{
 Apart from displaying the (detailed) decomposition results with standard

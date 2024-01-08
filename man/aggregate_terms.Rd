@@ -22,7 +22,7 @@ terms. The parameter `custom_aggregation` overrides the parameter `aggregate_fac
 If `NULL` (default), then either all detailed terms or all terms associated with
 a single variable are returned.}
 
-\item{reweighting}{boolean, if `TRUE` the decompostion in `x` contains reweighting
+\item{reweighting}{boolean, if `TRUE` the decompostion in `object` contains reweighting
 (i.e. specification and reweighting error)}
 }
 \value{

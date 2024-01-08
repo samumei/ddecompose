@@ -4,6 +4,7 @@
 #' with \code{dfl_decompose} over the  unit interval.
 #'
 #' @param x an object of class "dfl_decompose", usually, a result of a call to [dfl_decompose()] with code{statistics = "quantiles"}.
+#' @param ... other parameters to be passed through to plot function.
 #' @param confidence_bands If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the confidence interval
 #'              plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standard error.
@@ -22,7 +23,11 @@
 #'                                  group = year)
 #' plot(flf_male_inequality)
 #'
-plot.dfl_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95, uniform_bands=FALSE){
+plot.dfl_decompose <- function(x,
+                               ...,
+                               confidence_bands=TRUE,
+                               confidence_level = 0.95,
+                               uniform_bands=FALSE){
 
   if(is.null(x$decomposition_quantiles)){
     stop("Difference must be decomposed at least at a single quantile.")
@@ -105,6 +110,7 @@ plot.dfl_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95
 #' with \code{ob_decompose} over the  unit interval.
 #'
 #' @param x an object of class "ob_decompose", usually, a result of a call to [ob_decompose()] with code{statistics = "quantiles"}.
+#' @param ... other parameters to be passed through to plot function.
 #' @param detailed_effects If `TRUE` (default) and not several quantiles are being plotted, the detailed effects are plotted.
 #'                         Else, only the total (aggregate) effects are plotted.
 #' @param confidence_bands If `TRUE` and if standard errors have been bootstrapped, confidence bands are plotted.
@@ -185,6 +191,7 @@ plot.dfl_decompose <- function(x, confidence_bands=TRUE, confidence_level = 0.95
 #' plot(decompose_ob_mean, custom_aggregation = custom_aggregation)
 #'
 plot.ob_decompose <- function(x,
+                              ...,
                               detailed_effects = TRUE,
                               aggregate_factors = TRUE,
                               custom_aggregation = NULL,

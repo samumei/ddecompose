@@ -6,6 +6,7 @@
 \usage{
 \method{plot}{dfl_decompose}(
   x,
+  ...,
   confidence_bands = TRUE,
   confidence_level = 0.95,
   uniform_bands = FALSE
@@ -13,6 +14,8 @@
 }
 \arguments{
 \item{x}{an object of class "dfl_decompose", usually, a result of a call to [dfl_decompose()] with code{statistics = "quantiles"}.}
+
+\item{...}{other parameters to be passed through to plot function.}
 
 \item{confidence_bands}{If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.}
 

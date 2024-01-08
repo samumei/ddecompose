@@ -7,6 +7,7 @@
 #' @import parallel
 #' @import sandwich
 #' @import fastglm
+#' @importFrom methods formalArgs
 NULL
 
 utils::globalVariables(c("Variable",

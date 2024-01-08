@@ -4,10 +4,12 @@
 \alias{summary.dfl_decompose}
 \title{summary method for class "dfl_decompose"}
 \usage{
-\method{summary}{dfl_decompose}(x, confidence_level = 0.95, digits = 4, ...)
+\method{summary}{dfl_decompose}(object, ..., confidence_level = 0.95, digits = 4)
 }
 \arguments{
-\item{x}{an object of class "dfl_decompose", a result of a call to [dfl_decompose()].}
+\item{object}{an object of class "dfl_decompose", a result of a call to [dfl_decompose()].}
+
+\item{...}{other parameters to be passed through to printing functions.}
 
 \item{confidence_level}{numeric value between 0 and 1 (default = 0.95) that defines the
 confidence level of the printed confidence intervals. Pointwise confidences bands
@@ -16,12 +18,10 @@ are constructed by multiplying the standard error with \code{confidence_level}-q
 of the bootstrapped Kolmogorov-Smirnov statistic.}
 
 \item{digits}{number of digits to be printed.}
-
-\item{...}{other parameters to be passed through to printing functions.}
 }
 \value{
 The function \code{summary.dfl_decompose()} displays the decompositions
-terms save in \code{x}. If standard errors have been bootstrapped, standard
+terms save in \code{object}. If standard errors have been bootstrapped, standard
 errors and confidence bands are given. Uniform confidence bands for quantiles
 are constructed based on the bootstrappend Kolmogorov-Smirnov distribution.
 }

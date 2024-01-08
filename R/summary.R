@@ -1,6 +1,6 @@
 #' summary method for class "dfl_decompose"
 #'
-#' @param x an object of class "dfl_decompose", a result of a call to [dfl_decompose()].
+#' @param object an object of class "dfl_decompose", a result of a call to [dfl_decompose()].
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the
 #'              confidence level of the printed confidence intervals. Pointwise confidences bands
 #'              are defined as \code{qnorm((1-confidence_level)/2)} * standard error. Uniform bands
@@ -9,53 +9,53 @@
 #' @param digits number of digits to be printed.
 #' @param ... other parameters to be passed through to printing functions.
 #' @return The function \code{summary.dfl_decompose()} displays the decompositions
-#' terms save in \code{x}. If standard errors have been bootstrapped, standard
+#' terms save in \code{object}. If standard errors have been bootstrapped, standard
 #' errors and confidence bands are given. Uniform confidence bands for quantiles
 #' are constructed based on the bootstrappend Kolmogorov-Smirnov distribution.
 #'
 #' @export
 #'
-summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
+summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
 
-  if(x$subtract_1_from_0 == FALSE){
+  if(object$subtract_1_from_0 == FALSE){
   cat("Decomposition of difference between",
-      paste0(x$group_variable_name, " == '",x$group_variable_levels[2],"'"),
+      paste0(object$group_variable_name, " == '",object$group_variable_levels[2],"'"),
       "(group 1) and\n",
-      paste0(x$group_variable_name, " == '",x$group_variable_levels[1],"'"),
+      paste0(object$group_variable_name, " == '",object$group_variable_levels[1],"'"),
       "(group 0)\n\n")
   }else{
     cat("Decomposition of difference between",
-        paste0(x$group_variable_name, " == '",x$group_variable_levels[1],"'"),
+        paste0(object$group_variable_name, " == '",object$group_variable_levels[1],"'"),
         "(group 0) and\n",
-        paste0(x$group_variable_name, " == '",x$group_variable_levels[2],"'"),
+        paste0(object$group_variable_name, " == '",object$group_variable_levels[2],"'"),
         "(group 1)\n\n")
   }
 
-  cat("Reweighted reference group:",  paste0(x$group_variable_name, " == '", x$reference_group,"' (group ", ifelse(x$group_variable_levels[1]==x$reference_group,0,1), ")"), "\n \n")
+  cat("Reweighted reference group:",  paste0(object$group_variable_name, " == '", object$reference_group,"' (group ", ifelse(object$group_variable_levels[1]==object$reference_group,0,1), ")"), "\n \n")
 
-  if(length(x$covariates_labels) == 1){
+  if(length(object$covariates_labels) == 1){
     cat("Composition effect accounts for between-group differences\nin the distribution of the following covariates:\n\n")
   }else{
     cat("Composition effects of the sequential decomposition account \nfor between-group differences in the distribution of the\nfollowing covariates:\n\n")
   }
-  for(i in 1:length(x$covariates_labels)){
-    cat(x$covariates_labels[[i]], "\n")
+  for(i in 1:length(object$covariates_labels)){
+    cat(object$covariates_labels[[i]], "\n")
   }
   cat("\n")
   cat("---------------------------------------------------------------------------------\n")
 
-  if(is.null(x$decomposition_quantiles)==FALSE){
+  if(is.null(object$decomposition_quantiles)==FALSE){
     cat("Decomposition of difference at conditional quantiles:\n\n")
-    decomposition_quantiles <- x$decomposition_quantiles
+    decomposition_quantiles <- object$decomposition_quantiles
 
-    if(is.null(x$bootstrapped_standard_errors)==FALSE){
-      decomposition_quantiles_se <- x$bootstrapped_standard_errors$decomposition_quantiles
-      kolmogorov_smirnov_stat <- x$bootstrapped_standard_errors$decomposition_quantiles_kms_distribution
+    if(is.null(object$bootstrapped_standard_errors)==FALSE){
+      decomposition_quantiles_se <- object$bootstrapped_standard_errors$decomposition_quantiles
+      kolmogorov_smirnov_stat <- object$bootstrapped_standard_errors$decomposition_quantiles_kms_distribution
       kolmogorov_smirnov_stat <- lapply(split(kolmogorov_smirnov_stat, kolmogorov_smirnov_stat$effect),
-                                        function(x) data.frame(effect = x$effect[1],
-                                                               t_value = quantile(x$kms_t_value, confidence_level)))
+                                        function(object) data.frame(effect = object$effect[1],
+                                                               t_value = quantile(object$kms_t_value, confidence_level)))
       kolmogorov_smirnov_stat <- do.call("rbind", kolmogorov_smirnov_stat)
-      # kolmogorov_smirnov_stat <- dplyr::summarise(dplyr::group_by(x$bootstrapped_standard_errors$decomposition_quantiles_kms_distribution,
+      # kolmogorov_smirnov_stat <- dplyr::summarise(dplyr::group_by(object$bootstrapped_standard_errors$decomposition_quantiles_kms_distribution,
       #                                                             effect),
       #                                             t_value = quantile(kms_t_value, confidence_level))
       kolmogorov_smirnov_stat <- as.data.frame(kolmogorov_smirnov_stat[match(names(decomposition_quantiles), kolmogorov_smirnov_stat$effect), ])
@@ -82,11 +82,11 @@ summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
     }
 
   }
-  if(is.null(x$decomposition_other_statistics)==FALSE){
+  if(is.null(object$decomposition_other_statistics)==FALSE){
     cat("Decomposition of difference for other distributional statistics\n\n")
-    decomposition_other_statistics  <- x$decomposition_other_statistics
-    if(is.null(x$bootstrapped_standard_errors)==FALSE){
-      decomposition_other_statistics_se <- x$bootstrapped_standard_errors$decomposition_other_statistics
+    decomposition_other_statistics  <- object$decomposition_other_statistics
+    if(is.null(object$bootstrapped_standard_errors)==FALSE){
+      decomposition_other_statistics_se <- object$bootstrapped_standard_errors$decomposition_other_statistics
 
       for(i in 2:ncol(decomposition_other_statistics)){
         cat(paste0(names(decomposition_other_statistics)[i],":"), "\n")
@@ -102,7 +102,7 @@ summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
       }
 
     }else{
-      print(x$decomposition_other_statistics[, -1])
+      print(object$decomposition_other_statistics[, -1])
       cat("\n")
       cat("---------------------------------------------------------------------------------\n")
     }
@@ -111,14 +111,14 @@ summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
   cat("Summary statistics of reweighting factors\n\n")
 
   cat(paste0("Number of trimmed observations (not included in statistics): ",
-             length(x$trimmed_observations),
+             length(object$trimmed_observations),
              " (",
-             round(length(x$trimmed_observations)/nrow(x$reweighting_factor)*100, 1),
+             round(length(object$trimmed_observations)/nrow(object$reweighting_factor)*100, 1),
              "%)\n\n"))
 
-  if(is.null(x$bootstrapped_standard_errors)==FALSE){
-    quantiles_reweighting_factor <- x$quantiles_reweighting_factor
-    quantiles_reweighting_factor_se <- x$bootstrapped_standard_errors$quantiles_reweighting_factor
+  if(is.null(object$bootstrapped_standard_errors)==FALSE){
+    quantiles_reweighting_factor <- object$quantiles_reweighting_factor
+    quantiles_reweighting_factor_se <- object$bootstrapped_standard_errors$quantiles_reweighting_factor
     for(i in 2:ncol(quantiles_reweighting_factor_se)){
       cat(paste0(names(quantiles_reweighting_factor)[i],":"), "\n")
       cat("---------------------------------------------------------------------------------\n")
@@ -129,9 +129,9 @@ summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
     }
 
   }else{
-    quantiles_reweighting_factor <- as.data.frame(x$quantiles_reweighting_factor[,-1])
-    names(quantiles_reweighting_factor) <- names(x$quantiles_reweighting_factor)[-1]
-    rownames(quantiles_reweighting_factor ) <- rownames(x$quantiles_reweighting_factor)
+    quantiles_reweighting_factor <- as.data.frame(object$quantiles_reweighting_factor[,-1])
+    names(quantiles_reweighting_factor) <- names(object$quantiles_reweighting_factor)[-1]
+    rownames(quantiles_reweighting_factor ) <- rownames(object$quantiles_reweighting_factor)
     print(quantiles_reweighting_factor, digits = digits)
     cat("\n")
   }
@@ -144,7 +144,7 @@ summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
 #' errors, \code{summary.ob_decompose()} allows to customize the aggregation of the
 #' detailed decomposition terms.
 #'
-#' @param x an object of class "ob_decompose", usually , a result of a call to [ob_decompose()].
+#' @param object an object of class "ob_decompose", usually , a result of a call to [ob_decompose()].
 #' @param aggregate_factors boolean, if `TRUE` (default) terms associated with detailed factor
 #' levels are aggregated to a single term for every factor variable.
 #' @param custom_aggregation list specifying the aggregation of detailed decomposition
@@ -152,9 +152,9 @@ summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
 #' If `NULL` (default), then either all detailed terms or all terms associated with
 #' a single variable are returned.
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the printed confidence interval.
-#' @param ... other parameters to be passed through to print functions.
+#' @param ... other parameters to be passed through to summary function.
 #'
-#' @return The function \code{summary.ob_decompose()} summarizes the decompositions terms saved in \code{x}.
+#' @return The function \code{summary.ob_decompose()} summarizes the decompositions terms saved in \code{object}.
 #'
 #' @export
 #'
@@ -192,15 +192,15 @@ summary.dfl_decompose <- function(x, confidence_level=0.95, digits=4, ...){
 #'                                 "industryOther services"))
 #' summary(decompose_results, custom_aggregation = custom_aggregation)
 #'
-summary.ob_decompose <- function(x,
+summary.ob_decompose <- function(object,
+                                 ...,
                             aggregate_factors = TRUE,
                             custom_aggregation = NULL,
-                            confidence_level = 0.95,
-                            ...){
+                            confidence_level = 0.95){
 
-  reweighting <- ifelse(x$input_parameters$reweighting, TRUE, FALSE)
+  reweighting <- ifelse(object$input_parameters$reweighting, TRUE, FALSE)
 
-  if(is.null(x$input_parameters$rifreg_statistic)) {
+  if(is.null(object$input_parameters$rifreg_statistic)) {
     if(!reweighting) {
       decomposition_type <- "\n\nOaxaca-Blinder decomposition of mean difference\nbetween"
     }
@@ -211,31 +211,31 @@ summary.ob_decompose <- function(x,
   else {
     if(!reweighting) {
       decomposition_type <- paste0("\n\nRIF regression decomposition of difference in ",
-                                   x$input_parameters$rifreg_statistic  ,
+                                   object$input_parameters$rifreg_statistic  ,
                                    "\nbetween")
     }
     else{
       decomposition_type <- paste0("\n\nReweighted RIF regression decomposition of difference in ",
-                                   x$input_parameters$rifreg_statistic  ,
+                                   object$input_parameters$rifreg_statistic  ,
                                    "\nbetween")
     }
   }
   cat(decomposition_type,
-      paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
+      paste0(object$group_variable_name, " == '", object$group_variable_levels[2], "'"),
       "(group 1) and",
-      paste0(x$group_variable_name, " == '", x$group_variable_levels[1], "'"),
-      "(group 0). \nThe reference group is", paste0("'",x$reference_group,"'."), "\n\n")
+      paste0(object$group_variable_name, " == '", object$group_variable_levels[1], "'"),
+      "(group 0). \nThe reference group is", paste0("'",object$reference_group,"'."), "\n\n")
 
 
   if(!reweighting) {
 
 
-    cat("Group 0:", paste0(x$group_variable_name, " == '", x$group_variable_levels[1], "'"),
-        paste0("(",length(x[[1]]$model_fits$fit_group_0$residuals)," observations)"),
-        "\nGroup 1:", paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
-        paste0("(",length(x[[1]]$model_fits$fit_group_1$residuals)," observations)"),"\n\n")
+    cat("Group 0:", paste0(object$group_variable_name, " == '", object$group_variable_levels[1], "'"),
+        paste0("(",length(object[[1]]$model_fits$fit_group_0$residuals)," observations)"),
+        "\nGroup 1:", paste0(object$group_variable_name, " == '", object$group_variable_levels[2], "'"),
+        paste0("(",length(object[[1]]$model_fits$fit_group_1$residuals)," observations)"),"\n\n")
 
-    if(x$input_parameters$reference_0) {
+    if(object$input_parameters$reference_0) {
       x_reference <- "X1"
       b_reference <- "b0"
     }
@@ -243,7 +243,7 @@ summary.ob_decompose <- function(x,
       x_reference <- "X0"
       b_reference <- "b1"
     }
-    if(!x$input_parameters$subtract_1_from_0) {
+    if(!object$input_parameters$subtract_1_from_0) {
       x_subtraction <- "(X1 - X0)"
       b_subtraction <- "(b1 - b0)"
     }
@@ -260,14 +260,14 @@ summary.ob_decompose <- function(x,
   }
   else {
     # With Reweighting
-    cat("Group 0:", paste0(x$group_variable_name, " == '", x$group_variable_levels[1], "'"),
-        paste0("(",length(x[[1]]$model_fits$fit_group_0$residuals)," observations)"),
-        "\nGroup 1:", paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
-        paste0("(",length(x[[1]]$model_fits$fit_group_1$residuals)," observations)"),
-        "\nGroup C:", paste0(x$group_variable_name, " == '",x$reference_group,"'"), "(reference group) reweighted
-         to match the characteristics of the other group", paste0("(",length(x[[1]]$model_fits$fit_group_reweighted$residuals)," observations).\n\n"))
+    cat("Group 0:", paste0(object$group_variable_name, " == '", object$group_variable_levels[1], "'"),
+        paste0("(",length(object[[1]]$model_fits$fit_group_0$residuals)," observations)"),
+        "\nGroup 1:", paste0(object$group_variable_name, " == '", object$group_variable_levels[2], "'"),
+        paste0("(",length(object[[1]]$model_fits$fit_group_1$residuals)," observations)"),
+        "\nGroup C:", paste0(object$group_variable_name, " == '",object$reference_group,"'"), "(reference group) reweighted
+         to match the characteristics of the other group", paste0("(",length(object[[1]]$model_fits$fit_group_reweighted$residuals)," observations).\n\n"))
 
-    if(x$input_parameters$reference_0) {
+    if(object$input_parameters$reference_0) {
       x_p_reference <- "b0"
       x_e_reference <- "XC"
       s_p_reference <- "X1"
@@ -279,7 +279,7 @@ summary.ob_decompose <- function(x,
       s_p_reference <- "XC"
       s_e_reference <- "b1"
     }
-    if(!x$input_parameters$subtract_1_from_0) {
+    if(!object$input_parameters$subtract_1_from_0) {
       x_p_subtraction <- "(XC - X0)"
       x_e_subtraction <- "(bC - b0)"
       s_p_subtraction <- "(b1 - bC)"
@@ -304,24 +304,24 @@ summary.ob_decompose <- function(x,
         rw_err_formula, "\n\n")
   }
 
-  n_decompositions <- length(x) - 5
+  n_decompositions <- length(object) - 5
 
   for(i in 1:n_decompositions) {
 
-    if(!is.null(x$input_parameters$rifreg_statistic) &&
-       x$input_parameters$rifreg_statistic == "quantiles") {
-      cat("\n*** Quantile:",  x$input_parameters$rifreg_probs[i], "***")
+    if(!is.null(object$input_parameters$rifreg_statistic) &&
+       object$input_parameters$rifreg_statistic == "quantiles") {
+      cat("\n*** Quantile:",  object$input_parameters$rifreg_probs[i], "***")
       cat("\n\n")
     }
 
     if(aggregate_factors | !is.null(custom_aggregation)){
-      results <- aggregate_terms(x[[i]],
+      results <- aggregate_terms(object[[i]],
                            aggregate_factors = aggregate_factors,
                            custom_aggregation = custom_aggregation,
                            reweighting = reweighting)
     }
     else {
-      results <- x[[i]][1:4]
+      results <- object[[i]][1:4]
 
       no_se <- ifelse(is.null(results$decomposition_vcov), TRUE, FALSE)
 
@@ -430,14 +430,14 @@ summary.ob_decompose <- function(x,
 
       cat("Summary statistics of reweighting factors\n\n")
       cat(paste0("Number of trimmed observations (not included in statistics): ",
-                 length(x$reweighting_estimates$trimmed_observations),
+                 length(object$reweighting_estimates$trimmed_observations),
                  " (",
-                 round(length(x$reweighting_estimates$trimmed_observations)/nrow(x$reweighting_estimates$reweighting_factor)*100, 1),
+                 round(length(object$reweighting_estimates$trimmed_observations)/nrow(object$reweighting_estimates$reweighting_factor)*100, 1),
                  "%)\n\n"))
 
-        quantiles_reweighting_factor <- as.data.frame(x$reweighting_estimates$quantiles_reweighting_factor[,-1])
-        names(quantiles_reweighting_factor) <- names(x$reweighting_estimates$quantiles_reweighting_factor)[-1]
-        rownames(quantiles_reweighting_factor) <- rownames(x$reweighting_estimates$quantiles_reweighting_factor)
+        quantiles_reweighting_factor <- as.data.frame(object$reweighting_estimates$quantiles_reweighting_factor[,-1])
+        names(quantiles_reweighting_factor) <- names(object$reweighting_estimates$quantiles_reweighting_factor)[-1]
+        rownames(quantiles_reweighting_factor) <- rownames(object$reweighting_estimates$quantiles_reweighting_factor)
         print(quantiles_reweighting_factor)
         cat("\n")
 
@@ -459,7 +459,7 @@ summary.ob_decompose <- function(x,
 #' terms. The parameter `custom_aggregation` overrides the parameter `aggregate_factors`.
 #' If `NULL` (default), then either all detailed terms or all terms associated with
 #' a single variable are returned.
-#' @param reweighting boolean, if `TRUE` the decompostion in `x` contains reweighting
+#' @param reweighting boolean, if `TRUE` the decompostion in `object` contains reweighting
 #' (i.e. specification and reweighting error)
 #'
 #' @return The function returns an updated object of class "ob_decompose" containing
