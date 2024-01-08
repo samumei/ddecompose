@@ -525,7 +525,6 @@ aggregate_terms <- function(x,
       }
 
     }else if(!is.null(custom_aggregation)){
-
       missing_variables <- setdiff(do.call("c", custom_aggregation), decomposition_terms$Variable[-1])
       if(length(missing_variables) == 1){
         stop(paste0("Cannot aggregate terms. A variable (", missing_variables, ") is not defined."))
@@ -533,9 +532,13 @@ aggregate_terms <- function(x,
         stop(paste0("Cannot aggregate terms. Some variables (", paste0(missing_variables, collapse=", ") ,") are not defined."))
       }
       other_variables <- setdiff(decomposition_terms$Variable[-1], do.call("c", custom_aggregation))
+
       if(length(other_variables)>0){
         custom_aggregation <- c(custom_aggregation, list(other_variables))
-        names(custom_aggregation)[length(custom_aggregation)] <- "(Other variables)"
+        names(custom_aggregation)[length(custom_aggregation)] <-
+          ifelse(all(other_variables == "(Intercept)"),
+                                        "(Intercept)",
+                                        "(Other variables)")
       }
     }
 
