@@ -1,17 +1,16 @@
 Package: ddecompose
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
+Title: Detailed Distributional Decomposition
+Version: 1.0.0
 Authors@R: 
-    person("David", "Gallusser", , "david.gallusser@sgb.ch", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-    person("Samuel", "Meier", , "samuel.meier@sgb.ch", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    person("David", "Gallusser", , "david.gallusser@sgb.ch", role = c("aut", "cre"))
+    person("Samuel", "Meier", , "samuel.meier@sgb.ch", role = c("aut", "cre"))
 Maintainer: David Gallusser <david.gallusser@sgb.ch>, Samuel Meier
     <samuel.meier@sgb.ch>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: GPL (>= 3) 
+Description: The package implements the Oaxaca-Blinder decomposition method and generalizations of it that decompose differences in distributional statistics beyond the mean.
+    The function ob_decompose() decomposes differences in the mean outcome between two groups into one part explained by different covariates (composition effect) and into another part due to differences in the way covariates are linked to the outcome variable (structure effect). The function further divides the two effects into the contribution of each covariate and allows for weighted 'doubly robust' decompositions. For distributional statistics beyond the mean, the function performs the RIF decomposition proposed by Firpo, Fortin, and Lemieux (2018).
+    The function dfl_decompose() divides differences in distributional statistics into an composition effect and a structure effect using inverse probability weighting as introduced by DiNardo, Fortin, and Lemieux (1996). The function also allows to sequentially decompose the composition effect into the contribution of single covariates.
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
@@ -31,6 +30,7 @@ Imports:
     methods
 Suggests: 
     testthat (>= 3.0.0),
-    tidyr, 
-    dplyr  
+    tidyr,
+    dplyr,
+    covr
 Config/testthat/edition: 3
