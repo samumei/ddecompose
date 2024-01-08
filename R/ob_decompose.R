@@ -99,6 +99,9 @@
 #' to estimate the RIF of quantiles.
 #'
 #' @references
+#' Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2018.
+#' "Decomposing Wage Distributions Using Recentered Influence Function Regressions." \emph{Econometrics} 6(2):28.
+#'
 #' Fortin, Nicole, Thomas Lemieux, and Sergio Firpo. 2011. "Decomposition methods in economics."
 #' In Orley Ashenfelter and David Card, eds., \emph{Handbook of labor economics}. Vol. 4. Elsevier, 1-102.
 #'
@@ -204,21 +207,62 @@
 #'                                          reweighting = TRUE,
 #'                                          method = "random forests")
 #'
+#' # Reweighted RIF Regression Decomposition
+#' data("men8305")
+#'
+#' model_rifreg <- log(wage) ~ union*(education + experience) + education*experience
+#'
+#' # Variance
+#' variance_decomposition <- ob_decompose(formula = model_rifreg,
+#'                                        data = men8305,
+#'                                        group = year,
+#'                                        reweighting = TRUE,
+#'                                        rifreg_statistic = "variance")
+#'
+#' # Deciles
+#' deciles_decomposition <- ob_decompose(formula = model_rifreg,
+#'                                       data = men8305,
+#'                                       group = year,
+#'                                       reweighting = TRUE,
+#'                                       rifreg_statistic = "quantiles",
+#'                                       rifreg_probs = c(1:9)/10)
+#'
+#' plot(deciles_decomposition)
+#'
+#' # RIF regression decomposition with custom function
+#'
+#' # custom function
+#' custom_variance_function <- function(dep_var, weights, probs = NULL) {
+#'   weighted_mean <- weighted.mean(x = dep_var, w = weights)
+#'   rif <- (dep_var - weighted_mean)^2
+#'   rif <- data.frame(rif, weights)
+#'   names(rif) <- c("rif_variance", "weights")
+#'   return(rif)
+#' }
+#'
+#' custom_decomposition <-
+#'   ob_decompose(formula = model_rifreg,
+#'                data = men8305,
+#'                group = year,
+#'                reweighting = TRUE,
+#'                rifreg_statistic = "custom",
+#'                custom_rif_function = custom_variance_function)
+#'
 ob_decompose <- function(formula,
                     data,
                     group,
-                    subtract_1_from_0 = FALSE,
                     weights = NULL,
+                    reweighting = FALSE,
+                    normalize_factors = FALSE,
+                    reference_0 = TRUE,
+                    subtract_1_from_0 = FALSE,
+                    reweighting_method = "logit",
+                    trimming = FALSE,
+                    trimming_threshold = NULL,
                     rifreg_statistic = NULL,
                     rifreg_probs = c(1:9)/10,
                     custom_rif_function = NULL,
-                    reweighting = FALSE,
-                    reweighting_method = "logit",
-                    reference_0 = TRUE,
                     na.action = na.omit,
-                    normalize_factors = FALSE,
-                    trimming = FALSE,
-                    trimming_threshold = NULL,
                     bootstrap = FALSE,
                     bootstrap_iterations = 100,
                     bootstrap_robust = FALSE,
@@ -266,7 +310,7 @@ ob_decompose <- function(formula,
   nvar <- length(formula)[2] # Number of detailed decomposition effects
   if(nvar == 1) {
     if(reweighting) {
-      cat("\n\nThe same model specification is used for decomposition and to compute reweighting weights.")
+      cat("\n\nThe same model specification is used for decomposition and to compute reweighting factors.")
     }
     formula_decomposition <- formula
     formula_reweighting <- formula
@@ -399,10 +443,11 @@ ob_decompose <- function(formula,
                                                                                       rifreg_probs = rifreg_probs,
                                                                                       custom_rif_function = custom_rif_function,
                                                                                       na.action = na.action,
-                                                                                      cluster = cluster,
+                                                                                    cluster = cluster,
                                                                                       ... = ...))
     } else {
       rm(weights) # weights are stored in data_used
+      rm(group) # group is stored in data_used
       cores <- min(cores, parallel::detectCores() - 1)
       core_cluster <- parallel::makeCluster(cores)
       parallel::clusterSetRNGStream(core_cluster, round(runif(1, 0, 100000)))
@@ -413,7 +458,7 @@ ob_decompose <- function(formula,
                                                function(x) bootstrap_estimate_ob_decompose(formula_decomposition = formula_decomposition,
                                                                                       formula_reweighting = formula_reweighting,
                                                                                       data_used = data_used,
-                                                                                      group = group,
+                                                                                      group = as.name(group_variable_name),
                                                                                       reference_0 = reference_0,
                                                                                       normalize_factors = normalize_factors,
                                                                                       reweighting = reweighting,
