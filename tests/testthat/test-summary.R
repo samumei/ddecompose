@@ -15,6 +15,23 @@ test_that("Summary function does not throw an error", {
 })
 
 
+test_that("Summary works with different data", {
+
+  data("men8305")
+
+  model_rifreg <- log(wage) ~ union*(education + experience) + education*experience
+
+  # Variance
+  variance_decomposition <- ob_decompose(formula = model_rifreg,
+                                         data = men8305,
+                                         group = year,
+                                         reweighting = TRUE,
+                                         rifreg_statistic = "variance",
+                                         bootstrap = F)
+
+  testthat::expect_error(summary(variance_decomposition), NA)
+})
+
 test_that("Summary function does not throw an error with custom aggregation", {
 
   data("nlys00")

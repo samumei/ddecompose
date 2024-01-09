@@ -292,12 +292,13 @@ ob_decompose <- function(formula,
   ## Check group variable
   group_variable_name <- data_arguments[["group"]]
   group_variable <- data_used[, "group"]
-  check_group_variable <- is.numeric(group_variable)&length(unique(group_variable))==2|is.factor(group_variable)&length(unique(group_variable))==2
+  check_group_variable <- is.numeric(group_variable)&length(unique(group_variable))==2 |
+    is.factor(group_variable)&length(unique(group_variable))==2
   if(!check_group_variable){
     stop("Group variable must either be a binary numeric variable or a binary factor variable.")
   }
   if(is.numeric(group_variable)){
-    data_used[, "group"] <- as.factor(group_variable)
+    data_used[, "group"] <- group_variable <- as.factor(group_variable)
   }
 
   reference_group <- ifelse(reference_0, 0, 1)
