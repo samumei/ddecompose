@@ -8,6 +8,7 @@
 #' @import sandwich
 #' @import fastglm
 #' @importFrom methods formalArgs
+#' @import rifreg
 NULL
 
 utils::globalVariables(c("Variable",

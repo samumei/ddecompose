@@ -34,3 +34,4 @@ Suggests:
     dplyr,
     covr
 Config/testthat/edition: 3
+Remotes: github::samumei/rifreg
