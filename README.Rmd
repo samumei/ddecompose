@@ -552,11 +552,10 @@ decompose_90_10  <- ob_decompose(formula = ffl_model_with_reweighting,
                                 trimming = TRUE,
                                 trimming_threshold = 100,
                                 bootstrap = TRUE,
-                                bootstrap_iterations = 100, 
-                              cores = 4)
+                                bootstrap_iterations = 100)
 
 ## Variance
-decompose_variance  <- ob_decompose(formula = var_model,
+decompose_variance  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting,
                                  data = men8816_t4,
                                  weights = eweight,
                                  group = time,
@@ -567,13 +566,19 @@ decompose_variance  <- ob_decompose(formula = var_model,
                                  trimming = TRUE,
                                  trimming_threshold = 100,
                                  bootstrap = TRUE,
-                                 bootstrap_iterations = 100, 
-                              cores = 4)
+                                 bootstrap_iterations = 100)
 
-# Gini 
-ffl_model_with_reweighting_gini <- update.formula(ffl_model_with_reweighting, exp(.) ~ .)
+## Gini 
 
-decompose_gini  <- ob_decompose(formula = ffl_model_with_reweighting_gini,
+# Updating the model
+gini_model_raw <- update(ffl_model_with_reweighting, exp(.) ~ .)
+gini_model_character <- as.character(gini_model_raw)
+gini_model_split <- strsplit(gini_model_character, "~")
+ffl_model_with_reweighting_gini <- as.formula(paste(gini_model_split[[2]], "~",
+                                                     gsub("\\(|\\)", "", gini_model_split[[3]][1])))
+
+set.seed(130234976)
+decompose_gini  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting_gini,
                                data = men8816_t4,
                                weights = eweight,
                                group = time,
@@ -584,7 +589,7 @@ decompose_gini  <- ob_decompose(formula = ffl_model_with_reweighting_gini,
                                trimming_threshold = 100,
                                bootstrap = TRUE,
                                bootstrap_iterations = 100, 
-                              cores = 4)
+                              cores = 1)
 
 
 
