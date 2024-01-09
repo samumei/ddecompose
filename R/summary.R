@@ -227,13 +227,25 @@ summary.ob_decompose <- function(object,
       "(group 0). \nThe reference group is", paste0("'",object$reference_group,"'."), "\n\n")
 
 
+  if(length(object[[1]]$model_fits[[1]]) < 10) {
+    # RIFREG statistic
+    obs_0 <- length(object[[1]]$model_fits$fit_group_0$rif_lm[[1]]$residuals)
+    obs_1 <- length(object[[1]]$model_fits$fit_group_1$rif_lm[[1]]$residuals)
+  }
+  else {
+    obs_0 <- length(object[[1]]$model_fits$fit_group_0$residuals)
+    obs_1 <- length(object[[1]]$model_fits$fit_group_1$residuals)
+  }
+
+
+
+
   if(!reweighting) {
 
-
     cat("Group 0:", paste0(object$group_variable_name, " == '", object$group_variable_levels[1], "'"),
-        paste0("(",length(object[[1]]$model_fits$fit_group_0$residuals)," observations)"),
+        paste0("(", obs_0," observations)"),
         "\nGroup 1:", paste0(object$group_variable_name, " == '", object$group_variable_levels[2], "'"),
-        paste0("(",length(object[[1]]$model_fits$fit_group_1$residuals)," observations)"),"\n\n")
+        paste0("(", obs_1," observations)"),"\n\n")
 
     if(object$input_parameters$reference_0) {
       x_reference <- "X1"
@@ -259,13 +271,18 @@ summary.ob_decompose <- function(object,
         structure_formula, "\n\n")
   }
   else {
+
+    obs_c <- ifelse(object$input_parameters$reference_0,
+                    obs_0,
+                    obs_1)
+
     # With Reweighting
     cat("Group 0:", paste0(object$group_variable_name, " == '", object$group_variable_levels[1], "'"),
-        paste0("(",length(object[[1]]$model_fits$fit_group_0$residuals)," observations)"),
+        paste0("(", obs_0," observations)"),
         "\nGroup 1:", paste0(object$group_variable_name, " == '", object$group_variable_levels[2], "'"),
-        paste0("(",length(object[[1]]$model_fits$fit_group_1$residuals)," observations)"),
+        paste0("(", obs_1," observations)"),
         "\nGroup C:", paste0(object$group_variable_name, " == '",object$reference_group,"'"), "(reference group) reweighted
-         to match the characteristics of the other group", paste0("(",length(object[[1]]$model_fits$fit_group_reweighted$residuals)," observations).\n\n"))
+         to match the characteristics of the other group", paste0("(", obs_c," observations).\n\n"))
 
     if(object$input_parameters$reference_0) {
       x_p_reference <- "b0"
