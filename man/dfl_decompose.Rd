@@ -69,7 +69,7 @@ the decomposition start left and using all variables entered into
 
 \item{method}{specifies the method to fit and predict conditional probabilities
 used to derive the reweighting factor. At the moment, \code{"logit"}, \code{"fastglm"},
-and \code{"random forests"} are available.}
+and \code{"random_forest"} are available.}
 
 \item{estimate_statistics}{boolean: if \code{TRUE} (default), then distributional
 statistics are estimated and the decomposition is performed. If \code{FALSE},
@@ -189,7 +189,7 @@ The covariates are defined in \code{formula}. The reweighting factor is
 estimated in the pooled sample with observations from both groups. \code{method = "logit"}
 uses a logit model to fit the conditional probabilities. \code{method = "fastglm"}
 also fits a logit model but with a faster algorithm from \strong{fastglm}.
-\code{method = "random forests"} uses the \strong{Ranger} implementation of
+\code{method = "random_forest"} uses the \strong{Ranger} implementation of
 the random forests classifier.
 
 The counterfactual statistics are then estimated with the observed data of

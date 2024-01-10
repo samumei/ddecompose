@@ -72,7 +72,7 @@ the structure effect as \code{X0 * (b0 - b1)}.}
 
 \item{reweighting_method}{specifies the method fit and predict conditional probabilities
 used to derive the reweighting factor. Currently, \code{"logit"}, \code{"fastglm"},
-and \code{"random forests"} are available.}
+and \code{"random_forest"} are available.}
 
 \item{trimming}{boolean: If \code{TRUE}, observations with dominant reweighting factor
 values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
@@ -245,7 +245,7 @@ decompose_male_as_reference_robust_rf <- ob_decompose(formula = mod1,
                                          group = female,
                                          reference_0 = FALSE,
                                          reweighting = TRUE,
-                                         method = "random forests")
+                                         method = "random_forest")
 
 # Reweighted RIF Regression Decomposition
 data("men8305")

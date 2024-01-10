@@ -180,7 +180,7 @@ test_that("fit_and_predict_probabilities works properly with ranger random fores
   group_variable <- data_used[, ncol(data_used)]
   names(data_used)[ncol(data_used)] <- "group_variable"
 
-  method = "random forests"
+  method = "random_forest"
   formula_new <- group_variable ~ union + education + experience
 
   fits <- fit_and_predict_probabilities(formula_new,
@@ -216,7 +216,7 @@ test_that("fit_and_predict_probabilities works properly with ranger random fores
 #   trimming = FALSE
 #   trimming_threshold = NULL
 #   right_to_left = TRUE
-#   method = "random forests"
+#   method = "random_forest"
 #
 #   decompose_results <- dfl_decompose_estimate(formula = formula,
 #                                     dep_var = dep_var,

@@ -46,7 +46,7 @@ with respect to reweighted reference group.}
 
 \item{reweighting_method}{specifies the method fit and predict conditional probabilities
 used to derive the reweighting factor. Currently, \code{"logit"}, \code{"fastglm"},
-and \code{"random forests"} are available.}
+and \code{"random_forest"} are available.}
 
 \item{trimming}{boolean: If \code{TRUE}, observations with dominant reweighting factor
 values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per

@@ -62,7 +62,7 @@
 #' Oaxaca-Blinder decomposition or a reweighted RIF decomposition.
 #' @param reweighting_method  specifies the method fit and predict conditional probabilities
 #' used to derive the reweighting factor. Currently, \code{"logit"}, \code{"fastglm"},
-#' and \code{"random forests"} are available.
+#' and \code{"random_forest"} are available.
 #' @param trimming boolean: If \code{TRUE}, observations with dominant reweighting factor
 #' values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
 #' default, trimming is set to \code{FALSE}.
@@ -205,7 +205,7 @@
 #'                                          group = female,
 #'                                          reference_0 = FALSE,
 #'                                          reweighting = TRUE,
-#'                                          method = "random forests")
+#'                                          method = "random_forest")
 #'
 #' # Reweighted RIF Regression Decomposition
 #' data("men8305")
@@ -827,7 +827,7 @@ estimate_ob_decompose <- function(formula,
 #' with respect to reweighted reference group.
 #' @param reweighting_method  specifies the method fit and predict conditional probabilities
 #' used to derive the reweighting factor. Currently, \code{"logit"}, \code{"fastglm"},
-#' and \code{"random forests"} are available.
+#' and \code{"random_forest"} are available.
 #' @param trimming boolean: If \code{TRUE}, observations with dominant reweighting factor
 #' values are trimmend according to rule of Huber, Lechner, and Wunsch (2013). Per
 #' default, trimming is set to \code{FALSE}.
