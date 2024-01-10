@@ -34,8 +34,8 @@
     - <a href="#reweighted-rif-regression-decomposition-table-4"
       id="toc-reweighted-rif-regression-decomposition-table-4">Reweighted RIF
       Regression Decomposition (Table 4)</a>
-    - <a href="#presentation-of-results"
-      id="toc-presentation-of-results">Presentation of Results</a>
+    - <a href="#discussion-of-results"
+      id="toc-discussion-of-results">Discussion of Results</a>
   - <a href="#credits" id="toc-credits">Credits</a>
   - <a href="#references" id="toc-references">References</a>
 
@@ -84,7 +84,7 @@ of single covariates.
 The package contains generic summary, print and plot functions for the
 results and computes standard errors. This documentation provides a
 brief overview of the functions implemented in the package. For a more
-detailed discussion of decomposition methods including their respective
+detailed discussion of decomposition methods, including their respective
 assumptions and limitations, refer to [Fortin, Lemieux, and Firpo
 (2011)](https://economics.ubc.ca/wp-content/uploads/sites/38/2013/05/pdf_paper_nicole-fortin-decomposition-methods.pdf)
 and Firpo et al. (2018).
@@ -161,7 +161,7 @@ decomposition terms are biased if the expectation of the outcome
 conditional on the covariates is not linear (see [Barsky et al.,
 2002](https://www.jstor.org/stable/3085702)). DiNardo, Fortin, and
 Lemieux (1996), DFL hereafter, propose an alternative approach that
-overcomes both shortcomings. Instead of modeling the conditional mean,
+overcomes both shortcomings. Instead of modelling the conditional mean,
 the method uses inverse probability weighting to define a counterfactual
 outcome distribution that combines the conditional outcome distribution
 of one group and the covariates distribution of the other group. For
@@ -234,7 +234,7 @@ industry employment given union coverage $F(x_2|x_1)$.
 Moreover, we get different results if we do not combine the marginal
 covariate distribution $X_2$ (e.g., industry employment) of group 1 with
 the conditional distribution of $X_1$ given $X_2$ (e.g., union density
-by industry) of group 0 but rather combine the marginal of group 0 with
+by industry) of group 0 but rather, combine the marginal of group 0 with
 the conditional distribution of group 1 to derive the counterfactual,
 e.g.,
 $$F_{Y_{C,X_1}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{1,1}}(x_1|x_2)dF_{X_0,2}(x_2).$$
@@ -335,6 +335,7 @@ With $\widehat\Delta^\nu_{S,p}$ and $\widehat\Delta^\nu_{S,e}$
 estimating the pure structure effect and the reweighting error as
 
 $$\widehat\Delta^\nu_{S,R} =  \widehat\Delta^\nu_{S,p} + \widehat\Delta^\nu_{S,e} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k}$$
+
 and $\widehat\Delta^\nu_{X,p}$ and $\widehat\Delta^\nu_{X,e}$ estimating
 the pure coefficient effect and the specification error:
 
@@ -369,17 +370,17 @@ and Lemieux
 (2009b)](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf)
 and Firpo et al. (2018) do the same for the RIF estimator and for the
 RIF decomposition terms, respectively. The authors propose to bootstrap
-standard errors. `ddecompose` allows to bootstrap standard errors in
+standard errors. `ddecompose` allows bootstrapping standard errors in
 both `ob_decompose()` and `dfl_decompose()`. For the classical OB
 decomposition, analytical standard errors are available, too.
 
 ## Examples
 
-The following examples illustrate the workings of the main decomposition
-functions in `ddecompose`. We use a sample of the National Longitudinal
-Survey (NLSY) 79 containig wage data from the year 2000 of workers who
-were aged 35 to 43 in that year. The data is from O’Neill and O’Neill
-(2006) and is used as an illustration of the Oxaca-Blinder mean
+The following examples illustrate the operation of the main
+decomposition functions in `ddecompose`. We use a sample from the
+National Longitudinal Survey (NLSY) 79 containing wage data from the
+year 2000 for workers who aged 35 to 43. The data are from O’Neill and
+O’Neill (2006) and were used to illustrate the Oxaca-Blinder mean
 decomposition in Fortin, Lemieux, and Firpo (2011). The data contains
 2655 male and 2654 female observations, respectively.
 
@@ -392,10 +393,9 @@ data("nlys00")
 
 ### Oaxaca-Blinder Decomposition
 
-Let us decompose the gender wage gap into composition and structure
-effect, using the standard Oaxaca-Blinder decompostion without
-reweighting. First, we specify a wage structure model and then run the
-estimation.
+We decompose the gender wage gap into composition and structure effect,
+using the standard Oaxaca-Blinder decomposition without reweighting.
+First, we specify a wage structure model and then run the estimation.
 
 ``` r
 
@@ -409,10 +409,10 @@ gender_gap_decomposition <- ob_decompose(formula = model,
 ```
 
 In the default settings, heteroscedasticity-consistent standard errors
-are calculated and factor variables are not normalized. Group 0 is
-defined as the reference group (the group with the lower factor level)
-and is subtracted from group 1. Using `summary()`, we can display the
-decompostion formula and the estimation results.
+are computed and factor variables are not normalized. Group 0 is defined
+as the reference group (the group with the lower factor level) and is
+subtracted from group 1. With `summary()`, we can display the
+decomposition formula and the estimation results.
 
 ``` r
 summary(gender_gap_decomposition)
@@ -478,8 +478,8 @@ summary(gender_gap_decomposition)
 #> industry               0.003461243 0.005102148 -0.0065387825  0.013461268
 ```
 
-`ddecompose` comes with a convenient plot function. To plot the overall
-composition and structure effect, we have to set
+`ddecompose` comes with a handy plotting function. To plot the overall
+composition and structure effects, we need to set
 `detailed_effects = FALSE`.
 
 ``` r
@@ -488,13 +488,14 @@ plot(gender_gap_decomposition, detailed_effects = FALSE)
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
-To change the reference group, we `reference_0` needs to be set to
-`FALSE`. Note that this does not change the subtraction terms in the
+To change the reference group, we have to set `reference_0 = FALSE`.
+Note that this does not change the subtraction terms in the
 decomposition, i.e., (X1 - X0) and (b1 - b0). To change the direction of
-the subtraction, the parameter `subtract_1_from_0` needs to be set to
-`TRUE`. This merely changes the sign of the decomposition results. We
-can indicate the weights column of the `data` in the `weights` parameter
-and normalize factor variables by setting `normalize_factors = TRUE`.
+the subtraction, the parameter `subtract_1_from_0` must be set to
+`TRUE`. This parameter only changes the sign of the decomposition
+results. We can specify the weights column of the `data` in the
+`weights` parameter and normalize the factor variables by setting
+`normalize_factors = TRUE`.
 
 ### ‘Doubly Robust’ Decompostion
 
@@ -533,23 +534,23 @@ gender_gap_decomposition_w_reweighting <-
 #> Bootstrapping standard errors...
 ```
 
-The default method to fit and predict conditional probabilities, used to
-derive the reweighting factor, is a logit model. However, one can also
-use `reweighting_method = "fastglm"`, for a faster logit model
-computation or `random forests` for a different reweighting method. If
-`trimming` is set to `TRUE`, observations with dominant reweighting
-factor values are trimmed. Per default, reweighting factor values are
-trimmed according to rule of Huber, Lechner, and Wunsch (2013). Therby,
-the `trimming_threshold`, i.e., the maximal accepted relative weight of
-the reweighting factor value (inverse probability weight) of a single
-observation, is set to `sqrt(N)/N`, where `N` is the number of
+The default method for fitting and predicting conditional probabilities,
+used to derive the reweighting factor, is a logit model. However, you
+can also use `reweighting_method = "fastglm"` for a faster logit model
+computation, or `random_forest` for a different reweighting method.
+Setting `trimming = TRUE` will trim observations with dominant
+reweighting factor values. By default, reweighting factor values are
+trimmed according to the rule of Huber, Lechner, and Wunsch (2013).
+Thereby, the `trimming_threshold`, i.e., the maximum accepted relative
+weight of the reweighting factor value (inverse probability weight) of a
+single observation, is set to `sqrt(N)/N`, where `N` is the number of
 observations in the reference group. The trimming threshold can also be
-set manually to a numeric value.
+manually set to a numeric value.
 
-We can aggregate the detailed effects in the `summary()` and `plot()`
-function. For instance, if we want to separate personal and contextual
-factors that explain the wage gap, we can aggregate these variables in a
-list.
+We can aggregate the detailed effects displayed in the `summary()` and
+`plot()` function. For example, if we want to separate personal and
+contextual factors that explain the wage gap, we can aggregate these
+variables in a list.
 
 ``` r
 
@@ -578,20 +579,19 @@ plot(gender_gap_decomposition_w_reweighting,
 
 <img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
-If we add reweighting, the `plot()` and `summary()` function also
-display the Specification and Reweighting Error. To reduce the
-reweighting error, a more flexible reweighting model is advisable.
+If we add reweighting, the `plot()` and `summary()` functions will also
+display the specification and reweighting error. To reduce the
+reweighting error, a more flexible reweighting model is recommended.
 
 ### RIF Regression Decomposition
 
-To decompose group differences beyond the mean with `ob_deco` we are
-using RIF regressions. In the following examples, we will analyze the
-changes in wage inequality between 1983/85 and 2003/05 and assess what
-covariates contribute to explaining these changes. First, we look at
-changes in the variance. Then, we decompose the wage gap at each decile.
-The data used is a sample of the the Merged Outgoing Rotation Group of
-the Current Population Survey from 1983 to 1985 and 2003 to 2005,
-respectively, used as example by Fortin, Lemieux & Firpo (2011).
+To decompose group differences beyond the mean with `ob_deco` we use RIF
+regressions. In the following examples, we will analyze the changes in
+wage inequality between 1983/85 and 2003/05 and assess which covariates
+contribute to explaining these changes. First, we look at the changes in
+the variance. Then, we decompose the wage gap at each decile. The data
+used are from the Merged Outgoing Rotation Group of the Current
+Population Survey, used in Fortin, Lemieux & Firpo (2011).
 
 ``` r
 
@@ -611,233 +611,6 @@ variance_decomposition <- ob_decompose(formula = model_rifreg,
 #> 
 #> The same model specification is used for decomposition and to compute reweighting factors.
 #> Bootstrapping standard errors...
-
-print(variance_decomposition)
-#> 
-#> 
-#> Reweighted RIF regression decomposition of difference in variance
-#> between year == '2003-2005' (group 1) and year == '1983-1985' (group 0). 
-#> The reference group is '1983-1985'. 
-#> 
-#> Aggregate decomposition:
-#> 
-#>                                        Observed difference Composition effect
-#> Total difference                                0.05080427         0.02964428
-#>                                        Structure effect Specification error
-#> Total difference                             0.02889585        -0.007634391
-#>                                        Reweighting error
-#> Total difference                           -0.0001014668
-#> 
-#> Detailed decomposition:
-#> 
-#>                                        Observed difference Composition effect
-#> (Intercept)                                  -2.953514e-02       0.000000e+00
-#> unionyes                                      3.854936e-03       6.747955e-03
-#> educationElementary                           1.217576e-03      -2.261465e-03
-#> educationHS dropout                           5.593234e-03       7.932019e-04
-#> educationSome College                        -4.570377e-04       2.401118e-03
-#> educationCollege                              3.350059e-02       1.586419e-02
-#> educationPost-graduate                        2.758235e-02       9.425738e-04
-#> experience0-4                                 3.009142e-03      -8.153936e-03
-#> experience5-9                                 1.207186e-02       1.589042e-03
-#> experience10-14                               5.782613e-03       1.517266e-03
-#> experience15-19                               5.042642e-03      -3.581431e-04
-#> experience25-29                              -4.443290e-03       6.398896e-04
-#> experience30-34                              -6.237351e-05       2.038179e-04
-#> experience35-39                               1.067437e-03       1.265590e-04
-#> experience>=40                                9.022699e-05      -4.981414e-04
-#> unionyes:educationElementary                  1.694391e-03       1.794106e-03
-#> unionyes:educationHS dropout                  4.255012e-04       6.240922e-04
-#> unionyes:educationSome College                8.031642e-04       1.819326e-05
-#> unionyes:educationCollege                    -6.126676e-04      -1.489616e-04
-#> unionyes:educationPost-graduate              -8.443292e-04       6.297239e-04
-#> unionyes:experience0-4                        1.517274e-03       1.130457e-03
-#> unionyes:experience5-9                       -4.569321e-05       3.712171e-05
-#> unionyes:experience10-14                     -6.161616e-04      -4.233076e-04
-#> unionyes:experience15-19                     -8.785340e-04      -4.280223e-04
-#> unionyes:experience25-29                      1.773275e-03       6.931553e-06
-#> unionyes:experience30-34                     -3.778427e-04      -1.597100e-05
-#> unionyes:experience35-39                     -5.250224e-04      -3.660962e-05
-#> unionyes:experience>=40                      -1.310760e-04       1.796820e-04
-#> educationElementary:experience0-4            -4.057103e-04      -2.470174e-04
-#> educationHS dropout:experience0-4            -4.923516e-03      -2.954224e-03
-#> educationSome College:experience0-4           1.179443e-03       1.605356e-04
-#> educationCollege:experience0-4               -3.030659e-03       8.156006e-04
-#> educationPost-graduate:experience0-4          1.132169e-03       2.402666e-03
-#> educationElementary:experience5-9            -3.899965e-04      -1.978895e-04
-#> educationHS dropout:experience5-9            -9.884150e-04      -9.319604e-04
-#> educationSome College:experience5-9          -7.801482e-04       1.154293e-04
-#> educationCollege:experience5-9               -2.997394e-03       3.708840e-04
-#> educationPost-graduate:experience5-9         -1.450203e-04       1.352934e-03
-#> educationElementary:experience10-14           2.578581e-04       1.321268e-06
-#> educationHS dropout:experience10-14          -7.950854e-04      -6.999092e-04
-#> educationSome College:experience10-14        -7.487258e-04       4.622051e-05
-#> educationCollege:experience10-14             -6.066500e-04      -4.538782e-04
-#> educationPost-graduate:experience10-14       -4.459226e-04       5.425117e-04
-#> educationElementary:experience15-19          -5.040542e-05       2.947336e-05
-#> educationHS dropout:experience15-19           3.312930e-05      -8.101928e-05
-#> educationSome College:experience15-19         1.226768e-04       3.530076e-05
-#> educationCollege:experience15-19             -1.468186e-03      -4.028135e-04
-#> educationPost-graduate:experience15-19       -4.188611e-04       9.944657e-06
-#> educationElementary:experience25-29          -5.729025e-05       4.004872e-05
-#> educationHS dropout:experience25-29           1.197019e-04      -4.638974e-05
-#> educationSome College:experience25-29         1.255377e-03       1.165385e-03
-#> educationCollege:experience25-29             -2.198220e-04       2.368751e-04
-#> educationPost-graduate:experience25-29       -1.345468e-03       4.610208e-04
-#> educationElementary:experience30-34          -1.970255e-04      -7.781850e-05
-#> educationHS dropout:experience30-34           1.935808e-04       6.350104e-05
-#> educationSome College:experience30-34         1.170126e-03       1.386747e-03
-#> educationCollege:experience30-34             -3.283644e-04       6.687601e-04
-#> educationPost-graduate:experience30-34       -1.924387e-04      -1.199894e-04
-#> educationElementary:experience35-39           4.144045e-04       3.712583e-04
-#> educationHS dropout:experience35-39           7.394115e-05       5.080964e-05
-#> educationSome College:experience35-39        -5.291030e-05       1.180895e-03
-#> educationCollege:experience35-39             -1.165234e-03       2.003564e-04
-#> educationPost-graduate:experience35-39       -4.131070e-04       2.983770e-04
-#> educationElementary:experience>=40            4.053699e-04       5.075334e-04
-#> educationHS dropout:experience>=40            1.418157e-04       2.148788e-04
-#> educationSome College:experience>=40          1.536351e-04       7.782231e-05
-#> educationCollege:experience>=40               1.073469e-04      -8.303411e-05
-#> educationPost-graduate:experience>=40        -2.869877e-04       2.117686e-04
-#>                                        Structure effect Specification error
-#> (Intercept)                               -1.938704e-02       -1.014811e-02
-#> unionyes                                   3.623530e-03       -6.455984e-03
-#> educationElementary                       -5.838975e-05        3.536843e-03
-#> educationHS dropout                       -9.692402e-04        5.766551e-03
-#> educationSome College                      1.931313e-03       -4.786141e-03
-#> educationCollege                           2.937953e-02       -1.174921e-02
-#> educationPost-graduate                     3.490020e-02       -8.273478e-03
-#> experience0-4                             -4.410422e-03        1.559807e-02
-#> experience5-9                              2.888303e-03        7.594746e-03
-#> experience10-14                           -6.476821e-04        4.913036e-03
-#> experience15-19                            3.749807e-03        1.652751e-03
-#> experience25-29                           -5.532299e-03        4.479942e-04
-#> experience30-34                            8.465967e-05       -3.507468e-04
-#> experience35-39                            2.985976e-04        6.418174e-04
-#> experience>=40                            -3.792426e-04        9.674027e-04
-#> unionyes:educationElementary              -1.400367e-05       -8.683947e-05
-#> unionyes:educationHS dropout              -1.193165e-04       -7.924239e-05
-#> unionyes:educationSome College             7.651545e-04        1.646577e-05
-#> unionyes:educationCollege                 -4.933282e-04        4.393029e-05
-#> unionyes:educationPost-graduate           -2.018270e-03        5.176858e-04
-#> unionyes:experience0-4                     2.977906e-04        6.149385e-05
-#> unionyes:experience5-9                    -3.648396e-04        2.829003e-04
-#> unionyes:experience10-14                  -4.177046e-04        2.244961e-04
-#> unionyes:experience15-19                  -5.057893e-04        5.789953e-05
-#> unionyes:experience25-29                   1.421240e-03        3.509220e-04
-#> unionyes:experience30-34                  -4.172809e-04        5.802214e-05
-#> unionyes:experience35-39                  -2.627665e-04       -2.255001e-04
-#> unionyes:experience>=40                   -6.077169e-05       -2.534568e-04
-#> educationElementary:experience0-4         -1.243198e-04       -3.084105e-05
-#> educationHS dropout:experience0-4         -1.138082e-03       -7.771150e-04
-#> educationSome College:experience0-4        7.370303e-04        2.896053e-04
-#> educationCollege:experience0-4            -3.265487e-03       -5.676782e-04
-#> educationPost-graduate:experience0-4      -1.133870e-03       -1.498460e-04
-#> educationElementary:experience5-9         -1.492510e-04       -3.696670e-05
-#> educationHS dropout:experience5-9          2.456733e-04       -2.917854e-04
-#> educationSome College:experience5-9       -4.261034e-04       -4.671383e-04
-#> educationCollege:experience5-9            -2.767982e-03       -6.005058e-04
-#> educationPost-graduate:experience5-9      -1.238182e-03       -2.607268e-04
-#> educationElementary:experience10-14        3.377883e-04       -7.983092e-05
-#> educationHS dropout:experience10-14        5.292451e-05       -1.486927e-04
-#> educationSome College:experience10-14     -1.959245e-04       -5.938577e-04
-#> educationCollege:experience10-14           2.757611e-04       -4.434181e-04
-#> educationPost-graduate:experience10-14    -7.859789e-04       -1.955469e-04
-#> educationElementary:experience15-19        1.081979e-05       -9.336303e-05
-#> educationHS dropout:experience15-19        2.793405e-04       -1.676916e-04
-#> educationSome College:experience15-19      3.665045e-04       -2.803778e-04
-#> educationCollege:experience15-19          -1.082279e-03        2.719187e-05
-#> educationPost-graduate:experience15-19    -4.422900e-04        1.236084e-05
-#> educationElementary:experience25-29        5.885703e-05       -1.559371e-04
-#> educationHS dropout:experience25-29        4.183363e-04       -2.523356e-04
-#> educationSome College:experience25-29      7.384548e-04       -6.409787e-04
-#> educationCollege:experience25-29          -1.265133e-04       -3.301076e-04
-#> educationPost-graduate:experience25-29    -1.701284e-03       -1.123883e-04
-#> educationElementary:experience30-34       -1.062503e-04       -1.406015e-05
-#> educationHS dropout:experience30-34        4.218557e-04       -2.891788e-04
-#> educationSome College:experience30-34      1.177977e-04       -3.374663e-04
-#> educationCollege:experience30-34          -1.046761e-03        5.107965e-05
-#> educationPost-graduate:experience30-34    -2.304361e-04        1.580504e-04
-#> educationElementary:experience35-39        1.559394e-04       -1.147628e-04
-#> educationHS dropout:experience35-39        2.656246e-04       -2.410842e-04
-#> educationSome College:experience35-39     -9.948487e-04       -2.370733e-04
-#> educationCollege:experience35-39          -1.120767e-03       -2.448789e-04
-#> educationPost-graduate:experience35-39    -6.991931e-04       -1.656955e-05
-#> educationElementary:experience>=40         6.820760e-05       -1.714928e-04
-#> educationHS dropout:experience>=40         1.233282e-04       -1.929062e-04
-#> educationSome College:experience>=40       5.015806e-05        2.460383e-05
-#> educationCollege:experience>=40            2.332806e-04       -4.318656e-05
-#> educationPost-graduate:experience>=40     -5.677803e-04        5.818506e-05
-#>                                        Reweighting error
-#> (Intercept)                                 0.000000e+00
-#> unionyes                                   -6.056553e-05
-#> educationElementary                         5.871029e-07
-#> educationHS dropout                         2.721631e-06
-#> educationSome College                      -3.327659e-06
-#> educationCollege                            6.074214e-06
-#> educationPost-graduate                      1.304902e-05
-#> experience0-4                              -2.456814e-05
-#> experience5-9                              -2.329079e-07
-#> experience10-14                            -6.480811e-09
-#> experience15-19                            -1.772616e-06
-#> experience25-29                             1.124701e-06
-#> experience30-34                            -1.042782e-07
-#> experience35-39                             4.634668e-07
-#> experience>=40                              2.082774e-07
-#> unionyes:educationElementary                1.127692e-06
-#> unionyes:educationHS dropout               -3.216811e-08
-#> unionyes:educationSome College              3.350627e-06
-#> unionyes:educationCollege                  -1.430809e-05
-#> unionyes:educationPost-graduate             2.653160e-05
-#> unionyes:experience0-4                      2.753200e-05
-#> unionyes:experience5-9                     -8.756395e-07
-#> unionyes:experience10-14                    3.543833e-07
-#> unionyes:experience15-19                   -2.621878e-06
-#> unionyes:experience25-29                   -5.818203e-06
-#> unionyes:experience30-34                   -2.613002e-06
-#> unionyes:experience35-39                   -1.461855e-07
-#> unionyes:experience>=40                     3.470589e-06
-#> educationElementary:experience0-4          -3.532031e-06
-#> educationHS dropout:experience0-4          -5.409429e-05
-#> educationSome College:experience0-4        -7.727817e-06
-#> educationCollege:experience0-4             -1.309461e-05
-#> educationPost-graduate:experience0-4        1.321874e-05
-#> educationElementary:experience5-9          -5.889298e-06
-#> educationHS dropout:experience5-9          -1.034252e-05
-#> educationSome College:experience5-9        -2.335855e-06
-#> educationCollege:experience5-9              2.100383e-07
-#> educationPost-graduate:experience5-9        9.547817e-07
-#> educationElementary:experience10-14        -1.420585e-06
-#> educationHS dropout:experience10-14         5.920206e-07
-#> educationSome College:experience10-14      -5.164018e-06
-#> educationCollege:experience10-14            1.488524e-05
-#> educationPost-graduate:experience10-14     -6.908414e-06
-#> educationElementary:experience15-19         2.664463e-06
-#> educationHS dropout:experience15-19         2.499648e-06
-#> educationSome College:experience15-19       1.249320e-06
-#> educationCollege:experience15-19           -1.028568e-05
-#> educationPost-graduate:experience15-19      1.123363e-06
-#> educationElementary:experience25-29        -2.589379e-07
-#> educationHS dropout:experience25-29         9.097594e-08
-#> educationSome College:experience25-29      -7.484176e-06
-#> educationCollege:experience25-29           -7.620230e-08
-#> educationPost-graduate:experience25-29      7.183755e-06
-#> educationElementary:experience30-34         1.103460e-06
-#> educationHS dropout:experience30-34        -2.597073e-06
-#> educationSome College:experience30-34       3.047714e-06
-#> educationCollege:experience30-34           -1.442993e-06
-#> educationPost-graduate:experience30-34     -6.362912e-08
-#> educationElementary:experience35-39         1.969587e-06
-#> educationHS dropout:experience35-39        -1.408923e-06
-#> educationSome College:experience35-39      -1.883695e-06
-#> educationCollege:experience35-39            5.622863e-08
-#> educationPost-graduate:experience35-39      4.278731e-06
-#> educationElementary:experience>=40          1.121645e-06
-#> educationHS dropout:experience>=40         -3.485234e-06
-#> educationSome College:experience>=40        1.050901e-06
-#> educationCollege:experience>=40             2.869913e-07
-#> educationPost-graduate:experience>=40       1.083904e-05
-
 
 # Deciles
 deciles_decomposition <- ob_decompose(formula = model_rifreg,
@@ -880,15 +653,16 @@ deciles_decomposition <- ob_decompose(formula = model_rifreg,
 #> 
 #> Bootstrapping standard errors...
 
+# Plotting the deciles
 plot(deciles_decomposition)
 ```
 
 <img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
-The RIF functions for the following functions are currently implemented:
-`"quantiles"`, `"mean"`, `"variance"`, `"gini"`,
+The RIF functions for the following statistics are currently
+implemented: `"quantiles"`, `"mean"`, `"variance"`, `"gini"`,
 `"interquantile_range"`, and `"interquantile_ratio"`. However,
-`ob_decompose` also allows to pass a custom RIF function for the
+`ob_decompose` also allows you to pass a custom RIF function for the
 decomposition, by setting `rifreg_statistic = "custom"` and passing the
 custom function to `custom_rif_function`. [Cowell and Flachaire
 (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah &
@@ -959,12 +733,12 @@ plot(custom_decomposition)
 
 ### Reweighting Decomposition
 
-Now, we present the usage of the other main function: `dfl_decompose()`.
+Now, we present the use of the other main function: `dfl_decompose()`.
 Fortin, Lemieux, and Firpo (FLF, 2011, p. 79-88) decompose the increase
-in USmale wage inequality between the early 1980s and the early 2000s
+in U.S. male wage inequality between the early 1980s and the early 2000s
 using the CPS data. In this example, we replicate their results and
-treat the observations from 1983 to 1985 as reference group that is
-reweighted.
+treat the observations from 1983 to 1985 as the reference group, which
+is then reweighted.
 
 ``` r
 library(ddecompose)
@@ -976,56 +750,196 @@ flf_male_inequality  <- dfl_decompose(flf_model,
                                   weights = weights,
                                   group = year, 
                                   bootstrap = TRUE, 
-                                  cores = 4)
+                                  cores = 1)
+#> Bootstrapping standard errors...
 ```
 
 We can summarize the results:
 
 ``` r
 summary(flf_male_inequality)
+#> Decomposition of difference between year == '2003-2005' (group 1) and
+#>  year == '1983-1985' (group 0)
+#> 
+#> Reweighted reference group: year == '1983-1985' (group 0) 
+#>  
+#> Composition effect accounts for between-group differences
+#> in the distribution of the following covariates:
+#> 
+#> union, education, experience 
+#> 
+#> ---------------------------------------------------------------------------------
+#> Decomposition of difference at conditional quantiles:
+#> 
+#> Observed difference: 
+#> ---------------------------------------------------------------------------------
+#>  Quantile  Estimate Std. Error Pointwise CI: [low   high] Uniform CI: [low
+#>       0.1  0.062533   0.008742           0.045399 0.07967         0.029976
+#>       0.2  0.031163   0.010749           0.010095 0.05223        -0.008869
+#>       0.3  0.007079   0.010900          -0.014285 0.02844        -0.033516
+#>       0.4 -0.002060   0.011053          -0.023724 0.01960        -0.043224
+#>       0.5  0.004041   0.008321          -0.012268 0.02035        -0.026948
+#>       0.6  0.022516   0.007955           0.006925 0.03811        -0.007110
+#>       0.7  0.044445   0.011113           0.022664 0.06622         0.003059
+#>       0.8  0.101837   0.010088           0.082065 0.12161         0.064267
+#>       0.9  0.174073   0.011648           0.151243 0.19690         0.130694
+#>    high]
+#>  0.09509
+#>  0.07120
+#>  0.04767
+#>  0.03910
+#>  0.03503
+#>  0.05214
+#>  0.08583
+#>  0.13941
+#>  0.21745
+#> 
+#> Composition effect: 
+#> ---------------------------------------------------------------------------------
+#>  Quantile Estimate Std. Error Pointwise CI: [low   high] Uniform CI: [low
+#>       0.1  0.03342   0.005798            0.02205 0.04478          0.01375
+#>       0.2  0.05429   0.006767            0.04103 0.06756          0.03133
+#>       0.3  0.07207   0.006848            0.05865 0.08549          0.04883
+#>       0.4  0.07697   0.006376            0.06447 0.08947          0.05533
+#>       0.5  0.09504   0.007078            0.08117 0.10891          0.07102
+#>       0.6  0.08023   0.005606            0.06924 0.09122          0.06121
+#>       0.7  0.08993   0.005379            0.07938 0.10047          0.07168
+#>       0.8  0.11981   0.005915            0.10822 0.13140          0.09974
+#>       0.9  0.12265   0.007971            0.10703 0.13828          0.09561
+#>    high]
+#>  0.05309
+#>  0.07725
+#>  0.09531
+#>  0.09860
+#>  0.11906
+#>  0.09925
+#>  0.10818
+#>  0.13988
+#>  0.14970
+#> 
+#> Structure effect: 
+#> ---------------------------------------------------------------------------------
+#>  Quantile Estimate Std. Error Pointwise CI: [low      high] Uniform CI: [low
+#>       0.1  0.02911   0.006795            0.01580  0.0424315         0.001335
+#>       0.2 -0.02313   0.011057           -0.04480 -0.0014571        -0.068333
+#>       0.3 -0.06499   0.009420           -0.08346 -0.0465288        -0.103504
+#>       0.4 -0.07903   0.009178           -0.09702 -0.0610402        -0.116553
+#>       0.5 -0.09100   0.007778           -0.10624 -0.0757548        -0.122797
+#>       0.6 -0.05771   0.006562           -0.07057 -0.0448517        -0.084541
+#>       0.7 -0.04548   0.009258           -0.06363 -0.0273374        -0.083330
+#>       0.8 -0.01797   0.009550           -0.03669  0.0007441        -0.057019
+#>       0.9  0.05142   0.010937            0.02998  0.0728540         0.006705
+#>      high]
+#>   0.056893
+#>   0.022076
+#>  -0.026480
+#>  -0.041506
+#>  -0.059201
+#>  -0.030885
+#>  -0.007634
+#>   0.021070
+#>   0.096131
+#> 
+#> Decomposition of difference for other distributional statistics
+#> 
+#> Observed difference: 
+#> ---------------------------------------------------------------------------------
+#>                               Statistic Estimate Std. Error  CI [low    high]
+#>                                    Mean  0.06205   0.006512  0.04929  0.07482
+#>                                Variance  0.06211   0.004562  0.05317  0.07105
+#>  Gini of untransformed Y (=exp(log(Y)))  0.04299   0.002310  0.03847  0.04752
+#>             Interquantile range p90-p10  0.11154   0.013881  0.08433  0.13875
+#>             Interquantile range p90-p50  0.17003   0.012453  0.14562  0.19444
+#>             Interquantile range p50-p10 -0.05849   0.009937 -0.07797 -0.03902
+#> 
+#> Composition effect: 
+#> ---------------------------------------------------------------------------------
+#>                               Statistic Estimate Std. Error  CI [low    high]
+#>                                    Mean 0.080587   0.004432 0.071902 0.089273
+#>                                Variance 0.023498   0.002027 0.019526 0.027471
+#>  Gini of untransformed Y (=exp(log(Y))) 0.007114   0.001102 0.004955 0.009274
+#>             Interquantile range p90-p10 0.089236   0.008793 0.072001 0.106470
+#>             Interquantile range p90-p50 0.027615   0.008781 0.010405 0.044825
+#>             Interquantile range p50-p10 0.061621   0.006963 0.047973 0.075268
+#> 
+#> Structure effect: 
+#> ---------------------------------------------------------------------------------
+#>                               Statistic Estimate Std. Error    CI [low
+#>                                    Mean -0.01853   0.005560 -0.0294307
+#>                                Variance  0.03861   0.004586  0.0296252
+#>  Gini of untransformed Y (=exp(log(Y)))  0.03588   0.002270  0.0314313
+#>             Interquantile range p90-p10  0.02230   0.011890 -0.0009994
+#>             Interquantile range p90-p50  0.14242   0.012948  0.1170390
+#>             Interquantile range p50-p10 -0.12011   0.009017 -0.1377866
+#>      high]
+#>  -0.007634
+#>   0.047601
+#>   0.040330
+#>   0.045607
+#>   0.167795
+#>  -0.102439
+#> 
+#> Summary statistics of reweighting factors
+#> 
+#> Number of trimmed observations (not included in statistics): 0 (0%)
+#> 
+#> Psi_X1: 
+#> ---------------------------------------------------------------------------------
+#>              Estimate Std. Error
+#> Min.           0.1179         NA
+#> 10%-quantile   0.3407    0.02310
+#> 25%-quantile   0.6318    0.02295
+#> 50%-quantile   0.7669    0.03478
+#> 75%-quantile   1.2396    0.04051
+#> 90%-quantile   1.7638    0.07983
+#> Max.           3.2585         NA
 ```
 
-Using `plot()`, we can illustrate the decomposition accross different
+Using `plot()`, we can illustrate the decomposition across different
 quantiles.
 
 ``` r
 plot(flf_male_inequality)
 ```
 
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+
 ## Replication of Firpo, Fortin, and Lemieux (2018)
 
 To validate the functions and provide users with an additional example,
 we replicate the reweighted RIF regression decomposition estimates in
 Firpo et al. (2018, p. 30). In their empirical example, Firpo et
-al. focus in changes in wage inequality in the US between 1988 and 2016.
-Using a large sample of male log wages in 1988-1990 (268’494
-observations) and in 2014-2016 (236’296 observation) based on the
+al. focus on changes in wage inequality in the US between 1988 and 2016.
+Using a large sample of male log wages in 1988-1990 (268,494
+observations) and in 2014-2016 (236,296 observations) based on the
 Outgoing Rotation Group (ORG) supplement of the Current Population
-Survey (CPS), they attribute changes in variance, gini, and
+Survey (CPS), the authors attribute changes in variance, Gini, and
 interquantile ranges between the two time periods to changes in
 composition (e.g., union coverage, education, and experience) and
 changes in wage structure.
 
 This replication follows the Stata replication code, that the authors
-published alongside the paper and that is available on their website.
-(INSERT LINK). The highest wages in the public CPS data set are
-unavailable due to privacy concerns. The Firpo et al. impute these wages
-using a random uniform Pareto distribution (CHECK WORDING). Since random
-numbers are generated differently in R and Stata, even with an
-equivalent seed. Therefore, we perform the entire data preparation in
-Stata up until the estimation of the decomposition, i.e., the “oaxaca”
-commands in Stata. This ensures that changes in the estimation results
-between our function and the orignal paper do not stem from different
-input data.
+published alongside the paper and that is available on one author’s
+[website](https://sites.google.com/view/nicole-m-fortin/data-and-programs)
+and
+[here](https://drive.google.com/file/d/1sab0RuBPRmch3DhreTraQj_3nUBwGMEJ/view).
+The highest wages in the public CPS dataset are not available due to
+privacy concerns. The Firpo et al. impute these wages using a random
+uniform Pareto distribution. Since random numbers are generated
+differently in R and Stata, even with an equivalent seed, we perform all
+data preparation in Stata up to the estimation of the decomposition in
+Stata, i.e., the “oaxaca” commands in stata. This ensures that changes
+in the estimation results between our function and the original paper
+are not due to different input data.
 
-To reproduce the code below, make sure you download the entire data set
-and Stata code from the journal’s website, execute the code up to the
-oaxaca command, save the data and load it into your R environment.
+To reproduce the code below, be sure to download the entire dataset and
+Stata code from the journal’s website, execute the code up to the oaxaca
+command, save the data, and load it into your R environment.
 
 ### Loading Data
 
 ``` r
-# Make sure you execute the Stata Code until the oaxaca commands 
+# Make sure you execute the Stata Code until the "oaxaca" commands 
 # and save the data in the appropriate folder.
 men8816_t4 <- readstata13::read.dta13("data-raw/usmen8816_t4.dta")
 
@@ -1037,7 +951,7 @@ men8816_t4 <- men8816_t4[men8816_t4$time <= 1,]
 
 The model is specified as in the Stata files, containing weights,
 computing bootstrapped standard errors with 100 iterations, and setting
-a fixed bandwidth of 0.06 for the epanechnikov kernel density
+a fixed bandwidth of 0.06 for the Epanechnikov kernel density
 estimation.
 
 ``` r
@@ -1054,13 +968,19 @@ ffl_model_with_reweighting <- as.formula(
           paste(grep(paste0("^indd(", paste(c(1, 3:14), collapse = "|"), ")$"), 
                      names(men8816_t4), value = T), collapse = " + "), " + pub | ",
           paste("covered + nonwhite +",
-                paste(grep("^marr", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(grep("^marr", 
+                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
                 paste(c("ed0", "ed1", "ed3", "ed4", "ed5"), collapse = " + "), "+",
-                paste(grep("^ex[1-4]|^ex[6-9]", names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                paste(grep("^uned", names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                paste(grep("^unex", names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                paste(grep("^ex[1-9]ed", names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                paste(grep("^pub", names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(grep("^ex[1-4]|^ex[6-9]", 
+                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(grep("^uned", 
+                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(grep("^unex", 
+                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(grep("^ex[1-9]ed", 
+                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
+                paste(grep("^pub", 
+                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
                 paste(grep("^indd(1|1e|[3-9]|10|11|13|14)(?!2)", 
                            names(men8816_t4), perl = TRUE, value = TRUE), collapse = " + "), "+",
                 paste(grep("^occd", names(men8816_t4), value = TRUE), collapse = " + "))))
@@ -1082,8 +1002,8 @@ decompose_90_10  <- ob_decompose(formula = ffl_model_with_reweighting,
                                 trimming_threshold = 100,
                                 bootstrap = TRUE,
                                 bootstrap_iterations = 100)
-
 ## Variance
+set.seed(23904875)
 decompose_variance  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting,
                                  data = men8816_t4,
                                  weights = eweight,
@@ -1103,8 +1023,9 @@ decompose_variance  <- ddecompose::ob_decompose(formula = ffl_model_with_reweigh
 gini_model_raw <- update(ffl_model_with_reweighting, exp(.) ~ .)
 gini_model_character <- as.character(gini_model_raw)
 gini_model_split <- strsplit(gini_model_character, "~")
-ffl_model_with_reweighting_gini <- as.formula(paste(gini_model_split[[2]], "~",
-                                                     gsub("\\(|\\)", "", gini_model_split[[3]][1])))
+ffl_model_with_reweighting_gini <- 
+  as.formula(paste(gini_model_split[[2]], "~",
+                   gsub("\\(|\\)", "", gini_model_split[[3]][1])))
 
 set.seed(130234976)
 decompose_gini  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting_gini,
@@ -1121,35 +1042,357 @@ decompose_gini  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting
                               cores = 1)
 ```
 
-### Presentation of Results
+### Discussion of Results
 
-Describe the results and to what extent they are similar to those of ffl
-and where they differ and why.
+``` r
 
-Also note that the replication with the same imputed data and code to
-replicate table 1-4 is available upon request.
+# Presenting the results
 
-MAKE SURE THAT YOU write down where the differences are arising:
+variables <- decompose_variance[["variance"]][["decomposition_terms"]][["Variable"]]
 
-- Data (reweighting)
-- seed
-- rounding
-- density estimation
-- SE (includes Reweighting)
 
-MAYBE ALSO NOTE HOW MUCH THE DIFFERENCE IS, IN THE OTHER TABLES ETC. AND
-THAT THESE FILES ARE AVAILABLE UPON REQUEST BZW: IN THE TEST_FILE XXX
--\> PUT IN A SEPARATE TEST FILE!
+ffl_aggregation <- list(`Union` = "covered", 
+                        `Other` = c("nonwhite", "nmarr", 
+                                    grep("ex", variables, value = TRUE)),
+                        `Education` = grep("ed[0-9]", variables, value = TRUE), 
+                        `Occupation` = grep("occd", variables, value = TRUE), 
+                        `Industry` = grep("indd", variables, value = TRUE))
 
-Looking at the plots, we see that our plots correspond to those
-presented by Firpo, Fortin, and Lemieux (2009a: 965). The plot example
-illustrates, how the plot from the generic rifreg::plot() function can
-be further enhanced, for instance with a horizontal line indicating the
-OLS coefficient for comparison.
+summary(decompose_90_10, custom_aggregation = ffl_aggregation)
+#> 
+#> 
+#> Reweighted RIF regression decomposition of difference in interquantile_range
+#> between time == '1' (group 1) and time == '0' (group 0). 
+#> The reference group is '0'. 
+#> 
+#> Group 0: time == '0' (268492 observations) 
+#> Group 1: time == '1' (236287 observations) 
+#> Group C: time == '0' (reference group) reweighted
+#>          to match the characteristics of the other group (268492 observations).
+#> 
+#> Pure Composition Effect: (XC - X0) * b0 
+#>   Pure Structure Effect: XC * (bC - b0) 
+#>     Specification Error: (X1 - XC) * bC 
+#>       Reweighting Error: X1 * (b1 - bC) 
+#> 
+#> Aggregate decomposition:
+#> 
+#>                          Estimate  Std. Error      CI [Low         High]
+#> Observed difference  0.1256140541 0.004701494  0.116399295  0.1348288131
+#> Composition effect   0.0909463043 0.002916652  0.085229771  0.0966628379
+#> Structure effect     0.0381813178 0.005043205  0.028296818  0.0480658174
+#> Specification error -0.0005160126 0.003691050 -0.007750338  0.0067183127
+#> Reweighting error   -0.0029975554 0.001399051 -0.005739645 -0.0002554653
+#> 
+#> 
+#> Observed difference:
+#> 
+#>                      Estimate  Std. Error     CI [Low        High]
+#> Union              0.02977302 0.001658415  0.02652259  0.033023458
+#> Other             -0.02891464 0.010296904 -0.04909620 -0.008733084
+#> Education          0.02497305 0.004515913  0.01612202  0.033824073
+#> Occupation         0.06949078 0.007782856  0.05423666  0.084744897
+#> Industry          -0.04775471 0.010027084 -0.06740744 -0.028101989
+#> (Other variables)  0.07804656 0.014766600  0.04910456  0.106988565
+#> 
+#> 
+#> Pure structure effect:
+#> 
+#>                       Estimate  Std. Error      CI [Low       High]
+#> Union              0.012603651 0.001468132  0.009726165  0.01548114
+#> Other             -0.046989402 0.012405103 -0.071302956 -0.02267585
+#> Education          0.058884186 0.006324962  0.046487489  0.07128088
+#> Occupation         0.009694848 0.009540193 -0.009003587  0.02839328
+#> Industry          -0.079592423 0.011883520 -0.102883695 -0.05630115
+#> (Other variables)  0.083580458 0.017346762  0.049581429  0.11757949
+#> 
+#> 
+#> Pure composition effect:
+#> 
+#>                      Estimate   Std. Error     CI [Low       High]
+#> Union             0.016196176 0.0006300468 0.014961307 0.017431045
+#> Other             0.019067346 0.0012139205 0.016688106 0.021446587
+#> Education         0.008089822 0.0015352464 0.005080794 0.011098850
+#> Occupation        0.021190773 0.0013468292 0.018551036 0.023830510
+#> Industry          0.024753937 0.0013971957 0.022015483 0.027492390
+#> (Other variables) 0.001648250 0.0002679935 0.001122993 0.002173508
+#> 
+#> 
+#> Specification error:
+#> 
+#>                        Estimate    Std. Error       CI [Low        High]
+#> Union              0.0008615798  0.0008615798 -0.0008270856  0.002550245
+#> Other             -0.0010756721 -0.0010756721  0.0010326065 -0.003183951
+#> Education         -0.0423315700 -0.0423315700  0.0406367826 -0.125299922
+#> Occupation         0.0410382285  0.0410382285 -0.0393952214  0.121471678
+#> Industry           0.0082166703  0.0082166703 -0.0078877076  0.024321048
+#> (Other variables) -0.0072252492 -0.0072252492  0.0069359791 -0.021386478
+#> 
+#> 
+#> Reweighting error:
+#> 
+#>                        Estimate    Std. Error       CI [Low         High]
+#> Union              1.116175e-04  1.116175e-04 -1.071488e-04  0.0003303839
+#> Other              8.308368e-05  8.308368e-05 -7.975734e-05  0.0002459247
+#> Education          3.306077e-04  3.306077e-04 -3.173715e-04  0.0009785869
+#> Occupation        -2.433069e-03 -2.433069e-03  2.335659e-03 -0.0072017978
+#> Industry          -1.132897e-03 -1.132897e-03  1.087540e-03 -0.0033533329
+#> (Other variables)  4.310162e-05  4.310162e-05 -4.137601e-05  0.0001275793
+#> 
+#> Summary statistics of reweighting factors
+#> 
+#> Number of trimmed observations (not included in statistics): 0 (0%)
+#> 
+#>                   Psi_X1
+#> Min.          0.01240973
+#> 10%-quantile  0.24044303
+#> 25%-quantile  0.42188219
+#> 50%-quantile  0.73438754
+#> 75%-quantile  1.25697488
+#> 90%-quantile  2.00825420
+#> Max.         22.41294385
+summary(decompose_variance, custom_aggregation = ffl_aggregation)
+#> 
+#> 
+#> Reweighted RIF regression decomposition of difference in variance
+#> between time == '1' (group 1) and time == '0' (group 0). 
+#> The reference group is '0'. 
+#> 
+#> Group 0: time == '0' (268492 observations) 
+#> Group 1: time == '1' (236287 observations) 
+#> Group C: time == '0' (reference group) reweighted
+#>          to match the characteristics of the other group (268492 observations).
+#> 
+#> Pure Composition Effect: (XC - X0) * b0 
+#>   Pure Structure Effect: XC * (bC - b0) 
+#>     Specification Error: (X1 - XC) * bC 
+#>       Reweighting Error: X1 * (b1 - bC) 
+#> 
+#> Aggregate decomposition:
+#> 
+#>                         Estimate   Std. Error      CI [Low       High]
+#> Observed difference  0.077751372 0.0017482219  0.074324920 0.081177823
+#> Composition effect   0.042647761 0.0012056833  0.040284665 0.045010857
+#> Structure effect     0.033735963 0.0020922369  0.029635254 0.037836672
+#> Specification error  0.002737420 0.0008451794  0.001080899 0.004393941
+#> Reweighting error   -0.001369773 0.0007649579 -0.002869063 0.000129517
+#> 
+#> 
+#> Observed difference:
+#> 
+#>                        Estimate  Std. Error     CI [Low        High]
+#> Union              1.150440e-02 0.000717005  0.01009910  0.012909707
+#> Other             -4.375222e-06 0.005854285 -0.01147856  0.011469812
+#> Education          2.149355e-02 0.002355699  0.01687646  0.026110634
+#> Occupation         6.005131e-02 0.003420293  0.05334766  0.066754957
+#> Industry          -2.046241e-02 0.005448059 -0.03114041 -0.009784408
+#> (Other variables)  5.168896e-03 0.007777351 -0.01007443  0.020412223
+#> 
+#> 
+#> Pure structure effect:
+#> 
+#>                       Estimate   Std. Error      CI [Low        High]
+#> Union              0.003532492 0.0007291712  0.002103343  0.004961642
+#> Other             -0.009084234 0.0065988197 -0.022017683  0.003849215
+#> Education          0.024947096 0.0032184078  0.018639133  0.031255059
+#> Occupation         0.025238396 0.0040670528  0.017267119  0.033209673
+#> Industry          -0.034523565 0.0063051274 -0.046881387 -0.022165742
+#> (Other variables)  0.023625777 0.0085958611  0.006778199  0.040473356
+#> 
+#> 
+#> Pure composition effect:
+#> 
+#>                      Estimate   Std. Error     CI [Low       High]
+#> Union             0.007084019 0.0002531646 0.006587826 0.007580213
+#> Other             0.010060413 0.0005488449 0.008984697 0.011136129
+#> Education         0.006374034 0.0005910651 0.005215567 0.007532500
+#> Occupation        0.007480422 0.0005493005 0.006403812 0.008557031
+#> Industry          0.010320617 0.0005818809 0.009180152 0.011461083
+#> (Other variables) 0.001328256 0.0001487646 0.001036683 0.001619830
+#> 
+#> 
+#> Specification error:
+#> 
+#>                        Estimate    Std. Error       CI [Low        High]
+#> Union              0.0008415311  0.0008415311 -0.0008078395  0.002490902
+#> Other             -0.0008730819 -0.0008730819  0.0008381272 -0.002584291
+#> Education         -0.0100362859 -0.0100362859  0.0096344730 -0.029707045
+#> Occupation         0.0284495154  0.0284495154 -0.0273105101  0.084209541
+#> Industry           0.0041833718  0.0041833718 -0.0040158863  0.012382630
+#> (Other variables) -0.0198276304 -0.0198276304  0.0190338111 -0.058689072
+#> 
+#> 
+#> Reweighting error:
+#> 
+#>                        Estimate    Std. Error       CI [Low         High]
+#> Union              4.636017e-05  4.636017e-05 -4.450409e-05  0.0001372244
+#> Other             -1.074720e-04 -1.074720e-04  1.031693e-04 -0.0003181133
+#> Education          2.087049e-04  2.087049e-04 -2.003492e-04  0.0006177590
+#> Occupation        -1.117026e-03 -1.117026e-03  1.072305e-03 -0.0033063578
+#> Industry          -4.428319e-04 -4.428319e-04  4.251026e-04 -0.0013107664
+#> (Other variables)  4.249232e-05  4.249232e-05 -4.079110e-05  0.0001257757
+#> 
+#> Summary statistics of reweighting factors
+#> 
+#> Number of trimmed observations (not included in statistics): 0 (0%)
+#> 
+#>                   Psi_X1
+#> Min.          0.01240973
+#> 10%-quantile  0.24044303
+#> 25%-quantile  0.42188219
+#> 50%-quantile  0.73438754
+#> 75%-quantile  1.25697488
+#> 90%-quantile  2.00825420
+#> Max.         22.41294385
+summary(decompose_gini, custom_aggregation = ffl_aggregation)
+#> 
+#> 
+#> Reweighted RIF regression decomposition of difference in gini
+#> between time == '1' (group 1) and time == '0' (group 0). 
+#> The reference group is '0'. 
+#> 
+#> Group 0: time == '0' (268492 observations) 
+#> Group 1: time == '1' (236287 observations) 
+#> Group C: time == '0' (reference group) reweighted
+#>          to match the characteristics of the other group (268492 observations).
+#> 
+#> Pure Composition Effect: (XC - X0) * b0 
+#>   Pure Structure Effect: XC * (bC - b0) 
+#>     Specification Error: (X1 - XC) * bC 
+#>       Reweighting Error: X1 * (b1 - bC) 
+#> 
+#> Aggregate decomposition:
+#> 
+#>                          Estimate   Std. Error      CI [Low        High]
+#> Observed difference  0.0659908665 0.0015135722  0.063024320 6.895741e-02
+#> Composition effect   0.0199765902 0.0009934684  0.018029428 2.192375e-02
+#> Structure effect     0.0451291062 0.0017981373  0.041604822 4.865339e-02
+#> Specification error  0.0014785630 0.0005137232  0.000471684 2.485442e-03
+#> Reweighting error   -0.0005933929 0.0003444451 -0.001268493 8.170719e-05
+#> 
+#> 
+#> Observed difference:
+#> 
+#>                       Estimate   Std. Error       CI [Low       High]
+#> Union              0.009960677 0.0005996969  0.0087852925 0.011136061
+#> Other              0.003106513 0.0054771363 -0.0076284769 0.013841503
+#> Education          0.004133062 0.0017218577  0.0007582833 0.007507842
+#> Occupation         0.023964506 0.0023517073  0.0193552446 0.028573768
+#> Industry          -0.005860137 0.0036927292 -0.0130977536 0.001377479
+#> (Other variables)  0.030686245 0.0062595714  0.0184177107 0.042954780
+#> 
+#> 
+#> Pure structure effect:
+#> 
+#>                        Estimate   Std. Error      CI [Low        High]
+#> Union              0.0022173824 0.0006105551  0.001020716  0.003414048
+#> Other             -0.0007297231 0.0061460445 -0.012775749  0.011316303
+#> Education          0.0126849132 0.0018750239  0.009009934  0.016359893
+#> Occupation         0.0130636777 0.0026466873  0.007876266  0.018251090
+#> Industry          -0.0121351390 0.0041780504 -0.020323967 -0.003946311
+#> (Other variables)  0.0300279951 0.0069379047  0.016429952  0.043626039
+#> 
+#> 
+#> Pure composition effect:
+#> 
+#>                       Estimate   Std. Error      CI [Low       High]
+#> Union             0.0063399542 0.0002157312 0.0059171289 0.006762779
+#> Other             0.0047845108 0.0005063463 0.0037920903 0.005776931
+#> Education         0.0019375518 0.0004602056 0.0010355653 0.002839538
+#> Occupation        0.0013849785 0.0004112917 0.0005788616 0.002191095
+#> Industry          0.0047148753 0.0004569234 0.0038193219 0.005610429
+#> (Other variables) 0.0008147197 0.0001167025 0.0005859871 0.001043452
+#> 
+#> 
+#> Specification error:
+#> 
+#>                        Estimate    Std. Error       CI [Low         High]
+#> Union              0.0013650891  0.0013650891 -0.0013104364  0.0040406147
+#> Other             -0.0009370702 -0.0009370702  0.0008995537 -0.0027736942
+#> Education         -0.0105565134 -0.0105565134  0.0101338727 -0.0312468996
+#> Occupation         0.0099999030  0.0099999030 -0.0095995468  0.0295993528
+#> Industry           0.0017927361  0.0017927361 -0.0017209621  0.0053064343
+#> (Other variables) -0.0001855816 -0.0001855816  0.0001781517 -0.0005493149
+#> 
+#> 
+#> Reweighting error:
+#> 
+#>                        Estimate    Std. Error       CI [Low         High]
+#> Union              3.825111e-05  3.825111e-05 -3.671969e-05  1.132219e-04
+#> Other             -1.120429e-05 -1.120429e-05  1.075572e-05 -3.316430e-05
+#> Education          6.711095e-05  6.711095e-05 -6.442409e-05  1.986460e-04
+#> Occupation        -4.840530e-04 -4.840530e-04  4.646734e-04 -1.432779e-03
+#> Industry          -2.326096e-04 -2.326096e-04  2.232969e-04 -6.885162e-04
+#> (Other variables)  2.911195e-05  2.911195e-05 -2.794643e-05  8.617033e-05
+#> 
+#> Summary statistics of reweighting factors
+#> 
+#> Number of trimmed observations (not included in statistics): 0 (0%)
+#> 
+#>                   Psi_X1
+#> Min.          0.01240973
+#> 10%-quantile  0.24044303
+#> 25%-quantile  0.42188219
+#> 50%-quantile  0.73438754
+#> 75%-quantile  1.25697488
+#> 90%-quantile  2.00825420
+#> Max.         22.41294385
+```
 
-This validation example illustrates that the rifreg package works as
-intended in computing RIF regressions and reliably yields the expected
-results.
+The results presented below are similar to those in Table 4 of Firpo et
+al. (2018, p. 30). However, some of the coefficients calculated here
+differ by several percentages from the results in the paper. There are
+several reasons for these differences.
+
+1.  Reweighting: An important difference is the reweighting factors.
+    Firpo et al. use the entire dataset to compute the reweighting
+    factors. However, for the decomposition they remove very high wages
+    from the dataset. In `ob_decompose()`, the same (trimmed) dataset is
+    used for reweighting and the decomposition estimation.
+
+2.  Different decomposition formula: In the paper, the formula presented
+    for the pure structure and reweighting errors is identical to the
+    formula presented in the background chapter above. For instance, the
+    pure wage structure effect is computed as
+    $(\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k})$.
+    However, the Stata code calculates a slightly different formula:
+    $(\widehat \beta_{C,0} - \widehat \beta_{1,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{1,k})$.
+    Thus, in the Stata code, the results are multiplied by -1 so that
+    the composition and and structure effects add up to the observed
+    difference. When we calculate the results in Stata, using the
+    formula presented in the paper, our function produces very similar
+    results to the Stata output, with a deviations of less than 0.1 in
+    most cases.
+
+3.  Density estimation: In statistics where quantiles need to be
+    estimated (e.g., interquartile range), the differences are generally
+    larger. We attribute this to the different density estimations in
+    Stata and R (even when using the same kernel function and
+    bandwidth). Specifically, the way the grids that define the locus of
+    the density estimates are set. These differences result in different
+    RIF values and thus different regression coefficients. Even tough,
+    if the differences are mostly within a few percentages, it indicates
+    that the RIF regression method is less robust for quantiles than for
+    other statistics, since changes in the density estimation have a
+    relatively large impact on the results.
+
+The bootstrapped standard errors are relatively similar to those
+reported in the paper. With only 100 bootstrap replications and
+different seeds, some variance in the terms is not surprising. In
+addition, we also included the reweighting procedure in the bootstrap
+estimation, while Fortin et al. only include the RIF regression
+estimation.
+
+In summary, our `ob_decompose()` function produces very similar results
+than those calculated in Stata and presented in the original paper.
+Using an identical formula, the deviations are mostly below 0.1 percent.
+However, some values based on RIF estimations of quantiles have slightly
+higher differences. We have also replicated the results of Table 1-3 in
+Firpo et al. (2018, p. 21-29), where the differences are generally even
+smaller. The replication files are available upon request. This
+validation example illustrates that the `ddecompose` package works as
+intended in computing reweighted RIF regression decompositions and
+reliably produces the expected results.
 
 ## Credits
 
