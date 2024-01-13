@@ -31,9 +31,22 @@ print.dfl_decompose <- function(x, ...){
     cat("\n")
   }
   if(is.null(x$decomposition_other_statistics)==FALSE){
+
+    if("Gini of untransformed Y (=exp(log(Y)))" %in% x$decomposition_other_statistics$statistic){
+      select_row <- which(x$decomposition_other_statistics$statistic == "Gini of untransformed Y (=exp(log(Y)))")
+      rownames(x$decomposition_other_statistics)[select_row] <- x$decomposition_other_statistics[select_row, "statistic"] <-  "Gini*"
+      legend_to_table <- "*Gini of untransformed Y (=exp(log(Y)))\n\n"
+    }else{
+      legend_to_table <- NULL
+    }
+
     cat("Decomposition of differences in other statistics\n\n")
     print(x$decomposition_other_statistics[, -1])
     cat("\n")
+    if(is.null(legend_to_table) == FALSE){
+      cat(legend_to_table)
+      cat("\n")
+    }
   }
 
 }
