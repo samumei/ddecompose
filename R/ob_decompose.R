@@ -100,13 +100,13 @@
 #'
 #' @references
 #' Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2018.
-#' "Decomposing Wage Distributions Using Recentered Influence Function Regressions." \emph{Econometrics} 6(2):28.
+#' "Decomposing Wage Distributions Using Recentered Influence Function Regressions." \emph{Econometrics}, 6(2):28.
 #'
 #' Fortin, Nicole, Thomas Lemieux, and Sergio Firpo. 2011. "Decomposition methods in economics."
 #' In Orley Ashenfelter and David Card, eds., \emph{Handbook of labor economics}. Vol. 4. Elsevier, 1-102.
 #'
 #' Gardeazabal, Javier, and Arantza Ugidos. 2004. "More on identification in detailed wage decompositions."
-#' \emph{Review of Economics and Statistics} 86(4): 1034-1036.
+#' \emph{Review of Economics and Statistics}, 86(4): 1034-1036.
 #'
 #' @export
 #'
