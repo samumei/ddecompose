@@ -669,7 +669,7 @@ The results presented below are similar to those in Table 4 of Firpo et al. (201
 3. Density estimation: For the interquantile ranges the differences are generally larger. We attribute this to the different density estimations in Stata and R (even when using the same kernel function and bandwidth). Specifically, `kdensity` in Stata and `stats::density()` in R set
 the grids that define the locus of the density estimates differently. These differences result in different RIF values and thus different regression coefficients. 
 
-**I would delet this sentence: Even tough, if the differences are mostly within a few percentages, it indicates that the RIF regression method is less robust for quantiles than for other statistics, since changes in the density estimation have a relatively large impact on the results.**
+**[I would delete this sentence:] Even tough, if the differences are mostly within a few percentages, it indicates that the RIF regression method is less robust for quantiles than for other statistics, since changes in the density estimation have a relatively large impact on the results.**
 
 The bootstrapped standard errors are relatively similar to those reported in the paper. With only 100 bootstrap replications and different seeds, some variance in the terms is not surprising. In addition, we also included the reweighting procedure in the bootstrap estimation, while Fortin et al. only include the RIF regression estimation. 
 
