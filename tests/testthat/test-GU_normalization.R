@@ -53,3 +53,80 @@ testthat::test_that("Test GU normalization", {
                          expected_decompose,
                          tolerance = 0.0000000001)
 })
+
+
+# test_that("test in GU normalization yields the same results as in Ben Janns lecture notes", {
+#
+#   # See p. 27, Decomposition methods in the social sciences, Fall 2019, The transformation problem
+#
+#   # get and prepare data
+#   gsoep29 <- readstata13::read.dta13("data-raw/gsoep29.dta")
+#   total_n <- nrow(gsoep29)
+#   gsoep29$age <- 2012 - gsoep29$bcgeburt
+#   gsoep29 <- subset(gsoep29, age >=25 & age <= 55)
+#   n_2 <- nrow(gsoep29)
+#   total_n - n_2
+#
+#   gsoep29$wage <- with(gsoep29, ifelse(labgro12 > 0 & bctatzeit > 0, labgro12 / (bctatzeit * 4.3), NA))
+#   gsoep29$lnwage <- log(gsoep29$wage)
+#
+#   gsoep29$schooling <- with(gsoep29, ifelse(bcbilzeit > 0, bcbilzeit, NA))
+#   gsoep29$ft_experience <- with(gsoep29, ifelse(expft12 >= 0, expft12, NA))
+#   gsoep29$ft_experience2 <- with(gsoep29, ifelse(expft12 >= 0, expft12^2, NA))
+#
+#   gsoep29$female <- with(gsoep29, ifelse(bcsex == "[1] Maennlich", 0, 1))
+#
+#   summary(gsoep29[c("lnwage", "schooling", "ft_experience", "ft_experience2", "female")]) # means are identical to exercice
+#
+#   gsoep29$casmin4 <- dplyr::recode_factor( gsoep29$casmin12,
+#                                           "[1]  (1a) inadequately completed"="low",
+#                                           "[2]  (1b) general elementary school"="low",
+#                                           "[4]  (2b) intermediate general qualification" = "medium general",
+#                                           "[6]  (2c_gen) general maturity certificate" = "medium general",
+#                                           "[3]  (1c) basic vocational qualification" = "medium vocational",
+#                                           "[5]  (2a) intermediate vocational" = "medium vocational",
+#                                           "[7]  (2c_voc) vocational maturity certificat" = "medium vocational",
+#                                           "[8]  (3a) lower tertiary education" = "high",
+#                                           "[9]  (3b) higher tertiary education" = "high",
+#                                           .default = NA_character_)
+#   levels(gsoep29$casmin4)
+#   summary(gsoep29$casmin4)
+#
+#   # gsoep29 <- na.omit(gsoep29[, c("lnwage", "schooling", "ft_experience", "ft_experience2", "bcsex", "bcphrf", "female" )])
+#   # n_3 <- nrow(gsoep29)
+#   # n_2 - n_3
+#
+#
+#   ### without GU normalization
+#   ob_model_with_GU_decompose_1 <- ob_decompose(formula = lnwage ~ casmin4 + ft_experience + ft_experience2,
+#                                data = gsoep29,
+#                                group = female,
+#                                subtract_1_from_0 = TRUE,
+#                                normalize_factors = FALSE,
+#                                reference_0 = TRUE)
+#
+#   res1 <- ob_model_with_GU_decompose_1$ob_decompose$decomposition_terms[3:5, 3:4]
+#   res1_Jann <- data.frame(Composition_effect = c(.0002573, -.0002933, .0052819),
+#                           Structure_effect = c(.0052416, .0240202, .0331881))
+#   rownames(res1_Jann) <- rownames(res1)
+#   testthat::expect_equal(as.matrix(res1),
+#                          as.matrix(res1_Jann),
+#                          tolerance = 0.0001)
+#
+#   ### with GU normalization
+#   ob_model_with_GU_decompose_2 <- ob_decompose(formula = lnwage ~ casmin4 + ft_experience + ft_experience2,
+#                                                data = gsoep29,
+#                                                group = female,
+#                                                subtract_1_from_0 = TRUE,
+#                                                normalize_factors = TRUE,
+#                                                reference_0 = TRUE)
+#   res2 <- ob_model_with_GU_decompose_2$ob_decompose$decomposition_terms[3:6, 3:4]
+#   res2_Jann <- data.frame(Composition_effect = c(.0022361, -.0001001, .0000367, .0030731),
+#                           Structure_effect = c(-.0037775, .00204, -.0184644, .0147239))
+#   rownames(res2_Jann) <- rownames(res2)
+#   testthat::expect_equal(as.matrix(res2),
+#                          as.matrix(res2_Jann),
+#                          tolerance = 0.0001)
+#
+# })
+

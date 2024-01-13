@@ -85,6 +85,15 @@ summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
   if(is.null(object$decomposition_other_statistics)==FALSE){
     cat("Decomposition of difference for other distributional statistics\n\n")
     decomposition_other_statistics  <- object$decomposition_other_statistics
+
+    if("Gini of untransformed Y (=exp(log(Y)))" %in% decomposition_other_statistics$statistic){
+      select_row <- which(decomposition_other_statistics$statistic == "Gini of untransformed Y (=exp(log(Y)))")
+      rownames(decomposition_other_statistics)[select_row] <- decomposition_other_statistics[select_row, "statistic"] <-  "Gini*"
+      legend_to_table <- "*Gini of untransformed Y (=exp(log(Y)))\n\n"
+    }else{
+      legend_to_table <- NULL
+    }
+
     if(is.null(object$bootstrapped_standard_errors)==FALSE){
       decomposition_other_statistics_se <- object$bootstrapped_standard_errors$decomposition_other_statistics
 
@@ -102,8 +111,11 @@ summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
       }
 
     }else{
-      print(object$decomposition_other_statistics[, -1])
+      print(decomposition_other_statistics[, -1])
       cat("\n")
+      if(is.null(legend_to_table) == FALSE){
+        cat(legend_to_table)
+      }
       cat("---------------------------------------------------------------------------------\n")
     }
   }
