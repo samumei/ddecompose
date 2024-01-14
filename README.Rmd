@@ -315,7 +315,7 @@ gender_gap_decomposition <- ob_decompose(formula = model,
 ```
 
 With `summary()`, we can display the decomposition formula and the estimation results.
-For Oaxaca-Blinder decompositions, the function displays per default heteroscedasticity-robust standard errors under the assumption of independence between the groups.
+For Oaxaca-Blinder decompositions, the function displays per default standard errors under the assumption of independence between the groups and homoscedasticity.
 ```{r eval=TRUE}
 summary(gender_gap_decomposition)
 ```
