@@ -205,23 +205,25 @@ GU_normalization_sum_vcov <- function(coef_names, Cov_beta){
     Cov_beta_adjusted <- matrix(NA, nrow=nrow(Cov_beta)+1, ncol=ncol(Cov_beta)+1)
     index_factors <- which(colnames(Cov_beta) %in% coef_names)
     ri <- range(index_factors)
+
+    # Column/row indices of coefficients ranked before reference level of factor  to be added
     if(ri[1]!=1){
-        index_lower <- 1:(ri[1]-1)
+      index_lower <- 1:(ri[1]-1)
     }else{
-        index_lower <- NULL
+      index_lower <- NULL
     }
+    # Column/row indices of coefficients ranked after reference level of factor variable to be added
     index_greater <- ri[1]:ncol(Cov_beta)
 
-    cov_reference_level_i <- Cov_beta[, index_factors]
-    if(is.null(nrow(cov_reference_level_i))){
-      cov_reference_level_i <- -cov_reference_level_i
-    }else{
-      cov_reference_level_i <- -rowSums(cov_reference_level_i)
-    }
-    var_reference_level_i <- -sum(cov_reference_level_i[index_factors])
+    # Covariances and variance of coefficient of reference level to be added
+    # b0 = - b1 - ... - bk --> Cov(c1, b0) = -Cov(g1, b1) - ... - Cov(c1, bk)
+    cov_reference_level_i <- -rowSums(as.matrix(Cov_beta[, index_factors]))
+    var_reference_level_i <- sum(diag(Cov_beta[index_factors, index_factors])) - 2*sum(Cov_beta[index_factors, index_factors][lower.tri(Cov_beta[index_factors, index_factors])])#-sum(cov_reference_level_i[index_factors]) #
+
     cov_reference_level_i <- c(cov_reference_level_i[index_lower],
                                var_reference_level_i,
                                cov_reference_level_i[index_greater])
+
     names(cov_reference_level_i)[ri[1]] <- coef_names[1]
 
     Cov_beta_adjusted[ri[1],] <- cov_reference_level_i
