@@ -15,6 +15,54 @@ test_that("ob_decompose() does not throw an error", {
 })
 
 
+# test_that("ob_decompose() reproduces example of Fortin, Lemieux, & Firpo (2011: 41, Table 3, column 3)", {
+# data("nlys00")
+# mod1 <- log(wage) ~ age + central_city + msa + region + black +
+#   hispanic + education + afqt + family_responsibility + years_worked_civilian +
+#   years_worked_military + part_time + industry
+#
+# # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
+# decompose_male_as_reference <- ob_decompose(formula = mod1,
+#                                     data = nlys00,
+#                                     group = female,
+#                                     reference_0 = FALSE)
+#
+# custom_aggregation <- list(`Age, race, region, etc.` = c("age",
+#                                                          "blackyes",
+#                                                          "hispanicyes",
+#                                                          "regionNorth-central",
+#                                                          "regionSouth",
+#                                                          "regionWest",
+#                                                          "central_cityyes",
+#                                                          "msayes"),
+#                    `Education` = c("education<10 yrs",
+#                                    "educationHS grad (diploma)",
+#                                    "educationHS grad (GED)",
+#                                    "educationSome college",
+#                                    "educationBA or equiv. degree",
+#                                    "educationMA or equiv. degree",
+#                                    "educationPh.D or prof. degree"),
+#                    `AFTQ` = "afqt",
+#                    `L.T. withdrawal due to family` =  "family_responsibility",
+#                    `Life-time work experience` = c("years_worked_civilian",
+#                                                    "years_worked_military",
+#                                                    "part_time"),
+#                    `Industrial sectors` = c("industryManufacturing",
+#                                             "industryEducation, Health, Public Admin.",
+#                                             "industryOther services"))
+#
+# # First column
+# summary(decompose_male_as_reference, custom_aggregation = custom_aggregation)
+#
+# Composition_effect_FFL <- data.frame(estimate = c(0.012, -0.012, 0.011, 0.033, 0.137, 0.017),
+#                                            se = c(0.003, 0.006, 0.003, 0.011, 0.011, 0.006))
+# Structure_effect_FFL  <- data.frame(estimate = c(-.098, 0.045, 0.003, 0.003, 0.048, 0.014,  0.022),
+#                                      se= c(0.234, 0.034, 0.023, 0.017,  0.062, 0.028, 0.212))
+# rownames(Composition_effect_FFL) <- c("Age, race, region, etc.", "Education", "AFTQ", "L.T. withdrawal due to family work", "Life-time work experience", "Industrial secetors")
+# rownames(Structure_effect_FFL) <- c(rownames(Composition_effect_FFL), "(Intercept)")
+#
+# })
+
 #
 # test_that("ob_decompose() provides expected output", {
 #
