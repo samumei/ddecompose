@@ -134,5 +134,16 @@ testthat::test_that("Test GU normalization", {
 #                           Structure_effect = c(.0022963 , .002024, .0141663, .0068526))
 #   rownames(res2_se) <- rownames(res2_Jann_se) <- rownames(res2)
 #
+#   ob_model_with_GU_decompose_2bs <- ob_decompose(formula = lnwage ~ casmin4 + ft_experience + ft_experience2,
+#                                                data = gsoep29,
+#                                                group = female,
+#                                                subtract_1_from_0 = TRUE,
+#                                                normalize_factors = TRUE,
+#                                                reference_0 = TRUE,
+#                                                bootstrap = TRUE,
+#                                                bootstrap_iterations = 200)
+#   res2bs_se <- data.frame(Composition_effect = sqrt(diag(ob_model_with_GU_decompose_2bs$ob_decompose$decomposition_vcov$decomposition_terms_vcov$Composition_effect))[2:5],
+#                            Structure_effect =  sqrt(diag(ob_model_with_GU_decompose_2bs$ob_decompose$decomposition_vcov$decomposition_terms_vcov$Structure_effect))[2:5])
+#
 # })
 

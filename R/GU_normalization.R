@@ -218,7 +218,7 @@ GU_normalization_sum_vcov <- function(coef_names, Cov_beta){
     # Covariances and variance of coefficient of reference level to be added
     # b0 = - b1 - ... - bk --> Cov(c1, b0) = -Cov(g1, b1) - ... - Cov(c1, bk)
     cov_reference_level_i <- -rowSums(as.matrix(Cov_beta[, index_factors]))
-    var_reference_level_i <- sum(diag(Cov_beta[index_factors, index_factors])) - 2*sum(Cov_beta[index_factors, index_factors][lower.tri(Cov_beta[index_factors, index_factors])])#-sum(cov_reference_level_i[index_factors]) #
+    var_reference_level_i <- sum(diag(Cov_beta[index_factors, index_factors])) #-sum(cov_reference_level_i[index_factors]) #
 
     cov_reference_level_i <- c(cov_reference_level_i[index_lower],
                                var_reference_level_i,
