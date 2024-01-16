@@ -776,6 +776,9 @@ estimate_ob_decompose <- function(formula,
                                                Cov_beta = Cov_beta0)
         Cov_beta1 <- GU_normalization_get_vcov(coef_names = adjusted_coefficient_names,
                                                Cov_beta = Cov_beta1)
+        select_rows_cols <- match(names(beta0), rownames(Cov_beta0))
+        Cov_beta0 <- Cov_beta0[select_rows_cols, select_rows_cols]
+        Cov_beta1 <- Cov_beta1[select_rows_cols, select_rows_cols]
       }
 
       estimated_decompose_vcov <-  ob_decompose_calculate_vcov(beta0 = beta0,
