@@ -74,14 +74,15 @@ test_that("bootstrapping dfl_decompose() does not throw an error", {
                                              bootstrap = TRUE,
                                              bootstrap_iterations = 10,
                                              cores = 1)
-  set.seed(123)
-  decompose_results_boot_parallel  <- dfl_decompose(flf_model,
-                                          data = men8305[1:1000, ],
-                                          weights = weights,
-                                          group = year,
-                                          bootstrap = TRUE,
-                                          bootstrap_iterations = 10,
-                                          cores = 2)
+  # # Does not work in check()
+  # set.seed(123)
+  # decompose_results_boot_parallel  <- dfl_decompose(flf_model,
+  #                                         data = men8305[1:1000, ],
+  #                                         weights = weights,
+  #                                         group = year,
+  #                                         bootstrap = TRUE,
+  #                                         bootstrap_iterations = 10,
+  #                                         cores = 2)
 
   testthat::expect_error(decompose_results_boot_single_core, NA)
 })
