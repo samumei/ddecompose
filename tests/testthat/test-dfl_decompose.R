@@ -61,72 +61,74 @@ test_that("dfl_decompose() does not return fitted models if required", {
   testthat::expect_error(decompose_results, NA)
 })
 
-# test_that("bootstrapping dfl_decompose() does not throw an error", {
-#
-#
-#   flf_model <- log(wage) ~ union + experience + education
-#
-#   set.seed(123)
-#   decompose_results_boot_single_core  <- dfl_decompose(flf_model,
-#                                              data = men8305[1:1000, ],
-#                                              weights = weights,
-#                                              group = year,
-#                                              bootstrap = TRUE,
-#                                              bootstrap_iterations = 10,
-#                                              cores = 1)
-#   set.seed(123)
-#   decompose_results_boot_parallel  <- dfl_decompose(flf_model,
-#                                           data = men8305[1:1000, ],
-#                                           weights = weights,
-#                                           group = year,
-#                                           bootstrap = TRUE,
-#                                           bootstrap_iterations = 10,
-#                                           cores = 2)
-#
-#   testthat::expect_error(decompose_results_boot_single_core, NA)
-# })
+test_that("bootstrapping dfl_decompose() does not throw an error", {
 
-# test_that("dfl_decompose_estimate() does not throw an error", {
-#   set.seed(89342395)
-#
-#   data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
-#   formula <- Formula::as.Formula(log(wage) ~ union*(education + experience) + education*experience)
-#   data_used <- model.frame(formula, data_sample, weights = weights, group = year)
-#   dep_var <- model.response(data_used, "numeric")
-#
-#   weights <- model.weights(data_used)
-#   group_variable_name <- "year"
-#   group_variable <- data_used[, ncol(data_used)]
-#   names(data_used)[ncol(data_used)] <- "group_variable"
-#
-#   reference_0 <- TRUE
-#   reference_group <- ifelse(reference_0, 0, 1)
-#
-#   statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")
-#   probs = c(1:9)/10
-#   trimming = TRUE
-#   trimming_threshold = 0.00005
-#   right_to_left = TRUE
-#   method = "logit"
-#
-#   decompose_results <- dfl_decompose_estimate(formula = formula,
-#                                     dep_var = dep_var,
-#                                     data_used = data_used ,
-#                                     weights = weights,
-#                                     group_variable = group_variable,
-#                                     reference_group = reference_group,
-#                                     method=method,
-#                                     estimate_statistics = TRUE,
-#                                     statistics = statistics,
-#                                     probs = probs,
-#                                     right_to_left = right_to_left,
-#                                     trimming = trimming,
-#                                     trimming_threshold = trimming_threshold,
-#                                     return_model = TRUE)
-#
-#   testthat::expect_error(decompose_results, NA)
-#
-# })
+
+  flf_model <- log(wage) ~ union + experience + education
+
+  set.seed(123)
+  decompose_results_boot_single_core  <- dfl_decompose(flf_model,
+                                             data = men8305[1:1000, ],
+                                             weights = weights,
+                                             group = year,
+                                             bootstrap = TRUE,
+                                             bootstrap_iterations = 10,
+                                             cores = 1)
+  set.seed(123)
+  decompose_results_boot_parallel  <- dfl_decompose(flf_model,
+                                          data = men8305[1:1000, ],
+                                          weights = weights,
+                                          group = year,
+                                          bootstrap = TRUE,
+                                          bootstrap_iterations = 10,
+                                          cores = 2)
+
+  testthat::expect_error(decompose_results_boot_single_core, NA)
+})
+
+test_that("dfl_decompose_estimate() does not throw an error", {
+  set.seed(89342395)
+
+  data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
+  formula <- Formula::as.Formula(log(wage) ~ union*(education + experience) + education*experience)
+  data_used <- model.frame(formula, data_sample, weights = weights, group = year)
+  dep_var <- model.response(data_used, "numeric")
+
+  weights <- model.weights(data_used)
+  group_variable_name <- "year"
+  group_variable <- data_used[, ncol(data_used)]
+  names(data_used)[ncol(data_used)] <- "group_variable"
+
+  reference_0 <- TRUE
+  reference_group <- ifelse(reference_0, 0, 1)
+
+  statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")
+  probs = c(1:9)/10
+  trimming = TRUE
+  trimming_threshold = 0.00005
+  right_to_left = TRUE
+  method = "logit"
+
+  decompose_results <- dfl_decompose_estimate(formula = formula,
+                                    dep_var = dep_var,
+                                    data_used = data_used ,
+                                    weights = weights,
+                                    group_variable = group_variable,
+                                    reference_group = reference_group,
+                                    method=method,
+                                    estimate_statistics = TRUE,
+                                    statistics = statistics,
+                                    custom_statistic_function = NULL,
+                                    estimate_normalized_difference = TRUE,
+                                    probs = probs,
+                                    right_to_left = right_to_left,
+                                    trimming = trimming,
+                                    trimming_threshold = trimming_threshold,
+                                    return_model = TRUE)
+
+  testthat::expect_error(decompose_results, NA)
+
+})
 
 
 test_that("fit_and_predict_probabilities works properly with fastglm estimation", {
@@ -195,47 +197,49 @@ test_that("fit_and_predict_probabilities works properly with ranger random fores
 })
 
 
-# test_that("dfl_decompose_estimate() works properly with ranger random forests estimation", {
-#   set.seed(89342395)
-#
-#   data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
-#   formula <- Formula::as.Formula(log(wage) ~ union + education + experience)
-#   data_used <- model.frame(formula, data_sample, weights = weights, group = year)
-#   dep_var <- model.response(data_used, "numeric")
-#
-#   weights <- model.weights(data_used)
-#   group_variable_name <- "year"
-#   group_variable <- data_used[, ncol(data_used)]
-#   names(data_used)[ncol(data_used)] <- "group_variable"
-#
-#   reference_0 <- TRUE
-#   reference_group <- ifelse(reference_0, 0, 1)
-#
-#   statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")
-#   probs = c(1:9)/10
-#   trimming = FALSE
-#   trimming_threshold = NULL
-#   right_to_left = TRUE
-#   method = "random_forest"
-#
-#   decompose_results <- dfl_decompose_estimate(formula = formula,
-#                                     dep_var = dep_var,
-#                                     data_used = data_used ,
-#                                     weights = weights,
-#                                     group_variable = group_variable,
-#                                     reference_group = reference_group,
-#                                     method=method,
-#                                     estimate_statistics = TRUE,
-#                                     statistics = statistics,
-#                                     probs = probs,
-#                                     right_to_left = right_to_left,
-#                                     trimming = trimming,
-#                                     trimming_threshold = trimming_threshold,
-#                                     return_model = TRUE)
-#
-#   testthat::expect_error(decompose_results, NA)
-#
-# })
+test_that("dfl_decompose_estimate() works properly with ranger random forests estimation", {
+  set.seed(89342395)
+
+  data_sample <- men8305[sample(1:nrow(men8305), size = 10000), ]
+  formula <- Formula::as.Formula(log(wage) ~ union + education + experience)
+  data_used <- model.frame(formula, data_sample, weights = weights, group = year)
+  dep_var <- model.response(data_used, "numeric")
+
+  weights <- model.weights(data_used)
+  group_variable_name <- "year"
+  group_variable <- data_used[, ncol(data_used)]
+  names(data_used)[ncol(data_used)] <- "group_variable"
+
+  reference_0 <- TRUE
+  reference_group <- ifelse(reference_0, 0, 1)
+
+  statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10")
+  probs = c(1:9)/10
+  trimming = FALSE
+  trimming_threshold = NULL
+  right_to_left = TRUE
+  method = "random_forest"
+
+  decompose_results <- dfl_decompose_estimate(formula = formula,
+                                    dep_var = dep_var,
+                                    data_used = data_used ,
+                                    weights = weights,
+                                    group_variable = group_variable,
+                                    reference_group = reference_group,
+                                    method=method,
+                                    estimate_statistics = TRUE,
+                                    statistics = statistics,
+                                    custom_statistic_function = NULL,
+                                    estimate_normalized_difference = TRUE,
+                                    probs = probs,
+                                    right_to_left = right_to_left,
+                                    trimming = trimming,
+                                    trimming_threshold = trimming_threshold,
+                                    return_model = TRUE)
+
+  testthat::expect_error(decompose_results, NA)
+
+})
 
 
 
