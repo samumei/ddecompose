@@ -42,7 +42,7 @@ divides the two effects into the contribution of each covariate and allows for
 weighted 'doubly robust' decompositions. For distributional statistics beyond
 the mean, the function performs the RIF decomposition of [Firpo, Fortin, and Lemieux (2018)]( https://doi.org/10.3390/econometrics6020028). 
 
-`dfl_decompose()` divides differences in distributional statistics into an
+`dfl_decompose()` divides differences in distributional statistics into a
 composition effect and a structure effect using inverse probability
 weighting as proposed by [DiNardo, Fortin, and Lemieux (1996)](https://www.jstor.org/stable/2171954). The function also allows
 to sequentially decompose the composition effect into the contribution of
@@ -124,7 +124,7 @@ contribution to the composition effect.
 
 The Oaxaca-Blinder decomposition is limited to the mean. Moreover, the 
 decomposition terms are biased if the expectation of the outcome conditional
-on the covariates is not linear (see [Barsky et al., 2002](https://www.jstor.org/stable/3085702)). DiNardo, Fortin, and Lemieux (1996), DFL hereafter, propose an alternative approach that overcomes both shortcomings. Instead of modelling the conditional mean, the method uses 
+on the covariates is not linear (see [Barsky et al., 2002](https://www.jstor.org/stable/3085702)). DiNardo, Fortin, and Lemieux (1996), DFL hereafter, propose an alternative approach that overcomes both shortcomings. Instead of modeling the conditional mean, the method uses 
 inverse probability weighting to estimate a counterfactual outcome distribution
 that combines the conditional outcome distribution of one group and the covariates
 distribution of the other group.  For instance, if we are interested in the 
@@ -175,14 +175,14 @@ $$F_{Y_{C,X_2}}(y) = \iint F_{Y_0}(y|x_1,x_2)dF_{X_{0,1}}(x_1|x_2)\Psi_{X_2}(x_2
 reweighted by the factor
 $$\Psi_{X_2}(x_2) = \frac{dF_{X_{1,2}}(x_2)}{dF_{X_{0,2}}(x_2)} =  \frac{P(g=0)P(g=1|x_2)}{P(g=1)P(g=0|x_2)}.$$
 
-With the distributional statistics of the additional counterfactual, we can 
+Using the distributional statistics of the additional counterfactual, we can 
 divide the aggregate decomposition effect into the contribution of each covariate
 $$\widehat \Delta_X^{\nu} =  (\widehat \nu_C - \widehat \nu_{C,X_2}) + (\widehat \nu_{C,X_2} - \widehat \nu_0) = \widehat \Delta_{X_1}^\nu + \widehat \Delta_{X_2}^\nu.$$
 
 
 Sequential decompositions are path dependent because the detailed composition
-effects attributed to single covariates depend on the order of which we include the 
-variables into the sequence. For instance, it matters if we reweight union coverage
+effects attributed to single covariates depend on the order in which we include the 
+variables into the sequence. For instance, it matters whether we reweight union coverage
 by industry $F(x_1|x_2)$ or the industry employment given union coverage
 $F(x_2|x_1)$.
 
@@ -264,7 +264,7 @@ among the covariates (see also [Rothe, 2012: 16-19](https://docs.iza.org/dp6397.
 Analytical standard errors are straightforward for the Oaxaca-Blinder decomposition
 under the assumption of independence between the groups (see Jann, [2005](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf) and [2008](https://journals.sagepub.com/doi/abs/10.1177/1536867X0800800401)). [Firpo (2007)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-0262.2007.00738.x) and 
 [Firpo and Pinto (2016)](https://www.jstor.org/stable/26609621) develop asymptotic theory
-for the reweighting estimator. [Firpo, Fortin, and Lemieux  (2009b)](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf) and Firpo et al. (2018) do the same for the RIF estimator and for the RIF decomposition terms, respectively. The authors propose to bootstrap standard errors. `ddecompose` allows bootstrapping standard errors in both `ob_decompose()` and `dfl_decompose()`. For the linear Oaxaca-Blinder decomposition, analytical standard errors are available, too.
+for the reweighting estimator. [Firpo, Fortin, and Lemieux  (2009b)](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions/supp/6822_extensions_0.pdf) and Firpo et al. (2018) do the same for the RIF estimator and for the RIF decomposition terms, respectively. The authors propose bootstrapping the standard errors. In `ddecompose`, the standard errors can be bootstrapped in both `ob_decompose()` and `dfl_decompose()`. For the linear Oaxaca-Blinder decomposition, analytical standard errors are also available.
 
 
 ## Examples 
@@ -279,7 +279,7 @@ data("nlys00")
 
 ### Oaxaca-Blinder Decomposition 
 
-We decompose the gender wage gap into composition and structure effect, using Oaxaca-Blinder decomposition without reweighting. We specify a wage regression model and then run the estimation. 
+We decompose the gender wage gap into composition and structure effect, using the Oaxaca-Blinder decomposition without reweighting. We specify a wage regression model and then run the estimation. 
 
 ```{r eval = FALSE}
 model <- log(wage) ~  age + region + education + 
@@ -291,10 +291,10 @@ gender_gap_decomposition <- ob_decompose(formula = model,
                                         group = female)
 ```
 
-Per default, the function subtracts the mean of the lower rank group from
-the mean of the higher rank group to calculated the overall difference and 
-uses the coefficients of the lower ranked group to calculated the counterfactual. 
-In the present example, `yes` is the reference level and lower ranked value of
+By default, the function subtracts the mean of the lower rank group from
+the mean of the higher rank group to calculate the overall difference, and 
+uses the coefficients of the lower ranked group to calculate the counterfactual. 
+In the present example, `yes` is the reference level and the lower ranked value of
 the factor variable `female`. Thus, the female mean is subtracted from the male 
 mean and the female coefficients are used to estimate the counterfactual mean.
 
@@ -302,20 +302,22 @@ mean and the female coefficients are used to estimate the counterfactual mean.
 levels(nlys00$female)
 ```
 
-If we want to change the reference group, i.e., use male coefficient to estimate
-the counterfactual, we have to change the parameter `reference_0 = FALSE` and 
-that the higher ranked group is used as reference. To change the direction of 
-the subtraction, you could alter the parameter `subtract_1_from_0`. 
+If we want to change the reference group, i.e., use male coefficients to estimate
+the counterfactual, we have to change the parameter `reference_0 = FALSE` so that 
+the higher ranked group is used as reference. To change the direction of 
+the subtraction, you can change the parameter `subtract_1_from_0`. 
 
 ```{r eval = TRUE}
 gender_gap_decomposition <- ob_decompose(formula = model,
                                              data = nlys00,
                                              group = female, 
-                                             reference_0 = FALSE)
+                                             reference_0 = FALSE, 
+                                         subtract_1_from_0 = TRUE)
 ```
 
 With `summary()`, we can display the decomposition formula and the estimation results.
-For Oaxaca-Blinder decompositions, the function displays per default standard errors under the assumption of independence between the groups and homoscedasticity.
+For Oaxaca-Blinder decompositions, the function displays standard errors by default, assuming independence between the groups and homoscedasticity.
+
 ```{r eval=TRUE}
 summary(gender_gap_decomposition)
 ```
@@ -333,7 +335,7 @@ variables with the approach of Gardeazabal and Ugidos (2004) by setting
 `normalize_factors = TRUE` to get detailed decompositions that are independent
 of the reference level.
 
-We can aggregate the detailed effects displayed in the `summary()` and `plot()` function. For example, if we want to separate personal and contextual factors that explain the wage gap, we can aggregate these variables in a list.
+We can aggregate the detailed effects displayed in the `summary()` and `plot()` functions. For example, if we want to separate personal and contextual factors that explain the wage gap, we can aggregate these variables in a list.
 
 ```{r eval=TRUE}
 custom_aggregation <- list(`Personal Factors` = c("age", 
@@ -362,13 +364,13 @@ plot(gender_gap_decomposition,
 
 ### 'Doubly Robust' Decompostion
 
-To estimate 'doubly robust'  decomposition, we can add reweighting to the decompostion. Thereby, we also estimate the specification and reweighting error. By default, the same covariate
+To estimate a 'doubly robust'  decomposition, we can add reweighting to the decomposition. Thereby, we also estimate the specification and reweighting errors. By default, the same covariate
 specification is used for the outcome model as for the conditional probability model used
 to derive the reweighting factors. However, it is advisable to add a more flexible reweighting model, taking interactions into account. The reweighting formula is added to the decomposition formula, separated by the `|` operator. 
 
 For decomposition based on reweighting, standard errors need to be bootstrapped. By 
 increasing the number of `cores` the bootstrap replications are computed on, we 
-can reduce computation time. Per default, 100 bootstrap replications are calculated. 
+can reduce computation time. By default, 100 bootstrap replications are calculated. 
 
 ```{r eval = TRUE}
 
@@ -393,8 +395,7 @@ gender_gap_decomposition_w_reweighting <-
 ```
 
 
-The default method for fitting and predicting conditional probabilities, used to derive the reweighting factor, is a logit model. However, you can also use `reweighting_method = "fastglm"` fitting a logit model with the fast algorithm of **fastglm**, or `random_forest`
-that estimates the conditional probabilities with the **ranger** implementation of random forest.
+The default method for fitting and predicting conditional probabilities, used to derive the reweighting factor, is a logit model. However, you can also use `reweighting_method = "fastglm"` to fit a logit model with the fast algorithm of **fastglm**, or `random_forest` to estimate the conditional probabilities with the **ranger** implementation of random forest.
 
 Setting `trimming = TRUE` will trim observations with dominant reweighting factor values. By default, reweighting factor values are trimmed according to the rule of Huber, Lechner, and Wunsch (2013). Thereby, the `trimming_threshold`, i.e., the maximum accepted relative weight of the reweighting factor value (inverse probability weight) of a single observation, is set to `sqrt(N)/N`, where `N` is the number of observations in the reference group. The trimming threshold can also be manually set to a numeric value. 
 
@@ -403,8 +404,7 @@ If we add reweighting, the `plot()` and `summary()` functions will also display 
 
 ### RIF Regression Decomposition
 
-To decompose group differences beyond the mean with `ob_decompose` we use RIF regressions. In the following examples, we will analyze the changes in wage inequality between 1983/85 and 2003/05 and assess which covariates contribute to explaining these changes. First, we look at the changes in the variance. Then, we decompose the wage gap at each decile. We use a subsample of the CPS data
-used in the handbook chapter of Fortin, Lemieux, & Firpo (2011).
+To decompose group differences beyond the mean with `ob_decompose` we use RIF regressions. In the following examples, we will analyze the changes in wage inequality between 1983/85 and 2003/05 and assess which covariates contribute to explaining these changes. First, we look at the changes in the variance. Then, we decompose the wage gap at each decile. We use a subsample of the CPS data used in the handbook chapter of Fortin, Lemieux, & Firpo (2011).
 
 ```{r eval = TRUE, warning = FALSE}
 
@@ -523,7 +523,7 @@ plot(flf_male_inequality)
 
 To validate the functions and provide users with an additional example, we replicate the reweighted RIF regression decomposition estimates in Firpo et al. (2018, p. 30). In their empirical example, Firpo et al. focus on changes in wage inequality in the US between 1988 and 2016. Using a large sample of male log wages in 1988-1990 (268,494 observations) and in 2014-2016 (236,296 observations) based on the Outgoing Rotation Group (ORG) supplement of the Current Population Survey (CPS), the authors attribute changes in several wage inequality measures (i.e, variance, Gini coefficient, and interquantile ranges) between the two time periods to changes in the composition (e.g., union coverage, education, and experience) and changes in the wage structure. 
 
-This replication follows the Stata replication code, that the authors published alongside the paper and that is available on one author's [website](https://sites.google.com/view/nicole-m-fortin/data-and-programs) and [here](https://drive.google.com/file/d/1sab0RuBPRmch3DhreTraQj_3nUBwGMEJ/view). High wages in the public CPS dataset are top-coded due to privacy concerns. The Firpo et al. impute these wages using a random drawas from a Pareto distribution. Since random numbers are generated differently in R and Stata, even with an equivalent seed, we perform all data preparation in Stata up to the estimation of the decomposition in Stata, i.e., the "oaxaca" commands in stata. This ensures that changes in the estimation results between our function and the original paper are not due to different input data. 
+This replication follows the Stata replication code, which the authors published alongside the paper and that is available on one author's [website](https://sites.google.com/view/nicole-m-fortin/data-and-programs) and [here](https://drive.google.com/file/d/1sab0RuBPRmch3DhreTraQj_3nUBwGMEJ/view). High wages in the public CPS dataset are top-coded due to privacy concerns. Firpo et al. impute these wages using random draws from a Pareto distribution. Since random numbers are generated differently in R and Stata, even with an equivalent seed, we perform all data preparation in Stata up to the estimation of the decomposition in Stata, i.e., the "oaxaca" commands in Stata. This ensures that changes in the estimation results between our function and the original paper are not due to different input data. 
 
 To reproduce the code below, be sure to download the entire dataset and Stata code from the journal's website, execute the code up to the oaxaca command, save the data, and load it into your R environment. 
 
@@ -669,11 +669,9 @@ The results presented below are similar to those in Table 4 of Firpo et al. (201
 3. Density estimation: For the interquantile ranges the differences are generally larger. We attribute this to the different density estimations in Stata and R (even when using the same kernel function and bandwidth). Specifically, `kdensity` in Stata and `stats::density()` in R set
 the grids that define the locus of the density estimates differently. These differences result in different RIF values and thus different regression coefficients. 
 
-**[I would delete this sentence:] Even tough, if the differences are mostly within a few percentages, it indicates that the RIF regression method is less robust for quantiles than for other statistics, since changes in the density estimation have a relatively large impact on the results.**
-
 The bootstrapped standard errors are relatively similar to those reported in the paper. With only 100 bootstrap replications and different seeds, some variance in the terms is not surprising. In addition, we also included the reweighting procedure in the bootstrap estimation, while Fortin et al. only include the RIF regression estimation. 
 
-In summary, our `ob_decompose()` function produces very similar results than those calculated in Stata and presented in the original paper. Using an identical formula, the deviations are mostly below 0.1 percent. However, some values based on RIF estimations of quantiles have slightly higher differences. We have also replicated the results of Table 1-3 in Firpo et al. (2018, p. 21-29), where the differences are generally even smaller. The replication files are available upon request. This validation example illustrates that the `ddecompose` package works as intended in computing reweighted RIF regression decompositions and reliably produces the expected results.
+In summary, our `ob_decompose()` function produces very similar results to those calculated in Stata and presented in the original paper. Using an identical formula, the deviations are mostly below 0.1 percent. However, some values based on RIF estimations of quantiles have slightly higher differences. We have also replicated the results of Table 1-3 in Firpo et al. (2018, p. 21-29), where the differences are generally even smaller. The replication files are available upon request. This validation example illustrates that the `ddecompose` package works as intended in computing reweighted RIF regression decompositions and reliably produces the expected results.
 
 ## Credits
 
@@ -685,8 +683,7 @@ Barsky, Robert, John Bound, Kerwin Kofi Charles, and Joseph P. Lupton. 2002. “
 
 Cowell, Frank A., and Emmanuel Flachaire. 2007. "Income distribution and inequality measurement: The problem of extreme values." *Journal of Econometrics* 141: 1044–1072.
 
-Essama-Nssah, Boniface, and Peter J. Lambert. 2012. “Influence Functions for Policy Impact Analysis.” In John A. Bishop and Rafael Salas, eds., *Inequality, Mobility and Segregation: Essays in Honor of Jacques Silber*. Bigley, UK: Emerald Group Publishing
-Limited.
+Essama-Nssah, Boniface, and Peter J. Lambert. 2012. “Influence Functions for Policy Impact Analysis.” In John A. Bishop and Rafael Salas, eds., *Inequality, Mobility and Segregation: Essays in Honor of Jacques Silber*. Bigley, UK: Emerald Group Publishing Limited.
 
 Firpo, Sergio. 2007. "Efficient Semiparametric Estimation of Quantile Treatment Effects." *Econometrica* 75(1): 259-276.
 
@@ -703,6 +700,8 @@ Fortin, Nicole M., Thomas Lemieux, and Sergio Firpo. 2011. "Decomposition Method
 Firpo, Sergio, and Pinto, Christine. 2016. "Identification and Estimation of Distributional Impacts of Interventions Using Changes in Inequality Measures." *Journal of Applied Econometrics*, 31(3), 457–486. 
 
 Gardeazabal, Javier, and Arantza Ugidos. 2004. "More on identification in detailed wage decompositions." *Review of Economics and Statistics*, 86(4): 1034-1036.
+
+Hlavac, Marek. 2022. "oaxaca: Blinder-Oaxaca Decomposition in R". R package version 0.1.5. https://CRAN.R-project.org/package=oaxaca.
 
 Huber, Martin, Michael Lechner, and Conny Wunsch. 2013. "The performance of estimators based on the propensity score." *Journal of Econometrics* 175(1): 1-21.
 
