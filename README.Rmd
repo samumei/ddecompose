@@ -436,7 +436,14 @@ plot(deciles_decomposition)
 ```
 
 ```{r eval = TRUE, echo = FALSE}
-load("data-raw/deciles_decomposition.rda")
+deciles_decomposition <- ob_decompose(formula = model_rifreg,
+                 data = men8305,
+                 group = year, 
+                 reweighting = TRUE, 
+                 rifreg_statistic = "quantiles",
+                 rifreg_probs = c(1:9)/10,
+                 bootstrap = TRUE, 
+                 cores = 4)
 plot(deciles_decomposition)
 ```
 
