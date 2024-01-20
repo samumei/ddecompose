@@ -312,7 +312,7 @@ gender_gap_decomposition <- ob_decompose(formula = model,
                                              data = nlys00,
                                              group = female, 
                                              reference_0 = FALSE, 
-                                         subtract_1_from_0 = TRUE)
+                                             subtract_1_from_0 = TRUE)
 ```
 
 With `summary()`, we can display the decomposition formula and the estimation results.
@@ -372,7 +372,7 @@ For decomposition based on reweighting, standard errors need to be bootstrapped.
 increasing the number of `cores` the bootstrap replications are computed on, we 
 can reduce computation time. By default, 100 bootstrap replications are calculated. 
 
-```{r eval = TRUE}
+```{r eval = FALSE}
 
 model_w_reweighting <- log(wage) ~  
                            age + region + education + 
@@ -382,7 +382,6 @@ model_w_reweighting <- log(wage) ~
                            years_worked_civilian + years_worked_military + 
                            part_time + family_responsibility + industry +
                            education:region + age:education 
-
 
 gender_gap_decomposition_w_reweighting <- 
     ob_decompose(formula = model_w_reweighting,
@@ -406,7 +405,7 @@ If we add reweighting, the `plot()` and `summary()` functions will also display 
 
 To decompose group differences beyond the mean with `ob_decompose` we use RIF regressions. In the following examples, we will analyze the changes in wage inequality between 1983/85 and 2003/05 and assess which covariates contribute to explaining these changes. First, we look at the changes in the variance. Then, we decompose the wage gap at each decile. We use a subsample of the CPS data used in the handbook chapter of Fortin, Lemieux, & Firpo (2011).
 
-```{r eval = TRUE, warning = FALSE}
+```{r eval = FALSE, warning = FALSE}
 
 data("men8305")
 
@@ -436,13 +435,18 @@ plot(deciles_decomposition)
 
 ```
 
+```{r eval = TRUE, echo = FALSE}
+load("data-raw/vignette_examples_rif_decomposition_results.rda")
+plot(deciles_decomposition)
+```
+
 The RIF functions for the following statistics are currently implemented: `"quantiles"`, `"mean"`, `"variance"`, `"gini"`, `"interquantile_range"`, and `"interquantile_ratio"`. However, `ob_decompose` also allows you to pass a custom RIF function for the decomposition, by setting `rifreg_statistic = "custom"` and passing the custom function to `custom_rif_function`. [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg).  
 
 Custom RIF functions must specify a `dep_var` parameter for the outcome variable $Y$, `weights` for potential sample weights, and `probs` defining the corresponding probabilities of quantiles. If they are not needed, they must be set to `NULL` in the function definition (e.g., `probs = NULL`).
 
 The following example shows how to write the RIF for the top 10 percent income share and, then, to estimate the RIF regression decomposition using this custom function. The formula for this specific RIF can be found in Essam-Nssah & Lambert (2012) or Rios-Avila (2020).
 
-```{r eval = TRUE}
+```{r eval = FALSE}
 
 # custom RIF function for top 10% percent income share
 custom_top_inc_share <- function(dep_var,
@@ -486,7 +490,9 @@ plot(custom_decomposition)
 
 ```
 
-
+```{r eval = TRUE, echo = FALSE}
+plot(custom_decomposition)
+```
 
 
 ### Reweighting Decomposition
@@ -495,17 +501,18 @@ Now, we present the use of the other main function: `dfl_decompose()`. Fortin, L
 subsample of the original data. We treat the observations from 1983 to 1985 as the reference group, which is then reweighted. The formula defines on the left-hand side the outcome variable
 and specifies on the right-hand side the conditional probability model.
 
-```{r eval = TRUE}
-library(ddecompose)
+```{r eval = FALSE}
 data("men8305")
-
 flf_model <- log(wage) ~ union*(education + experience) + education*experience
 flf_male_inequality  <- dfl_decompose(flf_model, 
                                   data = men8305,
                                   weights = weights,
                                   group = year, 
-                                  bootstrap = TRUE, 
-                                  cores = 1)
+                                  bootstrap = TRUE)
+```
+
+```{r eval=TRUE, echo=FALSE}
+load("data-raw/flf_male_inequality.rda")
 ```
 
 We can summarize the results:
@@ -518,6 +525,68 @@ Using `plot()`, we can illustrate the decomposition across different quantiles.
 plot(flf_male_inequality)
 ```
 
+### Sequential Decomposition
+
+If we want to further decompose the aggregate decomposition effect into the 
+contribution of single covariates we can perform a sequential reweighting decomposition. 
+In the following, we decompose again the changes in the US male wage distribution
+between the early 1980s and the early 2000s. This time we want to distinguish
+the contribution of changes in the (conditional) unionization from changes 
+in the human capital endowment. We therefore specify two conditional probability
+models in the formula object separated by the `|` operator. Beginning from the right, 
+the first model comprises only the human capital variables (variables $X_2$ in the notation
+from above), while the second also includes a union status indicator (variable $X_1$). 
+
+```{r eval = TRUE}
+model_sequential <- log(wage) ~ union*(education + experience) +
+                                   education*experience |
+                                   education*experience
+```
+
+As before, we use again the observations from the early 1980s as reference group. 
+```{r eval = TRUE}
+male_inequality_sequential  <- dfl_decompose(model_sequential,
+                                             data = men8305,
+                                             weights = weights,
+                                             group = year)
+```
+
+The human capital endowment (“Comp. eff. X”) contributed positively to wage growth 
+across the distribution. However, the unionization conditional on education and
+experience (“Comp. eff. X1|X2”) was negative for all but the two highest deciles.
+
+```{r eval = TRUE}
+plot(male_inequality_sequential)
+```
+In the example above, we first reweighted the distribution of the early 1980s such
+that its human capital endowment matches the one of the early 2000s. Thus, the 
+counterfactual identifying the effect of unionization combines the human capital 
+endowment from the 2000s with unionization rates from the 1980s. 
+
+Alternatively, we could combine the the human capital endowment from the 1980s 
+with the unionization rates from the 2000s. In this case, we have to set the
+parameter `right_to_left = FALSE` indicating that the reweighting begins 
+with the left-most conditional probability model in the formula model instead of 
+the right-most. 
+```{r eval = TRUE}
+male_inequality_sequential_2  <- dfl_decompose(model_sequential,
+                                              data = men8305,
+                                              weights = weights,
+                                              group = year,
+                                              right_to_left = FALSE)
+```
+
+The “direction” of the decomposition set in `right_to_left` does not change the
+aggregate decomposition results. But the results of the detailed decomposition 
+generally differ as you can see when comparing the decomposition effects associated
+with the (conditional) unionization at deciles.
+```{r eval = TRUE}
+compare_results <- cbind(male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
+                         male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`)
+colnames(compare_results) <- c("right_to_left = TRUE", "right_to_left = FALSE")
+rownames(compare_results) <- male_inequality_sequential$decomposition_quantiles$prob
+round(compare_results, 4)
+```
 
 ## Replication of Firpo, Fortin, and Lemieux (2018)
 
@@ -683,6 +752,8 @@ Barsky, Robert, John Bound, Kerwin Kofi Charles, and Joseph P. Lupton. 2002. “
 
 Cowell, Frank A., and Emmanuel Flachaire. 2007. "Income distribution and inequality measurement: The problem of extreme values." *Journal of Econometrics* 141: 1044–1072.
 
+Chen, Mingli, Victor Chernozhukov, Iván Fernández-Val, and Blaise Melly. 2017. "Counterfactual: An R Package for Counterfactual Analysis." *The R Journal* 9(1): 370-384.
+
 Essama-Nssah, Boniface, and Peter J. Lambert. 2012. “Influence Functions for Policy Impact Analysis.” In John A. Bishop and Rafael Salas, eds., *Inequality, Mobility and Segregation: Essays in Honor of Jacques Silber*. Bigley, UK: Emerald Group Publishing Limited.
 
 Firpo, Sergio. 2007. "Efficient Semiparametric Estimation of Quantile Treatment Effects." *Econometrica* 75(1): 259-276.
@@ -708,8 +779,6 @@ Huber, Martin, Michael Lechner, and Conny Wunsch. 2013. "The performance of esti
 Jann, Ben. 2005. "Standard errors for the Blinder-Oaxaca decomposition." *3rd German Stata Users’ Group Meeting 2005*. Available from [https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf](https://boris.unibe.ch/69506/1/oaxaca_se_handout.pdf).
 
 Jann, Ben. 2008. "The Blinder–Oaxaca Decomposition for Linear Regression Models". *Stata Journal* 8: 435–479.
-
-Kline, Pat. 2009. "Blinder-Oaxaca as a Reweighting Estimator". *UC Berkeley mimeo.*
 
 Rios-Avila, Fernando. 2020. "Recentered influence functions (RIFs) in Stata: RIF regression and RIF decomposition." *The Stata Journal* 20(1): 51-94.
 
