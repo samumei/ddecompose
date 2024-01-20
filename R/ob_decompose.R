@@ -455,6 +455,16 @@ ob_decompose <- function(formula,
       parallel::clusterExport(cl = core_cluster,
                               varlist = ls(),
                               envir = environment())
+      # parallel::clusterExport(cl = core_cluster,
+      #                         c("dfl_decompose",
+      #                           "dfl_decompose_estimate",
+      #                           "estimate_ob_decompose",
+      #                           "bootstrap_estimate_ob_decompose",
+      #                           "fit_and_predict_probabilities",
+      #                           "select_observations_to_be_trimmed",
+      #                           "get_normalized_difference"
+      #                         ))
+      parallel::clusterEvalQ(cl = core_cluster, library("ddecompose"))
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
                                                function(x) bootstrap_estimate_ob_decompose(formula_decomposition = formula_decomposition,
                                                                                       formula_reweighting = formula_reweighting,

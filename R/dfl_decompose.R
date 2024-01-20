@@ -191,6 +191,10 @@
 #' probabilities of the quantiles of interest. For other distributional statistics,
 #' please use \code{custom_statistic_function}
 #'
+#' The function bootstraps standard errors and derives a bootstrapped Kolmogorov-Smirnov
+#' distribution to construct uniform confindence bands. The Kolmogorov-Smirnov distribution
+#' is estimated as in Chen et al. (2017).
+#'
 #' @return an object of class \code{dfl_decompose} containing a data.frame with the
 #' decomposition results for the quantiles and for the other distributional
 #' statistics, respectively, a data.frame with the estimated reweighting factor
@@ -202,6 +206,9 @@
 #' covariate means of the comparison group and the reweighted reference group.
 #'
 #' @references
+#' Chen, Mingli, Victor Chernozhukov, Iván Fernández-Val, and Blaise Melly. 2017.
+#' "Counterfactual: An R Package for Counterfactual Analysis." *The R Journal* 9(1): 370-384.
+#'
 #' DiNardo, John, Nicole M. Fortin, and Thomas Lemieux. 1996. "Labor Market
 #' Institutions and the Distribution of Wages, 1973-1992: A Semiparametric Approach."
 #' \emph{Econometrica}, 64(5), 1001-1044.
@@ -491,15 +498,16 @@ dfl_decompose <-  function(formula,
       parallel::clusterExport(cl = cluster,
                               varlist = ls(),
                               envir = environment())
-      parallel::clusterExport(cl = cluster,
-                              c("dfl_decompose_bootstrap",
-                                "dfl_decompose_estimate",
-                                "fit_and_predict_probabilities",
-                                "select_observations_to_be_trimmed",
-                                "get_distributional_statistics",
-                                "estimate_iq_range",
-                                "estimate_iq_ratio"
-                              ))
+      # parallel::clusterExport(cl = cluster,
+      #                         c("dfl_decompose_bootstrap",
+      #                           "dfl_decompose_estimate",
+      #                           "fit_and_predict_probabilities",
+      #                           "select_observations_to_be_trimmed",
+      #                           "get_distributional_statistics",
+      #                           "estimate_iq_range",
+      #                           "estimate_iq_ratio"
+      #                         ))
+      parallel::clusterEvalQ(cl = cluster, library("ddecompose"))
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
                                                function(x) dfl_decompose_bootstrap(formula = formula,
                                                                               dep_var = dep_var,
