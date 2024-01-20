@@ -254,6 +254,10 @@ ratios between the same quantiles are implemented, as well.
 The quantiles can be specified by \code{probs} that sets the corresponding
 probabilities of the quantiles of interest. For other distributional statistics,
 please use \code{custom_statistic_function}
+
+The function bootstraps standard errors and derives a bootstrapped Kolmogorov-Smirnov
+distribution to construct uniform confindence bands. The Kolmogorov-Smirnov distribution
+is estimated as in Chen et al. (2017).
 }
 \examples{
 ## Example from handbook chapter of Fortin, Lemieux, and Firpo (2011: 67)
@@ -387,6 +391,9 @@ summary(flf_male_inequality_custom_stat)
 
 }
 \references{
+Chen, Mingli, Victor Chernozhukov, Iván Fernández-Val, and Blaise Melly. 2017.
+"Counterfactual: An R Package for Counterfactual Analysis." *The R Journal* 9(1): 370-384.
+
 DiNardo, John, Nicole M. Fortin, and Thomas Lemieux. 1996. "Labor Market
 Institutions and the Distribution of Wages, 1973-1992: A Semiparametric Approach."
 \emph{Econometrica}, 64(5), 1001-1044.

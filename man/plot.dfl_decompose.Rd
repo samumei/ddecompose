@@ -22,8 +22,8 @@
 \item{confidence_level}{numeric value between 0 and 1 (default = 0.95) that defines the confidence interval
 plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standard error.}
 
-\item{uniform_bands}{If `FALSE` (default), pointsise confidence bands are computed. Otherwise, uniform bands are constructed
-based on the bootstrapped Kolmogrov-Smirnov statistic.}
+\item{uniform_bands}{If `FALSE` (default), pointwise confidence bands are computed. Otherwise, uniform bands are constructed
+based on the bootstrapped Kolmogrov-Smirnov statistic (see \link{summary.dfl_decompose}).}
 }
 \value{
 a ggplot illustrating the decomposition terms for quantiles.

@@ -12,19 +12,27 @@
 \item{...}{other parameters to be passed through to printing functions.}
 
 \item{confidence_level}{numeric value between 0 and 1 (default = 0.95) that defines the
-confidence level of the printed confidence intervals. Pointwise confidences bands
-are defined as \code{qnorm((1-confidence_level)/2)} * standard error. Uniform bands
-are constructed by multiplying the standard error with \code{confidence_level}-quantile
-of the bootstrapped Kolmogorov-Smirnov statistic.}
+confidence level of the printed confidence intervals.}
 
 \item{digits}{number of digits to be printed.}
 }
 \value{
 The function \code{summary.dfl_decompose()} displays the decompositions
-terms save in \code{object}. If standard errors have been bootstrapped, standard
-errors and confidence bands are given. Uniform confidence bands for quantiles
-are constructed based on the bootstrappend Kolmogorov-Smirnov distribution.
+terms save in \code{object}. The function further returns a list with the displayed
+decomposition terms and, if standard errors were bootstrapped, the corresponding
+standard errors and confindence bands.
 }
 \description{
 summary method for class "dfl_decompose"
+}
+\details{
+If standard errors were bootstrapped, standard
+errors and confidence bands are given. Pointwise confidences bands are defined
+as \code{qnorm((1-confidence_level)/2)} * standard error. Uniform bands
+are constructed by multiplying the standard error with \code{confidence_level}-quantile
+of the bootstrapped Kolmogorov-Smirnov statistic as in Chen et al. (2017).
+}
+\references{
+Chen, Mingli, Victor Chernozhukov, Iván Fernández-Val, and Blaise Melly. 2017.
+"Counterfactual: An R Package for Counterfactual Analysis." \emph{The R Journal} 9(1): 370-384.
 }
