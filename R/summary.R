@@ -2,16 +2,23 @@
 #'
 #' @param object an object of class "dfl_decompose", a result of a call to [dfl_decompose()].
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the
-#'              confidence level of the printed confidence intervals. Pointwise confidences bands
-#'              are defined as \code{qnorm((1-confidence_level)/2)} * standard error. Uniform bands
-#'              are constructed by multiplying the standard error with \code{confidence_level}-quantile
-#'              of the bootstrapped Kolmogorov-Smirnov statistic.
+#'              confidence level of the printed confidence intervals.
 #' @param digits number of digits to be printed.
 #' @param ... other parameters to be passed through to printing functions.
+#'
+#' @details If standard errors were bootstrapped, standard
+#' errors and confidence bands are given. Pointwise confidences bands are defined
+#' as \code{qnorm((1-confidence_level)/2)} * standard error. Uniform bands
+#' are constructed by multiplying the standard error with \code{confidence_level}-quantile
+#' of the bootstrapped Kolmogorov-Smirnov statistic as in Chen et al. (2017).
+#'
 #' @return The function \code{summary.dfl_decompose()} displays the decompositions
-#' terms save in \code{object}. If standard errors have been bootstrapped, standard
-#' errors and confidence bands are given. Uniform confidence bands for quantiles
-#' are constructed based on the bootstrappend Kolmogorov-Smirnov distribution.
+#' terms save in \code{object}. The function further returns a list with the displayed
+#' decomposition terms and, if standard errors were bootstrapped, the corresponding
+#' standard errors and confindence bands.
+#'
+#' @references Chen, Mingli, Victor Chernozhukov, Iván Fernández-Val, and Blaise Melly. 2017.
+#' "Counterfactual: An R Package for Counterfactual Analysis." \emph{The R Journal} 9(1): 370-384.
 #'
 #' @export
 #'
@@ -42,9 +49,11 @@ summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
     cat(object$covariates_labels[[i]], "\n")
   }
   cat("\n")
-  cat("---------------------------------------------------------------------------------\n")
+  cat("-----------------------------------------------------------------------\n")
+
 
   if(is.null(object$decomposition_quantiles)==FALSE){
+
     cat("Decomposition of difference at conditional quantiles:\n\n")
     decomposition_quantiles <- object$decomposition_quantiles
 
@@ -60,9 +69,11 @@ summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
       #                                             t_value = quantile(kms_t_value, confidence_level))
       kolmogorov_smirnov_stat <- as.data.frame(kolmogorov_smirnov_stat[match(names(decomposition_quantiles), kolmogorov_smirnov_stat$effect), ])
 
+      decomposition_quantiles_export <- list()
+
       for(i in 2:ncol(decomposition_quantiles)){
         cat(paste0(names(decomposition_quantiles)[i],":"), "\n")
-        cat("---------------------------------------------------------------------------------\n")
+        cat("-----------------------------------------------------------------------\n")
         results_to_print <- as.data.frame(cbind(decomposition_quantiles[,c(1, i)],
                                                 decomposition_quantiles_se[,i]))
         results_to_print$ci_p_low <- results_to_print[,2] - qnorm(1-(1-confidence_level)/2)*results_to_print[,3]
@@ -70,21 +81,25 @@ summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
         results_to_print$ci_u_low <- results_to_print[,2] - kolmogorov_smirnov_stat[i,2]*results_to_print[,3]
         results_to_print$ci_u_high <- results_to_print[,2] + kolmogorov_smirnov_stat[i,2]*results_to_print[,3]
 
-        names(results_to_print) <- c("Quantile", "Estimate", "Std. Error","Pointwise CI: [low", "high]", "Uniform CI: [low", "high]")
+        names(results_to_print) <- c("Quantile", "Estimate", "Std. Error","[ Pointwise", paste0(confidence_level*100, "%-CI ]"), "[ Uniform", paste0(confidence_level*100, "%-CI ]"))
         print(results_to_print, digits = digits, row.names = FALSE)
         cat("\n")
+        decomposition_quantiles_export <- c(decomposition_quantiles_export, results_to_print)
+        names(decomposition_quantiles_export)[length(decomposition_quantiles_export)] <- names(decomposition_quantiles)[i]
       }
 
     }else{
       print(decomposition_quantiles[,-1])
       cat("\n")
-      cat("---------------------------------------------------------------------------------\n")
+      cat("-----------------------------------------------------------------------\n")
+      decomposition_quantiles_export <- decomposition_quantiles
     }
 
   }
   if(is.null(object$decomposition_other_statistics)==FALSE){
     cat("Decomposition of difference for other distributional statistics\n\n")
     decomposition_other_statistics  <- object$decomposition_other_statistics
+    decomposition_other_statistics_export <- decomposition_other_statistics
 
     if("Gini of untransformed Y (=exp(log(Y)))" %in% decomposition_other_statistics$statistic){
       select_row <- which(decomposition_other_statistics$statistic == "Gini of untransformed Y (=exp(log(Y)))")
@@ -99,13 +114,13 @@ summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
 
       for(i in 2:ncol(decomposition_other_statistics)){
         cat(paste0(names(decomposition_other_statistics)[i],":"), "\n")
-        cat("---------------------------------------------------------------------------------\n")
+        cat("-----------------------------------------------------------------------\n")
         results_to_print <- as.data.frame(cbind(decomposition_other_statistics[,c(1, i)],
                                                 decomposition_other_statistics_se[,i]))
         results_to_print$ci_p_low <- results_to_print[,2] - qnorm(1-(1-confidence_level)/2)*results_to_print[,3]
         results_to_print$ci_p_high <- results_to_print[,2] + qnorm(1-(1-confidence_level)/2)*results_to_print[,3]
 
-        names(results_to_print) <- c("Statistic", "Estimate", "Std. Error","CI [low", "high]")
+        names(results_to_print) <- c("Statistic", "Estimate", "Std. Error", paste0("[  ",confidence_level*100, "%-CI"), "]")
         print(results_to_print, digits = digits, row.names = FALSE)
         cat("\n")
       }
@@ -116,7 +131,7 @@ summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
       if(is.null(legend_to_table) == FALSE){
         cat(legend_to_table)
       }
-      cat("---------------------------------------------------------------------------------\n")
+      cat("-----------------------------------------------------------------------\n")
     }
   }
 
@@ -133,7 +148,7 @@ summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
     quantiles_reweighting_factor_se <- object$bootstrapped_standard_errors$quantiles_reweighting_factor
     for(i in 2:ncol(quantiles_reweighting_factor_se)){
       cat(paste0(names(quantiles_reweighting_factor)[i],":"), "\n")
-      cat("---------------------------------------------------------------------------------\n")
+      cat("-----------------------------------------------------------------------\n")
       results_to_print <- cbind(quantiles_reweighting_factor[,c(1,i)], quantiles_reweighting_factor_se[,c(1,i)])[,c(2,4)]
       names(results_to_print) <- c("Estimate","Std. Error")
       print(results_to_print, digits = digits)
@@ -147,6 +162,9 @@ summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
     print(quantiles_reweighting_factor, digits = digits)
     cat("\n")
   }
+
+  invisible(list(decomposition_quantiles = decomposition_quantiles_export,
+                 decomposition_other_statistics = decomposition_other_statistics_export))
 }
 
 

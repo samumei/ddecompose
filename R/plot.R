@@ -8,8 +8,8 @@
 #' @param confidence_bands If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the confidence interval
 #'              plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standard error.
-#' @param uniform_bands If `FALSE` (default), pointsise confidence bands are computed. Otherwise, uniform bands are constructed
-#'              based on the bootstrapped Kolmogrov-Smirnov statistic.
+#' @param uniform_bands If `FALSE` (default), pointwise confidence bands are computed. Otherwise, uniform bands are constructed
+#'              based on the bootstrapped Kolmogrov-Smirnov statistic (see \link{summary.dfl_decompose}).
 #'
 #' @return a ggplot illustrating the decomposition terms for quantiles.
 #' @export
@@ -323,6 +323,7 @@ plot.ob_decompose <- function(x,
 
 
     plot <- ggplot(decomposition_results, aes(x = effect, y = value, fill = Variable)) +
+      geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
       geom_bar(stat = "identity", position = "stack") +
       xlab("Effect Type") +
       ylab("Value") +
