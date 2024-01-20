@@ -281,7 +281,7 @@ data("nlys00")
 
 We decompose the gender wage gap into composition and structure effect, using the Oaxaca-Blinder decomposition without reweighting. We specify a wage regression model and then run the estimation. 
 
-```{r eval = FALSE}
+```{r ob_deco1, eval = TRUE}
 model <- log(wage) ~  age + region + education + 
                         years_worked_civilian + years_worked_military + 
                         part_time + family_responsibility + industry 
@@ -298,7 +298,7 @@ In the present example, `yes` is the reference level and the lower ranked value 
 the factor variable `female`. Thus, the female mean is subtracted from the male 
 mean and the female coefficients are used to estimate the counterfactual mean.
 
-```{r eval = TRUE}
+```{r levels, eval = TRUE}
 levels(nlys00$female)
 ```
 
@@ -307,7 +307,7 @@ the counterfactual, we have to change the parameter `reference_0 = FALSE` so tha
 the higher ranked group is used as reference. To change the direction of 
 the subtraction, you can change the parameter `subtract_1_from_0`. 
 
-```{r eval = TRUE}
+```{r ob_deco2, eval = TRUE}
 gender_gap_decomposition <- ob_decompose(formula = model,
                                              data = nlys00,
                                              group = female, 
@@ -318,14 +318,14 @@ gender_gap_decomposition <- ob_decompose(formula = model,
 With `summary()`, we can display the decomposition formula and the estimation results.
 For Oaxaca-Blinder decompositions, the function displays standard errors by default, assuming independence between the groups and homoscedasticity.
 
-```{r eval=TRUE}
+```{r summary_gender_gap, eval=TRUE}
 summary(gender_gap_decomposition)
 ```
 
 `ddecompose` comes with a handy plotting function. To plot the overall composition
 and structure effects, we need to set `detailed_effects = FALSE`.
 
-```{r eval=TRUE}
+```{r plot_gender_gap, eval=TRUE}
 plot(gender_gap_decomposition, detailed_effects = FALSE)
 ```
 
@@ -337,7 +337,7 @@ of the reference level.
 
 We can aggregate the detailed effects displayed in the `summary()` and `plot()` functions. For example, if we want to separate personal and contextual factors that explain the wage gap, we can aggregate these variables in a list.
 
-```{r eval=TRUE}
+```{r custom_aggregation, eval=TRUE}
 custom_aggregation <- list(`Personal Factors` = c("age", 
                                                   "education<10 yrs", 
                                                "educationHS grad (diploma)",
@@ -405,7 +405,7 @@ If we add reweighting, the `plot()` and `summary()` functions will also display 
 
 To decompose group differences beyond the mean with `ob_decompose` we use RIF regressions. In the following examples, we will analyze the changes in wage inequality between 1983/85 and 2003/05 and assess which covariates contribute to explaining these changes. First, we look at the changes in the variance. Then, we decompose the wage gap at each decile. We use a subsample of the CPS data used in the handbook chapter of Fortin, Lemieux, & Firpo (2011).
 
-```{r eval = FALSE, warning = FALSE}
+```{r rifreg_deco, eval = FALSE, warning = FALSE}
 
 data("men8305")
 
@@ -435,7 +435,9 @@ plot(deciles_decomposition)
 
 ```
 
-```{r eval = TRUE, echo = FALSE}
+```{r rif_reg_deco_est, eval = TRUE, echo = FALSE}
+model_rifreg <- log(wage) ~ union*(education + experience) + education*experience 
+
 deciles_decomposition <- ob_decompose(formula = model_rifreg,
                  data = men8305,
                  group = year, 
