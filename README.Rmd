@@ -436,7 +436,7 @@ plot(deciles_decomposition)
 ```
 
 ```{r eval = TRUE, echo = FALSE}
-load("data-raw/vignette_examples_rif_decomposition_results.rda")
+load("data-raw/deciles_decomposition.rda")
 plot(deciles_decomposition)
 ```
 
@@ -491,6 +491,7 @@ plot(custom_decomposition)
 ```
 
 ```{r eval = TRUE, echo = FALSE}
+load("data-raw/custom_decomposition.rda")
 plot(custom_decomposition)
 ```
 
