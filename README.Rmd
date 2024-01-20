@@ -436,16 +436,22 @@ plot(deciles_decomposition)
 ```
 
 ```{r rif_reg_deco_est, eval = TRUE, echo = FALSE}
-model_rifreg <- log(wage) ~ union*(education + experience) + education*experience 
+# model_rifreg <- log(wage) ~ union*(education + experience) + education*experience 
+# deciles_decomposition <- ob_decompose(formula = model_rifreg,
+#                  data = men8305,
+#                  group = year, 
+#                  reweighting = TRUE, 
+#                  rifreg_statistic = "quantiles",
+#                  rifreg_probs = c(1:9)/10,
+#                  bootstrap = TRUE, 
+#                  cores = 4)
+# 
+# for(i in 1:9){
+#   deciles_decomposition[[i]]$model_fits <- NULL
+# }
+# save(deciles_decomposition, file = "data-raw/deciles_decomposition.rda")
 
-deciles_decomposition <- ob_decompose(formula = model_rifreg,
-                 data = men8305,
-                 group = year, 
-                 reweighting = TRUE, 
-                 rifreg_statistic = "quantiles",
-                 rifreg_probs = c(1:9)/10,
-                 bootstrap = TRUE, 
-                 cores = 4)
+load("data-raw/deciles_decomposition.rda")
 plot(deciles_decomposition)
 ```
 
