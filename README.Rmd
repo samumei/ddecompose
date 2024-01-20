@@ -711,7 +711,7 @@ decompose_gini  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting
 
 ```
 
-```{r eval=TRUE, echo=FALSE}
+```{r eval=FALSE, echo=FALSE}
 
 load("data-raw/decompose_90_10.rda")
 load("data-raw/decompose_variance.rda")
@@ -722,7 +722,7 @@ load("data-raw/decompose_gini.rda")
 
 ### Discussion of Results
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 # Presenting the results
 variables <- decompose_variance[["variance"]][["decomposition_terms"]][["Variable"]]
 
