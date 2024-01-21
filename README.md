@@ -850,6 +850,28 @@ plot(flf_male_inequality)
 
 <img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
 
+By default `estimate_normalized_difference = TRUE` and the normalized
+differences between the covariate means of the reweighted reference
+group and the targeted comparison group are estimated.
+
+``` r
+head(flf_male_inequality$normalized_difference[[1]])
+#>                        Mean 2003-2005 Mean 1983-1985 (reweighted) SD 2003-2005
+#> unionyes                   0.15043941                  0.14988007    0.3575106
+#> educationElementary        0.04725062                  0.04721410    0.2121798
+#> educationHS dropout        0.08279042                  0.08264882    0.2755721
+#> educationSome College      0.27481171                  0.27534308    0.4464305
+#> educationCollege           0.19476140                  0.19474447    0.3960268
+#> educationPost-graduate     0.09808061                  0.09797466    0.2974311
+#>                        SD 1983-1985 (reweighted) Normalized  difference
+#> unionyes                               0.3569626           1.107130e-03
+#> educationElementary                    0.2121017           1.217075e-04
+#> educationHS dropout                    0.2753574           3.634824e-04
+#> educationSome College                  0.4466979          -8.413841e-04
+#> educationCollege                       0.3960136           3.022945e-05
+#> educationPost-graduate                 0.2972877           2.519542e-04
+```
+
 ### Sequential Decomposition
 
 If we want to further decompose the aggregate decomposition effect into
@@ -889,7 +911,7 @@ negative for all but the two highest deciles.
 plot(male_inequality_sequential)
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" /> In
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" /> In
 the example above, we first reweighted the distribution of the early
 1980s such that its human capital endowment matches the one of the early
 2000s. Thus, the counterfactual identifying the effect of unionization

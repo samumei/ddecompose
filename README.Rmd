@@ -541,6 +541,14 @@ Using `plot()`, we can illustrate the decomposition across different quantiles.
 plot(flf_male_inequality)
 ```
 
+By default `estimate_normalized_difference = TRUE` and the normalized differences 
+between the covariate means of the reweighted reference group and the targeted
+comparison group are estimated. 
+```{r eval = TRUE}
+head(flf_male_inequality$normalized_difference[[1]])
+```
+
+
 ### Sequential Decomposition
 
 If we want to further decompose the aggregate decomposition effect into the 
