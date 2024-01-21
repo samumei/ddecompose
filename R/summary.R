@@ -397,7 +397,7 @@ summary.ob_decompose <- function(object,
                                           se = as.numeric(aggregate_decomposition_se[1, ]))
     aggregate_decomposition$low <-  aggregate_decomposition$Estimate - aggregate_decomposition$se * qnorm(1 - (1 - confidence_level)/2)
     aggregate_decomposition$high <-  aggregate_decomposition$Estimate + aggregate_decomposition$se * qnorm(1 - (1 - confidence_level)/2)
-    names(aggregate_decomposition) <- c("Effect", "Estimate", "Std. Error", "CI [Low", "High]")
+    names(aggregate_decomposition) <- c("Effect", "Estimate", "Std. Error", paste0("[  ",confidence_level*100, "%-CI"), "]")
     rownames(aggregate_decomposition) <- aggregate_decomposition$Effect
     aggregate_decomposition$Effect <- NULL
 
@@ -417,7 +417,7 @@ summary.ob_decompose <- function(object,
     detailed_decomposition_structure$low <-  detailed_decomposition_structure$Estimate - detailed_decomposition_structure$se * qnorm(1 - (1 - confidence_level)/2)
     detailed_decomposition_structure$high <-  detailed_decomposition_structure$Estimate + detailed_decomposition_structure$se * qnorm(1 - (1 - confidence_level)/2)
 
-    names(detailed_decomposition_observed) <- names(detailed_decomposition_structure) <- names(detailed_decomposition_composition) <- c("Estimate", "Std. Error", "CI [Low", "High]")
+    names(detailed_decomposition_observed) <- names(detailed_decomposition_structure) <- names(detailed_decomposition_composition) <- c("Estimate", "Std. Error", paste0("[  ",confidence_level*100, "%-CI"), "]")
     rownames(detailed_decomposition_observed) <-  rownames(detailed_decomposition_structure) <-  rownames(detailed_decomposition_composition) <- rownames(detailed_decomposition)
 
 

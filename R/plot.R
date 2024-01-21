@@ -134,6 +134,7 @@ plot.dfl_decompose <- function(x,
 #'   years_worked_military + part_time + industry
 #'
 #' # plotting RIF regression decomposition of deciles
+#' \dontrun{
 #' decompose_rifreg_deciles <- ob_decompose(formula = mod1,
 #'                                   data = nlys00,
 #'                                   group = female,
@@ -146,8 +147,8 @@ plot.dfl_decompose <- function(x,
 #' plot(decompose_rifreg_deciles)
 #'
 #' plot(decompose_rifreg_deciles,
-#'      confidence_bands = FALSE)
-#'
+#'      confidence_bands = TRUE)
+#' }
 #'
 #' # plotting Oaxaca-Blinder decomposition
 #'
@@ -256,7 +257,6 @@ plot.ob_decompose <- function(x,
       decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref="Observed_difference")
       plot <-  ggplot(data=decomposition_quantiles, aes(x=probs,
                                                         y=value,
-                                                        col=effect,
                                                         fill=effect,
                                                         ymin=value-t_value*se,
                                                         ymax=value+t_value*se
@@ -266,7 +266,8 @@ plot.ob_decompose <- function(x,
         geom_line(col="red") +
         geom_point(col="red") +
         facet_wrap(~ effect) +
-        labs(y="Difference", x="Quantile rank")
+        labs(y="Difference", x="Quantile rank") +
+        theme(legend.position = "none")
     }
     else{
 
@@ -325,8 +326,8 @@ plot.ob_decompose <- function(x,
     plot <- ggplot(decomposition_results, aes(x = effect, y = value, fill = Variable)) +
       geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
       geom_bar(stat = "identity", position = "stack") +
-      xlab("Effect Type") +
-      ylab("Value") +
+      xlab("Effect") +
+      ylab("Difference") +
       labs(fill = "Variable") +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
   }
