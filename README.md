@@ -1401,9 +1401,10 @@ for these differences.
 2.  Different decomposition formula: In the paper, the formula presented
     for the pure structure and reweighting errors is identical to the
     formula presented in the background section above. For instance, the
-    pure wage structure effect is computed as \$ X\_{1,1}*{1,1} -
-    *{C,1}\$ for $k=1$. However, the Stata code calculates a slightly
-    different formula:
+    pure wage structure effect is computed as
+    $\overline X_{1,1}\widehat \beta_{1,1} - \widehat \beta_{C,1}$ for
+    $k=1$. However, the Stata code calculates a slightly different
+    formula:
     $\overline X_{C,1}(\widehat \beta_{C,1} - \widehat \beta_{1,1})$.
     Thus, in the Stata replication code, the results are multiplied by
     -1 so that the composition and and structure effects add up to the
