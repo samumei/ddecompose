@@ -297,7 +297,7 @@ each covariate can be estimated, summing to the aggregate pure structure
 effect, $\widehat\Delta^\mu_{X,p}$. If the model is truly linear, i.e.,
 correctly specified, $\beta_C$ of the reweighted group $0$ will be
 identical to $\beta_0$ and the specification error will be zero (Fortin
-et al. 2011, p. 49-50).
+et al. 2011, pp. 49-50).
 
 The reweighted OB decomposition is “doubly robust” as it yields
 consistent estimates even if either the linear model or the reweighting
@@ -387,7 +387,6 @@ decomposition in Fortin, Lemieux, and Firpo (2011). The data contains
 
 ``` r
 library(ddecompose)
-#> Lade nötiges Paket: ggplot2
 data("nlys00")
 ```
 
@@ -455,7 +454,7 @@ summary(gender_gap_decomposition)
 #> 
 #> Aggregate decomposition:
 #> 
-#>                        Estimate Std. Error     CI [Low      High]
+#>                        Estimate Std. Error   [  95%-CI          ]
 #> Observed difference -0.23330029 0.01466550 -0.26204413 -0.2045564
 #> Composition effect  -0.20686977 0.01828421 -0.24270616 -0.1710334
 #> Structure effect    -0.02643052 0.01907475 -0.06381634  0.0109553
@@ -463,7 +462,7 @@ summary(gender_gap_decomposition)
 #> 
 #> Observed difference:
 #> 
-#>                          Estimate  Std. Error      CI [Low       High]
+#>                          Estimate  Std. Error    [  95%-CI           ]
 #> (Intercept)           -0.09813187 0.213742888 -0.517060232  0.32079649
 #> age                    0.19459845 0.231908532 -0.259933920  0.64913082
 #> region                -0.03970035 0.027067240 -0.092751163  0.01335047
@@ -477,7 +476,7 @@ summary(gender_gap_decomposition)
 #> 
 #> Structure effect:
 #> 
-#>                            Estimate   Std. Error       CI [Low        High]
+#>                            Estimate   Std. Error     [  95%-CI            ]
 #> (Intercept)           -0.0981318689 0.2137428884 -0.5170602321  0.320796494
 #> age                    0.2024835070 0.2327690880 -0.2537355222  0.658702536
 #> region                -0.0353034766 0.0271166306 -0.0884510959  0.017844143
@@ -491,7 +490,7 @@ summary(gender_gap_decomposition)
 #> 
 #> Composition effect:
 #> 
-#>                           Estimate  Std. Error      CI [Low         High]
+#>                           Estimate  Std. Error    [  95%-CI             ]
 #> (Intercept)            0.000000000 0.000000000  0.000000000  0.0000000000
 #> age                   -0.007885058 0.002292319 -0.012377921 -0.0033921942
 #> region                -0.004396870 0.002357891 -0.009018252  0.0002245116
@@ -714,12 +713,12 @@ custom_decomposition <- ob_decompose(formula = model_rifreg,
 plot(custom_decomposition)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-plot_custom-1.png" width="100%" />
 
 ### Reweighting Decomposition
 
 Now, we present the use of the other main function: `dfl_decompose()`.
-Fortin, Lemieux, and Firpo (FLF, 2011, p. 79-88) decompose the increase
+Fortin, Lemieux, and Firpo (FLF, 2011, pp. 79-88) decompose the increase
 in U.S. male wage inequality between the early 1980s and the early 2000s
 using the CPS data. In this example, we perform the same decomposition
 on subsample of the original data. We treat the observations from 1983
@@ -848,7 +847,7 @@ quantiles.
 plot(flf_male_inequality)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+<img src="man/figures/README-plot_rw-1.png" width="100%" />
 
 By default `estimate_normalized_difference = TRUE` and the normalized
 differences between the covariate means of the reweighted reference
@@ -876,9 +875,9 @@ head(flf_male_inequality$normalized_difference[[1]])
 
 If we want to further decompose the aggregate decomposition effect into
 the contribution of single covariates we can perform a sequential
-reweighting decomposition. In the following, we decompose again the
+reweighting decomposition. In the following, we once again decompose the
 changes in the US male wage distribution between the early 1980s and the
-early 2000s. This time we want to distinguish the contribution of
+early 2000s. This time, we want to distinguish the contribution of
 changes in the (conditional) unionization from changes in the human
 capital endowment. We therefore specify two conditional probability
 models in the formula object separated by the `|` operator. Beginning
@@ -892,8 +891,8 @@ model_sequential <- log(wage) ~ union*(education + experience) +
                                    education*experience
 ```
 
-As before, we use again the observations from the early 1980s as
-reference group.
+As before, we use the observations from the early 1980s as reference
+group.
 
 ``` r
 male_inequality_sequential  <- dfl_decompose(model_sequential,
@@ -905,24 +904,24 @@ male_inequality_sequential  <- dfl_decompose(model_sequential,
 The human capital endowment (“Comp. eff. X”) contributed positively to
 wage growth across the distribution. However, the unionization
 conditional on education and experience (“Comp. eff. X1\|X2”) was
-negative for all but the two highest deciles.
+negative for all except the two highest income deciles.
 
 ``` r
 plot(male_inequality_sequential)
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" /> In
+<img src="man/figures/README-sequential_plot-1.png" width="100%" /> In
 the example above, we first reweighted the distribution of the early
-1980s such that its human capital endowment matches the one of the early
-2000s. Thus, the counterfactual identifying the effect of unionization
-combines the human capital endowment from the 2000s with unionization
-rates from the 1980s.
+1980s such that its human capital endowment matches that of the early
+2000s. Thus, the counterfactual that identifies the effect of
+unionization combines the human capital endowment from the 2000s with
+unionization rates from the 1980s.
 
 Alternatively, we could combine the the human capital endowment from the
 1980s with the unionization rates from the 2000s. In this case, we have
 to set the parameter `right_to_left = FALSE` indicating that the
-reweighting begins with the left-most conditional probability model in
-the formula model instead of the right-most.
+reweighting begins with the leftmost conditional probability model in
+the formula model instead of the rightmost.
 
 ``` r
 male_inequality_sequential_2  <- dfl_decompose(model_sequential,
@@ -936,7 +935,7 @@ The “direction” of the decomposition set in `right_to_left` does not
 change the aggregate decomposition results. But the results of the
 detailed decomposition generally differ as you can see when comparing
 the decomposition effects associated with the (conditional) unionization
-at deciles.
+at the income deciles.
 
 ``` r
 compare_results <- cbind(male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
@@ -1108,12 +1107,288 @@ ffl_aggregation <- list(`Union` = "covered",
                         `Industry` = grep("indd", variables, value = TRUE))
 
 summary(decompose_90_10, custom_aggregation = ffl_aggregation)
+#> 
+#> 
+#> Reweighted RIF regression decomposition of difference in interquantile_range
+#> between time == '1' (group 1) and time == '0' (group 0). 
+#> The reference group is '0'. 
+#> 
+#> Group 0: time == '0' (0 observations) 
+#> Group 1: time == '1' (0 observations) 
+#> Group C: time == '0' (reference group) reweighted
+#>          to match the characteristics of the other group (0 observations).
+#> 
+#> Pure Composition Effect: (XC - X0) * b0 
+#>   Pure Structure Effect: XC * (bC - b0) 
+#>     Specification Error: (X1 - XC) * bC 
+#>       Reweighting Error: X1 * (b1 - bC) 
+#> 
+#> Aggregate decomposition:
+#> 
+#>                          Estimate  Std. Error    [  95%-CI             ]
+#> Observed difference  0.1256140541 0.004701494  0.116399295  0.1348288131
+#> Composition effect   0.0909463043 0.002916652  0.085229771  0.0966628379
+#> Structure effect     0.0381813178 0.005043205  0.028296818  0.0480658174
+#> Specification error -0.0005160126 0.003691050 -0.007750338  0.0067183127
+#> Reweighting error   -0.0029975554 0.001399051 -0.005739645 -0.0002554653
+#> 
+#> 
+#> Observed difference:
+#> 
+#>                      Estimate  Std. Error   [  95%-CI            ]
+#> Union              0.02977302 0.001658415  0.02652259  0.033023458
+#> Other             -0.02891464 0.010296904 -0.04909620 -0.008733084
+#> Education          0.02497305 0.004515913  0.01612202  0.033824073
+#> Occupation         0.06949078 0.007782856  0.05423666  0.084744897
+#> Industry          -0.04775471 0.010027084 -0.06740744 -0.028101989
+#> (Other variables)  0.07804656 0.014766600  0.04910456  0.106988565
+#> 
+#> 
+#> Pure structure effect:
+#> 
+#>                       Estimate  Std. Error    [  95%-CI           ]
+#> Union              0.012603651 0.001468132  0.009726165  0.01548114
+#> Other             -0.046989402 0.012405103 -0.071302956 -0.02267585
+#> Education          0.058884186 0.006324962  0.046487489  0.07128088
+#> Occupation         0.009694848 0.009540193 -0.009003587  0.02839328
+#> Industry          -0.079592423 0.011883520 -0.102883695 -0.05630115
+#> (Other variables)  0.083580458 0.017346762  0.049581429  0.11757949
+#> 
+#> 
+#> Pure composition effect:
+#> 
+#>                      Estimate   Std. Error   [  95%-CI           ]
+#> Union             0.016196176 0.0006300468 0.014961307 0.017431045
+#> Other             0.019067346 0.0012139205 0.016688106 0.021446587
+#> Education         0.008089822 0.0015352464 0.005080794 0.011098850
+#> Occupation        0.021190773 0.0013468292 0.018551036 0.023830510
+#> Industry          0.024753937 0.0013971957 0.022015483 0.027492390
+#> (Other variables) 0.001648250 0.0002679935 0.001122993 0.002173508
+#> 
+#> 
+#> Specification error:
+#> 
+#>                        Estimate    Std. Error     [  95%-CI            ]
+#> Union              0.0008615798  0.0008615798 -0.0008270856  0.002550245
+#> Other             -0.0010756721 -0.0010756721  0.0010326065 -0.003183951
+#> Education         -0.0423315700 -0.0423315700  0.0406367826 -0.125299922
+#> Occupation         0.0410382285  0.0410382285 -0.0393952214  0.121471678
+#> Industry           0.0082166703  0.0082166703 -0.0078877076  0.024321048
+#> (Other variables) -0.0072252492 -0.0072252492  0.0069359791 -0.021386478
+#> 
+#> 
+#> Reweighting error:
+#> 
+#>                        Estimate    Std. Error     [  95%-CI             ]
+#> Union              1.116175e-04  1.116175e-04 -1.071488e-04  0.0003303839
+#> Other              8.308368e-05  8.308368e-05 -7.975734e-05  0.0002459247
+#> Education          3.306077e-04  3.306077e-04 -3.173715e-04  0.0009785869
+#> Occupation        -2.433069e-03 -2.433069e-03  2.335659e-03 -0.0072017978
+#> Industry          -1.132897e-03 -1.132897e-03  1.087540e-03 -0.0033533329
+#> (Other variables)  4.310162e-05  4.310162e-05 -4.137601e-05  0.0001275793
+#> 
+#> Summary statistics of reweighting factors
+#> 
+#> Number of trimmed observations (not included in statistics): 0 (0%)
+#> 
+#>                   Psi_X1
+#> Min.          0.01240973
+#> 10%-quantile  0.24044303
+#> 25%-quantile  0.42188219
+#> 50%-quantile  0.73438754
+#> 75%-quantile  1.25697488
+#> 90%-quantile  2.00825420
+#> Max.         22.41294385
 summary(decompose_variance, custom_aggregation = ffl_aggregation)
+#> 
+#> 
+#> Reweighted RIF regression decomposition of difference in variance
+#> between time == '1' (group 1) and time == '0' (group 0). 
+#> The reference group is '0'. 
+#> 
+#> Group 0: time == '0' (0 observations) 
+#> Group 1: time == '1' (0 observations) 
+#> Group C: time == '0' (reference group) reweighted
+#>          to match the characteristics of the other group (0 observations).
+#> 
+#> Pure Composition Effect: (XC - X0) * b0 
+#>   Pure Structure Effect: XC * (bC - b0) 
+#>     Specification Error: (X1 - XC) * bC 
+#>       Reweighting Error: X1 * (b1 - bC) 
+#> 
+#> Aggregate decomposition:
+#> 
+#>                         Estimate   Std. Error    [  95%-CI           ]
+#> Observed difference  0.077751372 0.0017482219  0.074324920 0.081177823
+#> Composition effect   0.042647761 0.0012056833  0.040284665 0.045010857
+#> Structure effect     0.033735963 0.0020922369  0.029635254 0.037836672
+#> Specification error  0.002737420 0.0008451794  0.001080899 0.004393941
+#> Reweighting error   -0.001369773 0.0007649579 -0.002869063 0.000129517
+#> 
+#> 
+#> Observed difference:
+#> 
+#>                        Estimate  Std. Error   [  95%-CI            ]
+#> Union              1.150440e-02 0.000717005  0.01009910  0.012909707
+#> Other             -4.375222e-06 0.005854285 -0.01147856  0.011469812
+#> Education          2.149355e-02 0.002355699  0.01687646  0.026110634
+#> Occupation         6.005131e-02 0.003420293  0.05334766  0.066754957
+#> Industry          -2.046241e-02 0.005448059 -0.03114041 -0.009784408
+#> (Other variables)  5.168896e-03 0.007777351 -0.01007443  0.020412223
+#> 
+#> 
+#> Pure structure effect:
+#> 
+#>                       Estimate   Std. Error    [  95%-CI            ]
+#> Union              0.003532492 0.0007291712  0.002103343  0.004961642
+#> Other             -0.009084234 0.0065988197 -0.022017683  0.003849215
+#> Education          0.024947096 0.0032184078  0.018639133  0.031255059
+#> Occupation         0.025238396 0.0040670528  0.017267119  0.033209673
+#> Industry          -0.034523565 0.0063051274 -0.046881387 -0.022165742
+#> (Other variables)  0.023625777 0.0085958611  0.006778199  0.040473356
+#> 
+#> 
+#> Pure composition effect:
+#> 
+#>                      Estimate   Std. Error   [  95%-CI           ]
+#> Union             0.007084019 0.0002531646 0.006587826 0.007580213
+#> Other             0.010060413 0.0005488449 0.008984697 0.011136129
+#> Education         0.006374034 0.0005910651 0.005215567 0.007532500
+#> Occupation        0.007480422 0.0005493005 0.006403812 0.008557031
+#> Industry          0.010320617 0.0005818809 0.009180152 0.011461083
+#> (Other variables) 0.001328256 0.0001487646 0.001036683 0.001619830
+#> 
+#> 
+#> Specification error:
+#> 
+#>                        Estimate    Std. Error     [  95%-CI            ]
+#> Union              0.0008415311  0.0008415311 -0.0008078395  0.002490902
+#> Other             -0.0008730819 -0.0008730819  0.0008381272 -0.002584291
+#> Education         -0.0100362859 -0.0100362859  0.0096344730 -0.029707045
+#> Occupation         0.0284495154  0.0284495154 -0.0273105101  0.084209541
+#> Industry           0.0041833718  0.0041833718 -0.0040158863  0.012382630
+#> (Other variables) -0.0198276304 -0.0198276304  0.0190338111 -0.058689072
+#> 
+#> 
+#> Reweighting error:
+#> 
+#>                        Estimate    Std. Error     [  95%-CI             ]
+#> Union              4.636017e-05  4.636017e-05 -4.450409e-05  0.0001372244
+#> Other             -1.074720e-04 -1.074720e-04  1.031693e-04 -0.0003181133
+#> Education          2.087049e-04  2.087049e-04 -2.003492e-04  0.0006177590
+#> Occupation        -1.117026e-03 -1.117026e-03  1.072305e-03 -0.0033063578
+#> Industry          -4.428319e-04 -4.428319e-04  4.251026e-04 -0.0013107664
+#> (Other variables)  4.249232e-05  4.249232e-05 -4.079110e-05  0.0001257757
+#> 
+#> Summary statistics of reweighting factors
+#> 
+#> Number of trimmed observations (not included in statistics): 0 (0%)
+#> 
+#>                   Psi_X1
+#> Min.          0.01240973
+#> 10%-quantile  0.24044303
+#> 25%-quantile  0.42188219
+#> 50%-quantile  0.73438754
+#> 75%-quantile  1.25697488
+#> 90%-quantile  2.00825420
+#> Max.         22.41294385
 summary(decompose_gini, custom_aggregation = ffl_aggregation)
+#> 
+#> 
+#> Reweighted RIF regression decomposition of difference in gini
+#> between time == '1' (group 1) and time == '0' (group 0). 
+#> The reference group is '0'. 
+#> 
+#> Group 0: time == '0' (0 observations) 
+#> Group 1: time == '1' (0 observations) 
+#> Group C: time == '0' (reference group) reweighted
+#>          to match the characteristics of the other group (0 observations).
+#> 
+#> Pure Composition Effect: (XC - X0) * b0 
+#>   Pure Structure Effect: XC * (bC - b0) 
+#>     Specification Error: (X1 - XC) * bC 
+#>       Reweighting Error: X1 * (b1 - bC) 
+#> 
+#> Aggregate decomposition:
+#> 
+#>                          Estimate   Std. Error    [  95%-CI            ]
+#> Observed difference  0.0659908665 0.0015135722  0.063024320 6.895741e-02
+#> Composition effect   0.0199765902 0.0009934684  0.018029428 2.192375e-02
+#> Structure effect     0.0451291062 0.0017981373  0.041604822 4.865339e-02
+#> Specification error  0.0014785630 0.0005137232  0.000471684 2.485442e-03
+#> Reweighting error   -0.0005933929 0.0003444451 -0.001268493 8.170719e-05
+#> 
+#> 
+#> Observed difference:
+#> 
+#>                       Estimate   Std. Error     [  95%-CI           ]
+#> Union              0.009960677 0.0005996969  0.0087852925 0.011136061
+#> Other              0.003106513 0.0054771363 -0.0076284769 0.013841503
+#> Education          0.004133062 0.0017218577  0.0007582833 0.007507842
+#> Occupation         0.023964506 0.0023517073  0.0193552446 0.028573768
+#> Industry          -0.005860137 0.0036927292 -0.0130977536 0.001377479
+#> (Other variables)  0.030686245 0.0062595714  0.0184177107 0.042954780
+#> 
+#> 
+#> Pure structure effect:
+#> 
+#>                        Estimate   Std. Error    [  95%-CI            ]
+#> Union              0.0022173824 0.0006105551  0.001020716  0.003414048
+#> Other             -0.0007297231 0.0061460445 -0.012775749  0.011316303
+#> Education          0.0126849132 0.0018750239  0.009009934  0.016359893
+#> Occupation         0.0130636777 0.0026466873  0.007876266  0.018251090
+#> Industry          -0.0121351390 0.0041780504 -0.020323967 -0.003946311
+#> (Other variables)  0.0300279951 0.0069379047  0.016429952  0.043626039
+#> 
+#> 
+#> Pure composition effect:
+#> 
+#>                       Estimate   Std. Error    [  95%-CI           ]
+#> Union             0.0063399542 0.0002157312 0.0059171289 0.006762779
+#> Other             0.0047845108 0.0005063463 0.0037920903 0.005776931
+#> Education         0.0019375518 0.0004602056 0.0010355653 0.002839538
+#> Occupation        0.0013849785 0.0004112917 0.0005788616 0.002191095
+#> Industry          0.0047148753 0.0004569234 0.0038193219 0.005610429
+#> (Other variables) 0.0008147197 0.0001167025 0.0005859871 0.001043452
+#> 
+#> 
+#> Specification error:
+#> 
+#>                        Estimate    Std. Error     [  95%-CI             ]
+#> Union              0.0013650891  0.0013650891 -0.0013104364  0.0040406147
+#> Other             -0.0009370702 -0.0009370702  0.0008995537 -0.0027736942
+#> Education         -0.0105565134 -0.0105565134  0.0101338727 -0.0312468996
+#> Occupation         0.0099999030  0.0099999030 -0.0095995468  0.0295993528
+#> Industry           0.0017927361  0.0017927361 -0.0017209621  0.0053064343
+#> (Other variables) -0.0001855816 -0.0001855816  0.0001781517 -0.0005493149
+#> 
+#> 
+#> Reweighting error:
+#> 
+#>                        Estimate    Std. Error     [  95%-CI             ]
+#> Union              3.825111e-05  3.825111e-05 -3.671969e-05  1.132219e-04
+#> Other             -1.120429e-05 -1.120429e-05  1.075572e-05 -3.316430e-05
+#> Education          6.711095e-05  6.711095e-05 -6.442409e-05  1.986460e-04
+#> Occupation        -4.840530e-04 -4.840530e-04  4.646734e-04 -1.432779e-03
+#> Industry          -2.326096e-04 -2.326096e-04  2.232969e-04 -6.885162e-04
+#> (Other variables)  2.911195e-05  2.911195e-05 -2.794643e-05  8.617033e-05
+#> 
+#> Summary statistics of reweighting factors
+#> 
+#> Number of trimmed observations (not included in statistics): 0 (0%)
+#> 
+#>                   Psi_X1
+#> Min.          0.01240973
+#> 10%-quantile  0.24044303
+#> 25%-quantile  0.42188219
+#> 50%-quantile  0.73438754
+#> 75%-quantile  1.25697488
+#> 90%-quantile  2.00825420
+#> Max.         22.41294385
 ```
 
-The results presented below are similar to those in Table 4 of Firpo et
-al. (2018, p. 30). However, some of the coefficients calculated here
+The results presented here are similar to those in Table 4 of Firpo et
+al. (2018, p. 30). However, some of the coefficients calculated by us
 differ slightly from the results in the paper. There are several reasons
 for these differences.
 
@@ -1126,16 +1401,16 @@ for these differences.
 2.  Different decomposition formula: In the paper, the formula presented
     for the pure structure and reweighting errors is identical to the
     formula presented in the background section above. For instance, the
-    pure wage structure effect is computed as
-    $(\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k})$.
-    However, the Stata code calculates a slightly different formula:
-    $(\widehat \beta_{C,0} - \widehat \beta_{1,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{1,k})$.
-    Thus, in the Stata code, the results are multiplied by -1 so that
-    the composition and and structure effects add up to the observed
-    difference. When we calculate the results in Stata, using the
-    formula presented in the paper, our function produces very similar
-    results to the Stata output, with a deviations of less than 0.1
-    percent in most cases.
+    pure wage structure effect is computed as \$ X\_{1,1}*{1,1} -
+    *{C,1}\$ for $k=1$. However, the Stata code calculates a slightly
+    different formula:
+    $\overline X_{C,1}(\widehat \beta_{C,1} - \widehat \beta_{1,1})$.
+    Thus, in the Stata replication code, the results are multiplied by
+    -1 so that the composition and and structure effects add up to the
+    observed difference. When we calculate the results in Stata, using
+    the formula presented in the paper, our function produces very
+    similar results to the Stata output, with a deviations of less than
+    0.1 percent in most cases.
 
 3.  Density estimation: For the interquantile ranges the differences are
     generally larger. We attribute this to the different density
@@ -1157,7 +1432,7 @@ to those calculated in Stata and presented in the original paper. Using
 an identical formula, the deviations are mostly below 0.1 percent.
 However, some values based on RIF estimations of quantiles have slightly
 higher differences. We have also replicated the results of Table 1-3 in
-Firpo et al. (2018, p. 21-29), where the differences are generally even
+Firpo et al. (2018, pp. 21-29), where the differences are generally even
 smaller. The replication files are available upon request. This
 validation example illustrates that the `ddecompose` package works as
 intended in computing reweighted RIF regression decompositions and

@@ -7,7 +7,7 @@ output:
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -63,12 +63,12 @@ weighting to perform aggregate decompositions beyond the mean.
 ## Installation 
 
 You can hopefully soon install the CRAN version of `ddecompose`
-```{r eval=FALSE}
+```{r installation, eval=FALSE}
 install.packages("ddecompose")
 ```
 
 Until now, refer to the latest development version from GitHub:
-```{r , eval=FALSE}
+```{r  installation_devtools, eval=FALSE}
 install.packages("devtools")
 devtools::install_github("samumei/ddecompose")
 ```
@@ -220,7 +220,7 @@ Similarly, the additional decomposition of the composition effect reads as
 
 $$\widehat\Delta^\mu_{X,R} = \sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k} + (\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k}) = \widehat\Delta^\mu_{X,p} + \widehat\Delta^\mu_{X,e}.$$
 
-The specification error, $\widehat\Delta^\mu_{X,e}$, measures the extent to which the estimated coefficients change due to a different distribution of covariates if the (wage) structure remains the same. Thereby, the “pure” effect, $\overline X_{C,k} - \overline X_{0,k}$, for each covariate can be estimated, summing to the aggregate pure structure effect, $\widehat\Delta^\mu_{X,p}$. If the model is truly linear, i.e., correctly specified, $\beta_C$ of the reweighted group $0$ will be identical to $\beta_0$ and the specification error will be zero (Fortin et al. 2011, p. 49-50). 
+The specification error, $\widehat\Delta^\mu_{X,e}$, measures the extent to which the estimated coefficients change due to a different distribution of covariates if the (wage) structure remains the same. Thereby, the “pure” effect, $\overline X_{C,k} - \overline X_{0,k}$, for each covariate can be estimated, summing to the aggregate pure structure effect, $\widehat\Delta^\mu_{X,p}$. If the model is truly linear, i.e., correctly specified, $\beta_C$ of the reweighted group $0$ will be identical to $\beta_0$ and the specification error will be zero (Fortin et al. 2011, pp. 49-50). 
 
 The reweighted OB decomposition is "doubly robust" as it yields consistent estimates
 even if either the linear model or the reweighting estimator is misspecified. In
@@ -271,7 +271,7 @@ for the reweighting estimator. [Firpo, Fortin, and Lemieux  (2009b)](https://www
 
 The following examples illustrate the operation of the main decomposition functions in `ddecompose`. We use a sample from the National Longitudinal Survey (NLSY) 79 containing wage data from the year 2000 for workers who aged 35 to 43. The data are from O'Neill and O'Neill (2006) and were used to illustrate the Oaxaca-Blinder mean decomposition in Fortin, Lemieux, and Firpo (2011). The data contains 2655 male and 2654 female observations, respectively.
 
-```{r eval = TRUE} 
+```{r library, eval = TRUE, message=FALSE} 
 library(ddecompose)
 data("nlys00")
 ```
@@ -372,7 +372,7 @@ For decomposition based on reweighting, standard errors need to be bootstrapped.
 increasing the number of `cores` the bootstrap replications are computed on, we 
 can reduce computation time. By default, 100 bootstrap replications are calculated. 
 
-```{r eval = FALSE}
+```{r doubly_robust, eval = FALSE}
 
 model_w_reweighting <- log(wage) ~  
                            age + region + education + 
@@ -461,7 +461,7 @@ Custom RIF functions must specify a `dep_var` parameter for the outcome variable
 
 The following example shows how to write the RIF for the top 10 percent income share and, then, to estimate the RIF regression decomposition using this custom function. The formula for this specific RIF can be found in Essam-Nssah & Lambert (2012) or Rios-Avila (2020).
 
-```{r eval = FALSE}
+```{r custom_rif, eval = FALSE}
 
 # custom RIF function for top 10% percent income share
 custom_top_inc_share <- function(dep_var,
@@ -505,7 +505,7 @@ plot(custom_decomposition)
 
 ```
 
-```{r eval = TRUE, echo = FALSE}
+```{r plot_custom, eval = TRUE, echo = FALSE}
 load("data-raw/custom_decomposition.rda")
 plot(custom_decomposition)
 ```
@@ -513,11 +513,11 @@ plot(custom_decomposition)
 
 ### Reweighting Decomposition
 
-Now, we present the use of the other main function: `dfl_decompose()`. Fortin, Lemieux, and Firpo (FLF, 2011, p. 79-88) decompose the increase in U.S. male wage inequality between the early 1980s and the early 2000s using the CPS data. In this example, we perform the same decomposition on 
+Now, we present the use of the other main function: `dfl_decompose()`. Fortin, Lemieux, and Firpo (FLF, 2011, pp. 79-88) decompose the increase in U.S. male wage inequality between the early 1980s and the early 2000s using the CPS data. In this example, we perform the same decomposition on 
 subsample of the original data. We treat the observations from 1983 to 1985 as the reference group, which is then reweighted. The formula defines on the left-hand side the outcome variable
 and specifies on the right-hand side the conditional probability model.
 
-```{r eval = FALSE}
+```{r reweighting, eval = FALSE}
 data("men8305")
 flf_model <- log(wage) ~ union*(education + experience) + education*experience
 flf_male_inequality  <- dfl_decompose(flf_model, 
@@ -527,24 +527,24 @@ flf_male_inequality  <- dfl_decompose(flf_model,
                                   bootstrap = TRUE)
 ```
 
-```{r eval=TRUE, echo=FALSE}
+```{r load_rw, eval=TRUE, echo=FALSE}
 load("data-raw/flf_male_inequality.rda")
 ```
 
 We can summarize the results:
-```{r eval = TRUE}
+```{r summarize_rw, eval = TRUE}
 summary(flf_male_inequality)
 ```
 
 Using `plot()`, we can illustrate the decomposition across different quantiles.
-```{r eval = TRUE}
+```{r plot_rw, eval = TRUE}
 plot(flf_male_inequality)
 ```
 
 By default `estimate_normalized_difference = TRUE` and the normalized differences 
 between the covariate means of the reweighted reference group and the targeted
 comparison group are estimated. 
-```{r eval = TRUE}
+```{r head_rw, eval = TRUE}
 head(flf_male_inequality$normalized_difference[[1]])
 ```
 
@@ -553,22 +553,22 @@ head(flf_male_inequality$normalized_difference[[1]])
 
 If we want to further decompose the aggregate decomposition effect into the 
 contribution of single covariates we can perform a sequential reweighting decomposition. 
-In the following, we decompose again the changes in the US male wage distribution
-between the early 1980s and the early 2000s. This time we want to distinguish
+In the following, we once again decompose the changes in the US male wage distribution
+between the early 1980s and the early 2000s. This time, we want to distinguish
 the contribution of changes in the (conditional) unionization from changes 
 in the human capital endowment. We therefore specify two conditional probability
 models in the formula object separated by the `|` operator. Beginning from the right, 
 the first model comprises only the human capital variables (variables $X_2$ in the notation
 from above), while the second also includes a union status indicator (variable $X_1$). 
 
-```{r eval = TRUE}
+```{r sequential_model, eval = TRUE}
 model_sequential <- log(wage) ~ union*(education + experience) +
                                    education*experience |
                                    education*experience
 ```
 
-As before, we use again the observations from the early 1980s as reference group. 
-```{r eval = TRUE}
+As before, we use the observations from the early 1980s as reference group. 
+```{r sequential_decompose, eval = TRUE}
 male_inequality_sequential  <- dfl_decompose(model_sequential,
                                              data = men8305,
                                              weights = weights,
@@ -577,22 +577,22 @@ male_inequality_sequential  <- dfl_decompose(model_sequential,
 
 The human capital endowment (“Comp. eff. X”) contributed positively to wage growth 
 across the distribution. However, the unionization conditional on education and
-experience (“Comp. eff. X1|X2”) was negative for all but the two highest deciles.
+experience (“Comp. eff. X1|X2”) was negative for all except the two highest  income deciles.
 
-```{r eval = TRUE}
+```{r sequential_plot, eval = TRUE}
 plot(male_inequality_sequential)
 ```
 In the example above, we first reweighted the distribution of the early 1980s such
-that its human capital endowment matches the one of the early 2000s. Thus, the 
-counterfactual identifying the effect of unionization combines the human capital 
+that its human capital endowment matches that of the early 2000s. Thus, the 
+counterfactual that identifies the effect of unionization combines the human capital 
 endowment from the 2000s with unionization rates from the 1980s. 
 
 Alternatively, we could combine the the human capital endowment from the 1980s 
 with the unionization rates from the 2000s. In this case, we have to set the
 parameter `right_to_left = FALSE` indicating that the reweighting begins 
-with the left-most conditional probability model in the formula model instead of 
-the right-most. 
-```{r eval = TRUE}
+with the leftmost conditional probability model in the formula model instead of 
+the rightmost. 
+```{r sequential_decompose_2, eval = TRUE}
 male_inequality_sequential_2  <- dfl_decompose(model_sequential,
                                               data = men8305,
                                               weights = weights,
@@ -603,8 +603,8 @@ male_inequality_sequential_2  <- dfl_decompose(model_sequential,
 The “direction” of the decomposition set in `right_to_left` does not change the
 aggregate decomposition results. But the results of the detailed decomposition 
 generally differ as you can see when comparing the decomposition effects associated
-with the (conditional) unionization at deciles.
-```{r eval = TRUE}
+with the (conditional) unionization at the income deciles.
+```{r sequential_compare, eval = TRUE}
 compare_results <- cbind(male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
                          male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`)
 colnames(compare_results) <- c("right_to_left = TRUE", "right_to_left = FALSE")
@@ -612,7 +612,7 @@ rownames(compare_results) <- male_inequality_sequential$decomposition_quantiles$
 round(compare_results, 4)
 ```
 
-## Replication of Firpo, Fortin, and Lemieux (2018)
+## Replication of Firpo, Fortin, and Lemieux (2018)   
 
 To validate the functions and provide users with an additional example, we replicate the reweighted RIF regression decomposition estimates in Firpo et al. (2018, p. 30). In their empirical example, Firpo et al. focus on changes in wage inequality in the US between 1988 and 2016. Using a large sample of male log wages in 1988-1990 (268,494 observations) and in 2014-2016 (236,296 observations) based on the Outgoing Rotation Group (ORG) supplement of the Current Population Survey (CPS), the authors attribute changes in several wage inequality measures (i.e, variance, Gini coefficient, and interquantile ranges) between the two time periods to changes in the composition (e.g., union coverage, education, and experience) and changes in the wage structure. 
 
@@ -622,7 +622,7 @@ To reproduce the code below, be sure to download the entire dataset and Stata co
 
 ### Loading Data
 
-```{r eval=FALSE}
+```{r load_stata, eval=FALSE}
 # Make sure you execute the Stata Code until the "oaxaca" commands 
 # and save the data in the appropriate folder.
 men8816_t4 <- readstata13::read.dta13("data-raw/usmen8816_t4.dta")
@@ -636,7 +636,7 @@ men8816_t4 <- men8816_t4[men8816_t4$time <= 1,]
 
 The model is specified as in the Stata files. We use sample weights, compute bootstrapped standard errors with 100 iterations, and use the Epanechnikov kernel with a fixed bandwidth of 0.06 in density estimation required to derive the RIF of the interquantile ranges.
 
-```{r eval=FALSE}
+```{r replication, eval=FALSE}
 
 set.seed(987421)
 
@@ -725,7 +725,7 @@ decompose_gini  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting
 
 ```
 
-```{r eval=FALSE, echo=FALSE}
+```{r replication_results, eval=TRUE, echo=FALSE}
 
 load("data-raw/decompose_90_10.rda")
 load("data-raw/decompose_variance.rda")
@@ -736,7 +736,7 @@ load("data-raw/decompose_gini.rda")
 
 ### Discussion of Results
 
-```{r eval=FALSE}
+```{r presenting_result, eval=TRUE}
 # Presenting the results
 variables <- decompose_variance[["variance"]][["decomposition_terms"]][["Variable"]]
 
@@ -753,18 +753,18 @@ summary(decompose_gini, custom_aggregation = ffl_aggregation)
 
 ```
 
-The results presented below are similar to those in Table 4 of Firpo et al. (2018, p. 30). However, some of the coefficients calculated here differ slightly from the results in the paper. There are several reasons for these differences.
+The results presented here are similar to those in Table 4 of Firpo et al. (2018, p. 30). However, some of the coefficients calculated by us differ slightly from the results in the paper. There are several reasons for these differences.
 
 1. Reweighting: An important difference is the reweighting factors. Firpo et al. use the entire dataset to compute the reweighting factors. However, for the decomposition they remove very high wages from the dataset. In `ob_decompose()`, the same (trimmed) dataset is used for reweighting and the decomposition estimation.
 
-2. Different decomposition formula: In the paper, the formula presented for the pure structure and reweighting errors is identical to the formula presented in the background section above. For instance, the pure wage structure effect is computed as $(\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k})$. However, the Stata code calculates a slightly different formula: $(\widehat \beta_{C,0} - \widehat \beta_{1,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{1,k})$. Thus, in the Stata code, the results are multiplied by -1 so that the composition and and structure effects add up to the observed difference. When we calculate the results in Stata, using the formula presented in the paper, our function produces very similar results to the Stata output, with a deviations of less than 0.1 percent in most cases.  
+2. Different decomposition formula: In the paper, the formula presented for the pure structure and reweighting errors is identical to the formula presented in the background section above. For instance, the pure wage structure effect is computed as $ \overline X_{1,1}\widehat \beta_{1,1} - \widehat \beta_{C,1}$ for $k=1$. However, the Stata code calculates a slightly different formula: $\overline X_{C,1}(\widehat \beta_{C,1} - \widehat \beta_{1,1})$. Thus, in the Stata replication code, the results are multiplied by -1 so that the composition and and structure effects add up to the observed difference. When we calculate the results in Stata, using the formula presented in the paper, our function produces very similar results to the Stata output, with a deviations of less than 0.1 percent in most cases.  
 
 3. Density estimation: For the interquantile ranges the differences are generally larger. We attribute this to the different density estimations in Stata and R (even when using the same kernel function and bandwidth). Specifically, `kdensity` in Stata and `stats::density()` in R set
 the grids that define the locus of the density estimates differently. These differences result in different RIF values and thus different regression coefficients. 
 
 The bootstrapped standard errors are relatively similar to those reported in the paper. With only 100 bootstrap replications and different seeds, some variance in the terms is not surprising. In addition, we also included the reweighting procedure in the bootstrap estimation, while Fortin et al. only include the RIF regression estimation. 
 
-In summary, our `ob_decompose()` function produces very similar results to those calculated in Stata and presented in the original paper. Using an identical formula, the deviations are mostly below 0.1 percent. However, some values based on RIF estimations of quantiles have slightly higher differences. We have also replicated the results of Table 1-3 in Firpo et al. (2018, p. 21-29), where the differences are generally even smaller. The replication files are available upon request. This validation example illustrates that the `ddecompose` package works as intended in computing reweighted RIF regression decompositions and reliably produces the expected results.
+In summary, our `ob_decompose()` function produces very similar results to those calculated in Stata and presented in the original paper. Using an identical formula, the deviations are mostly below 0.1 percent. However, some values based on RIF estimations of quantiles have slightly higher differences. We have also replicated the results of Table 1-3 in Firpo et al. (2018, pp. 21-29), where the differences are generally even smaller. The replication files are available upon request. This validation example illustrates that the `ddecompose` package works as intended in computing reweighted RIF regression decompositions and reliably produces the expected results.
 
 ## Credits
 
