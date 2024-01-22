@@ -397,13 +397,15 @@ using the Oaxaca-Blinder decomposition without reweighting. We specify a
 wage regression model and then run the estimation.
 
 ``` r
-model <- log(wage) ~  age + region + education + 
-                        years_worked_civilian + years_worked_military + 
-                        part_time + family_responsibility + industry 
+model <- log(wage) ~  age + region + education +
+                      years_worked_civilian + years_worked_military +
+                      part_time + family_responsibility + industry
 
-gender_gap_decomposition <- ob_decompose(formula = model,
-                                        data = nlys00,
-                                        group = female)
+gender_gap_decomposition <- ob_decompose(
+  formula = model,
+  data = nlys00,
+  group = female
+)
 ```
 
 By default, the function subtracts the mean of the lower rank group from
@@ -426,11 +428,13 @@ reference. To change the direction of the subtraction, you can change
 the parameter `subtract_1_from_0`.
 
 ``` r
-gender_gap_decomposition <- ob_decompose(formula = model,
-                                             data = nlys00,
-                                             group = female, 
-                                             reference_0 = FALSE, 
-                                             subtract_1_from_0 = TRUE)
+gender_gap_decomposition <- ob_decompose(
+  formula = model,
+  data = nlys00,
+  group = female,
+  reference_0 = FALSE,
+  subtract_1_from_0 = TRUE
+)
 ```
 
 With `summary()`, we can display the decomposition formula and the
@@ -524,27 +528,36 @@ contextual factors that explain the wage gap, we can aggregate these
 variables in a list.
 
 ``` r
-custom_aggregation <- list(`Personal Factors` = c("age", 
-                                                  "education<10 yrs", 
-                                               "educationHS grad (diploma)",
-                                               "educationHS grad (GED)",
-                                               "educationSome college",
-                                               "educationBA or equiv. degree",
-                                               "educationMA or equiv. degree",
-                                               "educationPh.D or prof. degree",
-                                               "part_time",
-                                               "family_responsibility"), 
-                           `Experience` = c("years_worked_civilian",
-                                            "years_worked_military"), 
-                           `Contextual Factors` = c("regionNorth-central",
-                                                 "regionSouth",
-                                                 "regionWest",
-                                                 "industryManufacturing",
-                                                 "industryEducation, Health, Public Admin.",
-                                                 "industryOther services"))
+custom_aggregation <- list(
+  `Personal Factors` = c(
+    "age",
+    "education<10 yrs",
+    "educationHS grad (diploma)",
+    "educationHS grad (GED)",
+    "educationSome college",
+    "educationBA or equiv. degree",
+    "educationMA or equiv. degree",
+    "educationPh.D or prof. degree",
+    "part_time",
+    "family_responsibility"
+  ),
+  `Experience` = c(
+    "years_worked_civilian",
+    "years_worked_military"
+  ),
+  `Contextual Factors` = c(
+    "regionNorth-central",
+    "regionSouth",
+    "regionWest",
+    "industryManufacturing",
+    "industryEducation, Health, Public Admin.",
+    "industryOther services"
+  )
+)
 
-plot(gender_gap_decomposition, 
-     custom_aggregation = custom_aggregation)
+plot(gender_gap_decomposition,
+  custom_aggregation = custom_aggregation
+)
 ```
 
 <img src="man/figures/README-custom_aggregation-1.png" width="100%" />
@@ -566,24 +579,24 @@ replications are computed on, we can reduce computation time. By
 default, 100 bootstrap replications are calculated.
 
 ``` r
+model_w_reweighting <- log(wage) ~
+  age + region + education +
+    years_worked_civilian + years_worked_military +
+    part_time + family_responsibility + industry |
+      age + region + education +
+      years_worked_civilian + years_worked_military +
+      part_time + family_responsibility + industry +
+      education:region + age:education
 
-model_w_reweighting <- log(wage) ~  
-                           age + region + education + 
-                           years_worked_civilian + years_worked_military + 
-                           part_time + family_responsibility + industry |
-                           age + region + education + 
-                           years_worked_civilian + years_worked_military + 
-                           part_time + family_responsibility + industry +
-                           education:region + age:education 
-
-gender_gap_decomposition_w_reweighting <- 
-    ob_decompose(formula = model_w_reweighting,
-                 data = nlys00,
-                 group = female, 
-                 reference_0 = FALSE,
-                 reweighting = TRUE, 
-                 bootstrap = TRUE, 
-                 cores = 4)
+gender_gap_decomposition_w_reweighting <- ob_decompose(
+    formula = model_w_reweighting,
+    data = nlys00,
+    group = female,
+    reference_0 = FALSE,
+    reweighting = TRUE,
+    bootstrap = TRUE,
+    cores = 4
+  )
 ```
 
 The default method for fitting and predicting conditional probabilities,
@@ -616,29 +629,33 @@ We use a subsample of the CPS data used in the handbook chapter of
 Fortin, Lemieux, & Firpo (2011).
 
 ``` r
-
 data("men8305")
 
-model_rifreg <- log(wage) ~ union*(education + experience) + education*experience 
+model_rifreg <- log(wage) ~ union * (education + experience) + 
+                            education * experience
 
 # Variance
-variance_decomposition <- ob_decompose(formula = model_rifreg,
-                 data = men8305,
-                 group = year, 
-                 reweighting = TRUE, 
-                 rifreg_statistic = "variance",
-                 bootstrap = TRUE, 
-                 cores = 4)
+variance_decomposition <- ob_decompose(
+  formula = model_rifreg,
+  data = men8305,
+  group = year,
+  reweighting = TRUE,
+  rifreg_statistic = "variance",
+  bootstrap = TRUE,
+  cores = 4
+)
 
 # Deciles
-deciles_decomposition <- ob_decompose(formula = model_rifreg,
-                 data = men8305,
-                 group = year, 
-                 reweighting = TRUE, 
-                 rifreg_statistic = "quantiles",
-                 rifreg_probs = c(1:9)/10,
-                 bootstrap = TRUE, 
-                 cores = 4)
+deciles_decomposition <- ob_decompose(
+  formula = model_rifreg,
+  data = men8305,
+  group = year,
+  reweighting = TRUE,
+  rifreg_statistic = "quantiles",
+  rifreg_probs = c(1:9) / 10,
+  bootstrap = TRUE,
+  cores = 4
+)
 
 # Plotting the deciles
 plot(deciles_decomposition)
@@ -671,7 +688,6 @@ using this custom function. The formula for this specific RIF can be
 found in Essam-Nssah & Lambert (2012) or Rios-Avila (2020).
 
 ``` r
-
 # custom RIF function for top 10% percent income share
 custom_top_inc_share <- function(dep_var,
                                  weights,
@@ -701,14 +717,16 @@ custom_top_inc_share <- function(dep_var,
   return(rif)
 }
 
-custom_decomposition <- ob_decompose(formula = model_rifreg,
-                 data = men8305,
-                 group = year, 
-                 reweighting = TRUE, 
-                 rifreg_statistic = "custom",
-                 custom_rif_function = custom_top_inc_share,
-                 bootstrap = TRUE, 
-                 cores = 4)
+custom_decomposition <- ob_decompose(
+  formula = model_rifreg,
+  data = men8305,
+  group = year,
+  reweighting = TRUE,
+  rifreg_statistic = "custom",
+  custom_rif_function = custom_top_inc_share,
+  bootstrap = TRUE,
+  cores = 4
+)
 
 plot(custom_decomposition)
 ```
@@ -728,12 +746,15 @@ right-hand side the conditional probability model.
 
 ``` r
 data("men8305")
-flf_model <- log(wage) ~ union*(education + experience) + education*experience
-flf_male_inequality  <- dfl_decompose(flf_model, 
-                                  data = men8305,
-                                  weights = weights,
-                                  group = year, 
-                                  bootstrap = TRUE)
+flf_model <- log(wage) ~ union * (education + experience) + 
+                         education * experience
+flf_male_inequality <- dfl_decompose(
+  formula = flf_model,
+  data = men8305,
+  weights = weights,
+  group = year,
+  bootstrap = TRUE
+)
 ```
 
 We can summarize the results:
@@ -886,19 +907,21 @@ variables (variables $X_2$ in the notation from above), while the second
 also includes a union status indicator (variable $X_1$).
 
 ``` r
-model_sequential <- log(wage) ~ union*(education + experience) +
-                                   education*experience |
-                                   education*experience
+model_sequential <- log(wage) ~ union * (education + experience) +
+                                education * experience |
+                                  education * experience
 ```
 
 As before, we use the observations from the early 1980s as reference
 group.
 
 ``` r
-male_inequality_sequential  <- dfl_decompose(model_sequential,
-                                             data = men8305,
-                                             weights = weights,
-                                             group = year)
+male_inequality_sequential <- dfl_decompose(
+  formula = model_sequential,
+  data = men8305,
+  weights = weights,
+  group = year
+)
 ```
 
 The human capital endowment (“Comp. eff. X”) contributed positively to
@@ -924,11 +947,13 @@ reweighting begins with the leftmost conditional probability model in
 the formula model instead of the rightmost.
 
 ``` r
-male_inequality_sequential_2  <- dfl_decompose(model_sequential,
-                                              data = men8305,
-                                              weights = weights,
-                                              group = year,
-                                              right_to_left = FALSE)
+male_inequality_sequential_2 <- dfl_decompose(
+  formula = model_sequential,
+  data = men8305,
+  weights = weights,
+  group = year,
+  right_to_left = FALSE
+)
 ```
 
 The “direction” of the decomposition set in `right_to_left` does not
@@ -938,8 +963,10 @@ the decomposition effects associated with the (conditional) unionization
 at the income deciles.
 
 ``` r
-compare_results <- cbind(male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
-                         male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`)
+compare_results <- cbind(
+  male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
+  male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`
+)
 colnames(compare_results) <- c("right_to_left = TRUE", "right_to_left = FALSE")
 rownames(compare_results) <- male_inequality_sequential$decomposition_quantiles$prob
 round(compare_results, 4)
@@ -990,12 +1017,12 @@ command, save the data, and load it into your R environment.
 ### Loading Data
 
 ``` r
-# Make sure you execute the Stata Code until the "oaxaca" commands 
+# Make sure you execute the Stata Code until the "oaxaca" commands
 # and save the data in the appropriate folder.
 men8816_t4 <- readstata13::read.dta13("data-raw/usmen8816_t4.dta")
 
 # Removing redundant observations - we replicate the reweighting within the function
-men8816_t4 <- men8816_t4[men8816_t4$time <= 1,] 
+men8816_t4 <- men8816_t4[men8816_t4$time <= 1, ]
 ```
 
 ### Reweighted RIF Regression Decomposition (Table 4)
@@ -1006,91 +1033,103 @@ Epanechnikov kernel with a fixed bandwidth of 0.06 in density estimation
 required to derive the RIF of the interquantile ranges.
 
 ``` r
-
 set.seed(987421)
 
 ffl_model_with_reweighting <- as.formula(
-    paste("lwage2 ~ covered + nonwhite + nmarr + 
-          ed0 + ed1 + ed3 + ed4 + ed5 + ",
-          paste(grep(paste0("^ex(", paste(c(1:4, 6:9), collapse = "|"), ")$"), 
-                     names(men8816_t4), value = T), collapse = " + "), " + ",
-          paste(grep(paste0("^occd(", paste(c(11:60, 80:91), collapse = "|"), ")$"),
-                     names(men8816_t4), value = T), collapse = " + "), " + ",                     
-          paste(grep(paste0("^indd(", paste(c(1, 3:14), collapse = "|"), ")$"), 
-                     names(men8816_t4), value = T), collapse = " + "), " + pub | ",
-          paste("covered + nonwhite +",
-                paste(grep("^marr", 
-                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                paste(c("ed0", "ed1", "ed3", "ed4", "ed5"), collapse = " + "), "+",
-                paste(grep("^ex[1-4]|^ex[6-9]", 
-                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                paste(grep("^uned", 
-                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                paste(grep("^unex", 
-                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                paste(grep("^ex[1-9]ed", 
-                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                paste(grep("^pub", 
-                           names(men8816_t4), value = TRUE), collapse = " + "), "+",
-                paste(grep("^indd(1|1e|[3-9]|10|11|13|14)(?!2)", 
-                           names(men8816_t4), perl = TRUE, value = TRUE), collapse = " + "), "+",
-                paste(grep("^occd", names(men8816_t4), value = TRUE), collapse = " + "))))
+  paste(
+    "lwage2 ~ covered + nonwhite + nmarr +
+     ed0 + ed1 + ed3 + ed4 + ed5 + ",
+    paste(grep(paste0("^ex(", paste(c(1:4, 6:9), collapse = "|"), ")$"),
+      names(men8816_t4), value = T), collapse = " + "), " + ",
+    paste(grep(paste0("^occd(", paste(c(11:60, 80:91), collapse = "|"), ")$"),
+      names(men8816_t4), value = T ), collapse = " + "), " + ",
+    paste(grep(paste0("^indd(", paste(c(1, 3:14), collapse = "|"), ")$"),
+      names(men8816_t4), value = T), collapse = " + "), " + pub | ",
+    paste(
+      "covered + nonwhite +",
+      paste(grep("^marr",
+        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+      paste(c("ed0", "ed1", "ed3", "ed4", "ed5"), collapse = " + "), "+",
+      paste(grep("^ex[1-4]|^ex[6-9]",
+        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+      paste(grep("^uned",
+        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+      paste(grep("^unex",
+        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+      paste(grep("^ex[1-9]ed",
+        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+      paste(grep("^pub",
+        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+      paste(grep("^indd(1|1e|[3-9]|10|11|13|14)(?!2)",
+        names(men8816_t4), perl = TRUE, value = TRUE), collapse = " + "), "+",
+      paste(grep("^occd", names(men8816_t4), value = TRUE), collapse = " + ")
+    )
+  )
+)
 
 
-# Interquantile Ratio 90-10 
-decompose_90_10  <- ob_decompose(formula = ffl_model_with_reweighting,
-                                data = men8816_t4,
-                                weights = eweight,
-                                group = time,
-                                reference_0 = TRUE,
-                                rifreg_statistic = "interquantile_range",
-                                rifreg_probs = c(0.9, 0.1),
-                                bw = 0.065,
-                                kernel = "epanechnikov",
-                                reweighting = TRUE,
-                              reweighting_method = "fastglm",
-                                trimming = TRUE,
-                                trimming_threshold = 100,
-                                bootstrap = TRUE,
-                                bootstrap_iterations = 100)
+# Interquantile Ratio 90-10
+decompose_90_10 <- ob_decompose(
+  formula = ffl_model_with_reweighting,
+  data = men8816_t4,
+  weights = eweight,
+  group = time,
+  reference_0 = TRUE,
+  rifreg_statistic = "interquantile_range",
+  rifreg_probs = c(0.9, 0.1),
+  bw = 0.065,
+  kernel = "epanechnikov",
+  reweighting = TRUE,
+  reweighting_method = "fastglm",
+  trimming = TRUE,
+  trimming_threshold = 100,
+  bootstrap = TRUE,
+  bootstrap_iterations = 100
+)
 ## Variance
 set.seed(23904875)
-decompose_variance  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting,
-                                 data = men8816_t4,
-                                 weights = eweight,
-                                 group = time,
-                                 reference_0 = TRUE,
-                                 rifreg_statistic = "variance",
-                                 reweighting = TRUE,
-                              reweighting_method = "fastglm",
-                                 trimming = TRUE,
-                                 trimming_threshold = 100,
-                                 bootstrap = TRUE,
-                                 bootstrap_iterations = 100)
+decompose_variance <- ddecompose::ob_decompose(
+  formula = ffl_model_with_reweighting,
+  data = men8816_t4,
+  weights = eweight,
+  group = time,
+  reference_0 = TRUE,
+  rifreg_statistic = "variance",
+  reweighting = TRUE,
+  reweighting_method = "fastglm",
+  trimming = TRUE,
+  trimming_threshold = 100,
+  bootstrap = TRUE,
+  bootstrap_iterations = 100
+)
 
-## Gini 
+## Gini
 
 # Updating the model
 gini_model_raw <- update(ffl_model_with_reweighting, exp(.) ~ .)
 gini_model_character <- as.character(gini_model_raw)
 gini_model_split <- strsplit(gini_model_character, "~")
-ffl_model_with_reweighting_gini <- 
-  as.formula(paste(gini_model_split[[2]], "~",
-                   gsub("\\(|\\)", "", gini_model_split[[3]][1])))
+ffl_model_with_reweighting_gini <-
+  as.formula(paste(
+    gini_model_split[[2]], "~",
+    gsub("\\(|\\)", "", gini_model_split[[3]][1])
+  ))
 
 set.seed(130234976)
-decompose_gini  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting_gini,
-                               data = men8816_t4,
-                               weights = eweight,
-                               group = time,
-                               rifreg_statistic = "gini",
-                               reweighting = TRUE,
-                              reweighting_method = "fastglm",
-                               trimming = TRUE,
-                               trimming_threshold = 100,
-                               bootstrap = TRUE,
-                               bootstrap_iterations = 100, 
-                              cores = 1)
+decompose_gini <- ddecompose::ob_decompose(
+  formula = ffl_model_with_reweighting_gini,
+  data = men8816_t4,
+  weights = eweight,
+  group = time,
+  rifreg_statistic = "gini",
+  reweighting = TRUE,
+  reweighting_method = "fastglm",
+  trimming = TRUE,
+  trimming_threshold = 100,
+  bootstrap = TRUE,
+  bootstrap_iterations = 100,
+  cores = 1
+)
 ```
 
 ### Discussion of Results
@@ -1099,12 +1138,16 @@ decompose_gini  <- ddecompose::ob_decompose(formula = ffl_model_with_reweighting
 # Presenting the results
 variables <- decompose_variance[["variance"]][["decomposition_terms"]][["Variable"]]
 
-ffl_aggregation <- list(`Union` = "covered", 
-                        `Other` = c("nonwhite", "nmarr", 
-                                    grep("ex", variables, value = TRUE)),
-                        `Education` = grep("ed[0-9]", variables, value = TRUE), 
-                        `Occupation` = grep("occd", variables, value = TRUE), 
-                        `Industry` = grep("indd", variables, value = TRUE))
+ffl_aggregation <- list(
+  `Union` = "covered",
+  `Other` = c(
+    "nonwhite", "nmarr",
+    grep("ex", variables, value = TRUE)
+  ),
+  `Education` = grep("ed[0-9]", variables, value = TRUE),
+  `Occupation` = grep("occd", variables, value = TRUE),
+  `Industry` = grep("indd", variables, value = TRUE)
+)
 
 summary(decompose_90_10, custom_aggregation = ffl_aggregation)
 #> 
