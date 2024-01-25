@@ -51,6 +51,8 @@ summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
   cat("\n")
   cat("-----------------------------------------------------------------------\n")
 
+  decomposition_quantiles_export <- NULL
+  decomposition_other_statistics_export <- NULL
 
   if(is.null(object$decomposition_quantiles)==FALSE){
 
