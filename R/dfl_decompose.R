@@ -605,6 +605,7 @@ dfl_decompose <-  function(formula,
 
     } else {
       bs_se_decompose_quantiles <- NULL
+      bs_kolmogorov_smirnov_stat <- NULL
     }
 
     if(length(setdiff(statistics,"quantiles"))>1){
