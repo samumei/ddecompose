@@ -130,11 +130,11 @@ summary.dfl_decompose <- function(object, ..., confidence_level=0.95, digits=4){
     }else{
       print(decomposition_other_statistics[, -1])
       cat("\n")
-      if(is.null(legend_to_table) == FALSE){
-        cat(legend_to_table)
-      }
-      cat("-----------------------------------------------------------------------\n")
     }
+    if(is.null(legend_to_table) == FALSE){
+      cat(legend_to_table)
+    }
+    cat("-----------------------------------------------------------------------\n")
   }
 
   cat("Summary statistics of reweighting factors\n\n")

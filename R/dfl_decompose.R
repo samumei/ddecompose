@@ -996,10 +996,16 @@ dfl_decompose_estimate <- function(formula,
     # Save quantiles and other statistics in different objects -------------------
 
     if("quantiles" %in% statistics){
-      decomposition_quantiles <- Delta[1:length(probs), ]
-      cn <- names(decomposition_quantiles)
-      decomposition_quantiles$probs <- probs
-      decomposition_quantiles <- decomposition_quantiles[,c("probs", cn)]
+      if(length(probs) == 1){
+        decomposition_quantiles <- as.data.frame(matrix(c(probs, Delta[, 1]), nrow = 1))
+        names(decomposition_quantiles) <- c("probs", rownames(Delta))
+        rownames(decomposition_quantiles) <- paste0(probs * 100, "%-quantile")
+      }else{
+        decomposition_quantiles <- Delta[1:length(probs), ]
+        cn <- names(decomposition_quantiles)
+        decomposition_quantiles$probs <- probs
+        decomposition_quantiles <- decomposition_quantiles[,c("probs", cn)]
+      }
     }else{
       decomposition_quantiles <- NULL
     }
