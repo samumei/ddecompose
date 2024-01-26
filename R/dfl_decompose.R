@@ -444,7 +444,7 @@ dfl_decompose <-  function(formula,
       stop("The arguments 'dep_var' and 'weights' in 'custom_statistic_function' must be defined!")
     }
   }
-  if(length(statistics)==0){
+  if(length(statistics)==0 & is.null(custom_statistic_function)){
     estimate_statistics <- FALSE
   }
 
@@ -996,7 +996,7 @@ dfl_decompose_estimate <- function(formula,
     # Save quantiles and other statistics in different objects -------------------
 
     if("quantiles" %in% statistics){
-      if(length(probs) == 1){
+      if(length(probs) == 1 & length(statistics) == 1){
         decomposition_quantiles <- as.data.frame(matrix(c(probs, Delta[, 1]), nrow = 1))
         names(decomposition_quantiles) <- c("probs", rownames(Delta))
         rownames(decomposition_quantiles) <- paste0(probs * 100, "%-quantile")
@@ -1012,7 +1012,13 @@ dfl_decompose_estimate <- function(formula,
     if("quantiles" %in% statistics & length(statistics) > 1){
       decomposition_other_statistics <- Delta[(length(probs)+1):nrow(Delta), ]
     }else if("quantiles" %in% statistics == FALSE){
-      decomposition_other_statistics <- Delta
+      if(length(statistics) == 1 | !is.null(custom_statistic_function)){
+        decomposition_other_statistics <- as.data.frame(matrix(Delta[, 1], nrow = 1))
+        names(decomposition_other_statistics) <- rownames(Delta)
+        rownames(decomposition_other_statistics) <- ifelse(is.null(statistics), "Custom statistic", statistics)
+      }else{
+        decomposition_other_statistics <- Delta
+      }
     }else{
       decomposition_other_statistics <- NULL
     }
