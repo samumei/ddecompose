@@ -454,7 +454,7 @@ plot(deciles_decomposition)
 
 ```{r rif_reg_deco_est, eval = TRUE, echo = FALSE}
 load("data-raw/deciles_decomposition.rda")
-plot(deciles_decomposition)
+plot_deciles_decomposition
 ```
 
 The RIF functions for the following statistics are currently implemented: `"quantiles"`, `"mean"`, `"variance"`, `"gini"`, `"interquantile_range"`, and `"interquantile_ratio"`. However, `ob_decompose` also allows you to pass a custom RIF function for the decomposition, by setting `rifreg_statistic = "custom"` and passing the custom function to `custom_rif_function`. [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg).  
