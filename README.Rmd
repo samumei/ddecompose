@@ -421,7 +421,8 @@ To decompose group differences beyond the mean with `ob_decompose` we use RIF re
 ```{r rifreg_deco, eval = FALSE, warning = FALSE}
 data("men8305")
 
-model_rifreg <- log(wage) ~ union * (education + experience) + 
+model_rifreg <- log(wage) ~ union + education + experience | 
+                            union * (education + experience) + 
                             education * experience
 
 # Variance

@@ -210,7 +210,7 @@
 #' # Reweighted RIF Regression Decomposition
 #' data("men8305")
 #'
-#' model_rifreg <- log(wage) ~ union*(education + experience) + education*experience
+#' model_rifreg <- log(wage) ~  union + education + experience | union*(education + experience) + education*experience
 #'
 #' # Variance
 #' variance_decomposition <- ob_decompose(formula = model_rifreg,
@@ -311,7 +311,7 @@ ob_decompose <- function(formula,
   nvar <- length(formula)[2] # Number of detailed decomposition effects
   if(nvar == 1) {
     if(reweighting) {
-      cat("\n\nThe same model specification is used for decomposition and to compute reweighting factors.")
+      cat("\n\nThe same model specification is used in the linear decomposition model and\nin the conditional probability model used to compute the reweighting factors.")
     }
     formula_decomposition <- formula
     formula_reweighting <- formula

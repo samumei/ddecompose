@@ -250,7 +250,7 @@ decompose_male_as_reference_robust_rf <- ob_decompose(formula = mod1,
 # Reweighted RIF Regression Decomposition
 data("men8305")
 
-model_rifreg <- log(wage) ~ union*(education + experience) + education*experience
+model_rifreg <- log(wage) ~  union + education + experience | union*(education + experience) + education*experience
 
 # Variance
 variance_decomposition <- ob_decompose(formula = model_rifreg,

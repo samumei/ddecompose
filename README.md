@@ -458,7 +458,7 @@ summary(gender_gap_decomposition)
 #> 
 #> Aggregate decomposition:
 #> 
-#>                        Estimate Std. Error   [  95%-CI          ]
+#>                        Estimate Std. Error     CI [Low      High]
 #> Observed difference -0.23330029 0.01466550 -0.26204413 -0.2045564
 #> Composition effect  -0.20686977 0.01828421 -0.24270616 -0.1710334
 #> Structure effect    -0.02643052 0.01907475 -0.06381634  0.0109553
@@ -466,7 +466,7 @@ summary(gender_gap_decomposition)
 #> 
 #> Observed difference:
 #> 
-#>                          Estimate  Std. Error    [  95%-CI           ]
+#>                          Estimate  Std. Error      CI [Low       High]
 #> (Intercept)           -0.09813187 0.213742888 -0.517060232  0.32079649
 #> age                    0.19459845 0.231908532 -0.259933920  0.64913082
 #> region                -0.03970035 0.027067240 -0.092751163  0.01335047
@@ -480,7 +480,7 @@ summary(gender_gap_decomposition)
 #> 
 #> Structure effect:
 #> 
-#>                            Estimate   Std. Error     [  95%-CI            ]
+#>                            Estimate   Std. Error       CI [Low        High]
 #> (Intercept)           -0.0981318689 0.2137428884 -0.5170602321  0.320796494
 #> age                    0.2024835070 0.2327690880 -0.2537355222  0.658702536
 #> region                -0.0353034766 0.0271166306 -0.0884510959  0.017844143
@@ -494,7 +494,7 @@ summary(gender_gap_decomposition)
 #> 
 #> Composition effect:
 #> 
-#>                           Estimate  Std. Error    [  95%-CI             ]
+#>                           Estimate  Std. Error      CI [Low         High]
 #> (Intercept)            0.000000000 0.000000000  0.000000000  0.0000000000
 #> age                   -0.007885058 0.002292319 -0.012377921 -0.0033921942
 #> region                -0.004396870 0.002357891 -0.009018252  0.0002245116
@@ -631,7 +631,8 @@ Fortin, Lemieux, & Firpo (2011).
 ``` r
 data("men8305")
 
-model_rifreg <- log(wage) ~ union * (education + experience) + 
+model_rifreg <- log(wage) ~ union + education + experience | 
+                            union * (education + experience) + 
                             education * experience
 
 # Variance
@@ -1168,7 +1169,7 @@ summary(decompose_90_10, custom_aggregation = ffl_aggregation)
 #> 
 #> Aggregate decomposition:
 #> 
-#>                          Estimate  Std. Error    [  95%-CI             ]
+#>                          Estimate  Std. Error      CI [Low         High]
 #> Observed difference  0.1256140541 0.004701494  0.116399295  0.1348288131
 #> Composition effect   0.0909463043 0.002916652  0.085229771  0.0966628379
 #> Structure effect     0.0381813178 0.005043205  0.028296818  0.0480658174
@@ -1178,7 +1179,7 @@ summary(decompose_90_10, custom_aggregation = ffl_aggregation)
 #> 
 #> Observed difference:
 #> 
-#>                      Estimate  Std. Error   [  95%-CI            ]
+#>                      Estimate  Std. Error     CI [Low        High]
 #> Union              0.02977302 0.001658415  0.02652259  0.033023458
 #> Other             -0.02891464 0.010296904 -0.04909620 -0.008733084
 #> Education          0.02497305 0.004515913  0.01612202  0.033824073
@@ -1189,7 +1190,7 @@ summary(decompose_90_10, custom_aggregation = ffl_aggregation)
 #> 
 #> Pure structure effect:
 #> 
-#>                       Estimate  Std. Error    [  95%-CI           ]
+#>                       Estimate  Std. Error      CI [Low       High]
 #> Union              0.012603651 0.001468132  0.009726165  0.01548114
 #> Other             -0.046989402 0.012405103 -0.071302956 -0.02267585
 #> Education          0.058884186 0.006324962  0.046487489  0.07128088
@@ -1200,7 +1201,7 @@ summary(decompose_90_10, custom_aggregation = ffl_aggregation)
 #> 
 #> Pure composition effect:
 #> 
-#>                      Estimate   Std. Error   [  95%-CI           ]
+#>                      Estimate   Std. Error     CI [Low       High]
 #> Union             0.016196176 0.0006300468 0.014961307 0.017431045
 #> Other             0.019067346 0.0012139205 0.016688106 0.021446587
 #> Education         0.008089822 0.0015352464 0.005080794 0.011098850
@@ -1211,7 +1212,7 @@ summary(decompose_90_10, custom_aggregation = ffl_aggregation)
 #> 
 #> Specification error:
 #> 
-#>                        Estimate    Std. Error     [  95%-CI            ]
+#>                        Estimate    Std. Error       CI [Low        High]
 #> Union              0.0008615798  0.0008615798 -0.0008270856  0.002550245
 #> Other             -0.0010756721 -0.0010756721  0.0010326065 -0.003183951
 #> Education         -0.0423315700 -0.0423315700  0.0406367826 -0.125299922
@@ -1222,7 +1223,7 @@ summary(decompose_90_10, custom_aggregation = ffl_aggregation)
 #> 
 #> Reweighting error:
 #> 
-#>                        Estimate    Std. Error     [  95%-CI             ]
+#>                        Estimate    Std. Error       CI [Low         High]
 #> Union              1.116175e-04  1.116175e-04 -1.071488e-04  0.0003303839
 #> Other              8.308368e-05  8.308368e-05 -7.975734e-05  0.0002459247
 #> Education          3.306077e-04  3.306077e-04 -3.173715e-04  0.0009785869
@@ -1261,7 +1262,7 @@ summary(decompose_variance, custom_aggregation = ffl_aggregation)
 #> 
 #> Aggregate decomposition:
 #> 
-#>                         Estimate   Std. Error    [  95%-CI           ]
+#>                         Estimate   Std. Error      CI [Low       High]
 #> Observed difference  0.077751372 0.0017482219  0.074324920 0.081177823
 #> Composition effect   0.042647761 0.0012056833  0.040284665 0.045010857
 #> Structure effect     0.033735963 0.0020922369  0.029635254 0.037836672
@@ -1271,7 +1272,7 @@ summary(decompose_variance, custom_aggregation = ffl_aggregation)
 #> 
 #> Observed difference:
 #> 
-#>                        Estimate  Std. Error   [  95%-CI            ]
+#>                        Estimate  Std. Error     CI [Low        High]
 #> Union              1.150440e-02 0.000717005  0.01009910  0.012909707
 #> Other             -4.375222e-06 0.005854285 -0.01147856  0.011469812
 #> Education          2.149355e-02 0.002355699  0.01687646  0.026110634
@@ -1282,7 +1283,7 @@ summary(decompose_variance, custom_aggregation = ffl_aggregation)
 #> 
 #> Pure structure effect:
 #> 
-#>                       Estimate   Std. Error    [  95%-CI            ]
+#>                       Estimate   Std. Error      CI [Low        High]
 #> Union              0.003532492 0.0007291712  0.002103343  0.004961642
 #> Other             -0.009084234 0.0065988197 -0.022017683  0.003849215
 #> Education          0.024947096 0.0032184078  0.018639133  0.031255059
@@ -1293,7 +1294,7 @@ summary(decompose_variance, custom_aggregation = ffl_aggregation)
 #> 
 #> Pure composition effect:
 #> 
-#>                      Estimate   Std. Error   [  95%-CI           ]
+#>                      Estimate   Std. Error     CI [Low       High]
 #> Union             0.007084019 0.0002531646 0.006587826 0.007580213
 #> Other             0.010060413 0.0005488449 0.008984697 0.011136129
 #> Education         0.006374034 0.0005910651 0.005215567 0.007532500
@@ -1304,7 +1305,7 @@ summary(decompose_variance, custom_aggregation = ffl_aggregation)
 #> 
 #> Specification error:
 #> 
-#>                        Estimate    Std. Error     [  95%-CI            ]
+#>                        Estimate    Std. Error       CI [Low        High]
 #> Union              0.0008415311  0.0008415311 -0.0008078395  0.002490902
 #> Other             -0.0008730819 -0.0008730819  0.0008381272 -0.002584291
 #> Education         -0.0100362859 -0.0100362859  0.0096344730 -0.029707045
@@ -1315,7 +1316,7 @@ summary(decompose_variance, custom_aggregation = ffl_aggregation)
 #> 
 #> Reweighting error:
 #> 
-#>                        Estimate    Std. Error     [  95%-CI             ]
+#>                        Estimate    Std. Error       CI [Low         High]
 #> Union              4.636017e-05  4.636017e-05 -4.450409e-05  0.0001372244
 #> Other             -1.074720e-04 -1.074720e-04  1.031693e-04 -0.0003181133
 #> Education          2.087049e-04  2.087049e-04 -2.003492e-04  0.0006177590
@@ -1354,7 +1355,7 @@ summary(decompose_gini, custom_aggregation = ffl_aggregation)
 #> 
 #> Aggregate decomposition:
 #> 
-#>                          Estimate   Std. Error    [  95%-CI            ]
+#>                          Estimate   Std. Error      CI [Low        High]
 #> Observed difference  0.0659908665 0.0015135722  0.063024320 6.895741e-02
 #> Composition effect   0.0199765902 0.0009934684  0.018029428 2.192375e-02
 #> Structure effect     0.0451291062 0.0017981373  0.041604822 4.865339e-02
@@ -1364,7 +1365,7 @@ summary(decompose_gini, custom_aggregation = ffl_aggregation)
 #> 
 #> Observed difference:
 #> 
-#>                       Estimate   Std. Error     [  95%-CI           ]
+#>                       Estimate   Std. Error       CI [Low       High]
 #> Union              0.009960677 0.0005996969  0.0087852925 0.011136061
 #> Other              0.003106513 0.0054771363 -0.0076284769 0.013841503
 #> Education          0.004133062 0.0017218577  0.0007582833 0.007507842
@@ -1375,7 +1376,7 @@ summary(decompose_gini, custom_aggregation = ffl_aggregation)
 #> 
 #> Pure structure effect:
 #> 
-#>                        Estimate   Std. Error    [  95%-CI            ]
+#>                        Estimate   Std. Error      CI [Low        High]
 #> Union              0.0022173824 0.0006105551  0.001020716  0.003414048
 #> Other             -0.0007297231 0.0061460445 -0.012775749  0.011316303
 #> Education          0.0126849132 0.0018750239  0.009009934  0.016359893
@@ -1386,7 +1387,7 @@ summary(decompose_gini, custom_aggregation = ffl_aggregation)
 #> 
 #> Pure composition effect:
 #> 
-#>                       Estimate   Std. Error    [  95%-CI           ]
+#>                       Estimate   Std. Error      CI [Low       High]
 #> Union             0.0063399542 0.0002157312 0.0059171289 0.006762779
 #> Other             0.0047845108 0.0005063463 0.0037920903 0.005776931
 #> Education         0.0019375518 0.0004602056 0.0010355653 0.002839538
@@ -1397,7 +1398,7 @@ summary(decompose_gini, custom_aggregation = ffl_aggregation)
 #> 
 #> Specification error:
 #> 
-#>                        Estimate    Std. Error     [  95%-CI             ]
+#>                        Estimate    Std. Error       CI [Low         High]
 #> Union              0.0013650891  0.0013650891 -0.0013104364  0.0040406147
 #> Other             -0.0009370702 -0.0009370702  0.0008995537 -0.0027736942
 #> Education         -0.0105565134 -0.0105565134  0.0101338727 -0.0312468996
@@ -1408,7 +1409,7 @@ summary(decompose_gini, custom_aggregation = ffl_aggregation)
 #> 
 #> Reweighting error:
 #> 
-#>                        Estimate    Std. Error     [  95%-CI             ]
+#>                        Estimate    Std. Error       CI [Low         High]
 #> Union              3.825111e-05  3.825111e-05 -3.671969e-05  1.132219e-04
 #> Other             -1.120429e-05 -1.120429e-05  1.075572e-05 -3.316430e-05
 #> Education          6.711095e-05  6.711095e-05 -6.442409e-05  1.986460e-04

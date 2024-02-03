@@ -19,8 +19,7 @@
 
 \item{...}{other parameters to be passed through to plot function.}
 
-\item{detailed_effects}{If `TRUE` (default) and not several quantiles are being plotted, the detailed effects are plotted.
-Else, only the total (aggregate) effects are plotted.}
+\item{detailed_effects}{If `TRUE` (default), then the detailed effects are plotted. Otherwise only the total (aggregate) effects are plotted.}
 
 \item{aggregate_factors}{boolean, if `TRUE` (default) terms associated with detailed factor
 levels are aggregated to a single term for every factor variable.}
@@ -50,6 +49,7 @@ mod1 <- log(wage) ~ age + central_city + msa + region + black +
   years_worked_military + part_time + industry
 
 # plotting RIF regression decomposition of deciles
+\dontrun{
 decompose_rifreg_deciles <- ob_decompose(formula = mod1,
                                   data = nlys00,
                                   group = female,
@@ -62,8 +62,8 @@ decompose_rifreg_deciles <- ob_decompose(formula = mod1,
 plot(decompose_rifreg_deciles)
 
 plot(decompose_rifreg_deciles,
-     confidence_bands = FALSE)
-
+     confidence_bands = TRUE)
+}
 
 # plotting Oaxaca-Blinder decomposition
 

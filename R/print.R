@@ -109,8 +109,8 @@ print.ob_decompose <- function(x, ...){
     detailed_decomposition <-  decomposition_terms[-1, ]
     rownames(aggregate_decomposition) <-
       paste0("Total difference ",
-             paste0(rep(" ",  max(nchar(rownames(detailed_decomposition))) -
-                          nchar("Total difference ")), collapse=""))
+             paste0(rep(" ",  max(c(max(nchar(rownames(detailed_decomposition))) -
+                          nchar("Total difference "), 0))), collapse=""))
     cat("Aggregate decomposition:\n\n")
     print(aggregate_decomposition, ...)
     cat("\n")
