@@ -111,8 +111,7 @@ plot.dfl_decompose <- function(x,
 #'
 #' @param x an object of class "ob_decompose", usually, a result of a call to [ob_decompose()] with code{statistics = "quantiles"}.
 #' @param ... other parameters to be passed through to plot function.
-#' @param detailed_effects If `TRUE` (default) and not several quantiles are being plotted, the detailed effects are plotted.
-#'                         Else, only the total (aggregate) effects are plotted.
+#' @param detailed_effects If `TRUE` (default), then the detailed effects are plotted. Otherwise only the total (aggregate) effects are plotted.
 #' @param confidence_bands If `TRUE` and if standard errors have been bootstrapped, confidence bands are plotted.
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the confidence interval
 #'              plotted as a ribbon and defined as \code{qnorm((1-confidence_level)/2)} * standard error.
@@ -201,7 +200,8 @@ plot.ob_decompose <- function(x,
 
   if(!is.null(x$input_parameters$rifreg_statistic) &&
      x$input_parameters$rifreg_statistic == "quantiles" &&
-     length(x$input_parameters$rifreg_probs) > 1){
+     length(x$input_parameters$rifreg_probs) > 1 &&
+     detailed_effects == FALSE){
 
     # Plot for several quantiles
     n_quantiles <- length(x) - 5
@@ -280,26 +280,35 @@ plot.ob_decompose <- function(x,
     }
   }
   else{
-    # Plot for single statistic
+    # Plot for single statistic and detailed rifreg quantiles
 
     reweighting <- ifelse(x$input_parameters$reweighting, TRUE, FALSE)
 
-    if(aggregate_factors | !is.null(custom_aggregation)){
-      aggregated_terms <- aggregate_terms(x[[1]],
-                                 aggregate_factors = aggregate_factors,
-                                 custom_aggregation = custom_aggregation,
-                                 reweighting = reweighting)
+    n_probs <- ifelse(!is.null(x$input_parameters$rifreg_statistic) &&
+                      x$input_parameters$rifreg_statistic == "quantiles" &&
+                      length(x$input_parameters$rifreg_probs) > 1,
+                      length(x$input_parameters$rifreg_probs),
+                      1)
+    sequence <- 1:n_probs
+    decomposition_results_all <- NULL
 
-      results <- aggregated_terms$decomposition_terms
-    }
-    else {
-      results <- x[[1]]$decomposition_terms
-    }
+    for(i in sequence){
 
+      if(aggregate_factors | !is.null(custom_aggregation)){
+        aggregated_terms <- aggregate_terms(x[[i]],
+                                            aggregate_factors = aggregate_factors,
+                                            custom_aggregation = custom_aggregation,
+                                            reweighting = reweighting)
 
-    results <- results[ifelse(detailed_effects, -1, 1),]
+        results <- aggregated_terms$decomposition_terms
+      }
+      else {
+        results <- x[[i]]$decomposition_terms
+      }
 
-    decomposition_results <-  stats::reshape(data = results,
+      results <- results[ifelse(detailed_effects, -1, 1),]
+
+      decomposition_results <-  stats::reshape(data = results,
                                                idvar = c("Variable"),
                                                times = setdiff(names(results),c("Variable")),
                                                timevar="effect",
@@ -307,29 +316,47 @@ plot.ob_decompose <- function(x,
                                                direction = "long",
                                                v.names = "value")
 
-    if(reweighting) {
-      decomposition_results$effect <- factor(decomposition_results$effect,
-                                             levels = c("Observed_difference",
-                                                        "Composition_effect",
-                                                        "Structure_effect",
-                                                        "Specification_error",
-                                                        "Reweighting_error"))
-    }
-    else {
-      decomposition_results$effect <- factor(decomposition_results$effect,
-                                             levels = c("Observed_difference",
-                                                        "Composition_effect",
-                                                        "Structure_effect"))
+      if(reweighting) {
+        decomposition_results$effect <- factor(decomposition_results$effect,
+                                               levels = c("Observed_difference",
+                                                          "Composition_effect",
+                                                          "Structure_effect",
+                                                          "Specification_error",
+                                                          "Reweighting_error"))
+        levels(decomposition_results$effect) <- gsub("_", " ", levels(decomposition_results$effect))
+      }
+      else {
+        decomposition_results$effect <- factor(decomposition_results$effect,
+                                               levels = c("Observed_difference",
+                                                          "Composition_effect",
+                                                          "Structure_effect"))
+        levels(decomposition_results$effect) <- gsub("_", " ", levels(decomposition_results$effect))
+      }
+      if(n_probs > 1){
+        decomposition_results$probs <- x$input_parameters$rifreg_probs[i]
+        decomposition_results_all <- rbind(decomposition_results_all, decomposition_results)
+      }
+
     }
 
+    if(n_probs == 1){
+      plot <- ggplot(decomposition_results, aes(x = effect, y = value, fill = Variable)) +
+        geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
+        geom_bar(stat = "identity", position = "stack") +
+        xlab("Effect") +
+        ylab("Difference") +
+        labs(fill = "Variable") +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3))
+    }else{
+      plot <- ggplot(decomposition_results_all, aes(x = probs, y = value, fill = Variable)) +
+        geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
+        geom_bar(stat = "identity", position = "stack") +
+        facet_wrap(~effect) +
+        xlab("Quantile rank") +
+        ylab("Difference") +
+        labs(fill = "Variable")
 
-    plot <- ggplot(decomposition_results, aes(x = effect, y = value, fill = Variable)) +
-      geom_hline(yintercept=0, col ="darkgrey", linewidth=.75) +
-      geom_bar(stat = "identity", position = "stack") +
-      xlab("Effect") +
-      ylab("Difference") +
-      labs(fill = "Variable") +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+    }
   }
 
   return(plot)
