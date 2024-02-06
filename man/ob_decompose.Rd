@@ -150,6 +150,32 @@ other group before the regression coefficients are estimated.
 For distributional statistics beyond the mean, the function performs the RIF
 regression decomposition proposed by Firpo, Fortin, and Lemieux (2018).
 }
+\details{
+\code{ob_decompose()} contains for four different decomposition methods of
+observed group differences.
+
+1. The original Oaxaca-Blinder decomposition (default)
+2. A 'doubly robust Oaxaca-Blinder decomposition (\code{reweighting=TRUE})
+3. A RIF Regression decomposition. (e.g., \code{rifreg_statistic="quantiles"})
+4. A reweighted RIF regression decomposition. (\code{reweighting=TRUE} and \code{rifreg_statistic="quantiles"})
+
+The doubly robust OB decomposition is a robust and path independent alternative
+for detailed decompositions at the mean. is to combine reweighting with the linear Oaxaca-Blinder method (see
+Fortin et al., 2011: 48-51). This approach has the valuable side effect of
+accounting for potential errors introduced by an incomplete inverse probability
+weighting and the linear model specification, respectively.
+
+A path independent method that goes beyond the mean is the RIF decomposition
+of Firpo, Fortin, and Lemieux (2018). The approach approximates the expected value
+of the 'recentered influence function' (RIF) of the distributional statistic
+(e.g., quantile, variance, or Gini coefficient) of an outcome variable
+conditional on covariates with linear regressions. RIF regression coefficients can
+be consistent estimates of the marginal effect
+of a small change in the expected value of a covariate to the distributional statistics of
+an outcome variable (see documentation of the companion package \code{rifreg}).
+Thus, they can be used to decompose between-group difference in distributional statistics.
+Firpo et al. (2018) combine the RIF regressions again with the reweighting estimator to avoid specification errors.
+}
 \examples{
 
 ## Oaxaca-Blinder decomposition of gender wage gap
@@ -250,7 +276,8 @@ decompose_male_as_reference_robust_rf <- ob_decompose(formula = mod1,
 # Reweighted RIF Regression Decomposition
 data("men8305")
 
-model_rifreg <- log(wage) ~  union + education + experience | union*(education + experience) + education*experience
+model_rifreg <- log(wage) ~  union + education + experience |
+                             union*(education + experience) + education*experience
 
 # Variance
 variance_decomposition <- ob_decompose(formula = model_rifreg,

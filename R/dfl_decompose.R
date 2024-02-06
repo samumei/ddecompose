@@ -181,7 +181,7 @@
 #' \code{right_to_left=FALSE} instead, the same contribution is evaluated using
 #' the conditional distribution from group 1.
 #'
-#' Per default, the distributional statistics for which the between group ifferences
+#' Per default, the distributional statistics for which the between group differences
 #' are decomposed are quantiles, the mean, the variance, the Gini coefficient
 #' and the interquantile range between the 9th and the 1st decile, the 9th decile
 #' and the median, and the median and the first decile, respectively. The interquantile
