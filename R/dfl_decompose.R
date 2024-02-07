@@ -236,13 +236,14 @@
 #'
 #' data("men8305")
 #'
-#' flf_model <- log(wage) ~ union*(education + experience) + education*experience
+#' flf_model <- log(wage) ~ union * (education + experience) + education * experience
 #'
 #' # Reweighting sample from 1983-85
-#' flf_male_inequality  <- dfl_decompose(flf_model,
-#'                                  data = men8305,
-#'                                  weights = weights,
-#'                                  group = year)
+#' flf_male_inequality <- dfl_decompose(flf_model,
+#'   data = men8305,
+#'   weights = weights,
+#'   group = year
+#' )
 #'
 #' # Summarize results
 #' summary(flf_male_inequality)
@@ -251,23 +252,25 @@
 #' plot(flf_male_inequality)
 #'
 #' # Use alternative reference group (i.e., reweight sample from 2003-05)
-#' flf_male_inequality_reference_0305  <- dfl_decompose(flf_model,
-#'                                                 data = men8305,
-#'                                                 weights = weights,
-#'                                                 group = year,
-#'                                                 reference_0 = FALSE)
+#' flf_male_inequality_reference_0305 <- dfl_decompose(flf_model,
+#'   data = men8305,
+#'   weights = weights,
+#'   group = year,
+#'   reference_0 = FALSE
+#' )
 #' summary(flf_male_inequality_reference_0305)
 #'
 #' # Bootstrap standard errors (using smaller sample for the sake of illustration)
 #' \dontrun{
 #' set.seed(123)
-#' flf_male_inequality_boot  <- dfl_decompose(flf_model,
-#'                                  data = men8305[1:1000, ],
-#'                                  weights = weights,
-#'                                  group = year,
-#'                                  bootstrap = TRUE,
-#'                                  bootstrap_iterations = 100,
-#'                                  cores = 1)
+#' flf_male_inequality_boot <- dfl_decompose(flf_model,
+#'   data = men8305[1:1000, ],
+#'   weights = weights,
+#'   group = year,
+#'   bootstrap = TRUE,
+#'   bootstrap_iterations = 100,
+#'   cores = 1
+#' )
 #'
 #' # Get standard errors and confidence intervals
 #' summary(flf_male_inequality_boot)
@@ -276,8 +279,7 @@
 #' plot(flf_male_inequality_boot)
 #'
 #' # Plot quantile differences with uniform confidence intervals
-#' plot(flf_male_inequality_boot, uniform_bands=TRUE)
-#'
+#' plot(flf_male_inequality_boot, uniform_bands = TRUE)
 #' }
 #'
 #'
@@ -286,18 +288,19 @@
 #' # Here we distinguish the contribution of education and experience
 #' # from the contribution of unionization conditional on education and experience.
 #'
-#' model_sequential <- log(wage) ~ union*(education + experience) +
-#'                                   education*experience |
-#'                                   education*experience
+#' model_sequential <- log(wage) ~ union * (education + experience) +
+#'   education * experience |
+#'   education * experience
 #'
 #' # First variant:
 #' # Contribution of union is evaluated using composition of
 #' # education and experience from 2003-2005 (group 1)
 #'
-#' male_inequality_sequential  <- dfl_decompose(model_sequential,
-#'                                         data = men8305,
-#'                                         weights = weights,
-#'                                         group = year)
+#' male_inequality_sequential <- dfl_decompose(model_sequential,
+#'   data = men8305,
+#'   weights = weights,
+#'   group = year
+#' )
 #'
 #' # Summarize results
 #' summary(male_inequality_sequential)
@@ -306,83 +309,93 @@
 #' # Contribution of union is evaluated using composition of
 #' # education and experience from 1983-1985 (group 0)
 #'
-#' male_inequality_sequential_2  <- dfl_decompose(model_sequential,
-#'                                         data = men8305,
-#'                                         weights = weights,
-#'                                         group = year,
-#'                                         right_to_left = FALSE)
+#' male_inequality_sequential_2 <- dfl_decompose(model_sequential,
+#'   data = men8305,
+#'   weights = weights,
+#'   group = year,
+#'   right_to_left = FALSE
+#' )
 #'
 #' # Summarize results
 #' summary(male_inequality_sequential_2)
 #'
 #' # The domposition effects associated with (conditional) unionization for deciles
-#' cbind(male_inequality_sequential$decomposition_quantiles$prob,
-#'       male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
-#'       male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`)
+#' cbind(
+#'   male_inequality_sequential$decomposition_quantiles$prob,
+#'   male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
+#'   male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`
+#' )
 #'
 #'
 #' ## Trim observations with weak common support
 #' ## (i.e. observations with relative factor weights > \sqrt(N)/N)
 #'
 #' set.seed(123)
-#' data_weak_common_support <- data.frame(d = factor(c(c("A", "A", rep("B", 98)),
-#'                                                   c(rep("A", 90), rep("B", 10)))),
-#'                                        group = rep(c(0, 1), each = 100))
+#' data_weak_common_support <- data.frame(
+#'   d = factor(c(
+#'     c("A", "A", rep("B", 98)),
+#'     c(rep("A", 90), rep("B", 10))
+#'   )),
+#'   group = rep(c(0, 1), each = 100)
+#' )
 #' data_weak_common_support$y <- ifelse(data_weak_common_support$d == "A", 1, 2) +
-#'                               data_weak_common_support$group +
-#'                               rnorm(200, 0, 0.5)
+#'   data_weak_common_support$group +
+#'   rnorm(200, 0, 0.5)
 #'
 #' decompose_results_trimmed <- dfl_decompose(y ~ d,
-#'                                  data_weak_common_support,
-#'                                  group = group,
-#'                                  trimming = TRUE)
+#'   data_weak_common_support,
+#'   group = group,
+#'   trimming = TRUE
+#' )
 #'
-#' identical(decompose_results_trimmed$trimmed_observations,
-#'           which(data_weak_common_support$d == "A"))
+#' identical(
+#'   decompose_results_trimmed$trimmed_observations,
+#'   which(data_weak_common_support$d == "A")
+#' )
 #'
 #'
 #' ## Pass a custom statistic function to decompose income share of top 10%
 #'
 #' top_share <- function(dep_var,
 #'                       weights,
-#'                       top_percent = 0.1){
-#'   threshold <- Hmisc::wtd.quantile(dep_var, weights = weights, probs = 1-top_percent)
+#'                       top_percent = 0.1) {
+#'   threshold <- Hmisc::wtd.quantile(dep_var, weights = weights, probs = 1 - top_percent)
 #'   share <- sum(weights[which(dep_var > threshold)] *
-#'                  dep_var[which(dep_var > threshold)]) /
-#'               sum(weights * dep_var)
+#'     dep_var[which(dep_var > threshold)]) /
+#'     sum(weights * dep_var)
 #'   return(share)
 #' }
 #'
-#' flf_male_inequality_custom_stat  <- dfl_decompose(flf_model,
-#'                                                   data = men8305,
-#'                                                   weights = weights,
-#'                                                   group = year,
-#'                                                   custom_statistic_function = top_share)
+#' flf_male_inequality_custom_stat <- dfl_decompose(flf_model,
+#'   data = men8305,
+#'   weights = weights,
+#'   group = year,
+#'   custom_statistic_function = top_share
+#' )
 #' summary(flf_male_inequality_custom_stat)
 #'
-dfl_decompose <-  function(formula,
-                      data,
-                      weights,
-                      group,
-                      na.action = na.exclude,
-                      reference_0 = TRUE,
-                      subtract_1_from_0 = FALSE,
-                      right_to_left = TRUE,
-                      method = "logit",
-                      estimate_statistics = TRUE,
-                      statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10"),
-                      probs = c(1:9)/10,
-                      custom_statistic_function = NULL,
-                      trimming = FALSE,
-                      trimming_threshold = NULL,
-                      return_model = TRUE,
-                      estimate_normalized_difference = TRUE,
-                      bootstrap = FALSE,
-                      bootstrap_iterations = 100,
-                      bootstrap_robust = FALSE,
-                      cores = 1,
-                      ...){
-
+dfl_decompose <- function(formula,
+                          data,
+                          weights,
+                          group,
+                          na.action = na.exclude,
+                          reference_0 = TRUE,
+                          subtract_1_from_0 = FALSE,
+                          right_to_left = TRUE,
+                          method = "logit",
+                          estimate_statistics = TRUE,
+                          statistics = c("quantiles", "mean", "variance", "gini", "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10"),
+                          probs = c(1:9) / 10,
+                          custom_statistic_function = NULL,
+                          trimming = FALSE,
+                          trimming_threshold = NULL,
+                          return_model = TRUE,
+                          estimate_normalized_difference = TRUE,
+                          bootstrap = FALSE,
+                          bootstrap_iterations = 100,
+                          bootstrap_robust = FALSE,
+                          cores = 1,
+                          ...) {
   ## Get model.frame
   function_call <- match.call()
   data_arguments_index <- match(c("formula", "data", "weights", "group"), names(function_call), 0)
@@ -414,90 +427,102 @@ dfl_decompose <-  function(formula,
   remove(group)
   group_variable <- data_used[, ncol(data_used)]
   names(data_used)[ncol(data_used)] <- "group_variable"
-  check_group_variable <- is.numeric(group_variable)&length(unique(group_variable))==2|is.factor(group_variable)&length(unique(group_variable))==2
-  if(check_group_variable==FALSE){
+  check_group_variable <- is.numeric(group_variable) & length(unique(group_variable)) == 2 | is.factor(group_variable) & length(unique(group_variable)) == 2
+  if (check_group_variable == FALSE) {
     stop("Group variable must either be a binary numeric variable or a binary factor variable.")
   }
 
-  if(is.numeric(group_variable)){
+  if (is.numeric(group_variable)) {
     data_used$group_variable <- group_variable <- as.factor(group_variable)
   }
   reference_group <- ifelse(reference_0, 0, 1)
   reference_group_print <- levels(group_variable)[reference_group + 1]
 
   ## Check if statistics are implemented
-  statistics_implemented <-  c("quantiles", "mean", "variance", "gini",
-                               "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10",
-                               "iq_ratio_p90_p10", "iq_ratio_p90_p50", "iq_ratio_p50_p10")
+  statistics_implemented <- c(
+    "quantiles", "mean", "variance", "gini",
+    "iq_range_p90_p10", "iq_range_p90_p50", "iq_range_p50_p10",
+    "iq_ratio_p90_p10", "iq_ratio_p90_p50", "iq_ratio_p50_p10"
+  )
   statistics_not_implemented <- setdiff(statistics, statistics_implemented)
-  statistics <- setdiff(statistics,statistics_not_implemented)
-  if(length(statistics_not_implemented)>0){
-    cat("Warning:", paste0("Selected statistics (", paste0(statistics_not_implemented, collapse=", "),")"), "not implemented! \n")
-    cat("Implemented statistics:", paste0(statistics_implemented, collapse=", "), "\n \n")
+  statistics <- setdiff(statistics, statistics_not_implemented)
+  if (length(statistics_not_implemented) > 0) {
+    cat("Warning:", paste0("Selected statistics (", paste0(statistics_not_implemented, collapse = ", "), ")"), "not implemented! \n")
+    cat("Implemented statistics:", paste0(statistics_implemented, collapse = ", "), "\n \n")
   }
-  if("quantiles" %in% statistics & length(probs)==0){
-    probs <- seq(5,95,5)/100
+  if ("quantiles" %in% statistics & length(probs) == 0) {
+    probs <- seq(5, 95, 5) / 100
   }
-  if(!is.null(custom_statistic_function)){
-    if("dep_var" %in% methods::formalArgs(custom_statistic_function) == FALSE |
-       "weights" %in% methods::formalArgs(custom_statistic_function) == FALSE){
+  if (!is.null(custom_statistic_function)) {
+    if ("dep_var" %in% methods::formalArgs(custom_statistic_function) == FALSE |
+      "weights" %in% methods::formalArgs(custom_statistic_function) == FALSE) {
       stop("The arguments 'dep_var' and 'weights' in 'custom_statistic_function' must be defined!")
     }
   }
-  if(length(statistics)==0 & is.null(custom_statistic_function)){
+  if (length(statistics) == 0 & is.null(custom_statistic_function)) {
     estimate_statistics <- FALSE
   }
 
-  if(method %in% c("logit", "fastglm", "random_forest") == FALSE){
+  if (method %in% c("logit", "fastglm", "random_forest") == FALSE) {
     stop("Only 'logit', 'fastglm', and 'random forests' are available methods to estimate reweighting factors")
   }
 
-  results <- dfl_decompose_estimate(formula = formula,
-                               dep_var = dep_var,
-                               data_used = data_used ,
-                               weights = weights,
-                               group_variable = group_variable,
-                               reference_group = reference_group,
-                               method = method,
-                               estimate_statistics = estimate_statistics,
-                               statistics = statistics,
-                               probs = probs,
-                               custom_statistic_function =  custom_statistic_function,
-                               right_to_left = right_to_left,
-                               trimming = trimming,
-                               trimming_threshold = trimming_threshold,
-                               return_model = return_model,
-                               estimate_normalized_difference = estimate_normalized_difference,
-                               ...)
+  results <- dfl_decompose_estimate(
+    formula = formula,
+    dep_var = dep_var,
+    data_used = data_used,
+    weights = weights,
+    group_variable = group_variable,
+    reference_group = reference_group,
+    method = method,
+    estimate_statistics = estimate_statistics,
+    statistics = statistics,
+    probs = probs,
+    custom_statistic_function = custom_statistic_function,
+    right_to_left = right_to_left,
+    trimming = trimming,
+    trimming_threshold = trimming_threshold,
+    return_model = return_model,
+    estimate_normalized_difference = estimate_normalized_difference,
+    ...
+  )
 
 
-  if(bootstrap){
+  if (bootstrap) {
     cat("Bootstrapping standard errors...\n")
-    if(cores == 1) {
-      bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
-                                               function(x) dfl_decompose_bootstrap(formula = formula,
-                                                                              dep_var = dep_var,
-                                                                              data_used = data_used,
-                                                                              weights = weights,
-                                                                              group_variable = group_variable,
-                                                                              reference_group = reference_group,
-                                                                              method=method,
-                                                                              estimate_statistics = estimate_statistics,
-                                                                              statistics = statistics,
-                                                                              probs = probs,
-                                                                              custom_statistic_function = custom_statistic_function,
-                                                                              right_to_left = right_to_left,
-                                                                              trimming = trimming,
-                                                                              trimming_threshold = trimming_threshold,
-                                                                              return_model = FALSE,
-                                                                              ...))
+    if (cores == 1) {
+      bootstrap_estimates <- pbapply::pblapply(
+        1:bootstrap_iterations,
+        function(x) {
+          dfl_decompose_bootstrap(
+            formula = formula,
+            dep_var = dep_var,
+            data_used = data_used,
+            weights = weights,
+            group_variable = group_variable,
+            reference_group = reference_group,
+            method = method,
+            estimate_statistics = estimate_statistics,
+            statistics = statistics,
+            probs = probs,
+            custom_statistic_function = custom_statistic_function,
+            right_to_left = right_to_left,
+            trimming = trimming,
+            trimming_threshold = trimming_threshold,
+            return_model = FALSE,
+            ...
+          )
+        }
+      )
     } else {
       cores <- min(cores, parallel::detectCores() - 1)
       cluster <- parallel::makeCluster(cores)
       parallel::clusterSetRNGStream(cluster, round(runif(1, 0, 100000)))
-      parallel::clusterExport(cl = cluster,
-                              varlist = ls(),
-                              envir = environment())
+      parallel::clusterExport(
+        cl = cluster,
+        varlist = ls(),
+        envir = environment()
+      )
       # parallel::clusterExport(cl = cluster,
       #                         c("dfl_decompose_bootstrap",
       #                           "dfl_decompose_estimate",
@@ -509,164 +534,209 @@ dfl_decompose <-  function(formula,
       #                         ))
       parallel::clusterEvalQ(cl = cluster, library("ddecompose"))
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
-                                               function(x) dfl_decompose_bootstrap(formula = formula,
-                                                                              dep_var = dep_var,
-                                                                              data_used = data_used,
-                                                                              weights = weights,
-                                                                              group_variable = group_variable,
-                                                                              reference_group = reference_group,
-                                                                              method = method,
-                                                                              estimate_statistics = estimate_statistics,
-                                                                              statistics = statistics,
-                                                                              probs = probs,
-                                                                              custom_statistic_function = custom_statistic_function,
-                                                                              right_to_left = right_to_left,
-                                                                              trimming = trimming,
-                                                                              trimming_threshold = trimming_threshold,
-                                                                              return_model = FALSE,
-                                                                              ...),
-                                               cl = cluster)
+        function(x) {
+          dfl_decompose_bootstrap(
+            formula = formula,
+            dep_var = dep_var,
+            data_used = data_used,
+            weights = weights,
+            group_variable = group_variable,
+            reference_group = reference_group,
+            method = method,
+            estimate_statistics = estimate_statistics,
+            statistics = statistics,
+            probs = probs,
+            custom_statistic_function = custom_statistic_function,
+            right_to_left = right_to_left,
+            trimming = trimming,
+            trimming_threshold = trimming_threshold,
+            return_model = FALSE,
+            ...
+          )
+        },
+        cl = cluster
+      )
       parallel::stopCluster(cluster)
     }
 
-    if("quantiles" %in% statistics){
+    if ("quantiles" %in% statistics) {
       bootstrapped_quantiles <- as.data.frame(do.call("rbind", lapply(bootstrap_estimates, function(x) x[["decomposition_quantiles"]])))
-      bootstrapped_quantiles$iteration <- rep(1:bootstrap_iterations, each=length(probs))
+      bootstrapped_quantiles$iteration <- rep(1:bootstrap_iterations, each = length(probs))
 
-      bs_se_decompose_quantiles <-  stats::reshape(bootstrapped_quantiles,
-                                              idvar = c("probs","iteration"),
-                                              times = setdiff(names( bootstrapped_quantiles),c("probs","iteration")),
-                                              timevar="effect",
-                                              varying = list(setdiff(names( bootstrapped_quantiles),c("probs","iteration"))),
-                                              direction = "long",
-                                              v.names = "value")
-
-      bs_se_decompose_quantiles <- lapply(split(bs_se_decompose_quantiles, bs_se_decompose_quantiles[,c("probs","effect")]),
-                                     function(x) data.frame(probs=x$probs[1],
-                                                            effect=x$effect[1],
-                                                            se=ifelse(bootstrap_robust,
-                                                                      (quantile(x$value, 0.75) - quantile(x$value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
-                                                                      sqrt(var(x$value))))
+      bs_se_decompose_quantiles <- stats::reshape(bootstrapped_quantiles,
+        idvar = c("probs", "iteration"),
+        times = setdiff(names(bootstrapped_quantiles), c("probs", "iteration")),
+        timevar = "effect",
+        varying = list(setdiff(names(bootstrapped_quantiles), c("probs", "iteration"))),
+        direction = "long",
+        v.names = "value"
       )
 
-      bs_se_decompose_quantiles <- do.call("rbind",  bs_se_decompose_quantiles)
+      bs_se_decompose_quantiles <- lapply(
+        split(bs_se_decompose_quantiles, bs_se_decompose_quantiles[, c("probs", "effect")]),
+        function(x) {
+          data.frame(
+            probs = x$probs[1],
+            effect = x$effect[1],
+            se = ifelse(bootstrap_robust,
+              (quantile(x$value, 0.75) - quantile(x$value, 0.25)) / (qnorm(0.75) - qnorm(0.25)),
+              sqrt(var(x$value))
+            )
+          )
+        }
+      )
+
+      bs_se_decompose_quantiles <- do.call("rbind", bs_se_decompose_quantiles)
       bs_se_decompose_quantiles <- stats::reshape(bs_se_decompose_quantiles,
-                                             idvar = c("probs"),
-                                             timevar="effect",
-                                             direction = "wide")
-      names(bs_se_decompose_quantiles) <- gsub("se[.]","",names( bs_se_decompose_quantiles))
+        idvar = c("probs"),
+        timevar = "effect",
+        direction = "wide"
+      )
+      names(bs_se_decompose_quantiles) <- gsub("se[.]", "", names(bs_se_decompose_quantiles))
 
       bs_se_decompose_quantiles <- bs_se_decompose_quantiles[, names(results$decomposition_quantiles)]
 
-      bs_kolmogorov_smirnov_stat  <-  stats::reshape(bootstrapped_quantiles,
-                                                     idvar = c("probs","iteration"),
-                                                     times = setdiff(names(bootstrapped_quantiles),c("probs","iteration")),
-                                                     timevar="effect",
-                                                     varying = list(setdiff(names(bootstrapped_quantiles),c("probs","iteration"))),
-                                                     direction = "long",
-                                                     v.names = "value")
-
-      bs_kolmogorov_smirnov_stat <- lapply(split(bs_kolmogorov_smirnov_stat, bs_kolmogorov_smirnov_stat[, c("probs","effect")]),
-                                           function(x) data.frame(probs=x$probs[1],
-                                                                  effect=x$effect[1],
-                                                                  iteration=x$iteration,
-                                                                  value=x$value,
-                                                                  se=ifelse(bootstrap_robust,
-                                                                            (quantile(x$value, 0.75) - quantile(x$value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
-                                                                            sqrt(var(x$value)))
-                                           )
+      bs_kolmogorov_smirnov_stat <- stats::reshape(bootstrapped_quantiles,
+        idvar = c("probs", "iteration"),
+        times = setdiff(names(bootstrapped_quantiles), c("probs", "iteration")),
+        timevar = "effect",
+        varying = list(setdiff(names(bootstrapped_quantiles), c("probs", "iteration"))),
+        direction = "long",
+        v.names = "value"
       )
-      bs_kolmogorov_smirnov_stat <- do.call("rbind",  bs_kolmogorov_smirnov_stat)
 
-      decomposition_quantiles_long  <-  stats::reshape(results$decomposition_quantiles,
-                                                       idvar = c("probs"),
-                                                       times = setdiff(names(results$decomposition_quantiles),c("probs")),
-                                                       timevar="effect",
-                                                       varying = list(setdiff(names(results$decomposition_quantiles),c("probs"))),
-                                                       direction = "long",
-                                                       v.names = "estimate")
+      bs_kolmogorov_smirnov_stat <- lapply(
+        split(bs_kolmogorov_smirnov_stat, bs_kolmogorov_smirnov_stat[, c("probs", "effect")]),
+        function(x) {
+          data.frame(
+            probs = x$probs[1],
+            effect = x$effect[1],
+            iteration = x$iteration,
+            value = x$value,
+            se = ifelse(bootstrap_robust,
+              (quantile(x$value, 0.75) - quantile(x$value, 0.25)) / (qnorm(0.75) - qnorm(0.25)),
+              sqrt(var(x$value))
+            )
+          )
+        }
+      )
+      bs_kolmogorov_smirnov_stat <- do.call("rbind", bs_kolmogorov_smirnov_stat)
 
-      select_rows <- match(paste0(bs_kolmogorov_smirnov_stat$probs, bs_kolmogorov_smirnov_stat$effect),
-                           paste0(decomposition_quantiles_long$probs, decomposition_quantiles_long$effect))
+      decomposition_quantiles_long <- stats::reshape(results$decomposition_quantiles,
+        idvar = c("probs"),
+        times = setdiff(names(results$decomposition_quantiles), c("probs")),
+        timevar = "effect",
+        varying = list(setdiff(names(results$decomposition_quantiles), c("probs"))),
+        direction = "long",
+        v.names = "estimate"
+      )
+
+      select_rows <- match(
+        paste0(bs_kolmogorov_smirnov_stat$probs, bs_kolmogorov_smirnov_stat$effect),
+        paste0(decomposition_quantiles_long$probs, decomposition_quantiles_long$effect)
+      )
 
       bs_kolmogorov_smirnov_stat <- cbind(bs_kolmogorov_smirnov_stat, decomposition_quantiles_long[select_rows, c("estimate")])
       names(bs_kolmogorov_smirnov_stat)[ncol(bs_kolmogorov_smirnov_stat)] <- "estimate"
 
-      bs_kolmogorov_smirnov_stat$value_over_se <- abs(bs_kolmogorov_smirnov_stat$value - bs_kolmogorov_smirnov_stat$estimate)/bs_kolmogorov_smirnov_stat$se
-      bs_kolmogorov_smirnov_stat <- lapply(split(bs_kolmogorov_smirnov_stat, bs_kolmogorov_smirnov_stat[, c("effect", "iteration")]),
-                                           function(x) data.frame(effect=x$effect[1],
-                                                                  iteration=x$iteration[1],
-                                                                  kms_t_value = max(x$value_over_se)
-                                           )
+      bs_kolmogorov_smirnov_stat$value_over_se <- abs(bs_kolmogorov_smirnov_stat$value - bs_kolmogorov_smirnov_stat$estimate) / bs_kolmogorov_smirnov_stat$se
+      bs_kolmogorov_smirnov_stat <- lapply(
+        split(bs_kolmogorov_smirnov_stat, bs_kolmogorov_smirnov_stat[, c("effect", "iteration")]),
+        function(x) {
+          data.frame(
+            effect = x$effect[1],
+            iteration = x$iteration[1],
+            kms_t_value = max(x$value_over_se)
+          )
+        }
       )
 
 
       bs_kolmogorov_smirnov_stat <- do.call("rbind", bs_kolmogorov_smirnov_stat)
-
     } else {
       bs_se_decompose_quantiles <- NULL
       bs_kolmogorov_smirnov_stat <- NULL
     }
 
-    if(length(setdiff(statistics,"quantiles"))>1){
+    if (length(setdiff(statistics, "quantiles")) > 1) {
       bootstrapped_other_statistics <- as.data.frame(do.call("rbind", lapply(bootstrap_estimates, function(x) x[["decomposition_other_statistics"]])))
-      bootstrapped_other_statistics$iteration <- rep(1:bootstrap_iterations, each=length(unique(bootstrapped_other_statistics$statistic)))
+      bootstrapped_other_statistics$iteration <- rep(1:bootstrap_iterations, each = length(unique(bootstrapped_other_statistics$statistic)))
 
       bs_se_decompose_other_statistics <- stats::reshape(bootstrapped_other_statistics,
-                                                    idvar = c("statistic","iteration"),
-                                                    ids=unique(bootstrapped_other_statistics$statistic),
-                                                    times = setdiff(names(bootstrapped_other_statistics),c("statistic","iteration")),
-                                                    timevar="effect",
-                                                    varying = list(setdiff(names(bootstrapped_other_statistics),c("statistic","iteration"))),
-                                                    direction = "long",
-                                                    v.names = "value")
-
-      bs_se_decompose_other_statistics <- lapply(split(bs_se_decompose_other_statistics, bs_se_decompose_other_statistics[,c("statistic","effect")]),
-                                            function(x) data.frame(statistic=x$statistic[1],
-                                                                   effect=x$effect[1],
-                                                                   se=ifelse(bootstrap_robust,
-                                                                             (quantile(x$value, 0.75) - quantile(x$value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
-                                                                             sqrt(var(x$value))))
+        idvar = c("statistic", "iteration"),
+        ids = unique(bootstrapped_other_statistics$statistic),
+        times = setdiff(names(bootstrapped_other_statistics), c("statistic", "iteration")),
+        timevar = "effect",
+        varying = list(setdiff(names(bootstrapped_other_statistics), c("statistic", "iteration"))),
+        direction = "long",
+        v.names = "value"
       )
 
-      bs_se_decompose_other_statistics <- do.call("rbind",  bs_se_decompose_other_statistics)
+      bs_se_decompose_other_statistics <- lapply(
+        split(bs_se_decompose_other_statistics, bs_se_decompose_other_statistics[, c("statistic", "effect")]),
+        function(x) {
+          data.frame(
+            statistic = x$statistic[1],
+            effect = x$effect[1],
+            se = ifelse(bootstrap_robust,
+              (quantile(x$value, 0.75) - quantile(x$value, 0.25)) / (qnorm(0.75) - qnorm(0.25)),
+              sqrt(var(x$value))
+            )
+          )
+        }
+      )
+
+      bs_se_decompose_other_statistics <- do.call("rbind", bs_se_decompose_other_statistics)
 
       bs_se_decompose_other_statistics <- stats::reshape(bs_se_decompose_other_statistics,
-                                                    idvar = c("statistic"),
-                                                    timevar="effect",
-                                                    direction = "wide")
-      names(bs_se_decompose_other_statistics) <- gsub("se[.]","",names( bs_se_decompose_other_statistics ))
-      bs_se_decompose_other_statistics <- as.data.frame(bs_se_decompose_other_statistics[match(results$decomposition_other_statistics$statistic,
-                                                                                     bs_se_decompose_other_statistics$statistic),
-                                                                               names(results$decomposition_other_statistics)])
-    }else{
+        idvar = c("statistic"),
+        timevar = "effect",
+        direction = "wide"
+      )
+      names(bs_se_decompose_other_statistics) <- gsub("se[.]", "", names(bs_se_decompose_other_statistics))
+      bs_se_decompose_other_statistics <- as.data.frame(bs_se_decompose_other_statistics[
+        match(
+          results$decomposition_other_statistics$statistic,
+          bs_se_decompose_other_statistics$statistic
+        ),
+        names(results$decomposition_other_statistics)
+      ])
+    } else {
       bs_se_decompose_other_statistics <- NULL
     }
 
     bootstrapped_quantiles_reweighting_factor <- as.data.frame(do.call("rbind", lapply(bootstrap_estimates, function(x) x[["quantiles_reweighting_factor"]])))
 
-    bootstrapped_quantiles_reweighting_factor$iteration <- rep(1:(nrow(bootstrapped_quantiles_reweighting_factor)/length(unique(bootstrapped_quantiles_reweighting_factor$probs))), each = length(unique(bootstrapped_quantiles_reweighting_factor$probs)))
+    bootstrapped_quantiles_reweighting_factor$iteration <- rep(1:(nrow(bootstrapped_quantiles_reweighting_factor) / length(unique(bootstrapped_quantiles_reweighting_factor$probs))), each = length(unique(bootstrapped_quantiles_reweighting_factor$probs)))
     bs_se_quantiles_reweighting_factor <- stats::reshape(bootstrapped_quantiles_reweighting_factor,
-                                                  idvar = c("probs","iteration"),
-                                                  ids=1:nrow(bootstrapped_quantiles_reweighting_factor),
-                                                  times = setdiff(names(bootstrapped_quantiles_reweighting_factor),c("probs", "iteration")),
-                                                  timevar= "effect",
-                                                  varying = list(setdiff(names(bootstrapped_quantiles_reweighting_factor), c("probs","iteration"))),
-                                                  direction = "long",
-                                                  v.names = "value")
-    bs_se_quantiles_reweighting_factor <- lapply(split(bs_se_quantiles_reweighting_factor, bs_se_quantiles_reweighting_factor[,c("probs","effect")]),
-                                          function(x) data.frame(probs=x$probs[1],
-                                                                 effect=x$effect[1],
-                                                                 se=ifelse(bootstrap_robust,
-                                                                           (quantile(x$value, 0.75) - quantile(x$value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
-                                                                           sqrt(var(x$value))))
+      idvar = c("probs", "iteration"),
+      ids = 1:nrow(bootstrapped_quantiles_reweighting_factor),
+      times = setdiff(names(bootstrapped_quantiles_reweighting_factor), c("probs", "iteration")),
+      timevar = "effect",
+      varying = list(setdiff(names(bootstrapped_quantiles_reweighting_factor), c("probs", "iteration"))),
+      direction = "long",
+      v.names = "value"
+    )
+    bs_se_quantiles_reweighting_factor <- lapply(
+      split(bs_se_quantiles_reweighting_factor, bs_se_quantiles_reweighting_factor[, c("probs", "effect")]),
+      function(x) {
+        data.frame(
+          probs = x$probs[1],
+          effect = x$effect[1],
+          se = ifelse(bootstrap_robust,
+            (quantile(x$value, 0.75) - quantile(x$value, 0.25)) / (qnorm(0.75) - qnorm(0.25)),
+            sqrt(var(x$value))
+          )
+        )
+      }
     )
     bs_se_quantiles_reweighting_factor <- do.call("rbind", bs_se_quantiles_reweighting_factor)
     bs_se_quantiles_reweighting_factor <- stats::reshape(bs_se_quantiles_reweighting_factor,
-                                                  idvar = c("probs"),
-                                                  timevar="effect",
-                                                  direction = "wide")
-    names(bs_se_quantiles_reweighting_factor) <- gsub("se[.]","",names(bs_se_quantiles_reweighting_factor))
+      idvar = c("probs"),
+      timevar = "effect",
+      direction = "wide"
+    )
+    names(bs_se_quantiles_reweighting_factor) <- gsub("se[.]", "", names(bs_se_quantiles_reweighting_factor))
 
     # bs_se_quantiles_reweighting_factor <- tidyr::pivot_longer(bootstrapped_quantiles_reweighting_factor,
     #                                                           col=names(bootstrapped_quantiles_reweighting_factor)[-1],
@@ -685,35 +755,38 @@ dfl_decompose <-  function(formula,
     #                                                          values_from = "se")
 
     bs_se_quantiles_reweighting_factor <- as.data.frame(bs_se_quantiles_reweighting_factor[, names(results$quantiles_reweighting_factor)])
-    bs_se_quantiles_reweighting_factor[which(bs_se_quantiles_reweighting_factor$probs %in% c(0,1)),
-                                       2:ncol(bs_se_quantiles_reweighting_factor)] <- NA
+    bs_se_quantiles_reweighting_factor[
+      which(bs_se_quantiles_reweighting_factor$probs %in% c(0, 1)),
+      2:ncol(bs_se_quantiles_reweighting_factor)
+    ] <- NA
     rownames(bs_se_quantiles_reweighting_factor) <- rownames(results$quantiles_reweighting_factor)
 
-    bootstrap_se <- list(decomposition_quantiles=bs_se_decompose_quantiles,
-                         decomposition_other_statistics=bs_se_decompose_other_statistics,
-                         quantiles_reweighting_factor=bs_se_quantiles_reweighting_factor,
-                         decomposition_quantiles_kms_distribution=bs_kolmogorov_smirnov_stat)
-  }
-  else {
+    bootstrap_se <- list(
+      decomposition_quantiles = bs_se_decompose_quantiles,
+      decomposition_other_statistics = bs_se_decompose_other_statistics,
+      quantiles_reweighting_factor = bs_se_quantiles_reweighting_factor,
+      decomposition_quantiles_kms_distribution = bs_kolmogorov_smirnov_stat
+    )
+  } else {
     bootstrap_se <- NULL
-
   }
 
-  if(subtract_1_from_0 & estimate_statistics){
-    if(!is.null(results$decomposition_quantiles)) results$decomposition_quantiles[,-1] <- results$decomposition_quantiles[,-1] * -1
-    if(!is.null(results$decomposition_other_statistics)) results$decomposition_other_statistics[,-1] <- results$decomposition_other_statistics[,-1] * -1
+  if (subtract_1_from_0 & estimate_statistics) {
+    if (!is.null(results$decomposition_quantiles)) results$decomposition_quantiles[, -1] <- results$decomposition_quantiles[, -1] * -1
+    if (!is.null(results$decomposition_other_statistics)) results$decomposition_other_statistics[, -1] <- results$decomposition_other_statistics[, -1] * -1
   }
 
-  add_to_results <- list(bootstrapped_standard_errors = bootstrap_se,
-                         group_variable_name = group_variable_name,
-                         group_variable_levels = levels(group_variable),
-                         reference_group = reference_group_print,
-                         subtract_1_from_0 = subtract_1_from_0)
+  add_to_results <- list(
+    bootstrapped_standard_errors = bootstrap_se,
+    group_variable_name = group_variable_name,
+    group_variable_levels = levels(group_variable),
+    reference_group = reference_group_print,
+    subtract_1_from_0 = subtract_1_from_0
+  )
   results <- c(results, add_to_results)
 
   class(results) <- "dfl_decompose"
   return(results)
-
 }
 
 
@@ -755,50 +828,49 @@ dfl_decompose <-  function(formula,
 #' @param ... other parameters passed to the function estimating the conditional probabilities.
 #'
 dfl_decompose_estimate <- function(formula,
-                              dep_var,
-                              data_used ,
-                              weights,
-                              group_variable,
-                              reference_group,
-                              method,
-                              estimate_statistics,
-                              statistics,
-                              probs,
-                              custom_statistic_function,
-                              right_to_left,
-                              trimming,
-                              trimming_threshold,
-                              return_model,
-                              estimate_normalized_difference,
-                              ...){
-
+                                   dep_var,
+                                   data_used,
+                                   weights,
+                                   group_variable,
+                                   reference_group,
+                                   method,
+                                   estimate_statistics,
+                                   statistics,
+                                   probs,
+                                   custom_statistic_function,
+                                   right_to_left,
+                                   trimming,
+                                   trimming_threshold,
+                                   return_model,
+                                   estimate_normalized_difference,
+                                   ...) {
   # Estimate probabilities -------------------------------------------------------
   mod <- group_variable ~ 1
   p1 <- mean(fit_and_predict_probabilities(mod, data_used, weights, method = "logit", return_model = FALSE)[[1]])
-  p0 <- 1-p1
-  estimated_probabilities <- rep(p0/p1, nrow(data_used))
+  p0 <- 1 - p1
+  estimated_probabilities <- rep(p0 / p1, nrow(data_used))
 
   formula <- Formula::as.Formula(formula)
   nvar <- length(formula)[2] # Number of detailed decomposition effects
   covariates_labels <- fitted_models <- all_formulas <- vector("list", nvar)
 
-  for(i in nvar:1){
-    mod <- update(stats::formula(formula, rhs=nvar:i, collapse=TRUE), group_variable ~ .)
+  for (i in nvar:1) {
+    mod <- update(stats::formula(formula, rhs = nvar:i, collapse = TRUE), group_variable ~ .)
     fitted_model <- fit_and_predict_probabilities(mod,
-                                                  data_used,
-                                                  weights,
-                                                  method = method,
-                                                  return_model = return_model,
-                                                  ...)
+      data_used,
+      weights,
+      method = method,
+      return_model = return_model,
+      ...
+    )
 
     p1 <- fitted_model[[1]]
     p0 <- 1 - p1
-    estimated_probabilities <- cbind(estimated_probabilities, p0/p1)
+    estimated_probabilities <- cbind(estimated_probabilities, p0 / p1)
 
     covariates_labels[[i]] <- attr(terms(mod), "term.labels")[which(attr(terms(mod), "order") == 1)]
     fitted_models[i] <- fitted_model[2]
     all_formulas[[i]] <- mod
-
   }
 
   names(fitted_models) <- sapply(nvar:1, function(i) paste0("P(g=1|", paste0(paste0("X", nvar:i), collapse = ","), ")"))
@@ -808,25 +880,29 @@ dfl_decompose_estimate <- function(formula,
 
   covariates_labels <- rev(covariates_labels)
   all_covariates <- paste0(unique(do.call("c", covariates_labels)), collapse = ", ")
-  if(nvar > 1){
+  if (nvar > 1) {
     covariate_index <- nvar:1
-    for(i in nvar:2){
-      add_vars <- setdiff(covariates_labels[[i]], covariates_labels[[i-1]])
-      add_index <- paste0(paste0("X", covariate_index[i]), "|", paste0(paste0("X",covariate_index[(i-1):1]), collapse = ","))
-      covariates_labels[[i]] <- paste0("Detailed effect ",
-                                       add_index,
-                                       ": ",
-                                       paste0(add_vars, collapse = ", "),
-                                       " | ",
-                                       paste0(covariates_labels[[i-1]], collapse = ", "))
+    for (i in nvar:2) {
+      add_vars <- setdiff(covariates_labels[[i]], covariates_labels[[i - 1]])
+      add_index <- paste0(paste0("X", covariate_index[i]), "|", paste0(paste0("X", covariate_index[(i - 1):1]), collapse = ","))
+      covariates_labels[[i]] <- paste0(
+        "Detailed effect ",
+        add_index,
+        ": ",
+        paste0(add_vars, collapse = ", "),
+        " | ",
+        paste0(covariates_labels[[i - 1]], collapse = ", ")
+      )
     }
-    covariates_labels[[1]] <- paste0("Detailed effect X",
-                                     nvar,
-                                     ": ",
-                                     paste0(covariates_labels[[1]], collapse = ", "))
+    covariates_labels[[1]] <- paste0(
+      "Detailed effect X",
+      nvar,
+      ": ",
+      paste0(covariates_labels[[1]], collapse = ", ")
+    )
 
-    covariates_labels <- c(paste0(c("Aggregate effect: ", all_covariates), collapse =""), rev(covariates_labels))
-  }else{
+    covariates_labels <- c(paste0(c("Aggregate effect: ", all_covariates), collapse = ""), rev(covariates_labels))
+  } else {
     covariates_labels[[1]] <- all_covariates
   }
 
@@ -842,49 +918,59 @@ dfl_decompose_estimate <- function(formula,
 
   psi <- NULL
 
-  if(right_to_left){
+  if (right_to_left) {
     # e.g., in the case of Y ~ X1 + X2 + X3 | X2 + X3 | X3
     # if right_to_left==TRUE,
     # then the matrix psi has the following columns:
     # first column:  [P(g=1)/P(g=0)]*[P(g=0|X3)/P(g=1|X3)]
     # second column: [P(g=1)/P(g=0)]*[P(g=0|X2,X3)/P(g=1|X2,X3)]
     # third column:  [P(g=1)/P(g=0)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
-    for(i in 1:nvar){
-      psi <- cbind(psi, (estimated_probabilities[, 1]^-1) * estimated_probabilities[, i+1])
+    for (i in 1:nvar) {
+      psi <- cbind(psi, (estimated_probabilities[, 1]^-1) * estimated_probabilities[, i + 1])
     }
     psi <- as.data.frame(psi)
-    names(psi) <- paste0("Psi_",
-                         sapply(nvar:1, function(i) paste0(paste0("X", i:nvar), collapse=",")))
+    names(psi) <- paste0(
+      "Psi_",
+      sapply(nvar:1, function(i) paste0(paste0("X", i:nvar), collapse = ","))
+    )
 
-    #names_decomposition_terms <- nvar:1
+    # names_decomposition_terms <- nvar:1
     names_decomposition_terms <- paste0("X", nvar)
-    if(nvar>1){
-      names_decomposition_terms <- c(names_decomposition_terms,
-                                     sapply((nvar-1):1,
-                                            function(i) paste0(paste0(paste0("X", i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))))
-
+    if (nvar > 1) {
+      names_decomposition_terms <- c(
+        names_decomposition_terms,
+        sapply(
+          (nvar - 1):1,
+          function(i) paste0(paste0(paste0("X", i), collapse = ","), "|", paste0(paste0("X", (i + 1):nvar), collapse = ","))
+        )
+      )
     }
-  }else{
+  } else {
     # if right_to_left==FALSE,
     # then the matrix psi has the following columns:
     # first column  [P(g=1|X2,X3)/P(g=0|X2,X3)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
     # second column [P(g=1|X3)/P(g=0|X3)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
     # third column  [P(g=1)/P(g=0)]*[P(g=0|X1,X2,X3)/P(g=1|X1,X2,X3)]
-    for(i in nvar:1){
-      psi <- cbind(psi, (estimated_probabilities[, i]^-1) * estimated_probabilities[, nvar+1])
+    for (i in nvar:1) {
+      psi <- cbind(psi, (estimated_probabilities[, i]^-1) * estimated_probabilities[, nvar + 1])
     }
     psi <- as.data.frame(psi)
-    names(psi)[nvar] <- paste0("Psi_", paste0(paste0("X", 1:nvar), collapse=","))
+    names(psi)[nvar] <- paste0("Psi_", paste0(paste0("X", 1:nvar), collapse = ","))
 
     names_decomposition_terms <- paste0("X", nvar)
-    if(nvar>1){
-      names(psi)[1:(nvar-1)] <- paste0("Psi_", sapply(1:(nvar-1),
-                                                      function(i) paste0(paste0(paste0("X", 1:i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))))
-      names_decomposition_terms <- c(sapply(1:(nvar-1),
-                                            function(i) paste0(paste0(paste0("X", i), collapse=","), "|", paste0(paste0("X", (i+1):nvar), collapse=","))),
-                                     names_decomposition_terms)
+    if (nvar > 1) {
+      names(psi)[1:(nvar - 1)] <- paste0("Psi_", sapply(
+        1:(nvar - 1),
+        function(i) paste0(paste0(paste0("X", 1:i), collapse = ","), "|", paste0(paste0("X", (i + 1):nvar), collapse = ","))
+      ))
+      names_decomposition_terms <- c(
+        sapply(
+          1:(nvar - 1),
+          function(i) paste0(paste0(paste0("X", i), collapse = ","), "|", paste0(paste0("X", (i + 1):nvar), collapse = ","))
+        ),
+        names_decomposition_terms
+      )
     }
-
   }
 
   # Take inverse of reweighting factor if reference group is 0 -----------------
@@ -894,73 +980,80 @@ dfl_decompose_estimate <- function(formula,
 
   # Trimming: Set weights of reweighting_factors above trimming threshold to zero
 
-  if(trimming){
-
+  if (trimming) {
     observations_to_be_trimmed <- list()
 
-    for(j in 1:ncol(psi)){
-      observations_to_be_trimmed[[j]] <- select_observations_to_be_trimmed(reweighting_factor = psi[, j],
-                                                                           group_variable = group_variable,
-                                                                           group = reference_group,
-                                                                           trimming_threshold = trimming_threshold)
+    for (j in 1:ncol(psi)) {
+      observations_to_be_trimmed[[j]] <- select_observations_to_be_trimmed(
+        reweighting_factor = psi[, j],
+        group_variable = group_variable,
+        group = reference_group,
+        trimming_threshold = trimming_threshold
+      )
     }
 
     observations_to_be_trimmed <- unique(do.call("c", observations_to_be_trimmed))
     weights[observations_to_be_trimmed] <- 0
-
-  }else{
-
+  } else {
     observations_to_be_trimmed <- NULL
-
   }
 
 
   # Estimate distributional statistics and perform decomposition -----------------
-  if(estimate_statistics){
+  if (estimate_statistics) {
+    log_transformed <- grepl(pattern = "log[(]", strsplit(as.character(formula), split = "~")[[2]])
+    nu1 <- get_distributional_statistics(
+      dep_var = dep_var,
+      weights = weights,
+      group_variable = group_variable,
+      group = 1,
+      statistics = statistics,
+      custom_statistic_function = custom_statistic_function,
+      probs = probs,
+      log_transformed = log_transformed
+    )
 
-    log_transformed <- grepl(pattern = "log[(]", strsplit(as.character(formula), split="~")[[2]])
-    nu1 <- get_distributional_statistics(dep_var = dep_var,
-                                         weights = weights,
-                                         group_variable = group_variable,
-                                         group = 1,
-                                         statistics = statistics,
-                                         custom_statistic_function = custom_statistic_function,
-                                         probs = probs,
-                                         log_transformed = log_transformed)
+    nu0 <- get_distributional_statistics(
+      dep_var = dep_var,
+      weights = weights,
+      group_variable = group_variable,
+      group = 0,
+      statistics = statistics,
+      custom_statistic_function = custom_statistic_function,
+      probs = probs,
+      log_transformed = log_transformed
+    )
 
-    nu0 <- get_distributional_statistics(dep_var = dep_var,
-                                         weights = weights,
-                                         group_variable = group_variable,
-                                         group = 0,
-                                         statistics = statistics,
-                                         custom_statistic_function = custom_statistic_function,
-                                         probs = probs,
-                                         log_transformed = log_transformed)
-
-    #if reference group==0, take inverse of rw factors
+    # if reference group==0, take inverse of rw factors
 
     nuC <- NULL
 
-    for(i in 1:nvar){
-      nuC <- cbind(nuC,
-                   get_distributional_statistics(dep_var = dep_var,
-                                                 weights = weights*psi[,i],
-                                                 group_variable = group_variable,
-                                                 group = reference_group,
-                                                 statistics = statistics,
-                                                 custom_statistic_function = custom_statistic_function,
-                                                 probs = probs,
-                                                 log_transformed = log_transformed))
+    for (i in 1:nvar) {
+      nuC <- cbind(
+        nuC,
+        get_distributional_statistics(
+          dep_var = dep_var,
+          weights = weights * psi[, i],
+          group_variable = group_variable,
+          group = reference_group,
+          statistics = statistics,
+          custom_statistic_function = custom_statistic_function,
+          probs = probs,
+          log_transformed = log_transformed
+        )
+      )
     }
     nuC <- as.matrix(nuC)
 
 
 
     # Aggregate decomposition ----------------------------------------------------
-    Delta <- cbind(nu1 - nu0,
-                   nu1 - nuC[, nvar],
-                   nuC[, nvar] - nu0)
-    if(reference_group==1){
+    Delta <- cbind(
+      nu1 - nu0,
+      nu1 - nuC[, nvar],
+      nuC[, nvar] - nu0
+    )
+    if (reference_group == 1) {
       colnames(Delta) <- c("Observed difference", "Composition effect", "Structure effect")
     } else {
       colnames(Delta) <- c("Observed difference", "Structure effect", "Composition effect")
@@ -969,114 +1062,124 @@ dfl_decompose_estimate <- function(formula,
     Delta <- Delta[, match(c("Observed difference", "Composition effect", "Structure effect"), colnames(Delta))]
 
     # Detailed decomposition -----------------------------------------------------
-    if(nvar>1){
-      if(reference_group==1){
-        Delta <- cbind(Delta,
-                       nu1-nuC[, 1])
-        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep="")
-        for(i in 2:nvar){
-          Delta <- cbind(Delta, nuC[,i-1]-nuC[,i])
-          colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep="")
+    if (nvar > 1) {
+      if (reference_group == 1) {
+        Delta <- cbind(
+          Delta,
+          nu1 - nuC[, 1]
+        )
+        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep = "")
+        for (i in 2:nvar) {
+          Delta <- cbind(Delta, nuC[, i - 1] - nuC[, i])
+          colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep = "")
         }
-      }else{
-        for(i in nvar:2){
-          Delta <- cbind(Delta, nuC[,i]-nuC[,i-1])
-          colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep="")
+      } else {
+        for (i in nvar:2) {
+          Delta <- cbind(Delta, nuC[, i] - nuC[, i - 1])
+          colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[i], sep = "")
         }
-        Delta <- cbind(Delta, nuC[,1]-nu0)
-        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep="")
+        Delta <- cbind(Delta, nuC[, 1] - nu0)
+        colnames(Delta)[length(colnames(Delta))] <- paste("Comp. eff. ", names_decomposition_terms[1], sep = "")
       }
 
-      Delta <- Delta[, c(1:3,
-                         order(colnames(Delta)[-c(1:3)])+3)]
+      Delta <- Delta[, c(
+        1:3,
+        order(colnames(Delta)[-c(1:3)]) + 3
+      )]
     }
 
     Delta <- as.data.frame(Delta)
 
     # Save quantiles and other statistics in different objects -------------------
 
-    if("quantiles" %in% statistics){
-      if(length(probs) == 1 & length(statistics) == 1){
+    if ("quantiles" %in% statistics) {
+      if (length(probs) == 1 & length(statistics) == 1) {
         decomposition_quantiles <- as.data.frame(matrix(c(probs, Delta[, 1]), nrow = 1))
         names(decomposition_quantiles) <- c("probs", rownames(Delta))
         rownames(decomposition_quantiles) <- paste0(probs * 100, "%-quantile")
-      }else{
+      } else {
         decomposition_quantiles <- Delta[1:length(probs), ]
         cn <- names(decomposition_quantiles)
         decomposition_quantiles$probs <- probs
-        decomposition_quantiles <- decomposition_quantiles[,c("probs", cn)]
+        decomposition_quantiles <- decomposition_quantiles[, c("probs", cn)]
       }
-    }else{
+    } else {
       decomposition_quantiles <- NULL
     }
-    if("quantiles" %in% statistics & length(statistics) > 1){
-      decomposition_other_statistics <- Delta[(length(probs)+1):nrow(Delta), ]
-    }else if("quantiles" %in% statistics == FALSE){
-      if(length(statistics) == 1 | !is.null(custom_statistic_function)){
+    if ("quantiles" %in% statistics & length(statistics) > 1) {
+      decomposition_other_statistics <- Delta[(length(probs) + 1):nrow(Delta), ]
+    } else if ("quantiles" %in% statistics == FALSE) {
+      if (length(statistics) == 1 | !is.null(custom_statistic_function)) {
         decomposition_other_statistics <- as.data.frame(matrix(Delta[, 1], nrow = 1))
         names(decomposition_other_statistics) <- rownames(Delta)
         rownames(decomposition_other_statistics) <- ifelse(is.null(statistics), "Custom statistic", statistics)
-      }else{
+      } else {
         decomposition_other_statistics <- Delta
       }
-    }else{
+    } else {
       decomposition_other_statistics <- NULL
     }
 
-    if(is.null(decomposition_other_statistics)==FALSE){
+    if (is.null(decomposition_other_statistics) == FALSE) {
       cn <- names(decomposition_other_statistics)
       decomposition_other_statistics$statistic <- rownames(decomposition_other_statistics)
-      decomposition_other_statistics <- decomposition_other_statistics[,c("statistic", cn)]
+      decomposition_other_statistics <- decomposition_other_statistics[, c("statistic", cn)]
     }
-
-
-  }else{
+  } else {
     decomposition_quantiles <- NULL
     decomposition_other_statistics <- NULL
     Delta <- NULL
   }
 
   # Compute sample quantiles of reweighting factors ----------------------------
-  quantiles_reweighting_factor <- data.frame(probs=c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1))
+  quantiles_reweighting_factor <- data.frame(probs = c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1))
   rownames(quantiles_reweighting_factor) <- c("Min.", "10%-quantile", "25%-quantile", "50%-quantile", "75%-quantile", "90%-quantile", "Max.")
   factors_to_be_considered_all <- setdiff(1:nrow(psi), observations_to_be_trimmed)
-  factors_to_be_considered <- intersect(factors_to_be_considered_all,
-                                        which(group_variable == levels(group_variable)[reference_group + 1]))
+  factors_to_be_considered <- intersect(
+    factors_to_be_considered_all,
+    which(group_variable == levels(group_variable)[reference_group + 1])
+  )
 
-  for(i in 1:ncol(psi)){
-    quantiles_reweighting_factor <- cbind(quantiles_reweighting_factor,
-                                          quantile(psi[factors_to_be_considered, i], probs=quantiles_reweighting_factor$probs, na.rm=TRUE))
-    names(quantiles_reweighting_factor)[i+1] <- names(psi)[i]
+  for (i in 1:ncol(psi)) {
+    quantiles_reweighting_factor <- cbind(
+      quantiles_reweighting_factor,
+      quantile(psi[factors_to_be_considered, i], probs = quantiles_reweighting_factor$probs, na.rm = TRUE)
+    )
+    names(quantiles_reweighting_factor)[i + 1] <- names(psi)[i]
   }
 
   # Calculate normalized difference between covariate means of comparison group
   # and reweighted reference group ---------------------------------------------
-  if(estimate_normalized_difference){
+  if (estimate_normalized_difference) {
     normalized_difference <- list()
-    for(i in 1:length(all_formulas)){
+    for (i in 1:length(all_formulas)) {
       j <- length(all_formulas) - i + 1
-      normalized_difference[[i]] <- get_normalized_difference(formula = all_formulas[[i]],
-                                                              data_used = data_used[factors_to_be_considered_all, ],
-                                                              weights = weights[factors_to_be_considered_all],
-                                                              psi = psi[factors_to_be_considered_all,  j],
-                                                              group_variable = group_variable[factors_to_be_considered_all],
-                                                              reference_group = levels(group_variable)[reference_group + 1])
+      normalized_difference[[i]] <- get_normalized_difference(
+        formula = all_formulas[[i]],
+        data_used = data_used[factors_to_be_considered_all, ],
+        weights = weights[factors_to_be_considered_all],
+        psi = psi[factors_to_be_considered_all, j],
+        group_variable = group_variable[factors_to_be_considered_all],
+        reference_group = levels(group_variable)[reference_group + 1]
+      )
       names(normalized_difference)[i] <- names(psi)[j]
     }
-  }else{
+  } else {
     normalized_difference <- NULL
   }
 
 
   # Export results
-  results <- list(decomposition_quantiles = decomposition_quantiles,
-                  decomposition_other_statistics = decomposition_other_statistics,
-                  reweighting_factor = psi,
-                  quantiles_reweighting_factor = quantiles_reweighting_factor,
-                  trimmed_observations = observations_to_be_trimmed,
-                  covariates_labels = covariates_labels,
-                  fitted_models = fitted_models,
-                  normalized_difference = normalized_difference)
+  results <- list(
+    decomposition_quantiles = decomposition_quantiles,
+    decomposition_other_statistics = decomposition_other_statistics,
+    reweighting_factor = psi,
+    quantiles_reweighting_factor = quantiles_reweighting_factor,
+    trimmed_observations = observations_to_be_trimmed,
+    covariates_labels = covariates_labels,
+    fitted_models = fitted_models,
+    normalized_difference = normalized_difference
+  )
 
   return(results)
 }
@@ -1090,40 +1193,42 @@ dfl_decompose_estimate <- function(formula,
 #' @inheritParams dfl_decompose_estimate
 #'
 dfl_decompose_bootstrap <- function(formula,
-                               dep_var,
-                               data_used ,
-                               weights,
-                               group_variable,
-                               reference_group,
-                               estimate_statistics,
-                               statistics,
-                               probs,
-                               custom_statistic_function,
-                               right_to_left,
-                               trimming,
-                               trimming_threshold,
-                               ...){
-
+                                    dep_var,
+                                    data_used,
+                                    weights,
+                                    group_variable,
+                                    reference_group,
+                                    estimate_statistics,
+                                    statistics,
+                                    probs,
+                                    custom_statistic_function,
+                                    right_to_left,
+                                    trimming,
+                                    trimming_threshold,
+                                    ...) {
   sampled_observations <- sample(1:nrow(data_used),
-                                 nrow(data_used),
-                                 replace=TRUE,
-                                 prob=weights/sum(weights,na.rm=TRUE))
+    nrow(data_used),
+    replace = TRUE,
+    prob = weights / sum(weights, na.rm = TRUE)
+  )
 
-  decompose_estimates <- dfl_decompose_estimate(formula = formula,
-                                      dep_var = dep_var[sampled_observations],
-                                      data_used = data_used[sampled_observations,],
-                                      weights = (weights[sampled_observations]/sum(weights[sampled_observations],na.rm=TRUE))*sum(weights,na.rm=TRUE),
-                                      group_variable=group_variable[sampled_observations],
-                                      reference_group=reference_group,
-                                      estimate_statistics=estimate_statistics,
-                                      statistics = statistics,
-                                      probs = probs,
-                                      custom_statistic_function = custom_statistic_function,
-                                      right_to_left = right_to_left,
-                                      trimming = trimming,
-                                      trimming_threshold = trimming_threshold,
-                                      estimate_normalized_difference = FALSE,
-                                      ...)
+  decompose_estimates <- dfl_decompose_estimate(
+    formula = formula,
+    dep_var = dep_var[sampled_observations],
+    data_used = data_used[sampled_observations, ],
+    weights = (weights[sampled_observations] / sum(weights[sampled_observations], na.rm = TRUE)) * sum(weights, na.rm = TRUE),
+    group_variable = group_variable[sampled_observations],
+    reference_group = reference_group,
+    estimate_statistics = estimate_statistics,
+    statistics = statistics,
+    probs = probs,
+    custom_statistic_function = custom_statistic_function,
+    right_to_left = right_to_left,
+    trimming = trimming,
+    trimming_threshold = trimming_threshold,
+    estimate_normalized_difference = FALSE,
+    ...
+  )
 
   decompose_estimates$reweighting_factor <- NULL
 
@@ -1152,78 +1257,80 @@ fit_and_predict_probabilities <- function(formula,
                                           method = "logit",
                                           return_model = FALSE,
                                           newdata = NULL,
-                                          ...){
-
+                                          ...) {
   data_used$`(weights)` <- weights
 
-  if(method=="logit"){
-
+  if (method == "logit") {
     model_fit <- glm(formula,
-                     data = data_used,
-                     weights = `(weights)`,
-                     family = quasibinomial(link = "logit"),
-                     ...)
-
-    fitted_probabilities  <- predict.glm(model_fit,
-                                         newdata = newdata,
-                                         type="response",
-                                         na.action = na.exclude)
-  }
-
-  if(method=="fastglm"){
-
-    x <- model.matrix(formula, data_used)
-    y <- model.response(model.frame(formula, data_used))
-    if(is.factor(y)){
-      y <- as.numeric(y == max(levels(y)))
-    }else if(is.numeric(y)){
-      y <- as.numeric(y == max(y))
-    }
-    model_fit <- fastglm::fastglm(x = x,
-                                  y = y,
-                                  quasibinomial(link = "logit"),
-                                  weights = weights,
-                                  ...
+      data = data_used,
+      weights = `(weights)`,
+      family = quasibinomial(link = "logit"),
+      ...
     )
 
-    if(is.null(newdata)){
+    fitted_probabilities <- predict.glm(model_fit,
+      newdata = newdata,
+      type = "response",
+      na.action = na.exclude
+    )
+  }
+
+  if (method == "fastglm") {
+    x <- model.matrix(formula, data_used)
+    y <- model.response(model.frame(formula, data_used))
+    if (is.factor(y)) {
+      y <- as.numeric(y == max(levels(y)))
+    } else if (is.numeric(y)) {
+      y <- as.numeric(y == max(y))
+    }
+    model_fit <- fastglm::fastglm(
+      x = x,
+      y = y,
+      quasibinomial(link = "logit"),
+      weights = weights,
+      ...
+    )
+
+    if (is.null(newdata)) {
       newdata <- data_used
     }
     newdata_matrix <- model.matrix(formula, newdata)
 
-    fitted_probabilities  <- predict(model_fit,
-                                      newdata = newdata_matrix,
-                                      type="response")
-
-
+    fitted_probabilities <- predict(model_fit,
+      newdata = newdata_matrix,
+      type = "response"
+    )
   }
 
 
   ### Random forestes predictions with ranger
-  if(method=="random_forest"){
-
+  if (method == "random_forest") {
     model_fit <- ranger::ranger(formula,
-                                data = data_used,
-                                case.weights = data_used$`(weights)`,
-                                classification = TRUE,
-                                probability = TRUE,
-                                ...)
+      data = data_used,
+      case.weights = data_used$`(weights)`,
+      classification = TRUE,
+      probability = TRUE,
+      ...
+    )
 
-    if(is.null(newdata)){
+    if (is.null(newdata)) {
       newdata <- data_used
     }
 
-    fitted_probabilities  <-  predict(model_fit,
-                                      data = newdata)$predictions[,2]
+    fitted_probabilities <- predict(model_fit,
+      data = newdata
+    )$predictions[, 2]
   }
 
 
-  if(as.logical(return_model) != TRUE){
+  if (as.logical(return_model) != TRUE) {
     model_fit <- NULL
   }
 
-  results <- list(fitted_probabilities,
-                  model_fit)
+  results <- list(
+    fitted_probabilities,
+    model_fit
+  )
 
   return(results)
 }
@@ -1246,23 +1353,21 @@ fit_and_predict_probabilities <- function(formula,
 select_observations_to_be_trimmed <- function(reweighting_factor,
                                               group_variable,
                                               group,
-                                              trimming_threshold = NULL){
-
+                                              trimming_threshold = NULL) {
   group <- levels(group_variable)[group + 1]
 
-  reweighting_factor_control <- reweighting_factor[which(group_variable==group)]
-  if(is.null(trimming_threshold)){
+  reweighting_factor_control <- reweighting_factor[which(group_variable == group)]
+  if (is.null(trimming_threshold)) {
     nobs <- length(reweighting_factor_control)
     trimming_threshold <- sqrt(nobs) / nobs
   }
   reweighting_factor_in_trimming_range <- reweighting_factor_control[which(reweighting_factor_control / sum(reweighting_factor_control) > trimming_threshold)]
   trim_value <- ifelse(length(reweighting_factor_in_trimming_range) == 0,
-                       sum(reweighting_factor),
-                       min(reweighting_factor_in_trimming_range))
+    sum(reweighting_factor),
+    min(reweighting_factor_in_trimming_range)
+  )
 
   observations_to_be_trimmed <- which(reweighting_factor >= trim_value)
 
   return(observations_to_be_trimmed)
 }
-
-

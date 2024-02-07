@@ -11,11 +11,13 @@
 #' @import rifreg
 NULL
 
-utils::globalVariables(c("Variable",
-                         "effect",
-                         "group",
-                         "(weights)",
-                         "probs",
-                         "value",
-                         "t_value",
-                         "se"))
+utils::globalVariables(c(
+  "Variable",
+  "effect",
+  "group",
+  "(weights)",
+  "probs",
+  "value",
+  "t_value",
+  "se"
+))

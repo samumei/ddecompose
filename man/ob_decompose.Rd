@@ -188,44 +188,58 @@ mod1 <- log(wage) ~ age + central_city + msa + region + black +
   years_worked_military + part_time + industry
 
 # Using female coefficients (reference_0 = TRUE) to estimate counterfactual mean
-decompose_female_as_reference <- ob_decompose(formula = mod1,
-                                    data = nlys00,
-                                    group = female,
-                                    reference_0 = TRUE)
+decompose_female_as_reference <- ob_decompose(
+  formula = mod1,
+  data = nlys00,
+  group = female,
+  reference_0 = TRUE
+)
 decompose_female_as_reference
 
 # Using male coefficients (reference_0 = FALSE)
-decompose_male_as_reference <- ob_decompose(formula = mod1,
-                                  data = nlys00,
-                                  group = female,
-                                  reference_0 = FALSE)
+decompose_male_as_reference <- ob_decompose(
+  formula = mod1,
+  data = nlys00,
+  group = female,
+  reference_0 = FALSE
+)
 decompose_male_as_reference
 
 # Replicate first and third column in Table 3 in Fortin, Lemieux, & Firpo (2011: 41)
 # Define aggregation of decomposition terms
-custom_aggregation <- list(`Age, race, region, etc.` = c("age",
-                                                         "blackyes",
-                                                         "hispanicyes",
-                                                         "regionNorth-central",
-                                                         "regionSouth",
-                                                         "regionWest",
-                                                         "central_cityyes",
-                                                         "msayes"),
-                   `Education` = c("education<10 yrs",
-                                   "educationHS grad (diploma)",
-                                   "educationHS grad (GED)",
-                                   "educationSome college",
-                                   "educationBA or equiv. degree",
-                                   "educationMA or equiv. degree",
-                                   "educationPh.D or prof. degree"),
-                   `AFTQ` = "afqt",
-                   `L.T. withdrawal due to family` =  "family_responsibility",
-                   `Life-time work experience` = c("years_worked_civilian",
-                                                   "years_worked_military",
-                                                   "part_time"),
-                   `Industrial sectors` = c("industryManufacturing",
-                                            "industryEducation, Health, Public Admin.",
-                                            "industryOther services"))
+custom_aggregation <- list(
+  `Age, race, region, etc.` = c(
+    "age",
+    "blackyes",
+    "hispanicyes",
+    "regionNorth-central",
+    "regionSouth",
+    "regionWest",
+    "central_cityyes",
+    "msayes"
+  ),
+  `Education` = c(
+    "education<10 yrs",
+    "educationHS grad (diploma)",
+    "educationHS grad (GED)",
+    "educationSome college",
+    "educationBA or equiv. degree",
+    "educationMA or equiv. degree",
+    "educationPh.D or prof. degree"
+  ),
+  `AFTQ` = "afqt",
+  `L.T. withdrawal due to family` = "family_responsibility",
+  `Life-time work experience` = c(
+    "years_worked_civilian",
+    "years_worked_military",
+    "part_time"
+  ),
+  `Industrial sectors` = c(
+    "industryManufacturing",
+    "industryEducation, Health, Public Admin.",
+    "industryOther services"
+  )
+)
 
 # First column
 summary(decompose_male_as_reference, custom_aggregation = custom_aggregation)
@@ -234,19 +248,23 @@ summary(decompose_male_as_reference, custom_aggregation = custom_aggregation)
 summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
 ## Compare bootstrapped standard errors...
-decompose_female_as_reference_bs <- ob_decompose(formula = mod1,
-                                       data = nlys00,
-                                       group = female,
-                                       bootstrap = TRUE,
-                                       bootstrap_iterations = 100)
+decompose_female_as_reference_bs <- ob_decompose(
+  formula = mod1,
+  data = nlys00,
+  group = female,
+  bootstrap = TRUE,
+  bootstrap_iterations = 100
+)
 summary(decompose_female_as_reference_bs, custom_aggregation = custom_aggregation)
 
 # ... to analytical standard errors (assuming independence between groups and
 # homoscedasticity)
-decompose_female_as_reference <- ob_decompose(formula = mod1,
-                                    data = nlys00,
-                                    group = female,
-                                    reference_0 = TRUE)
+decompose_female_as_reference <- ob_decompose(
+  formula = mod1,
+  data = nlys00,
+  group = female,
+  reference_0 = TRUE
+)
 summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
 # Return standard errors for all detailed terms
@@ -254,45 +272,53 @@ summary(decompose_female_as_reference, aggregate_factors = FALSE)
 
 
 ## 'Doubly robust' Oaxaca-Blinder decomposition of gender wage gap
- mod2 <- log(wage) ~ age + central_city + msa + region + black +
+mod2 <- log(wage) ~ age + central_city + msa + region + black +
   hispanic + education + afqt + family_responsibility + years_worked_civilian +
-  years_worked_military + part_time + industry | age  + (central_city + msa) * region + (black +
+  years_worked_military + part_time + industry | age + (central_city + msa) * region + (black +
   hispanic) * (education + afqt) + family_responsibility * (years_worked_civilian +
   years_worked_military) + part_time * industry
-decompose_male_as_reference_robust <- ob_decompose(formula = mod2,
-                                         data = nlys00,
-                                         group = female,
-                                         reference_0 = FALSE,
-                                         reweighting = TRUE)
+decompose_male_as_reference_robust <- ob_decompose(
+  formula = mod2,
+  data = nlys00,
+  group = female,
+  reference_0 = FALSE,
+  reweighting = TRUE
+)
 
 # ... using random forests instead of logit to estimate weights
-decompose_male_as_reference_robust_rf <- ob_decompose(formula = mod1,
-                                         data = nlys00,
-                                         group = female,
-                                         reference_0 = FALSE,
-                                         reweighting = TRUE,
-                                         method = "random_forest")
+decompose_male_as_reference_robust_rf <- ob_decompose(
+  formula = mod1,
+  data = nlys00,
+  group = female,
+  reference_0 = FALSE,
+  reweighting = TRUE,
+  method = "random_forest"
+)
 
 # Reweighted RIF Regression Decomposition
 data("men8305")
 
 model_rifreg <- log(wage) ~  union + education + experience |
-                             union*(education + experience) + education*experience
+  union * (education + experience) + education * experience
 
 # Variance
-variance_decomposition <- ob_decompose(formula = model_rifreg,
-                                       data = men8305,
-                                       group = year,
-                                       reweighting = TRUE,
-                                       rifreg_statistic = "variance")
+variance_decomposition <- ob_decompose(
+  formula = model_rifreg,
+  data = men8305,
+  group = year,
+  reweighting = TRUE,
+  rifreg_statistic = "variance"
+)
 
 # Deciles
-deciles_decomposition <- ob_decompose(formula = model_rifreg,
-                                      data = men8305,
-                                      group = year,
-                                      reweighting = TRUE,
-                                      rifreg_statistic = "quantiles",
-                                      rifreg_probs = c(1:9)/10)
+deciles_decomposition <- ob_decompose(
+  formula = model_rifreg,
+  data = men8305,
+  group = year,
+  reweighting = TRUE,
+  rifreg_statistic = "quantiles",
+  rifreg_probs = c(1:9) / 10
+)
 
 plot(deciles_decomposition)
 
@@ -308,12 +334,14 @@ custom_variance_function <- function(dep_var, weights, probs = NULL) {
 }
 
 custom_decomposition <-
-  ob_decompose(formula = model_rifreg,
-               data = men8305,
-               group = year,
-               reweighting = TRUE,
-               rifreg_statistic = "custom",
-               custom_rif_function = custom_variance_function)
+  ob_decompose(
+    formula = model_rifreg,
+    data = men8305,
+    group = year,
+    reweighting = TRUE,
+    rifreg_statistic = "custom",
+    custom_rif_function = custom_variance_function
+  )
 
 }
 \references{

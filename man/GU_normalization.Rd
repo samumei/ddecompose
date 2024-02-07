@@ -23,10 +23,12 @@ that do not depend on the chosen reference levels of the factor variables.
 \examples{
 data("men8305")
 mod1 <- log(wage) ~ union + married + nonwhite + education + experience
-normalized_data <- GU_normalization(formula = mod1,
-                                   data = men8305,
-                                   weights = weights,
-                                   group = year)
+normalized_data <- GU_normalization(
+  formula = mod1,
+  data = men8305,
+  weights = weights,
+  group = year
+)
 
 }
 \references{

@@ -9,7 +9,7 @@ library("readstata13")
 men8816 <- read.dta13("data-raw/morgm_all8816.dta")
 
 # Subsetting the data by year and non-missing values of lwage1 & uhrswk
-#men8816 <- subset(men8816, year >= 88 & year <= 90)
+# men8816 <- subset(men8816, year >= 88 & year <= 90)
 men8816 <- subset(men8816, !is.na(lwage1) & !is.na(uhrswk))
 
 # Generating covariates
@@ -95,10 +95,10 @@ df_88_90$occd91 <- as.numeric(with(df_88_90, occ3 >= 804 & occ3 <= 806))
 
 
 # Sum of occupation categories
-df_88_90$occsum <- rowSums(df_88_90[, grep('occd', names(df_88_90))], na.rm = TRUE)
+df_88_90$occsum <- rowSums(df_88_90[, grep("occd", names(df_88_90))], na.rm = TRUE)
 
 # Flag for any occupation
-df_88_90$occun <- as.numeric(rowSums(df_88_90[, grep('occd', names(df_88_90))] == 1, na.rm = TRUE) >= 1)
+df_88_90$occun <- as.numeric(rowSums(df_88_90[, grep("occd", names(df_88_90))] == 1, na.rm = TRUE) >= 1)
 
 
 # Industry
@@ -118,10 +118,10 @@ df_88_90$indd13 <- as.numeric(with(df_88_90, (ind3 >= 761 & ind3 <= 802) | (ind3
 df_88_90$indd14 <- as.numeric(with(df_88_90, ind3 >= 900 & ind3 <= 932))
 
 # Sum of industry categories
-df_88_90$indsum <- rowSums(df_88_90[, grep('indd', names(df_88_90))], na.rm = TRUE)
+df_88_90$indsum <- rowSums(df_88_90[, grep("indd", names(df_88_90))], na.rm = TRUE)
 
 # Flag for any industry
-df_88_90$indun <- as.numeric(rowSums(df_88_90[, grep('indd', names(df_88_90))] == 1, na.rm = TRUE) >= 1)
+df_88_90$indun <- as.numeric(rowSums(df_88_90[, grep("indd", names(df_88_90))] == 1, na.rm = TRUE) >= 1)
 
 # Base case
 df_88_90$base <- as.numeric(with(df_88_90, (covered == 0 & nonwhite == 0 & marr == 1 & ed2 == 1 & ex5 == 1 & occd70 == 1 & indd2 == 1)))
@@ -173,10 +173,10 @@ df_14_16$occun <- as.numeric(with(df_14_16, (occd11 == 1 | occd12 == 1 | occd21 
 
 
 # Sum of occupation categories
-df_14_16$occsum <- rowSums(df_14_16[, grep('occd', names(df_14_16))], na.rm = TRUE)
+df_14_16$occsum <- rowSums(df_14_16[, grep("occd", names(df_14_16))], na.rm = TRUE)
 
 # Flag for any occupation
-df_14_16$occun <- as.numeric(rowSums(df_14_16[, grep('occd', names(df_14_16))] == 1, na.rm = TRUE) >= 1)
+df_14_16$occun <- as.numeric(rowSums(df_14_16[, grep("occd", names(df_14_16))] == 1, na.rm = TRUE) >= 1)
 
 # Industry
 df_14_16$indd1 <- as.numeric(with(df_14_16, (ind3 >= 170 & ind3 <= 490)))
@@ -198,10 +198,10 @@ df_14_16$base <- as.numeric(with(df_14_16, (covered == 0 & nonwhite == 0 & marr 
 
 
 # Sum of industry categories
-df_14_16$indsum <- rowSums(df_14_16[, grep('indd', names(df_14_16))], na.rm = TRUE)
+df_14_16$indsum <- rowSums(df_14_16[, grep("indd", names(df_14_16))], na.rm = TRUE)
 
 # Flag for any industry
-df_14_16$indun <- as.numeric(rowSums(df_14_16[, grep('indd', names(df_14_16))] == 1, na.rm = TRUE) >= 1)
+df_14_16$indun <- as.numeric(rowSums(df_14_16[, grep("indd", names(df_14_16))] == 1, na.rm = TRUE) >= 1)
 
 # Base case
 df_14_16$base <- as.numeric(with(df_14_16, (covered == 0 & nonwhite == 0 & marr == 1 & ed2 == 1 & ex5 == 1 & occd70 == 1 & indd2 == 1)))
@@ -239,10 +239,10 @@ men8816$lwage2 <- men8816$lwage2 + log(218.1 / 72.6)
 
 
 # Select only variables used in FFL examples
-sel <- c("year", "lwage", "covered", "nonwhite", "nmarr", "age", "ed",  "ex", "occd", "indd", "pub", "base", "eweight")
+sel <- c("year", "lwage", "covered", "nonwhite", "nmarr", "age", "ed", "ex", "occd", "indd", "pub", "base", "eweight")
 
 # Create the regular expression pattern
-pattern <- paste(sel, collapse="|")
+pattern <- paste(sel, collapse = "|")
 
 # Subset the data
 men8816 <- men8816[, grep(pattern, names(men8816))]
@@ -250,8 +250,9 @@ men8816 <- men8816[, grep(pattern, names(men8816))]
 
 # Recode Year
 men8816$year <- factor(men8816$year,
-                       levels = c(88, 89, 90, 114, 115, 116),
-                       labels = c("88-90", "88-90", "88-90", "14-16", "14-16", "14-16"))
+  levels = c(88, 89, 90, 114, 115, 116),
+  labels = c("88-90", "88-90", "88-90", "14-16", "14-16", "14-16")
+)
 
 
 # Create variable labels
@@ -317,8 +318,3 @@ attr(men8816, "var.labels") <- var_labels
 
 # Saving the data
 usethis::use_data(men8816, overwrite = TRUE)
-
-
-
-
-

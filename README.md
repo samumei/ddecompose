@@ -398,8 +398,8 @@ wage regression model and then run the estimation.
 
 ``` r
 model <- log(wage) ~  age + region + education +
-                      years_worked_civilian + years_worked_military +
-                      part_time + family_responsibility + industry
+  years_worked_civilian + years_worked_military +
+  part_time + family_responsibility + industry
 
 gender_gap_decomposition <- ob_decompose(
   formula = model,
@@ -583,20 +583,20 @@ model_w_reweighting <- log(wage) ~
   age + region + education +
     years_worked_civilian + years_worked_military +
     part_time + family_responsibility + industry |
-      age + region + education +
+    age + region + education +
       years_worked_civilian + years_worked_military +
       part_time + family_responsibility + industry +
       education:region + age:education
 
 gender_gap_decomposition_w_reweighting <- ob_decompose(
-    formula = model_w_reweighting,
-    data = nlys00,
-    group = female,
-    reference_0 = FALSE,
-    reweighting = TRUE,
-    bootstrap = TRUE,
-    cores = 4
-  )
+  formula = model_w_reweighting,
+  data = nlys00,
+  group = female,
+  reference_0 = FALSE,
+  reweighting = TRUE,
+  bootstrap = TRUE,
+  cores = 4
+)
 ```
 
 The default method for fitting and predicting conditional probabilities,
@@ -631,9 +631,9 @@ Fortin, Lemieux, & Firpo (2011).
 ``` r
 data("men8305")
 
-model_rifreg <- log(wage) ~ union + education + experience | 
-                            union * (education + experience) + 
-                            education * experience
+model_rifreg <- log(wage) ~ union + education + experience |
+  union * (education + experience) +
+    education * experience
 
 # Variance
 variance_decomposition <- ob_decompose(
@@ -747,8 +747,8 @@ right-hand side the conditional probability model.
 
 ``` r
 data("men8305")
-flf_model <- log(wage) ~ union * (education + experience) + 
-                         education * experience
+flf_model <- log(wage) ~ union * (education + experience) +
+  education * experience
 flf_male_inequality <- dfl_decompose(
   formula = flf_model,
   data = men8305,
@@ -846,9 +846,6 @@ summary(flf_male_inequality)
 #>  Interquantile range p90-p50  0.14242   0.011925  0.119044  0.165790
 #>  Interquantile range p50-p10 -0.12011   0.008410 -0.136596 -0.103630
 #> 
-#> *Gini of untransformed Y (=exp(log(Y)))
-#> 
-#> -----------------------------------------------------------------------
 #> Summary statistics of reweighting factors
 #> 
 #> Number of trimmed observations (not included in statistics): 0 (0%)
@@ -912,8 +909,8 @@ also includes a union status indicator (variable $X_1$).
 
 ``` r
 model_sequential <- log(wage) ~ union * (education + experience) +
-                                education * experience |
-                                  education * experience
+  education * experience |
+  education * experience
 ```
 
 As before, we use the observations from the early 1980s as reference
@@ -1044,28 +1041,48 @@ ffl_model_with_reweighting <- as.formula(
     "lwage2 ~ covered + nonwhite + nmarr +
      ed0 + ed1 + ed3 + ed4 + ed5 + ",
     paste(grep(paste0("^ex(", paste(c(1:4, 6:9), collapse = "|"), ")$"),
-      names(men8816_t4), value = T), collapse = " + "), " + ",
+      names(men8816_t4),
+      value = T
+    ), collapse = " + "), " + ",
     paste(grep(paste0("^occd(", paste(c(11:60, 80:91), collapse = "|"), ")$"),
-      names(men8816_t4), value = T ), collapse = " + "), " + ",
+      names(men8816_t4),
+      value = T
+    ), collapse = " + "), " + ",
     paste(grep(paste0("^indd(", paste(c(1, 3:14), collapse = "|"), ")$"),
-      names(men8816_t4), value = T), collapse = " + "), " + pub | ",
+      names(men8816_t4),
+      value = T
+    ), collapse = " + "), " + pub | ",
     paste(
       "covered + nonwhite +",
       paste(grep("^marr",
-        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+        names(men8816_t4),
+        value = TRUE
+      ), collapse = " + "), "+",
       paste(c("ed0", "ed1", "ed3", "ed4", "ed5"), collapse = " + "), "+",
       paste(grep("^ex[1-4]|^ex[6-9]",
-        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+        names(men8816_t4),
+        value = TRUE
+      ), collapse = " + "), "+",
       paste(grep("^uned",
-        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+        names(men8816_t4),
+        value = TRUE
+      ), collapse = " + "), "+",
       paste(grep("^unex",
-        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+        names(men8816_t4),
+        value = TRUE
+      ), collapse = " + "), "+",
       paste(grep("^ex[1-9]ed",
-        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+        names(men8816_t4),
+        value = TRUE
+      ), collapse = " + "), "+",
       paste(grep("^pub",
-        names(men8816_t4), value = TRUE), collapse = " + "), "+",
+        names(men8816_t4),
+        value = TRUE
+      ), collapse = " + "), "+",
       paste(grep("^indd(1|1e|[3-9]|10|11|13|14)(?!2)",
-        names(men8816_t4), perl = TRUE, value = TRUE), collapse = " + "), "+",
+        names(men8816_t4),
+        perl = TRUE, value = TRUE
+      ), collapse = " + "), "+",
       paste(grep("^occd", names(men8816_t4), value = TRUE), collapse = " + ")
     )
   )

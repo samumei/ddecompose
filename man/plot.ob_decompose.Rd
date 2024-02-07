@@ -50,59 +50,74 @@ mod1 <- log(wage) ~ age + central_city + msa + region + black +
 
 # plotting RIF regression decomposition of deciles
 \dontrun{
-decompose_rifreg_deciles <- ob_decompose(formula = mod1,
-                                  data = nlys00,
-                                  group = female,
-                                  reweighting = TRUE,
-                                  rifreg_statistic = "quantiles",
-                                  bootstrap = TRUE,
-                                  bootstrap_iterations = 50,
-                                  reference_0 = FALSE)
+decompose_rifreg_deciles <- ob_decompose(
+  formula = mod1,
+  data = nlys00,
+  group = female,
+  reweighting = TRUE,
+  rifreg_statistic = "quantiles",
+  bootstrap = TRUE,
+  bootstrap_iterations = 50,
+  reference_0 = FALSE
+)
 
 plot(decompose_rifreg_deciles)
 
 plot(decompose_rifreg_deciles,
-     confidence_bands = TRUE)
+  confidence_bands = TRUE
+)
 }
 
 # plotting Oaxaca-Blinder decomposition
 
- decompose_ob_mean <- ob_decompose(formula = mod1,
-                                   data = nlys00,
-                                   group = female,
-                                   reweighting = TRUE,
-                                   bootstrap = FALSE,
-                                   reference_0 = FALSE)
+decompose_ob_mean <- ob_decompose(
+  formula = mod1,
+  data = nlys00,
+  group = female,
+  reweighting = TRUE,
+  bootstrap = FALSE,
+  reference_0 = FALSE
+)
 
- plot(decompose_ob_mean)
- plot(decompose_ob_mean, detailed_effects = FALSE)
+plot(decompose_ob_mean)
+plot(decompose_ob_mean, detailed_effects = FALSE)
 
 
 # With custom aggregation
 
-custom_aggregation <- list(`Age, race, region, etc.` = c("age",
-                                                         "blackyes",
-                                                         "hispanicyes",
-                                                         "regionNorth-central",
-                                                         "regionSouth",
-                                                         "regionWest",
-                                                         "central_cityyes",
-                                                         "msayes"),
-                           `Education` = c("education<10 yrs",
-                                           "educationHS grad (diploma)",
-                                           "educationHS grad (GED)",
-                                           "educationSome college",
-                                           "educationBA or equiv. degree",
-                                           "educationMA or equiv. degree",
-                                           "educationPh.D or prof. degree"),
-                           `AFTQ` = "afqt",
-                           `L.T. withdrawal due to family` = "family_responsibility",
-                           `Life-time work experience` = c("years_worked_civilian",
-                                                           "years_worked_military",
-                                                           "part_time"),
-                           `Industrial sectors` = c("industryManufacturing",
-                                                    "industryEducation, Health, Public Admin.",
-                                                    "industryOther services"))
+custom_aggregation <- list(
+  `Age, race, region, etc.` = c(
+    "age",
+    "blackyes",
+    "hispanicyes",
+    "regionNorth-central",
+    "regionSouth",
+    "regionWest",
+    "central_cityyes",
+    "msayes"
+  ),
+  `Education` = c(
+    "education<10 yrs",
+    "educationHS grad (diploma)",
+    "educationHS grad (GED)",
+    "educationSome college",
+    "educationBA or equiv. degree",
+    "educationMA or equiv. degree",
+    "educationPh.D or prof. degree"
+  ),
+  `AFTQ` = "afqt",
+  `L.T. withdrawal due to family` = "family_responsibility",
+  `Life-time work experience` = c(
+    "years_worked_civilian",
+    "years_worked_military",
+    "part_time"
+  ),
+  `Industrial sectors` = c(
+    "industryManufacturing",
+    "industryEducation, Health, Public Admin.",
+    "industryOther services"
+  )
+)
 
 plot(decompose_ob_mean, custom_aggregation = custom_aggregation)
 

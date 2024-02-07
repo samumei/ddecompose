@@ -265,13 +265,14 @@ is estimated as in Chen et al. (2017).
 
 data("men8305")
 
-flf_model <- log(wage) ~ union*(education + experience) + education*experience
+flf_model <- log(wage) ~ union * (education + experience) + education * experience
 
 # Reweighting sample from 1983-85
-flf_male_inequality  <- dfl_decompose(flf_model,
-                                 data = men8305,
-                                 weights = weights,
-                                 group = year)
+flf_male_inequality <- dfl_decompose(flf_model,
+  data = men8305,
+  weights = weights,
+  group = year
+)
 
 # Summarize results
 summary(flf_male_inequality)
@@ -280,23 +281,25 @@ summary(flf_male_inequality)
 plot(flf_male_inequality)
 
 # Use alternative reference group (i.e., reweight sample from 2003-05)
-flf_male_inequality_reference_0305  <- dfl_decompose(flf_model,
-                                                data = men8305,
-                                                weights = weights,
-                                                group = year,
-                                                reference_0 = FALSE)
+flf_male_inequality_reference_0305 <- dfl_decompose(flf_model,
+  data = men8305,
+  weights = weights,
+  group = year,
+  reference_0 = FALSE
+)
 summary(flf_male_inequality_reference_0305)
 
 # Bootstrap standard errors (using smaller sample for the sake of illustration)
 \dontrun{
 set.seed(123)
-flf_male_inequality_boot  <- dfl_decompose(flf_model,
-                                 data = men8305[1:1000, ],
-                                 weights = weights,
-                                 group = year,
-                                 bootstrap = TRUE,
-                                 bootstrap_iterations = 100,
-                                 cores = 1)
+flf_male_inequality_boot <- dfl_decompose(flf_model,
+  data = men8305[1:1000, ],
+  weights = weights,
+  group = year,
+  bootstrap = TRUE,
+  bootstrap_iterations = 100,
+  cores = 1
+)
 
 # Get standard errors and confidence intervals
 summary(flf_male_inequality_boot)
@@ -305,8 +308,7 @@ summary(flf_male_inequality_boot)
 plot(flf_male_inequality_boot)
 
 # Plot quantile differences with uniform confidence intervals
-plot(flf_male_inequality_boot, uniform_bands=TRUE)
-
+plot(flf_male_inequality_boot, uniform_bands = TRUE)
 }
 
 
@@ -315,18 +317,19 @@ plot(flf_male_inequality_boot, uniform_bands=TRUE)
 # Here we distinguish the contribution of education and experience
 # from the contribution of unionization conditional on education and experience.
 
-model_sequential <- log(wage) ~ union*(education + experience) +
-                                  education*experience |
-                                  education*experience
+model_sequential <- log(wage) ~ union * (education + experience) +
+  education * experience |
+  education * experience
 
 # First variant:
 # Contribution of union is evaluated using composition of
 # education and experience from 2003-2005 (group 1)
 
-male_inequality_sequential  <- dfl_decompose(model_sequential,
-                                        data = men8305,
-                                        weights = weights,
-                                        group = year)
+male_inequality_sequential <- dfl_decompose(model_sequential,
+  data = men8305,
+  weights = weights,
+  group = year
+)
 
 # Summarize results
 summary(male_inequality_sequential)
@@ -335,58 +338,69 @@ summary(male_inequality_sequential)
 # Contribution of union is evaluated using composition of
 # education and experience from 1983-1985 (group 0)
 
-male_inequality_sequential_2  <- dfl_decompose(model_sequential,
-                                        data = men8305,
-                                        weights = weights,
-                                        group = year,
-                                        right_to_left = FALSE)
+male_inequality_sequential_2 <- dfl_decompose(model_sequential,
+  data = men8305,
+  weights = weights,
+  group = year,
+  right_to_left = FALSE
+)
 
 # Summarize results
 summary(male_inequality_sequential_2)
 
 # The domposition effects associated with (conditional) unionization for deciles
-cbind(male_inequality_sequential$decomposition_quantiles$prob,
-      male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
-      male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`)
+cbind(
+  male_inequality_sequential$decomposition_quantiles$prob,
+  male_inequality_sequential$decomposition_quantiles$`Comp. eff. X1|X2`,
+  male_inequality_sequential_2$decomposition_quantiles$`Comp. eff. X1|X2`
+)
 
 
 ## Trim observations with weak common support
 ## (i.e. observations with relative factor weights > \sqrt(N)/N)
 
 set.seed(123)
-data_weak_common_support <- data.frame(d = factor(c(c("A", "A", rep("B", 98)),
-                                                  c(rep("A", 90), rep("B", 10)))),
-                                       group = rep(c(0, 1), each = 100))
+data_weak_common_support <- data.frame(
+  d = factor(c(
+    c("A", "A", rep("B", 98)),
+    c(rep("A", 90), rep("B", 10))
+  )),
+  group = rep(c(0, 1), each = 100)
+)
 data_weak_common_support$y <- ifelse(data_weak_common_support$d == "A", 1, 2) +
-                              data_weak_common_support$group +
-                              rnorm(200, 0, 0.5)
+  data_weak_common_support$group +
+  rnorm(200, 0, 0.5)
 
 decompose_results_trimmed <- dfl_decompose(y ~ d,
-                                 data_weak_common_support,
-                                 group = group,
-                                 trimming = TRUE)
+  data_weak_common_support,
+  group = group,
+  trimming = TRUE
+)
 
-identical(decompose_results_trimmed$trimmed_observations,
-          which(data_weak_common_support$d == "A"))
+identical(
+  decompose_results_trimmed$trimmed_observations,
+  which(data_weak_common_support$d == "A")
+)
 
 
 ## Pass a custom statistic function to decompose income share of top 10\%
 
 top_share <- function(dep_var,
                       weights,
-                      top_percent = 0.1){
-  threshold <- Hmisc::wtd.quantile(dep_var, weights = weights, probs = 1-top_percent)
+                      top_percent = 0.1) {
+  threshold <- Hmisc::wtd.quantile(dep_var, weights = weights, probs = 1 - top_percent)
   share <- sum(weights[which(dep_var > threshold)] *
-                 dep_var[which(dep_var > threshold)]) /
-              sum(weights * dep_var)
+    dep_var[which(dep_var > threshold)]) /
+    sum(weights * dep_var)
   return(share)
 }
 
-flf_male_inequality_custom_stat  <- dfl_decompose(flf_model,
-                                                  data = men8305,
-                                                  weights = weights,
-                                                  group = year,
-                                                  custom_statistic_function = top_share)
+flf_male_inequality_custom_stat <- dfl_decompose(flf_model,
+  data = men8305,
+  weights = weights,
+  group = year,
+  custom_statistic_function = top_share
+)
 summary(flf_male_inequality_custom_stat)
 
 }

@@ -58,4 +58,3 @@
 #' "Decomposition Methods in Economics." In Orley Ashenfelter and David Card, eds.,
 #' Handbook of Labor Economics, Volume 4a., Chapter 1, 1-102.
 "men8305"
-

@@ -40,10 +40,12 @@ data("nlys00")
 mod1 <- log(wage) ~ age + education + years_worked_civilian +
   years_worked_military + part_time + industry
 
-decompose_results <- ob_decompose(formula = mod1,
-                        data = nlys00,
-                        group = female,
-                        reference_0 = TRUE)
+decompose_results <- ob_decompose(
+  formula = mod1,
+  data = nlys00,
+  group = female,
+  reference_0 = TRUE
+)
 
 # Print standard errors
 summary(decompose_results)
@@ -53,20 +55,28 @@ summary(decompose_results, aggregate_factors = TRUE)
 
 # custom aggregation of decomposition terms
 custom_aggregation <-
-  list(`Age` = c("age"),
-       `Education` = c("education<10 yrs",
-                       "educationHS grad (diploma)",
-                       "educationHS grad (GED)",
-                       "educationSome college",
-                       "educationBA or equiv. degree",
-                       "educationMA or equiv. degree",
-                       "educationPh.D or prof. degree"),
-       `Life-time work experience` = c("years_worked_civilian",
-                                       "years_worked_military",
-                                       "part_time"),
-       `Industrial sectors` = c("industryManufacturing",
-                                "industryEducation, Health, Public Admin.",
-                                "industryOther services"))
+  list(
+    `Age` = c("age"),
+    `Education` = c(
+      "education<10 yrs",
+      "educationHS grad (diploma)",
+      "educationHS grad (GED)",
+      "educationSome college",
+      "educationBA or equiv. degree",
+      "educationMA or equiv. degree",
+      "educationPh.D or prof. degree"
+    ),
+    `Life-time work experience` = c(
+      "years_worked_civilian",
+      "years_worked_military",
+      "part_time"
+    ),
+    `Industrial sectors` = c(
+      "industryManufacturing",
+      "industryEducation, Health, Public Admin.",
+      "industryOther services"
+    )
+  )
 summary(decompose_results, custom_aggregation = custom_aggregation)
 
 }
