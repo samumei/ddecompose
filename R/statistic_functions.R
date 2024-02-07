@@ -80,7 +80,7 @@ get_distributional_statistics <- function(dep_var,
     names(results)[length(results)] <- "Interquantile ratio p50/p10"
   }
 
-  if (is.null(custom_statistic_function) == FALSE) {
+  if (!is.null(custom_statistic_function)) {
     results <- c(results, custom_statistic_function(dep_var = dep_var, weights = weights))
     names(results)[length(results)] <- "Custom statistic"
   }

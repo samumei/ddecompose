@@ -23,7 +23,7 @@
 #' @export
 #'
 summary.dfl_decompose <- function(object, ..., confidence_level = 0.95, digits = 4) {
-  if (object$subtract_1_from_0 == FALSE) {
+  if (!object$subtract_1_from_0) {
     cat(
       "Decomposition of difference between",
       paste0(object$group_variable_name, " == '", object$group_variable_levels[2], "'"),
@@ -57,11 +57,11 @@ summary.dfl_decompose <- function(object, ..., confidence_level = 0.95, digits =
   decomposition_quantiles_export <- NULL
   decomposition_other_statistics_export <- NULL
 
-  if (is.null(object$decomposition_quantiles) == FALSE) {
+  if (!is.null(object$decomposition_quantiles)) {
     cat("Decomposition of difference at conditional quantiles:\n\n")
     decomposition_quantiles <- object$decomposition_quantiles
 
-    if (is.null(object$bootstrapped_standard_errors) == FALSE) {
+    if (!is.null(object$bootstrapped_standard_errors)) {
       decomposition_quantiles_se <- object$bootstrapped_standard_errors$decomposition_quantiles
       kolmogorov_smirnov_stat <- object$bootstrapped_standard_errors$decomposition_quantiles_kms_distribution
       kolmogorov_smirnov_stat <- lapply(
@@ -106,7 +106,7 @@ summary.dfl_decompose <- function(object, ..., confidence_level = 0.95, digits =
       decomposition_quantiles_export <- decomposition_quantiles
     }
   }
-  if (is.null(object$decomposition_other_statistics) == FALSE) {
+  if (!is.null(object$decomposition_other_statistics)) {
     cat("Decomposition of difference for other distributional statistics\n\n")
     decomposition_other_statistics <- object$decomposition_other_statistics
     decomposition_other_statistics_export <- decomposition_other_statistics
@@ -119,7 +119,7 @@ summary.dfl_decompose <- function(object, ..., confidence_level = 0.95, digits =
       legend_to_table <- NULL
     }
 
-    if (is.null(object$bootstrapped_standard_errors) == FALSE) {
+    if (!is.null(object$bootstrapped_standard_errors)) {
       decomposition_other_statistics_se <- object$bootstrapped_standard_errors$decomposition_other_statistics
 
       for (i in 2:ncol(decomposition_other_statistics)) {
@@ -140,7 +140,7 @@ summary.dfl_decompose <- function(object, ..., confidence_level = 0.95, digits =
       print(decomposition_other_statistics[, -1])
       cat("\n")
     }
-    if (is.null(legend_to_table) == FALSE) {
+    if (!is.null(legend_to_table)) {
       cat(legend_to_table)
     }
     cat("-----------------------------------------------------------------------\n")
@@ -156,7 +156,7 @@ summary.dfl_decompose <- function(object, ..., confidence_level = 0.95, digits =
     "%)\n\n"
   ))
 
-  if (is.null(object$bootstrapped_standard_errors) == FALSE) {
+  if (!is.null(object$bootstrapped_standard_errors)) {
     quantiles_reweighting_factor <- object$quantiles_reweighting_factor
     quantiles_reweighting_factor_se <- object$bootstrapped_standard_errors$quantiles_reweighting_factor
     for (i in 2:ncol(quantiles_reweighting_factor_se)) {
@@ -251,7 +251,8 @@ summary.ob_decompose <- function(object,
                                  aggregate_factors = TRUE,
                                  custom_aggregation = NULL,
                                  confidence_level = 0.95) {
-  reweighting <- ifelse(object$input_parameters$reweighting, TRUE, FALSE)
+
+  reweighting <- object$input_parameters$reweighting
 
   if (is.null(object$input_parameters$rifreg_statistic)) {
     if (!reweighting) {
@@ -596,7 +597,7 @@ aggregate_terms <- function(x,
       custom_aggregation <- list()
       for (i in 1:length(model_variables)) {
         sel_factor_variable <- match(model_variables[i], factor_variables)
-        if (is.na(sel_factor_variable) == FALSE) {
+        if (!is.na(sel_factor_variable)) {
           custom_aggregation[[i]] <- paste0(model_variables[i], factor_levels[[sel_factor_variable]])[-1]
         } else {
           custom_aggregation[[i]] <- model_variables[i]

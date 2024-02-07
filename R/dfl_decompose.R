@@ -428,7 +428,7 @@ dfl_decompose <- function(formula,
   group_variable <- data_used[, ncol(data_used)]
   names(data_used)[ncol(data_used)] <- "group_variable"
   check_group_variable <- is.numeric(group_variable) & length(unique(group_variable)) == 2 | is.factor(group_variable) & length(unique(group_variable)) == 2
-  if (check_group_variable == FALSE) {
+  if (!check_group_variable) {
     stop("Group variable must either be a binary numeric variable or a binary factor variable.")
   }
 
@@ -454,8 +454,8 @@ dfl_decompose <- function(formula,
     probs <- seq(5, 95, 5) / 100
   }
   if (!is.null(custom_statistic_function)) {
-    if ("dep_var" %in% methods::formalArgs(custom_statistic_function) == FALSE |
-      "weights" %in% methods::formalArgs(custom_statistic_function) == FALSE) {
+    if (!"dep_var" %in% methods::formalArgs(custom_statistic_function) |
+      !"weights" %in% methods::formalArgs(custom_statistic_function)) {
       stop("The arguments 'dep_var' and 'weights' in 'custom_statistic_function' must be defined!")
     }
   }
@@ -463,7 +463,7 @@ dfl_decompose <- function(formula,
     estimate_statistics <- FALSE
   }
 
-  if (method %in% c("logit", "fastglm", "random_forest") == FALSE) {
+  if (!method %in% c("logit", "fastglm", "random_forest")) {
     stop("Only 'logit', 'fastglm', and 'random forests' are available methods to estimate reweighting factors")
   }
 
@@ -1108,7 +1108,7 @@ dfl_decompose_estimate <- function(formula,
     }
     if ("quantiles" %in% statistics & length(statistics) > 1) {
       decomposition_other_statistics <- Delta[(length(probs) + 1):nrow(Delta), ]
-    } else if ("quantiles" %in% statistics == FALSE) {
+    } else if (!"quantiles" %in% statistics) {
       if (length(statistics) == 1 | !is.null(custom_statistic_function)) {
         decomposition_other_statistics <- as.data.frame(matrix(Delta[, 1], nrow = 1))
         names(decomposition_other_statistics) <- rownames(Delta)
@@ -1120,7 +1120,7 @@ dfl_decompose_estimate <- function(formula,
       decomposition_other_statistics <- NULL
     }
 
-    if (is.null(decomposition_other_statistics) == FALSE) {
+    if (!is.null(decomposition_other_statistics)) {
       cn <- names(decomposition_other_statistics)
       decomposition_other_statistics$statistic <- rownames(decomposition_other_statistics)
       decomposition_other_statistics <- decomposition_other_statistics[, c("statistic", cn)]

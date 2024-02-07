@@ -8,7 +8,7 @@
 #' @export
 #'
 print.dfl_decompose <- function(x, ...) {
-  if (x$subtract_1_from_0 == FALSE) {
+  if (!x$subtract_1_from_0) {
     cat(
       "Decomposition of difference between",
       paste0(x$group_variable_name, " == '", x$group_variable_levels[2], "'"),
@@ -28,12 +28,12 @@ print.dfl_decompose <- function(x, ...) {
 
   cat("Reweighted reference group:", paste0(x$group_variable_name, " == '", x$reference_group, "' (group ", ifelse(x$group_variable_levels[1] == x$reference_group, 0, 1), ")"), "\n \n")
 
-  if (is.null(x$decomposition_quantiles) == FALSE) {
+  if (!is.null(x$decomposition_quantiles)) {
     cat("Decomposition of difference at conditional quantiles:\n\n")
     print(x$decomposition_quantiles[, -1])
     cat("\n")
   }
-  if (is.null(x$decomposition_other_statistics) == FALSE) {
+  if (!is.null(x$decomposition_other_statistics)) {
     if ("Gini of untransformed Y (=exp(log(Y)))" %in% x$decomposition_other_statistics$statistic) {
       select_row <- which(x$decomposition_other_statistics$statistic == "Gini of untransformed Y (=exp(log(Y)))")
       rownames(x$decomposition_other_statistics)[select_row] <- x$decomposition_other_statistics[select_row, "statistic"] <- "Gini*"
@@ -45,7 +45,7 @@ print.dfl_decompose <- function(x, ...) {
     cat("Decomposition of differences in other statistics\n\n")
     print(x$decomposition_other_statistics[, -1])
     cat("\n")
-    if (is.null(legend_to_table) == FALSE) {
+    if (!is.null(legend_to_table)) {
       cat(legend_to_table)
       cat("\n")
     }
@@ -63,7 +63,7 @@ print.dfl_decompose <- function(x, ...) {
 #' @export
 #'
 print.ob_decompose <- function(x, ...) {
-  reweighting <- ifelse(x$input_parameters$reweighting, TRUE, FALSE)
+  reweighting <- x$input_parameters$reweighting
 
   if (is.null(x$input_parameters$rifreg_statistic)) {
     if (!reweighting) {

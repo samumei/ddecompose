@@ -84,7 +84,7 @@ plot.dfl_decompose <- function(x,
     decomposition_quantiles$effect_probs <- NULL
 
 
-    if (uniform_bands == FALSE) {
+    if (!uniform_bands) {
       decomposition_quantiles$t_value <- stats::qnorm(1 - (1 - confidence_level) / 2)
     }
     decomposition_quantiles$effect <- relevel(as.factor(decomposition_quantiles$effect), ref = "Observed difference")
@@ -229,7 +229,7 @@ plot.ob_decompose <- function(x,
   if (!is.null(x$input_parameters$rifreg_statistic) &&
     x$input_parameters$rifreg_statistic == "quantiles" &&
     length(x$input_parameters$rifreg_probs) > 1 &&
-    detailed_effects == FALSE) {
+    !detailed_effects) {
     # Plot for several quantiles
     n_quantiles <- length(x) - 5
     col_names <- c("probs", names(x[[1]][["decomposition_terms"]][-1]))
@@ -309,7 +309,7 @@ plot.ob_decompose <- function(x,
   } else {
     # Plot for single statistic and detailed rifreg quantiles
 
-    reweighting <- ifelse(x$input_parameters$reweighting, TRUE, FALSE)
+    reweighting <- x$input_parameters$reweighting
 
     n_probs <- ifelse(!is.null(x$input_parameters$rifreg_statistic) &&
       x$input_parameters$rifreg_statistic == "quantiles" &&
