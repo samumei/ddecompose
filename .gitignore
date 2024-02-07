@@ -3,5 +3,5 @@
 .RData
 .Ruserdata
 questions.txt
-data-raw/ddecompose literature/FFL_2018/usmen8816_t3.dta
-data-raw/ddecompose literature/FFL_2018/usmen8816_t4.dta
+data-raw/validation_data/FFL_2018_replication_code/usmen8816_t3.dta
+data-raw/validation_data/FFL_2018_replication_code/usmen8816_t4.dta

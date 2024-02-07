@@ -69,7 +69,7 @@ testthat::test_that("Test GU normalization", {
 #   # See p. 27, Decomposition methods in the social sciences, Fall 2019, The transformation problem
 #
 #   # get and prepare data
-#   gsoep29 <- readstata13::read.dta13("data-raw/gsoep29.dta")
+#   gsoep29 <- readstata13::read.dta13("data-raw/validation_data/gsoep29.dta")
 #   total_n <- nrow(gsoep29)
 #   gsoep29$age <- 2012 - gsoep29$bcgeburt
 #   gsoep29 <- subset(gsoep29, age >=25 & age <= 55)

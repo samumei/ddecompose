@@ -1,12 +1,6 @@
 ################################################
 # Prepare data
 
-# Setwd
-# setwd("C:/Users/gallusse/switchdrive/Uni Basel/R Code/LSE/functions/dfl-rif-deco/")
-# setwd("C:/Users/david/switchdrive/Uni Basel/Dissprojekte/7 Reweighting decomposition in R/rif-dfl-decompose")
-
-# load("data/men8305.rda")
-
 # load data
 library(dplyr)
 library("readstata13")
@@ -111,5 +105,4 @@ men8305 <- men8305[sel_obs, ]
 men8305$weights <- men8305$weights / sum(men8305$weights) * length(men8305$weights)
 
 # Save data
-# save(men8305,file="data/men8305.rda")
 usethis::use_data(men8305, overwrite = TRUE)

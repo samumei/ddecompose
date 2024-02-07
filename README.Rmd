@@ -453,7 +453,7 @@ plot(deciles_decomposition)
 ```
 
 ```{r rif_reg_deco_est, eval = TRUE, echo = FALSE}
-load("data-raw/deciles_decomposition.rda")
+load("data-raw/readme_data/deciles_decomposition.rda")
 plot_deciles_decomposition
 ```
 
@@ -508,7 +508,7 @@ plot(custom_decomposition)
 ```
 
 ```{r plot_custom, eval = TRUE, echo = FALSE}
-load("data-raw/custom_decomposition.rda")
+load("data-raw/readme_data/custom_decomposition.rda")
 plot(custom_decomposition)
 ```
 
@@ -533,7 +533,7 @@ flf_male_inequality <- dfl_decompose(
 ```
 
 ```{r load_rw, eval=TRUE, echo=FALSE}
-load("data-raw/flf_male_inequality.rda")
+load("data-raw/readme_data/flf_male_inequality.rda")
 ```
 
 We can summarize the results:
@@ -768,9 +768,9 @@ decompose_gini <- ddecompose::ob_decompose(
 ```
 
 ```{r replication_results, eval=TRUE, echo=FALSE}
-load("data-raw/decompose_90_10.rda")
-load("data-raw/decompose_variance.rda")
-load("data-raw/decompose_gini.rda")
+load("data-raw/readme_data/decompose_90_10.rda")
+load("data-raw/readme_data/decompose_variance.rda")
+load("data-raw/readme_data/decompose_gini.rda")
 ```
 
 

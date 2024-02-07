@@ -9,7 +9,6 @@ library("readstata13")
 
 nlys00 <- read.dta13("data-raw/nlsy00_ind.dta")
 
-# names(nlys00)
 
 # Divide armed force qualification test score by 10 #AFQT percentile score
 nlys00$afqt <- nlys00$afqtp89 / 10
@@ -202,5 +201,4 @@ nlys00 <- nlys00[, sel_var]
 
 
 # Save data
-# save(nlys00, file="data/nlys00.rda")
 usethis::use_data(nlys00, overwrite = TRUE)
