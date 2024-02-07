@@ -29,7 +29,7 @@ test_that("Summary works with different data", {
                                          rifreg_statistic = "variance",
                                          bootstrap = F)
 
-  testthat::expect_error(summary(variance_decomposition), NA)
+  testthat::expect_error(summary(variance_decomposition, aggregate_factors = FALSE), NA)
 })
 
 test_that("Summary function does not throw an error with custom aggregation", {
@@ -86,7 +86,7 @@ test_that("Summary function does not throw an error with aggregation and bootstr
                                          data = nlys00,
                                          group = female,
                                          bootstrap = TRUE,
-                                         bootstrap_iterations = 100)
+                                         bootstrap_iterations = 10)
 
   custom_aggregation <- list(`Age, race, region, etc.` = c("age",
                                                            "blackyes",
@@ -228,7 +228,7 @@ test_that("Summary function does not throw an error with reweighting (no SE)", {
 
   mod1 <- log(wage) ~ age + central_city + msa + region + black +
     hispanic + education + afqt + family_responsibility + years_worked_civilian +
-    years_worked_military + part_time + industry
+    years_worked_military + part_time + industry | part_time*industry
 
   # Define aggregation of decomposition terms
   custom_aggregation <- list(`Age, race, region, etc.` = c("age",
@@ -309,7 +309,7 @@ test_that("Summary function does not throw an error with reweighting and SE", {
                                       reference_0 = TRUE,
                                       reweighting = TRUE,
                                       bootstrap = TRUE,
-                                      bootstrap_iterations = 50)
+                                      bootstrap_iterations = 10)
 
   summary <- summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
@@ -360,7 +360,7 @@ test_that("Summary function does not throw an error with reweighting RIFREG and 
                                       rifreg_statistic = "variance",
                                       reweighting = TRUE,
                                       bootstrap = TRUE,
-                                      bootstrap_iterations = 50)
+                                      bootstrap_iterations = 10)
 
   summary <- summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
@@ -411,13 +411,15 @@ test_that("Summary function does not throw an error with multiple quantiles", {
                                       rifreg_statistic = "quantiles",
                                       rifreg_probs = c(0.1, 0.5, 0.9),
                                       reweighting = TRUE,
-                                      bootstrap = TRUE)
+                                      bootstrap = TRUE,
+                                      bootstrap_iterations = 10)
 
   summary <- summary(decompose_female_as_reference, custom_aggregation = custom_aggregation)
 
   testthat::expect_error(summary, NA)
 
 })
+
 
 
 

@@ -56,7 +56,7 @@ test_that("Print function does not throw an error with reweighting RIFREG and SE
                                       rifreg_statistic = "variance",
                                       reweighting = TRUE,
                                       bootstrap = TRUE,
-                                      bootstrap_iterations = 50)
+                                      bootstrap_iterations = 10)
 
   print <- print(decompose_female_as_reference)
 

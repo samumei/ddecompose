@@ -364,6 +364,7 @@ summary.ob_decompose <- function(object,
     }
 
     if(aggregate_factors | !is.null(custom_aggregation)){
+
       results <- aggregate_terms(object[[i]],
                            aggregate_factors = aggregate_factors,
                            custom_aggregation = custom_aggregation,
@@ -535,7 +536,6 @@ aggregate_terms <- function(x,
 
   decomposition_terms <- x$decomposition_terms
 
-
     if(aggregate_factors & is.null(custom_aggregation)){
 
       if(is.null(x$GU_normalized_coefficient_names)){
@@ -546,6 +546,13 @@ aggregate_terms <- function(x,
         }
         else {
           lm_list <- x$model_fits[[1]]
+        }
+
+        if(all(grepl("[:*]", deparse(lm_list[["terms"]][[3]])))) {
+          stop("Currently it is not possible to use aggregate_factors if the
+             formula contains interaction terms. Set aggregate_factors=FALSE or
+             define the interaction terms in a custom_aggregation to summarize
+             interaction terms.")
         }
 
         model_variables <- all.vars(lm_list$terms)[-1]
