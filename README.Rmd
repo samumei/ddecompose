@@ -18,8 +18,7 @@ knitr::opts_chunk$set(
 ```
 
 
-# `ddecompose`: Detailed Distributional Decompositions - Alt: An R Package for Decompositions of Distributional Differences 
-
+# `ddecompose`: Detailed Distributional Decompositions in R
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/samumei/ddecompose/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/samumei/ddecompose/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/samumei/ddecompose/branch/master/graph/badge.svg)](https://app.codecov.io/gh/samumei/ddecompose?branch=master)

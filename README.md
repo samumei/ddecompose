@@ -1,7 +1,6 @@
 
-- [`ddecompose`: Detailed Distributional Decompositions - Alt: An R
-  Package for Decompositions of Distributional
-  Differences](#ddecompose-detailed-distributional-decompositions---alt-an-r-package-for-decompositions-of-distributional-differences)
+- [`ddecompose`: Detailed Distributional Decompositions in
+  R](#ddecompose-detailed-distributional-decompositions-in-r)
   - [Overview](#overview)
   - [Installation](#installation)
   - [Background](#background)
@@ -30,7 +29,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `ddecompose`: Detailed Distributional Decompositions - Alt: An R Package for Decompositions of Distributional Differences
+# `ddecompose`: Detailed Distributional Decompositions in R
 
 <!-- badges: start -->
 
