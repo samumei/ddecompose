@@ -1,106 +1,9 @@
 #### Validation ---------------------
 
-# test_that("ob_decompose() returns the same results as R-pacakge oaxaca", {
-#   set.seed(43825081)
-#   library("oaxaca")
-#   data("chicago")
-#
-#   oaxaca_results <- oaxaca(ln.real.wage ~ age + female | foreign.born,
-#                              data = chicago, R = 100)
-#
-#   ddecompose_results <- ob_decompose(formula = ln.real.wage ~ age + female,
-#                            data = chicago,
-#                            group = foreign.born,
-#                            bootstrap = TRUE,
-#                            bootstrap_iterations = 100)
-#
-#   # no errors
-#   testthat::expect_error(oaxaca_results, NA)
-#   testthat::expect_error(ddecompose_results, NA)
-#
-#   # same regression results
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$coefficients,
-#                          oaxaca_results$reg$reg.A$coefficients)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$residuals,
-#                          oaxaca_results$reg$reg.A$residuals)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$fitted.values,
-#                          oaxaca_results$reg$reg.A$fitted.values)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$effects,
-#                          oaxaca_results$reg$reg.A$effects)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$rank,
-#                          oaxaca_results$reg$reg.A$rank)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$assign,
-#                          oaxaca_results$reg$reg.A$assign)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$df.residual,
-#                          oaxaca_results$reg$reg.A$df.residual)
-#
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$coefficients,
-#                          oaxaca_results$reg$reg.B$coefficients)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$residuals,
-#                          oaxaca_results$reg$reg.B$residuals)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$fitted.values,
-#                          oaxaca_results$reg$reg.B$fitted.values)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$effects,
-#                          oaxaca_results$reg$reg.B$effects)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$rank,
-#                          oaxaca_results$reg$reg.B$rank)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$assign,
-#                          oaxaca_results$reg$reg.B$assign)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$df.residual,
-#                          oaxaca_results$reg$reg.B$df.residual)
-#
-#
-#   ## same decomposition results
-#   # overall
-#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Composition_effect[1]*(-1), # we compute X1-X0
-#                          unname(oaxaca_results$twofold$overall[2,2]))
-#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Structure_effect[1]*(-1),
-#                          unname(oaxaca_results$twofold$overall[2,4]))
-#
-#   # detailed
-#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Composition_effect[2:4]*(-1),
-#                          unname(oaxaca_results$twofold$variables[[2]][,2]))
-#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Structure_effect[2:4]*(-1),
-#                          unname(oaxaca_results$twofold$variables[[2]][,4]))
-#
-#   # SE similar
-#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[1],
-#                          unname(oaxaca_results$twofold$overall[2,3]),
-#                          tolerance = 0.03)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[1],
-#                          unname(oaxaca_results$twofold$overall[2,5]),
-#                          tolerance = 0.1)
-#
-#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[2:4],
-#                          unname(oaxaca_results$twofold$variables[[2]][,3]),
-#                          tolerance = 0.03)
-#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[2:4],
-#                          unname(oaxaca_results$twofold$variables[[2]][,5]),
-#                          tolerance = 0.1)
-#
-#   # compare analytical se
-#   ddecompose_results_analytical_se <- ob_decompose(formula = ln.real.wage ~ age + female,
-#                                          data = chicago,
-#                                          group = foreign.born)
-#
-#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[1],
-#                          unname(oaxaca_results$twofold$overall[2,3]),
-#                          tolerance = 0.03)
-#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[1],
-#                          unname(oaxaca_results$twofold$overall[2,5]),
-#                          tolerance = 0.08)
-#
-#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[2:4],
-#                          unname(oaxaca_results$twofold$variables[[2]][,3]),
-#                          tolerance = 0.03)
-#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[2:4],
-#                          unname(oaxaca_results$twofold$variables[[2]][,5]),
-#                          tolerance = 0.08)
-# })
-#
-#
-#
-#
+# This code replicates the results in Firpo, Fortin, and Lemieux (2018) and from
+# other Stata code. Data and additional files are available upon request.
+
+
 # test_that("ob_decompose() replicates Table A1, p. 32, in FFL (2018)", {
 #
 #   #load("data/men8816.rda")
@@ -298,8 +201,8 @@
 # #   men_14_16<- na.omit(men_14_16)
 # browser()
 #
-#   # men_88_90 <- readstata13::read.dta13("data-raw/ddecompose literature/FFL_2018/usmen8890_t2.dta")
-#   # men_14_16 <- readstata13::read.dta13("data-raw/ddecompose literature/FFL_2018/usmen1416_t2.dta")
+#   # men_88_90 <- readstata13::read.dta13("data-raw/validation_data/FFL_2018_replication_code/usmen8890_t2.dta")
+#   # men_14_16 <- readstata13::read.dta13("data-raw/validation_data/FFL_2018_replication_code/usmen1416_t2.dta")
 #
 #   men_88_90 <- men_88_90[complete.cases(men_88_90$wage_var), ]
 #   men_14_16 <- men_14_16[complete.cases(men_14_16$wage_var), ]
@@ -385,7 +288,6 @@
 #
 #
 #
-# browser()
 #   # Gini
 #   ## Test year 88-90
 #
@@ -444,7 +346,7 @@
 #
 #   #
 #   #   # get cleaned Stata data
-#   #   men8816_t3 <- readstata13::read.dta13("data-raw/ddecompose literature/FFL_2018/usmen8816_t3.dta")
+#   #   men8816_t3 <- readstata13::read.dta13("data-raw/validation_data/FFL_2018_replication_code/usmen8816_t3.dta")
 #   #   men8816_t3 <- men8816_t3[men8816_t3$time <= 1,]
 #   #
 #   #
@@ -635,7 +537,7 @@
 #
 #
 #   # # get cleaned Stata data
-#   # men8816_t3 <- readstata13::read.dta13("data-raw/ddecompose literature/FFL_2018/usmen8816_t3.dta")
+#   # men8816_t3 <- readstata13::read.dta13("data-raw/validation_data/FFL_2018_replication_code/usmen8816_t3.dta")
 #   # men8816_t3 <- men8816_t3[men8816_t3$time <= 1,]
 #
 #   #   decompose_90_10  <- ddecompose::ob_decompose(formula = var_model,
@@ -649,7 +551,6 @@
 #   #                                 kernel = "epanechnikov",
 #   #                                 bootstrap = TRUE,
 #   #                                 bootstrap_iterations = 100)
-#   # browser()
 #   #
 #   #   # Overall
 #   #   testthat::expect_equal(as.numeric(decompose_90_10$interquantile_range$decomposition_term$Observed_difference[1]), 0.1251959 , tolerance = 0.01)
@@ -741,7 +642,6 @@
 #   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[35:48])), 100*-.0270809  , tolerance = 0.03)
 #   #   testthat::expect_equal(as.numeric(100*sum(decompose_90_50$interquantile_range$decomposition_term$Structure_effect[2])), 100*.0495704  , tolerance = 0.07)
 #
-#   browser()
 #   decompose_variance  <- ddecompose::ob_decompose(formula = var_model,
 #                                    data = men8816_t3,
 #                                    weights = eweight,
@@ -840,14 +740,13 @@
 #
 #
 #     # # get cleaned Stata data
-#     # men8816_t4 <- readstata13::read.dta13("data-raw/ddecompose literature/FFL_2018/usmen8816_t4.dta")
+#     # men8816_t4 <- readstata13::read.dta13("data-raw/validation_data/FFL_2018_replication_code/usmen8816_t4.dta")
 #     # men8816_t4 <- men8816_t4[men8816_t4$time <= 1,]
 #     #
 #     #
-#     # men8816_sample <- readstata13::read.dta13("data-raw/ddecompose literature/FFL_2018/usmen8816_sample.dta")
+#     # men8816_sample <- readstata13::read.dta13("data-raw/validation_data/FFL_2018_replication_code/usmen8816_sample.dta")
 #     # men8816_sample <- men8816_sample[men8816_sample$time <= 1,]
 #
-# browser()
 #   # IQR 90-10
 #   decompose_90_10  <- ddecompose::ob_decompose(formula = var_model,
 #                                 data = men8816_t4,
@@ -1119,11 +1018,11 @@
 #
 #
 #   # # get cleaned Stata data
-#   # men8816_t4 <- readstata13::read.dta13("data-raw/ddecompose literature/FFL_2018/usmen8816_t4.dta")
+#   # men8816_t4 <- readstata13::read.dta13("data-raw/validation_data/FFL_2018_replication_code/usmen8816_t4.dta")
 #   # men8816_t4 <- men8816_t4[men8816_t4$time <= 1,]
 #   #
 #   #
-#   # men8816_sample <- readstata13::read.dta13("data-raw/ddecompose literature/FFL_2018/usmen8816_sample.dta")
+#   # men8816_sample <- readstata13::read.dta13("data-raw/validation_data/FFL_2018_replication_code/usmen8816_sample.dta")
 #   # men8816_sample <- men8816_sample[men8816_sample$time <= 1,]
 #
 #   # IQR 90-10
@@ -1381,7 +1280,7 @@
 # test_that("same results as in lecture 7, slide 29", {
 #
 #   # get and prepare data
-#   #gsoep29 <- readstata13::read.dta13("data-raw/gsoep29.dta")
+#   #gsoep29 <- readstata13::read.dta13("data-raw/validation_data/gsoep29.dta")
 #   total_n <- nrow(gsoep29)
 #   gsoep29$age <- 2012 - gsoep29$bcgeburt
 #   gsoep29 <- subset(gsoep29, age >=25 & age <= 55)
@@ -1418,173 +1317,119 @@
 #                          reference_0 = TRUE)
 #
 #   testthat::expect_equal(rifreg_decompose$variance$decomposition_terms$Observed_difference[1],
-#                          0.165342,
+#                          -0.165342,
 #                          tolerance = 0.0075)
 #
 #   testthat::expect_equal(rifreg_decompose$variance$decomposition_terms$Composition_effect[c(1, 3)],
-#                          c(-0.0289454, -0.025752),
+#                          c(0.0289454, 0.025752),
 #                          tolerance = 0.0075)
 #
 #   testthat::expect_equal(sum(rifreg_decompose$variance$decomposition_terms$Composition_effect[4:5]),
-#                          -0.0031934,
+#                          0.0031934,
 #                          tolerance = 0.0075)
 #
 #   testthat::expect_equal(rifreg_decompose$variance$decomposition_terms$Structure_effect[1:3],
-#                          c(0.1942874, -0.2323155, 0.34344 ),
-#                          tolerance = 0.0075)
-#
-#   testthat::expect_equal(sum(rifreg_decompose$variance$decomposition_terms$Structure_effect[4:5]),
-#                          0.0831629,
+#                          c(-0.1942874, 0.2323155, -0.34344 ),
 #                          tolerance = 0.0075)
 #
 # })
 #
-##
 #
-# test_that("same results as in lecture exercise 1", {
+# test_that("ob_decompose() returns the same results as R-pacakge oaxaca", {
+#   set.seed(43825081)
+#   library("oaxaca")
+#   data("chicago")
 #
-#   # get and prepare data
-#   # gsoep29 <- readstata13::read.dta13("data-raw/gsoep29.dta")
-#   total_n <- nrow(gsoep29)
-#   gsoep29$age <- 2012 - gsoep29$bcgeburt
-#   gsoep29 <- subset(gsoep29, age >=25 & age <= 55)
-#   total_n - nrow(gsoep29)
+#   oaxaca_results <- oaxaca(ln.real.wage ~ age + female | foreign.born,
+#                              data = chicago, R = 100)
 #
-#   gsoep29$wage <- with(gsoep29, ifelse(labgro12 > 0 & bctatzeit > 0, labgro12 / (bctatzeit * 4.3), NA))
-#   gsoep29$lnwage <- log(gsoep29$wage)
+#   ddecompose_results <- ob_decompose(formula = ln.real.wage ~ age + female,
+#                            data = chicago,
+#                            group = foreign.born,
+#                            bootstrap = TRUE,
+#                            bootstrap_iterations = 100)
 #
-#   gsoep29$schooling <- with(gsoep29, ifelse(bcbilzeit > 0, bcbilzeit, NA))
-#   gsoep29$ft_experience <- with(gsoep29, ifelse(expft12 >= 0, expft12, NA))
-#   gsoep29$ft_experience2 <- with(gsoep29, ifelse(expft12 >= 0, expft12^2, NA))
+#   # no errors
+#   testthat::expect_error(oaxaca_results, NA)
+#   testthat::expect_error(ddecompose_results, NA)
 #
-#   summary(gsoep29[c("bcsex", "wage", "lnwage", "schooling", "ft_experience", "ft_experience2")])
+#   # same regression results
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$coefficients,
+#                          oaxaca_results$reg$reg.A$coefficients)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$residuals,
+#                          oaxaca_results$reg$reg.A$residuals)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$fitted.values,
+#                          oaxaca_results$reg$reg.A$fitted.values)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$effects,
+#                          oaxaca_results$reg$reg.A$effects)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$rank,
+#                          oaxaca_results$reg$reg.A$rank)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$assign,
+#                          oaxaca_results$reg$reg.A$assign)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_0$df.residual,
+#                          oaxaca_results$reg$reg.A$df.residual)
 #
-#   gsoep29$tenure <- with(gsoep29, ifelse(bcerwzeit >= 0, bcerwzeit, NA))
-#   gsoep29$ISEI <- with(gsoep29, ifelse(isei12 > 0, isei12, NA))
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$coefficients,
+#                          oaxaca_results$reg$reg.B$coefficients)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$residuals,
+#                          oaxaca_results$reg$reg.B$residuals)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$fitted.values,
+#                          oaxaca_results$reg$reg.B$fitted.values)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$effects,
+#                          oaxaca_results$reg$reg.B$effects)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$rank,
+#                          oaxaca_results$reg$reg.B$rank)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$assign,
+#                          oaxaca_results$reg$reg.B$assign)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$model_fits$fit_group_1$df.residual,
+#                          oaxaca_results$reg$reg.B$df.residual)
 #
-#   gsoep29 <- na.omit(gsoep29[, c("bcsex", "lnwage", "schooling", "ft_experience", "ft_experience2", "tenure", "ISEI", "bcphrf", "oeffd12")])
 #
-#   # # Filter the data to include only categories 1 and 2
-#   # gsoep29 <- gsoep29[gsoep29$bcsex %in% c("[1] Maennlich", "[2] Weiblich"), ]
-#   #
-#   # # Update the "group" variable in the filtered data
-#   # gsoep29$bcsex <- factor(gsoep29$bcsex)
+#   ## same decomposition results
+#   # overall
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Composition_effect[1]*(-1), # we compute X1-X0
+#                          unname(oaxaca_results$twofold$overall[2,2]))
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Structure_effect[1]*(-1),
+#                          unname(oaxaca_results$twofold$overall[2,4]))
 #
-#   gsoep29$female <- with(gsoep29, ifelse(bcsex == "[1] Maennlich", 0, 1))
+#   # detailed
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Composition_effect[2:4]*(-1),
+#                          unname(oaxaca_results$twofold$variables[[2]][,2]))
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_terms$Structure_effect[2:4]*(-1),
+#                          unname(oaxaca_results$twofold$variables[[2]][,4]))
 #
-#   # without weights
-#   ob_decompose_results <- ob_decompose(formula = lnwage ~ schooling + ft_experience + ft_experience2,
-#                              data = gsoep29,
-#                              group = female,
-#                              reference_0 = TRUE)
+#   # SE similar
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[1],
+#                          unname(oaxaca_results$twofold$overall[2,3]),
+#                          tolerance = 0.03)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[1],
+#                          unname(oaxaca_results$twofold$overall[2,5]),
+#                          tolerance = 0.1)
 #
-#   testthat::expect_equal(ob_decompose_results$ob_decompose$decomposition_terms$Observed_difference[1],
-#                          0.250,
-#                          tolerance = 0.0075)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[2:4],
+#                          unname(oaxaca_results$twofold$variables[[2]][,3]),
+#                          tolerance = 0.03)
+#   testthat::expect_equal(ddecompose_results$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[2:4],
+#                          unname(oaxaca_results$twofold$variables[[2]][,5]),
+#                          tolerance = 0.1)
 #
-#   testthat::expect_equal(ob_decompose_results$ob_decompose$decomposition_terms$Composition_effect[c(1, 3)],
-#                          c(0.149, -0.00630),
-#                          tolerance = 0.0075)
+#   # compare analytical se
+#   ddecompose_results_analytical_se <- ob_decompose(formula = ln.real.wage ~ age + female,
+#                                          data = chicago,
+#                                          group = foreign.born)
 #
-#   testthat::expect_equal(sum(ob_decompose_results$ob_decompose$decomposition_terms$Composition_effect[4:5]),
-#                          0.155,
-#                          tolerance = 0.0075)
+#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[1],
+#                          unname(oaxaca_results$twofold$overall[2,3]),
+#                          tolerance = 0.03)
+#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[1],
+#                          unname(oaxaca_results$twofold$overall[2,5]),
+#                          tolerance = 0.08)
 #
-#   testthat::expect_equal(ob_decompose_results$ob_decompose$decomposition_terms$Structure_effect[1:3],
-#                          c(0.101, -0.121, 0.0856),
-#                          tolerance = 0.01)
-#   testthat::expect_equal(sum(ob_decompose_results$ob_decompose$decomposition_terms$Structure_effect[4:5]),
-#                          0.136,
-#                          tolerance = 0.02)
-#
-#   # with weights
-#   ob_decompose_results_weights <- ob_decompose(formula = lnwage ~ schooling + ft_experience + ft_experience2,
-#                                      data = gsoep29,
-#                                      group = female,
-#                                      weights = bcphrf,
-#                                      reference_0 = TRUE)
-#
-#   testthat::expect_equal(ob_decompose_results_weights$ob_decompose$decomposition_terms$Observed_difference[1],
-#                          0.223,
-#                          tolerance = 0.0075)
-#
-#   testthat::expect_equal(ob_decompose_results_weights$ob_decompose$decomposition_terms$Composition_effect[c(1, 3)],
-#                          c(0.114, -0.0162),
-#                          tolerance = 0.0075)
-#
-#   testthat::expect_equal(sum(ob_decompose_results_weights$ob_decompose$decomposition_terms$Composition_effect[4:5]),
-#                          0.130,
-#                          tolerance = 0.0075)
-#
-#   testthat::expect_equal(ob_decompose_results_weights$ob_decompose$decomposition_terms$Structure_effect[1:3],
-#                          c(0.109, -0.126, 0.117),
-#                          tolerance = 0.0075)
-#
-#   testthat::expect_equal(sum(ob_decompose_results_weights$ob_decompose$decomposition_terms$Structure_effect[4:5]),
-#                          0.119,
-#                          tolerance = 0.0075)
-#
+#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Composition_effect[2:4],
+#                          unname(oaxaca_results$twofold$variables[[2]][,3]),
+#                          tolerance = 0.03)
+#   testthat::expect_equal(ddecompose_results_analytical_se$ob_decompose$decomposition_vcov$decomposition_terms_se$Structure_effect[2:4],
+#                          unname(oaxaca_results$twofold$variables[[2]][,5]),
+#                          tolerance = 0.08)
 # })
 
-
-
-
-# test_that("same results as in lecture exercise 5", {
-#   # get and prepare data
-#   #gsoep29 <- readstata13::read.dta13("data-raw/gsoep29.dta")
-#   total_n <- nrow(gsoep29)
-#   gsoep29$age <- 2012 - gsoep29$bcgeburt
-#   gsoep29 <- subset(gsoep29, age >=25 & age <= 55)
-#   n_2 <- nrow(gsoep29)
-#   total_n - n_2
-#
-#   gsoep29$wage <- with(gsoep29, ifelse(labgro12 > 0 & bctatzeit > 0, labgro12 / (bctatzeit * 4.3), NA))
-#   gsoep29$lnwage <- log(gsoep29$wage)
-#
-#
-#   gsoep29$schooling <- with(gsoep29, ifelse(bcbilzeit > 0, bcbilzeit, NA))
-#   gsoep29$ft_experience <- with(gsoep29, ifelse(expft12 >= 0, expft12, NA))
-#   gsoep29$ft_experience2 <- with(gsoep29, ifelse(expft12 >= 0, expft12^2, NA))
-#
-#   gsoep29$female <- with(gsoep29, ifelse(bcsex == "[1] Maennlich", 0, 1))
-#
-#   summary(gsoep29[c("lnwage", "schooling", "ft_experience", "ft_experience2", "female")]) # means are identical to exercice
-#
-#   gsoep29 <- na.omit(gsoep29[, c("lnwage", "schooling", "ft_experience", "ft_experience2", "bcsex", "bcphrf", "female" )])
-#   n_3 <- nrow(gsoep29)
-#   n_2 - n_3
-#
-#
-#   ### Reweighted RIF Regression
-#   rw_rifreg_decompose <- ob_decompose(formula = lnwage ~ schooling + ft_experience + ft_experience2 | schooling * ft_experience + schooling * I(ft_experience^2),
-#                                                          data = gsoep29,
-#                                                          group = female,
-#                                                          reweighting = TRUE,
-#                                                          rifreg_statistic = "quantiles",
-#                                                          rifreg_probs = 0.1,
-#                                                          reference_0 = FALSE)
-# browser()
-#   testthat::expect_equal(rw_rifreg_decompose$quantile_0.1$decomposition_terms$Observed_difference[1],
-#                          0.2486877,
-#                          tolerance = 0.0075)
-#
-#   testthat::expect_equal(rw_rifreg_decompose$quantile_0.1$decomposition_terms$Composition_effect[c(1, 3)],
-#                          c(-0.0261005, -0.0018931),
-#                          tolerance = 0.0075)
-#
-#
-#   testthat::expect_equal(sum(rw_rifreg_decompose$quantile_0.1$decomposition_terms$Composition_effect[4:5]),
-#                          -0.0242074,
-#                          tolerance = 0.0075)
-#
-#   testthat::expect_equal(rw_rifreg_decompose$quantile_0.1$decomposition_terms$Structure_effect[1:3],
-#                          c(0.0003214, -0.8911651, 0.5277574 ),
-#                          tolerance = 0.0075)
-#
-#   testthat::expect_equal(sum(rw_rifreg_decompose$quantile_0.1$decomposition_terms$Structure_effect[4:5]),
-#                          0.3637291,
-#                          tolerance = 0.0075)
-#
-#
-#
-# })
