@@ -387,8 +387,6 @@ ob_decompose <- function(formula,
     data_used$weights <- rep(1, nrow(data_used))
   }
 
-
-
   if (!bootstrap & !rifreg & !reweighting) {
     compute_analytical_se <- TRUE
   } else {
@@ -521,15 +519,7 @@ ob_decompose <- function(formula,
         varlist = ls(),
         envir = environment()
       )
-      # parallel::clusterExport(cl = core_cluster,
-      #                         c("dfl_decompose",
-      #                           "dfl_decompose_estimate",
-      #                           "estimate_ob_decompose",
-      #                           "bootstrap_estimate_ob_decompose",
-      #                           "fit_and_predict_probabilities",
-      #                           "select_observations_to_be_trimmed",
-      #                           "get_normalized_difference"
-      #                         ))
+
       parallel::clusterEvalQ(cl = core_cluster, library("ddecompose"))
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
         function(x) {
@@ -571,13 +561,6 @@ ob_decompose <- function(formula,
       estimated_decomposition[[1]][["decomposition_vcov"]][["decomposition_terms_se"]] <- bootstrap_vcov$decomposition_terms_se
       estimated_decomposition[[1]][["decomposition_vcov"]][["decomposition_terms_vcov"]] <- bootstrap_vcov$decomposition_terms_vcov
     }
-
-
-    # estimated_decomposition$decomposition_vcov$decomposition_terms_se <- bootstrap_vcov$decomposition_terms_se
-    # estimated_decomposition$decomposition_vcov$decomposition_terms_vcov <- bootstrap_vcov$decomposition_terms_vcov
-
-    # bootstrap_vcov <- lapply(bootstrap_estimates, retrieve_bootstrap_vcov,
-    #                          bootstrap_iterations = bootstrap_iterations)
   }
 
 
@@ -866,8 +849,8 @@ estimate_ob_decompose <- function(formula,
 
 
     if (compute_analytical_se) {
-      Cov_beta0 <- vcov(fit0) # lapply(list(fit0), vcov)[[1]]
-      Cov_beta1 <- vcov(fit1) # lapply(list(fit1), vcov)[[1]]
+      Cov_beta0 <- vcov(fit0)
+      Cov_beta1 <- vcov(fit1)
 
       if (normalize_factors) {
         Cov_beta0 <- GU_normalization_get_vcov(

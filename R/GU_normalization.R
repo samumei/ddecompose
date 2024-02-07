@@ -61,10 +61,6 @@ GU_normalization <- function(formula, data, weights, group) {
     regressors_for_prediction <- cbind(rep(1, nrow(regressors_for_prediction)), regressors_for_prediction)
     colnames(regressors_for_prediction)[1] <- "(Intercept)"
   }
-  # }else{
-  #   regressors_for_prediction <- model.matrix(object = formula, data = data)
-  # }
-  # colnames(regressors_for_prediction) <- make.names(colnames(regressors_for_prediction))
 
 
   adjusted_coefficient_names <- list()
@@ -73,8 +69,7 @@ GU_normalization <- function(formula, data, weights, group) {
     regressor_i <- unadjusted_regressors[, i]
     regressor_name_i <- colnames(unadjusted_regressors)[i]
 
-    # # if it is a factor variable with more than two levels: normalize
-    # if(is.factor(regressor_i)&&length(levels(regressor_i))>2){
+    # if it is a factor variable: normalize
     if (is.factor(regressor_i)) {
       formula_i <- as.formula(paste("~", regressor_name_i, "+ 0", sep = ""))
       mod_matrix_i <- model.matrix(formula_i, unadjusted_regressors)
@@ -104,21 +99,8 @@ GU_normalization <- function(formula, data, weights, group) {
       adjusted_coefficient_names[[i]] <- adjusted_coefficient_names_i
       names(adjusted_coefficient_names)[i] <- regressor_name_i
 
-      # }else if(is.factor(regressor_i)){
-      #
-      #   # if it is a two level factor adjust normally with dummies
-      #   formula_i <- as.formula(paste("~", regressor_name_i, sep=""))
-      #   mod_matrix_i <- model.matrix(formula_i, unadjusted_regressors)
-      #   adjusted_regressors <- cbind(adjusted_regressors, mod_matrix_i[,-1])
-      #   colnames(adjusted_regressors)[ncol(adjusted_regressors)] <- colnames(mod_matrix_i)[2]
-      #
-      #   term_labels <- c(colnames(mod_matrix_i)[2],
-      #                    term_labels[-pmatch(grep(regressor_name_i,
-      #                                             term_labels,
-      #                                             value=TRUE),
-      #                                        term_labels)])
     } else {
-      # if not: pass unadjusted variable thru
+      # if not: pass unadjusted variable through
       adjusted_regressors <- cbind(adjusted_regressors, regressor_i)
       regressors_for_prediction <- cbind(regressors_for_prediction, regressor_i)
 
@@ -126,7 +108,7 @@ GU_normalization <- function(formula, data, weights, group) {
       colnames(regressors_for_prediction)[ncol(regressors_for_prediction)] <- regressor_name_i
       names(adjusted_coefficient_names)[i] <- adjusted_coefficient_names[[i]] <- regressor_name_i
     }
-  } # end loop
+  }
 
   adjusted_data <- as.data.frame(cbind(
     data[, 1],
@@ -148,7 +130,7 @@ GU_normalization <- function(formula, data, weights, group) {
     regressors_for_prediction = regressors_for_prediction,
     adjusted_coefficient_names = adjusted_coefficient_names
   ))
-} # end normalize GU
+}
 
 
 

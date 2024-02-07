@@ -33,8 +33,8 @@ dfl_decompose(
 \arguments{
 \item{formula}{a \code{formula} object with an outcome variable Y on the left-hand side
 and the covariates X on the right-hand side. For sequential decompositions,
-the sequence of covariates X are distinguished by the \code{|} operator. Covariates
-are used to estimate the conditional probabilities for the reweighting factors.}
+the sequence of covariates X are distinguished by the \code{|} operator.
+Covariates are used to estimate the conditional probabilities for the reweighting factors.}
 
 \item{data}{a \code{data.frame} containing all variables and observations of
 both groups.}

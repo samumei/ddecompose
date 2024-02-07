@@ -16,8 +16,8 @@
 #'
 #' @param formula a \code{formula} object with an outcome variable Y on the left-hand side
 #' and the covariates X on the right-hand side. For sequential decompositions,
-#' the sequence of covariates X are distinguished by the \code{|} operator. Covariates
-#' are used to estimate the conditional probabilities for the reweighting factors.
+#' the sequence of covariates X are distinguished by the \code{|} operator.
+#' Covariates are used to estimate the conditional probabilities for the reweighting factors.
 #' @param data a \code{data.frame} containing all variables and observations of
 #' both groups.
 #' @param weights name of the observation weights variable or vector of
@@ -523,15 +523,6 @@ dfl_decompose <- function(formula,
         varlist = ls(),
         envir = environment()
       )
-      # parallel::clusterExport(cl = cluster,
-      #                         c("dfl_decompose_bootstrap",
-      #                           "dfl_decompose_estimate",
-      #                           "fit_and_predict_probabilities",
-      #                           "select_observations_to_be_trimmed",
-      #                           "get_distributional_statistics",
-      #                           "estimate_iq_range",
-      #                           "estimate_iq_ratio"
-      #                         ))
       parallel::clusterEvalQ(cl = cluster, library("ddecompose"))
       bootstrap_estimates <- pbapply::pblapply(1:bootstrap_iterations,
         function(x) {
@@ -737,22 +728,6 @@ dfl_decompose <- function(formula,
       direction = "wide"
     )
     names(bs_se_quantiles_reweighting_factor) <- gsub("se[.]", "", names(bs_se_quantiles_reweighting_factor))
-
-    # bs_se_quantiles_reweighting_factor <- tidyr::pivot_longer(bootstrapped_quantiles_reweighting_factor,
-    #                                                           col=names(bootstrapped_quantiles_reweighting_factor)[-1],
-    #                                                           names_to="effect")
-    #
-    # bs_se_quantiles_reweighting_factor <- dplyr::summarise(dplyr::group_by(bs_se_quantiles_reweighting_factor,
-    #                                                                        probs,
-    #                                                                        effect),
-    #                                                        se=ifelse(bootstrap_robust,
-    #                                                                  (quantile(value, 0.75) - quantile(value, 0.25))/(qnorm(0.75) - qnorm(0.25)),
-    #                                                                  sqrt(var(value))),
-    #                                                        .groups = "keep")
-    # bs_se_quantiles_reweighting_factor <- tidyr::pivot_wider(bs_se_quantiles_reweighting_factor,
-    #                                                          id_cols = "probs",
-    #                                                          names_from = "effect",
-    #                                                          values_from = "se")
 
     bs_se_quantiles_reweighting_factor <- as.data.frame(bs_se_quantiles_reweighting_factor[, names(results$quantiles_reweighting_factor)])
     bs_se_quantiles_reweighting_factor[
@@ -979,7 +954,6 @@ dfl_decompose_estimate <- function(formula,
   psi <- psi^psi_power
 
   # Trimming: Set weights of reweighting_factors above trimming threshold to zero
-
   if (trimming) {
     observations_to_be_trimmed <- list()
 
@@ -1349,7 +1323,6 @@ fit_and_predict_probabilities <- function(formula,
 #' @param group Identifier of reference group
 #' @param trimming_threshold threshold defining the maximal accepted relative weight of a reweighting factor/observation. If `NULL`, the threshold is set to `sqrt(N)/N`, where N is the number of observations in the reference group.
 #'
-
 select_observations_to_be_trimmed <- function(reweighting_factor,
                                               group_variable,
                                               group,

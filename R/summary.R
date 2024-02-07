@@ -74,9 +74,6 @@ summary.dfl_decompose <- function(object, ..., confidence_level = 0.95, digits =
         }
       )
       kolmogorov_smirnov_stat <- do.call("rbind", kolmogorov_smirnov_stat)
-      # kolmogorov_smirnov_stat <- dplyr::summarise(dplyr::group_by(object$bootstrapped_standard_errors$decomposition_quantiles_kms_distribution,
-      #                                                             effect),
-      #                                             t_value = quantile(kms_t_value, confidence_level))
       kolmogorov_smirnov_stat <- as.data.frame(kolmogorov_smirnov_stat[match(names(decomposition_quantiles), kolmogorov_smirnov_stat$effect), ])
 
       decomposition_quantiles_export <- list()
