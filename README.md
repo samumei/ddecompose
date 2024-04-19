@@ -601,7 +601,7 @@ gender_gap_decomposition_w_reweighting <- ob_decompose(
 The default method for fitting and predicting conditional probabilities,
 used to derive the reweighting factor, is a logit model. However, you
 can also use `reweighting_method = "fastglm"` to fit a logit model with
-the fast algorithm of **fastglm**, or `random_forest` to estimate the
+the fast algorithm of **fastglm**, or `reweighting_method = random_forest` to estimate the
 conditional probabilities with the **ranger** implementation of random
 forest.
 
