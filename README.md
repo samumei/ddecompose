@@ -573,9 +573,7 @@ reweighting formula is added to the decomposition formula, separated by
 the `|` operator.
 
 For decomposition based on reweighting, standard errors need to be
-bootstrapped. By increasing the number of `cores` the bootstrap
-replications are computed on, we can reduce computation time. By
-default, 100 bootstrap replications are calculated.
+bootstrapped. By increasing the number of `cores`, bootstrap computation can be parallelized, thereby reducing computation time. By default, 100 bootstrap replications are calculated.  If `bootstrap = FALSE` (default) no standard errors are computed .
 
 ``` r
 model_w_reweighting <- log(wage) ~
