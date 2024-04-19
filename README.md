@@ -620,7 +620,7 @@ display the specification and reweighting error.
 To decompose group differences beyond the mean with `ob_decompose` we
 use RIF regressions. In the following examples, we will analyze the
 changes in wage inequality between 1983/85 and 2003/05 and assess which
-covariates contribute to explaining these changes. First, we look at the
+covariates contribute to explaining these changes. In this example, the two groups are identified by the variable `year`, the lower ranked year `'1983-1985'` is used as reference group. First, we look at the
 changes in the variance. Then, we decompose the wage gap at each decile.
 We use a subsample of the CPS data used in the handbook chapter of
 Fortin, Lemieux, & Firpo (2011).
