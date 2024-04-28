@@ -380,9 +380,7 @@ To estimate a 'doubly robust'  decomposition, we can add reweighting to the deco
 specification is used for the outcome model as for the conditional probability model used
 to derive the reweighting factors. However, it is advisable to add a more flexible reweighting model, taking interactions into account. The reweighting formula is added to the decomposition formula, separated by the `|` operator. 
 
-For decomposition based on reweighting, standard errors need to be bootstrapped. By 
-increasing the number of `cores` the bootstrap replications are computed on, we 
-can reduce computation time. By default, 100 bootstrap replications are calculated. 
+For decomposition based on reweighting, standard errors need to be bootstrapped. By increasing the number of `cores`, bootstrap computation can be parallelized, thereby reducing computation time. By default, 100 bootstrap replications are calculated.  If `bootstrap = FALSE` (default) no standard errors are computed.
 
 ```{r doubly_robust, eval = FALSE}
 model_w_reweighting <- log(wage) ~
@@ -406,7 +404,7 @@ gender_gap_decomposition_w_reweighting <- ob_decompose(
 ```
 
 
-The default method for fitting and predicting conditional probabilities, used to derive the reweighting factor, is a logit model. However, you can also use `reweighting_method = "fastglm"` to fit a logit model with the fast algorithm of **fastglm**, or `random_forest` to estimate the conditional probabilities with the **ranger** implementation of random forest.
+The default method for fitting and predicting conditional probabilities, used to derive the reweighting factor, is a logit model. However, you can also use `reweighting_method = "fastglm"` to fit a logit model with the fast algorithm of **fastglm**, or `reweighting_method = "random_forest"` to estimate the conditional probabilities with the **ranger** implementation of random forest.
 
 Setting `trimming = TRUE` will trim observations with dominant reweighting factor values. By default, reweighting factor values are trimmed according to the rule of Huber, Lechner, and Wunsch (2013). Thereby, the `trimming_threshold`, i.e., the maximum accepted relative weight of the reweighting factor value (inverse probability weight) of a single observation, is set to `sqrt(N)/N`, where `N` is the number of observations in the reference group. The trimming threshold can also be manually set to a numeric value. 
 
@@ -415,7 +413,7 @@ If we add reweighting, the `plot()` and `summary()` functions will also display 
 
 ### RIF Regression Decomposition
 
-To decompose group differences beyond the mean with `ob_decompose` we use RIF regressions. In the following examples, we will analyze the changes in wage inequality between 1983/85 and 2003/05 and assess which covariates contribute to explaining these changes. First, we look at the changes in the variance. Then, we decompose the wage gap at each decile. We use a subsample of the CPS data used in the handbook chapter of Fortin, Lemieux, & Firpo (2011).
+To decompose group differences beyond the mean with `ob_decompose` we use RIF regressions. In the following examples, we will analyze the changes in wage inequality between 1983/85 and 2003/05 and assess which covariates contribute to explaining these changes. In this example, the two groups are identified by the variable `year`, the lower ranked year `'1983-1985'` is used as reference group. First, we look at the changes in the variance. Then, we decompose the wage gap at each decile. We use a subsample of the CPS data used in the handbook chapter of Fortin, Lemieux, & Firpo (2011).
 
 ```{r rifreg_deco, eval = FALSE, warning = FALSE}
 data("men8305")
@@ -453,7 +451,7 @@ plot(deciles_decomposition)
 
 ```{r rif_reg_deco_est, eval = TRUE, echo = FALSE}
 load("data-raw/readme_data/deciles_decomposition.rda")
-plot_deciles_decomposition
+plot(deciles_decomposition)
 ```
 
 The RIF functions for the following statistics are currently implemented: `"quantiles"`, `"mean"`, `"variance"`, `"gini"`, `"interquantile_range"`, and `"interquantile_ratio"`. However, `ob_decompose` also allows you to pass a custom RIF function for the decomposition, by setting `rifreg_statistic = "custom"` and passing the custom function to `custom_rif_function`. [Cowell and Flachaire (2007)](https://doi.org/10.1016/j.jeconom.2007.01.001), [Essama-Nssah & Lambert (2012)](https://doi.org/10.1108/S1049-2585(2012)0000020009), and [Rios-Avila (2020)](https://doi.org/10.1177/1536867X20909690) derive the influence functions for an array of distributional statistics. More information about RIF regressions can be found in the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg).  

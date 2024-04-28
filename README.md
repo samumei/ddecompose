@@ -573,7 +573,10 @@ reweighting formula is added to the decomposition formula, separated by
 the `|` operator.
 
 For decomposition based on reweighting, standard errors need to be
-bootstrapped. By increasing the number of `cores`, bootstrap computation can be parallelized, thereby reducing computation time. By default, 100 bootstrap replications are calculated.  If `bootstrap = FALSE` (default) no standard errors are computed .
+bootstrapped. By increasing the number of `cores`, bootstrap computation
+can be parallelized, thereby reducing computation time. By default, 100
+bootstrap replications are calculated. If `bootstrap = FALSE` (default)
+no standard errors are computed.
 
 ``` r
 model_w_reweighting <- log(wage) ~
@@ -599,9 +602,9 @@ gender_gap_decomposition_w_reweighting <- ob_decompose(
 The default method for fitting and predicting conditional probabilities,
 used to derive the reweighting factor, is a logit model. However, you
 can also use `reweighting_method = "fastglm"` to fit a logit model with
-the fast algorithm of **fastglm**, or `reweighting_method = "random_forest"` to estimate the
-conditional probabilities with the **ranger** implementation of random
-forest.
+the fast algorithm of **fastglm**, or
+`reweighting_method = "random_forest"` to estimate the conditional
+probabilities with the **ranger** implementation of random forest.
 
 Setting `trimming = TRUE` will trim observations with dominant
 reweighting factor values. By default, reweighting factor values are
@@ -620,10 +623,12 @@ display the specification and reweighting error.
 To decompose group differences beyond the mean with `ob_decompose` we
 use RIF regressions. In the following examples, we will analyze the
 changes in wage inequality between 1983/85 and 2003/05 and assess which
-covariates contribute to explaining these changes. In this example, the two groups are identified by the variable `year`, the lower ranked year `'1983-1985'` is used as reference group. First, we look at the
-changes in the variance. Then, we decompose the wage gap at each decile.
-We use a subsample of the CPS data used in the handbook chapter of
-Fortin, Lemieux, & Firpo (2011).
+covariates contribute to explaining these changes. In this example, the
+two groups are identified by the variable `year`, the lower ranked year
+`'1983-1985'` is used as reference group. First, we look at the changes
+in the variance. Then, we decompose the wage gap at each decile. We use
+a subsample of the CPS data used in the handbook chapter of Fortin,
+Lemieux, & Firpo (2011).
 
 ``` r
 data("men8305")
@@ -843,6 +848,9 @@ summary(flf_male_inequality)
 #>  Interquantile range p90-p50  0.14242   0.011925  0.119044  0.165790
 #>  Interquantile range p50-p10 -0.12011   0.008410 -0.136596 -0.103630
 #> 
+#> *Gini of untransformed Y (=exp(log(Y)))
+#> 
+#> -----------------------------------------------------------------------
 #> Summary statistics of reweighting factors
 #> 
 #> Number of trimmed observations (not included in statistics): 0 (0%)
