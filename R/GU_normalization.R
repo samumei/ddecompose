@@ -38,7 +38,7 @@ GU_normalization <- function(formula, data, weights, group) {
   if (sum(attr(function_terms, "order")) > length(attr(function_terms, "order"))) {
     stop("GU normalization does not allow interactions.")
   }
-  cat("\nFactor variables are normalized as proposed by Gardeazabal & Ugidos (2004)\n")
+  message("\nFactor variables are normalized as proposed by Gardeazabal & Ugidos (2004)\n")
 
   term_labels <- attr(function_terms, "term.labels")
 

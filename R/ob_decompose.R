@@ -367,7 +367,7 @@ ob_decompose <- function(formula,
   nvar <- length(formula)[2] # Number of detailed decomposition effects
   if (nvar == 1) {
     if (reweighting) {
-      cat("\n\nThe same model specification is used in the linear decomposition model and\nin the conditional probability model used to compute the reweighting factors.")
+      message("\n\nThe same model specification is used in the linear decomposition model and\nin the conditional probability model used to compute the reweighting factors.")
     }
     formula_decomposition <- formula
     formula_reweighting <- formula
@@ -481,7 +481,7 @@ ob_decompose <- function(formula,
       data_used$cluster_weights <- cluster_weights[match(as.character(cluster), rownames(cluster_weights)), ]
     }
 
-    cat("\nBootstrapping standard errors...\n")
+    message("\nBootstrapping standard errors...\n")
 
     if (cores == 1) {
       bootstrap_estimates <- pbapply::pblapply(

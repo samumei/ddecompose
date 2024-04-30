@@ -447,8 +447,7 @@ dfl_decompose <- function(formula,
   statistics_not_implemented <- setdiff(statistics, statistics_implemented)
   statistics <- setdiff(statistics, statistics_not_implemented)
   if (length(statistics_not_implemented) > 0) {
-    cat("Warning:", paste0("Selected statistics (", paste0(statistics_not_implemented, collapse = ", "), ")"), "not implemented! \n")
-    cat("Implemented statistics:", paste0(statistics_implemented, collapse = ", "), "\n \n")
+    warning(paste0("Selected statistics (", paste0(statistics_not_implemented, collapse = ", "), ")", "not implemented! \n\nImplemented statistics:", paste0(statistics_implemented, collapse = ", "), "\n \n"))
   }
   if ("quantiles" %in% statistics & length(probs) == 0) {
     probs <- seq(5, 95, 5) / 100
@@ -487,9 +486,8 @@ dfl_decompose <- function(formula,
     ...
   )
 
-
   if (bootstrap) {
-    cat("Bootstrapping standard errors...\n")
+    message("Bootstrapping standard errors...\n")
     if (cores == 1) {
       bootstrap_estimates <- pbapply::pblapply(
         1:bootstrap_iterations,
