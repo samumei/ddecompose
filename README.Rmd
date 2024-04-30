@@ -55,7 +55,7 @@ limitations, refer to [Fortin, Lemieux, and Firpo (2011)](https://economics.ubc.
 
 In contrast to the existing **oaxaca** ([Hlavac, 2022](https://cran.r-project.org/web/packages/oaxaca/vignettes/oaxaca.pdf)), 
 **ddecompose** is not limited to decomposition of mean differences and offers
-'doubly robust' decompositions. The packages also complements **Counterfactual** ([Chen et al., 2017](https://journal.r-project.org/archive/2017/RJ-2017-033/RJ-2017-033.pdf)) 
+'doubly robust' decompositions. The package also complements **Counterfactual** ([Chen et al., 2017](https://journal.r-project.org/archive/2017/RJ-2017-033/RJ-2017-033.pdf)) 
 that models conditional distribution functions instead of using inverse probability
 weighting to perform aggregate decompositions beyond the mean.
 
@@ -232,8 +232,8 @@ and path independent, it is limited to the mean.
 
 A path independent method that goes beyond the mean is the RIF decomposition 
 of Firpo, Fortin, and Lemieux (2018). The approach approximates the expected value
-of the 'recentered influence function' (RIF) of the distributional statistic (e.g., quantile, variance, or Gini coefficient) of an outcome variable conditional on covariates with linear regressions. RIF regression coefficients can be consistent estimates of the marginal effect 
-of a small change in the expected value of a covariate to the distributional statistics of 
+of the 'recentered influence function' (RIF) of the distributional statistic (e.g., quantile, variance, or Gini coefficient) of an outcome variable conditional on covariates with linear regressions. RIF regression coefficients are consistent estimates of the marginal effect 
+of a small change in the expected value of a covariate on the distributional statistics of 
 an outcome variable (see [Firpo et al., 2009a](https://www.econometricsociety.org/publications/econometrica/2009/05/01/unconditional-quantile-regressions) and the documentation of the companion package [`rifreg`](https://github.com/samumei/rifreg)). Thus, they can be used to decompose between-group difference in distributional statistics. Firpo et al. (2018) combine the RIF regressions again 
 with the reweighting estimator to avoid specification errors. 
 
@@ -508,6 +508,7 @@ plot(custom_decomposition)
 load("data-raw/readme_data/custom_decomposition.rda")
 plot(custom_decomposition)
 ```
+The plot shows the observed or overall difference of each covariate, which adds up to the total change in the top ten percent income share from 1983/85 to 2003/05. The composition effect indicates the part attributable to changes in education, experience and union status, while the structure effect indicates the part attributable to the returns to these covariates. The very small reweighting error indicates that the reweighting worked, while the relatively large specification error suggests that wage model could be improved.   
 
 
 ### Reweighting Decomposition
@@ -817,6 +818,8 @@ Barsky, Robert, John Bound, Kerwin Kofi Charles, and Joseph P. Lupton. 2002. “
 Cowell, Frank A., and Emmanuel Flachaire. 2007. "Income distribution and inequality measurement: The problem of extreme values." *Journal of Econometrics* 141: 1044–1072.
 
 Chen, Mingli, Victor Chernozhukov, Iván Fernández-Val, and Blaise Melly. 2017. "Counterfactual: An R Package for Counterfactual Analysis." *The R Journal* 9(1): 370-384.
+
+DiNardo, John, Nicole M. Fortin, and Thomas Lemieux. 1996. "Labor Market Institutions and the Distribution of Wages, 1973-1992: A Semiparametric Approach." *Econometrica* 64(5): 1001-1044.
 
 Essama-Nssah, Boniface, and Peter J. Lambert. 2012. “Influence Functions for Policy Impact Analysis.” In John A. Bishop and Rafael Salas, eds., *Inequality, Mobility and Segregation: Essays in Honor of Jacques Silber*. Bigley, UK: Emerald Group Publishing Limited.
 
