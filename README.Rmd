@@ -53,7 +53,7 @@ overview of the functions implemented in the package. For a more detailed
 discussion of decomposition methods, including their respective assumptions and 
 limitations, refer to [Fortin, Lemieux, and Firpo (2011)](https://economics.ubc.ca/wp-content/uploads/sites/38/2013/05/pdf_paper_nicole-fortin-decomposition-methods.pdf) and Firpo et al. (2018). 
 
-In contrast to the existing **oaxaca** ([Hlavac, 2022](https://cran.r-project.org/web/packages/oaxaca/vignettes/oaxaca.pdf)), 
+In contrast to the existing **oaxaca** ([Hlavac, 2022](https://www.rdocumentation.org/packages/oaxaca/versions/0.1.5/topics/oaxaca)), 
 **ddecompose** is not limited to decomposition of mean differences and offers
 'doubly robust' decompositions. The package also complements **Counterfactual** ([Chen et al., 2017](https://journal.r-project.org/archive/2017/RJ-2017-033/RJ-2017-033.pdf)) 
 that models conditional distribution functions instead of using inverse probability

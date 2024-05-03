@@ -78,7 +78,7 @@ assumptions and limitations, refer to [Fortin, Lemieux, and Firpo
 and Firpo et al. (2018).
 
 In contrast to the existing **oaxaca** ([Hlavac,
-2022](https://cran.r-project.org/web/packages/oaxaca/vignettes/oaxaca.pdf)),
+2022](https://www.rdocumentation.org/packages/oaxaca/versions/0.1.5/topics/oaxaca)),
 **ddecompose** is not limited to decomposition of mean differences and
 offers ‘doubly robust’ decompositions. The package also complements
 **Counterfactual** ([Chen et al.,
@@ -493,16 +493,16 @@ summary(gender_gap_decomposition)
 #> 
 #> Composition effect:
 #> 
-#>                           Estimate  Std. Error    [  95%-CI             ]
-#> (Intercept)            0.000000000 0.000000000  0.000000000  0.0000000000
-#> age                   -0.007885058 0.002292319 -0.012377921 -0.0033921942
-#> region                -0.004396870 0.002357891 -0.009018252  0.0002245116
-#> education              0.020456057 0.007611010  0.005538752  0.0353733616
-#> years_worked_civilian -0.075649400 0.007599371 -0.090543892 -0.0607549067
-#> years_worked_military -0.017728902 0.002902154 -0.023417020 -0.0120407853
-#> part_time             -0.066637519 0.009159341 -0.084589498 -0.0486855402
-#> family_responsibility -0.031868276 0.010965483 -0.053360227 -0.0103763246
-#> industry              -0.023159799 0.006351270 -0.035608059 -0.0107115383
+#>                           Estimate   Std. Error     [  95%-CI             ]
+#> (Intercept)            0.000000000 3.725652e-15 -7.302144e-15  7.302144e-15
+#> age                   -0.007885058 2.292319e-03 -1.237792e-02 -3.392194e-03
+#> region                -0.004396870 2.357891e-03 -9.018252e-03  2.245116e-04
+#> education              0.020456057 7.611010e-03  5.538752e-03  3.537336e-02
+#> years_worked_civilian -0.075649400 7.599371e-03 -9.054389e-02 -6.075491e-02
+#> years_worked_military -0.017728902 2.902154e-03 -2.341702e-02 -1.204079e-02
+#> part_time             -0.066637519 9.159341e-03 -8.458950e-02 -4.868554e-02
+#> family_responsibility -0.031868276 1.096548e-02 -5.336023e-02 -1.037632e-02
+#> industry              -0.023159799 6.351270e-03 -3.560806e-02 -1.071154e-02
 ```
 
 `ddecompose` comes with a handy plotting function. To plot the overall
