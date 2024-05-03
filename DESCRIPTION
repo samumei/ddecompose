@@ -4,7 +4,7 @@ Title: Detailed Distributional Decomposition
 Version: 1.0.0
 Authors@R: c(
     person("David", "Gallusser", email = "david.gallusser@sgb.ch", role = c("aut")),
-    person("Samuel", "Meier", email = "samuel.meier+cran@immerda.ch", role = c("aut", "cre")))
+    person("Samuel", "Meier", email = "samuel.meier+ddecompose@immerda.ch", role = c("aut", "cre")))
 Maintainer: Samuel Meier <samuel.meier+ddecompose@immerda.ch>
 Description: Implements the Oaxaca-Blinder decomposition method and generalizations of it that decompose differences in distributional statistics beyond the mean.
     The function ob_decompose() decomposes differences in the mean outcome between two groups into one part explained by different covariates (composition effect) and into another part due to differences in the way covariates are linked to the outcome variable (structure effect). The function further divides the two effects into the contribution of each covariate and allows for weighted 'doubly robust' decompositions. For distributional statistics beyond the mean, the function performs the RIF decomposition proposed by Firpo, Fortin, and Lemieux (2018).
