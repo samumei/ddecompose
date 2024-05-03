@@ -3,7 +3,7 @@
 #' The function plots decomposition terms for quantiles estimated
 #' with \code{dfl_decompose} over the  unit interval.
 #'
-#' @param x an object of class "dfl_decompose", usually, a result of a call to [dfl_decompose()] with code{statistics = "quantiles"}.
+#' @param x an object of class "dfl_decompose", usually, a result of a call to [dfl_decompose()] with [statistics = "quantiles"].
 #' @param ... other parameters to be passed through to plot function.
 #' @param confidence_bands If `TRUE` (default) and if standard errors have been bootstrapped, confidence bands are plotted.
 #' @param confidence_level numeric value between 0 and 1 (default = 0.95) that defines the confidence interval
@@ -123,7 +123,7 @@ plot.dfl_decompose <- function(x,
 #' The function plots decomposition terms for quantiles estimtated
 #' with \code{ob_decompose} over the  unit interval.
 #'
-#' @param x an object of class "ob_decompose", usually, a result of a call to [ob_decompose()] with code{statistics = "quantiles"}.
+#' @param x an object of class "ob_decompose", usually, a result of a call to [ob_decompose()] with [statistics = "quantiles"].
 #' @param ... other parameters to be passed through to plot function.
 #' @param detailed_effects If `TRUE` (default), then the detailed effects are plotted. Otherwise only the total (aggregate) effects are plotted.
 #' @param confidence_bands If `TRUE` and if standard errors have been bootstrapped, confidence bands are plotted.
