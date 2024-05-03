@@ -13,7 +13,7 @@
 )
 }
 \arguments{
-\item{x}{an object of class "dfl_decompose", usually, a result of a call to [dfl_decompose()] with code{statistics = "quantiles"}.}
+\item{x}{an object of class "dfl_decompose", usually, a result of a call to [dfl_decompose()] with [statistics = "quantiles"].}
 
 \item{...}{other parameters to be passed through to plot function.}
 

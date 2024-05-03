@@ -154,9 +154,9 @@ errors can be bootstrapped.
 The observed difference to be decomposed equals the difference between the values
 of the distributional statistic of \code{group} 1 and \code{group} 0, respectively:
 
-\deqn{\DeltaO = \nu1 - \nu0,}
+\deqn{\Delta_O = \nu_1 - \nu_0,}
 
-where \eqn{\nut = \nu(F_g)} denotes the statistics of the outcome distribution
+where \eqn{\nu_t = \nu(F_g)} denotes the statistics of the outcome distribution
 \eqn{F_g} of group \eqn{g}. Group 0 is identified by the lower ranked value
 of the \code{group} variable.
 
@@ -166,24 +166,24 @@ comparison group. The counterfactual combines the covariates distribution
 \eqn{F_1(x)} of group 1 with the conditional outcome distribution \eqn{F_0(y|x)}
 of group 0 and is derived by reweighting group 0
 
-\deqn{F_C(y) = \int F_0(y|x)dF_1(x) = \int F_0(y|x)\Psi(x)dF_0(x),}
+\deqn{F_C(y) = \int F_0(y|x) dF_1(x) = \int F_0(y|x) \Psi(x) dF_0(x),}
 
-where \eqn{\Psi(x)} is the reweighting factor, i.e. the inverse probabilities
+where \eqn{\Psi(x)} is the reweighting factor, i.e., the inverse probabilities
 of belonging to the comparison group conditional on covariates x.
 
 The distributional statistic of the counterfactual distribution,
-\eqn{\nuC = \nu(F_C)}, allows to decompose the observed difference into
-a (wage) structure effect (\eqn{\DeltaS = \nu1 - \nuC}) and a
-composition effect (\eqn{\DeltaC = \nuC - \nu0}).
+\eqn{\nu_C = \nu(F_C)}, allows to decompose the observed difference into
+a (wage) structure effect (\eqn{\Delta_S = \nu_1 - \nu_C}) and a
+composition effect (\eqn{\Delta_C = \nu_C - \nu_0}).
 
 If \code{reference_0=FALSE}, then the counterfactual is derived by combining
 the covariates distribution of group 0 with the conditional outcome
 distribution of group 1 and, thus, reweighting group 1
 
-\deqn{F_C(y) = \int F_1(y|x)dF_0(x) = \int F_1(y|x)\Psi(x)dF_1(x).}
+\deqn{F_C(y) = \int F_1(y|x) dF_0(x) = \int F_1(y|x) \Psi(x) dF_1(x).}
 
-The composition effect becomes \eqn{\DeltaC = \nu1 - \nuC} and the
-structure effect \eqn{\DeltaS = \nuC - \nu0}, respectively.
+The composition effect becomes \eqn{\Delta_C = \nu_1 - \nu_C} and the
+structure effect \eqn{\Delta_S = \nu_C - \nu_0}, respectively.
 
 The covariates are defined in \code{formula}. The reweighting factor is
 estimated in the pooled sample with observations from both groups. \code{method = "logit"}
@@ -197,7 +197,7 @@ the reference group and the fitted reweighting factors.
 
 \code{formula} allows to specify interaction terms in the conditional
 probability models. If you are interested in an aggregate decomposition,
-then all covariates have to be entered at once, e.g. \code{Y ~ X + Z}.
+then all covariates have to be entered at once, e.g., \code{Y ~ X + Z}.
 
 The procedure allows for sequential decomposition of the composition effect.
 In this case, more than one reweighting factor based on different sets of
@@ -212,23 +212,23 @@ respectively.
 In this two-fold sequential decomposition, we have the detailed composition
 effects
 
-\deqn{\DeltaC_X = \nu1 - \nuCX}
+\deqn{\DeltaC_X = \nu_1 - \nu_{CX}}
 and
-\deqn{\DeltaC_Z = \nuCX - \nu_C}
+\deqn{\DeltaC_Z = \nu_{CX} - \nu_C}
 
-which sum up to the aggregate composition effect \eqn{\DeltaC}.
- \eqn{\nuC} is definied as above. It captures the contribution of all
-covariates (i.e., X and Z). In contrast, \eqn{\nuCX} corresponds
+which sum up to the aggregate composition effect \eqn{\Delta_C}.
+\eqn{\nu_C} is defined as above. It captures the contribution of all
+covariates (i.e., X and Z). In contrast, \eqn{\nu_{CX}} corresponds
 to the statistic of the counterfactual distribution isolating the contribution
 of covariate(s) X in contrast to the one of covariate(s) Z.
 
 If \code{right_to_left=TRUE}, then the counterfactual is defined as
-\deqn{F_CX(y) = \iint F_0(y|x,z)dF_0(x|z)dF_1(z),}
+\deqn{F_{CX}(y) = \iint F_0(y|x,z) dF_0(x|z) dF_1(z),}
 
 where \eqn{F_1(x|z)} is the conditional distribution of X given Z of
 group 1 and \eqn{F_0(z)} the distribution of Z. If \code{right_to_left=FALSE},
 we have
-\deqn{F_CX(y) = \iint F_{0}(y|x,z)dF_1(x|z)dF_0(z).}
+\deqn{F_{CX}(y) = \iint F_0(y|x,z) dF_1(x|z) dF_0(z).}
 
 Note that it is possible to specify the detailed models in every part of \code{formula}.
 This is useful if you want to estimate in every step a fully saturated model,
