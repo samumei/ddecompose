@@ -148,9 +148,9 @@
 #' In this two-fold sequential decomposition, we have the detailed composition
 #' effects
 #'
-#' \deqn{\DeltaC_X = \nu_1 - \nu_{CX}}
+#' \deqn{\Delta_{C_X} = \nu_1 - \nu_{CX},}
 #' and
-#' \deqn{\DeltaC_Z = \nu_{CX} - \nu_C}
+#' \deqn{\Delta_{C_Z} = \nu_{CX} - \nu_C,}
 #'
 #' which sum up to the aggregate composition effect \eqn{\Delta_C}.
 #' \eqn{\nu_C} is defined as above. It captures the contribution of all
@@ -234,6 +234,7 @@
 #' ## Example from handbook chapter of Fortin, Lemieux, and Firpo (2011: 67)
 #' ## with a sample of the original data
 #'
+#' \dontrun{
 #' data("men8305")
 #'
 #' flf_model <- log(wage) ~ union * (education + experience) + education * experience
@@ -261,7 +262,7 @@
 #' summary(flf_male_inequality_reference_0305)
 #'
 #' # Bootstrap standard errors (using smaller sample for the sake of illustration)
-#' \dontrun{
+#'
 #' set.seed(123)
 #' flf_male_inequality_boot <- dfl_decompose(flf_model,
 #'   data = men8305[1:1000, ],
@@ -280,13 +281,14 @@
 #'
 #' # Plot quantile differences with uniform confidence intervals
 #' plot(flf_male_inequality_boot, uniform_bands = TRUE)
-#' }
+#'
 #'
 #'
 #' ## Sequential decomposition
 #'
 #' # Here we distinguish the contribution of education and experience
 #' # from the contribution of unionization conditional on education and experience.
+#'
 #'
 #' model_sequential <- log(wage) ~ union * (education + experience) +
 #'   education * experience |
@@ -354,6 +356,7 @@
 #' )
 #'
 #'
+#'
 #' ## Pass a custom statistic function to decompose income share of top 10%
 #'
 #' top_share <- function(dep_var,
@@ -373,7 +376,7 @@
 #'   custom_statistic_function = top_share
 #' )
 #' summary(flf_male_inequality_custom_stat)
-#'
+#' }
 dfl_decompose <- function(formula,
                           data,
                           weights,

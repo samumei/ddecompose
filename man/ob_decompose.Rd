@@ -295,6 +295,7 @@ decompose_male_as_reference_robust_rf <- ob_decompose(
   method = "random_forest"
 )
 
+\dontrun{
 # Reweighted RIF Regression Decomposition
 data("men8305")
 
@@ -320,7 +321,7 @@ deciles_decomposition <- ob_decompose(
   rifreg_probs = c(1:9) / 10
 )
 
-plot(deciles_decomposition)
+# plot(deciles_decomposition)
 
 # RIF regression decomposition with custom function
 
@@ -333,8 +334,8 @@ custom_variance_function <- function(dep_var, weights, probs = NULL) {
   return(rif)
 }
 
-custom_decomposition <-
-  ob_decompose(
+ custom_decomposition <-
+   ob_decompose(
     formula = model_rifreg,
     data = men8305,
     group = year,
@@ -342,7 +343,7 @@ custom_decomposition <-
     rifreg_statistic = "custom",
     custom_rif_function = custom_variance_function
   )
-
+}
 }
 \references{
 Firpo, Sergio, Nicole M. Fortin, and Thomas Lemieux. 2018.

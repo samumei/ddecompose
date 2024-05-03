@@ -257,6 +257,7 @@
 #'   method = "random_forest"
 #' )
 #'
+#' \dontrun{
 #' # Reweighted RIF Regression Decomposition
 #' data("men8305")
 #'
@@ -282,7 +283,7 @@
 #'   rifreg_probs = c(1:9) / 10
 #' )
 #'
-#' plot(deciles_decomposition)
+#' # plot(deciles_decomposition)
 #'
 #' # RIF regression decomposition with custom function
 #'
@@ -295,8 +296,8 @@
 #'   return(rif)
 #' }
 #'
-#' custom_decomposition <-
-#'   ob_decompose(
+#'  custom_decomposition <-
+#'    ob_decompose(
 #'     formula = model_rifreg,
 #'     data = men8305,
 #'     group = year,
@@ -304,7 +305,7 @@
 #'     rifreg_statistic = "custom",
 #'     custom_rif_function = custom_variance_function
 #'   )
-#'
+#' }
 ob_decompose <- function(formula,
                          data,
                          group,
