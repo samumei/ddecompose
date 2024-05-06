@@ -9,8 +9,12 @@
 #' @param weights numeric vector of non-negative observation weights, hence of same length as \code{dep_var}.
 #' @param group name of the a binary variable (numeric or factor) identifying the two groups that will be compared.
 #'
+#' @return a list containing the adjusted formula, adjusted data, adjusted coefficient names,
+#' and the normalized regressors for prediction and the
+#'
 #' @references Gardeazabal, Javier, and Arantza Ugidos. 2004. "More on identification in detailed wage decompositions."
 #' \emph{Review of Economics and Statistics} 86(4): 1034-1036.
+#'
 #'
 #' @export
 #' @examples

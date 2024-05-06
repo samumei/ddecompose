@@ -13,6 +13,9 @@ estimate_iq_range(dep_var, weights, probs = c(0.1, 0.9))
 
 \item{probs}{a vector with probabilities whose range defines the interquantile range}
 }
+\value{
+a numeric value indicating the (weighted) interquantile range
+}
 \description{
 Interquantile range
 }

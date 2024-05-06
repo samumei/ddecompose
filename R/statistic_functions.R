@@ -141,6 +141,9 @@ get_normalized_difference <- function(formula,
 #' @param dep_var numeric vector of outcome variable
 #' @param weights numeric vector of weights
 #' @param probs a vector with probabilities whose range defines the interquantile range
+#'
+#' @return a numeric value indicating the (weighted) interquantile ratio
+#'
 #' @export
 #'
 estimate_iq_ratio <- function(dep_var,
@@ -157,6 +160,8 @@ estimate_iq_ratio <- function(dep_var,
 #' @param dep_var numeric vector of outcome variable
 #' @param weights numeric vector of weights
 #' @param probs a vector with probabilities whose range defines the interquantile range
+#'
+#' @return a numeric value indicating the (weighted) interquantile range
 #'
 #' @export
 #'

@@ -98,6 +98,26 @@
 #' Additional parameters can also be passed to the \link[stats]{density} function used
 #' to estimate the RIF of quantiles.
 #'
+#' @return an object of class \code{ob_decompose} containing a data.frame with the
+#' decomposition results for the quantiles and for the other distributional
+#' statistics, respectively, a data.frame with the estimated reweighting factor
+#' for every observation, a data.frame with sample quantiles of the reweighting
+#' factors and a list with standard errors for the decomposition terms, the
+#' quantiles of the reweighting factor, the bootstrapped
+#' Kolmogorov-Smirnov distribution to construct uniform confidence bands for
+#' quantiles, as well as a list with the normalized differences between the
+#' covariate means of the comparison group and the reweighted reference group.
+#'
+#' @return A list object of class `ob_decompose` containing the following components:
+#'
+#' - `ob_decompose`: A list containing the decomposition results, covariance matrix, model fits and more detailed result information.
+#' - `group_variable_name`: A string indicating the name of the group variable.
+#' - `group_variable_levels`: A string indicating the levels of the group variable.
+#' - `reference_group`: A string indicating the which level of the group variable was used as reference group.
+#' - `reweighting_estimates`: A list containing the reweighting estimates if \code{reweighting=TRUE}, else (\code{NA})
+#' - `input_parameters`: A list of input parameters used for the estimation.
+#'
+#'
 #'
 #' @details
 #'
@@ -257,7 +277,7 @@
 #'   method = "random_forest"
 #' )
 #'
-#' \dontrun{
+#' \donttest{
 #' # Reweighted RIF Regression Decomposition
 #' data("men8305")
 #'
@@ -1036,7 +1056,6 @@ bootstrap_estimate_ob_decompose <- function(formula_decomposition,
       decompose_estimates <- list(decompose_estimates[["decomposition_terms"]])
     }
   }, error = function(e) {
-    print(e)
     stop(e)
   }, finally = {
     sink()

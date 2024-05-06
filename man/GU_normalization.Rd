@@ -15,6 +15,10 @@ GU_normalization(formula, data, weights, group)
 
 \item{group}{name of the a binary variable (numeric or factor) identifying the two groups that will be compared.}
 }
+\value{
+a list containing the adjusted formula, adjusted data, adjusted coefficient names,
+and the normalized regressors for prediction and the
+}
 \description{
 The function performs the normalization of the factor variables
 proposed by Gardeazabal and Ugidos (2004, GU) to estimate detailed decompositions

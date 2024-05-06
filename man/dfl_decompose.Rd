@@ -263,7 +263,7 @@ is estimated as in Chen et al. (2017).
 ## Example from handbook chapter of Fortin, Lemieux, and Firpo (2011: 67)
 ## with a sample of the original data
 
-\dontrun{
+\donttest{
 data("men8305")
 
 flf_model <- log(wage) ~ union * (education + experience) + education * experience
