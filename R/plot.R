@@ -147,7 +147,7 @@ plot.dfl_decompose <- function(x,
 #'   years_worked_military + part_time + industry
 #'
 #' # plotting RIF regression decomposition of deciles
-#' \dontrun{
+#' \donttest{
 #' decompose_rifreg_deciles <- ob_decompose(
 #'   formula = mod1,
 #'   data = nlys00,

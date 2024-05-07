@@ -49,7 +49,7 @@ mod1 <- log(wage) ~ age + central_city + msa + region + black +
   years_worked_military + part_time + industry
 
 # plotting RIF regression decomposition of deciles
-\dontrun{
+\donttest{
 decompose_rifreg_deciles <- ob_decompose(
   formula = mod1,
   data = nlys00,
