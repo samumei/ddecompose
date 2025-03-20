@@ -89,13 +89,13 @@ mean.
 
 ## Installation
 
-You can hopefully soon install the CRAN version of `ddecompose`
+You can install the CRAN version of `ddecompose`
 
 ``` r
 install.packages("ddecompose")
 ```
 
-Until now, refer to the latest development version from GitHub:
+Or refer to the latest development version from GitHub:
 
 ``` r
 install.packages("devtools")
@@ -336,7 +336,7 @@ estimating the pure structure effect and the reweighting error as
 $$\widehat\Delta^\nu_{S,R} =  \widehat\Delta^\nu_{S,p} + \widehat\Delta^\nu_{S,e} = (\widehat \beta_{1,0} - \widehat \beta_{C,0}) + \sum^K_{k=1}\overline X_{1,k}(\widehat \beta_{1,k} - \widehat \beta_{C,k}) + \sum^K_{k=1} (\overline X_{1,k} - \overline X_{C,k})\widehat \beta_{C,k}$$
 
 and $\widehat\Delta^\nu_{X,p}$ and $\widehat\Delta^\nu_{X,e}$ estimating
-the pure coefficient effect and the specification error:
+the pure composition effect and the specification error:
 
 $$\widehat\Delta^\nu_{X,R} = \widehat\Delta^\nu_{X,p} + \widehat\Delta^\nu_{X,e} = \sum^K_{k=1} (\overline X_{C,k} - \overline X_{0,k})\widehat \beta_{0,k} + (\widehat \beta_{C,0} - \widehat \beta_{0,0}) + \sum^K_{k=1}\overline X_{C,k}(\widehat \beta_{C,k} - \widehat \beta_{0,k})$$
 with the RIF regression coefficients $\widehat \beta$ and the covariate
